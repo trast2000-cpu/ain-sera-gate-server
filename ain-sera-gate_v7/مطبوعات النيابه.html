@@ -1,0 +1,1620 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام مطبوعات نيابة مرور عين الصيرة</title>
+    <link rel="stylesheet" href="fontawesome-free-6.4.0-web/css/all.min.css">
+
+<link href="Cairo.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-color: #3b6fd4;
+            --primary-dark: #2a52a8;
+            --secondary-color: #64748b;
+            --bg-light: #edf0f7;
+            --bg-white: #f5f7fc;
+            --sidebar-bg: #1e2d4a;
+            --sidebar-header-bg: #162238;
+            --sidebar-item-hover: #334a75;
+            --sidebar-item-active: #94a3b8;
+            --sidebar-text: #c8d6f0;
+            --sidebar-text-muted: #7a92b8;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --sidebar-width: 320px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --border-color: #d1daea;
+            --shadow: 0 4px 12px rgba(30, 45, 74, 0.12);
+            --glass: rgba(245, 247, 252, 0.9);
+            --accent-orange: #f59e0b;
+            --accent-red: #ef4444;
+            --accent-green: #10b981;
+            --header-bg: linear-gradient(135deg, #1e2d4a 0%, #2a3f63 100%);
+        }
+
+        [data-theme="dark"] {
+            --bg-light: #0f172a;
+            --bg-white: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+            --glass: rgba(15, 23, 42, 0.8);
+            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+            --sidebar-bg: transparent;
+            --sidebar-header-bg: transparent;
+            --sidebar-item-hover: rgba(30, 41, 59, 0.7);
+            --sidebar-text: #f1f5f9;
+            --sidebar-text-muted: #64748b;
+            --header-bg: linear-gradient(135deg, #020617 0%, #0f172a 100%);
+        }
+
+        [data-theme="dark"] .sidebar { background: transparent; border-left: none; box-shadow: none; }
+        [data-theme="dark"] .sidebar-header { background: transparent; border-bottom: 1px solid rgba(255,255,255,0.06); }
+        [data-theme="dark"] .accordion-item { background: transparent; border: none; margin-bottom: 4px; }
+        [data-theme="dark"] .accordion-header {
+            background: rgba(59,111,212,0.7); backdrop-filter: blur(8px);
+            border-radius: 10px; border: 1px solid rgba(59,111,212,0.5);
+            box-shadow: 0 6px 22px rgba(59,111,212,0.4), 0 2px 8px rgba(0,0,0,0.4);
+            margin-bottom: 4px; color: white;
+        }
+        [data-theme="dark"] .accordion-header:hover {
+            background: rgba(59,111,212,0.85); border-color: rgba(59,111,212,0.65);
+            box-shadow: 0 8px 28px rgba(59,111,212,0.55), 0 2px 10px rgba(0,0,0,0.45);
+            transform: translateX(-2px);
+        }
+        [data-theme="dark"] .accordion-header.open {
+            background: rgba(42,82,168,0.85); border-color: rgba(42,82,168,0.6);
+            box-shadow: 0 4px 18px rgba(42,82,168,0.45), 0 2px 8px rgba(0,0,0,0.5), inset 0 2px 6px rgba(0,0,0,0.25);
+        }
+        [data-theme="dark"] .accordion-body { background: transparent; }
+        [data-theme="dark"] .menu-item {
+            background: rgba(255,255,255,0.04); backdrop-filter: blur(6px);
+            margin: 3px 2px; border-radius: 9px;
+            border: 1px solid rgba(255,255,255,0.07); border-bottom: 1px solid rgba(255,255,255,0.07);
+            box-shadow: 0 3px 12px rgba(0,0,0,0.35), 0 1px 0 rgba(255,255,255,0.05) inset;
+            transition: var(--transition);
+        }
+        [data-theme="dark"] .menu-item:hover {
+            background: rgba(59,111,212,0.18); border-color: rgba(59,111,212,0.35);
+            box-shadow: 0 6px 22px rgba(59,111,212,0.3), 0 2px 8px rgba(0,0,0,0.4);
+            transform: translateX(-3px); padding-right: 35px;
+        }
+        [data-theme="dark"] .menu-item.active {
+            background: rgba(59,111,212,0.35); border-color: rgba(59,111,212,0.55);
+            box-shadow: 0 6px 24px rgba(59,111,212,0.45), 0 2px 8px rgba(0,0,0,0.4);
+        }
+        [data-theme="dark"] .accordion-controls button {
+            background: rgba(255,255,255,0.05); backdrop-filter: blur(6px);
+            border: 1px solid rgba(255,255,255,0.08);
+            box-shadow: 0 3px 12px rgba(0,0,0,0.35), 0 1px 0 rgba(255,255,255,0.05) inset;
+        }
+        [data-theme="dark"] .accordion-controls button:hover {
+            background: rgba(59,111,212,0.6); border-color: rgba(59,111,212,0.5);
+            box-shadow: 0 6px 20px rgba(59,111,212,0.4);
+        }
+        [data-theme="dark"] .search-input {
+            background: rgba(255,255,255,0.05); backdrop-filter: blur(6px);
+            border: 1px solid rgba(255,255,255,0.09);
+            box-shadow: 0 3px 12px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
+
+        body {
+            background-color: var(--bg-light); color: var(--text-main);
+            height: 100vh; overflow: hidden; display: flex; transition: var(--transition);
+        }
+        body[data-theme="dark"] {
+            background-color: #0f172a;
+            background-image: radial-gradient(rgba(248, 250, 252, 0.3) 1.4px, transparent 1.4px);
+            background-size: 32px 32px; background-position: center;
+        }
+
+        .sidebar {
+            width: var(--sidebar-width); background-color: var(--sidebar-bg);
+            border-left: 1px solid rgba(255,255,255,0.07);
+            display: flex; flex-direction: column; z-index: 100;
+            transition: var(--transition); box-shadow: 4px 0 20px rgba(0,0,0,0.15);
+        }
+
+        .sidebar-header { padding: 14px 16px; background: var(--sidebar-header-bg); border-bottom: 1px solid rgba(255,255,255,0.07); }
+        .search-container { position: relative; margin-top: 10px; }
+        .search-input {
+            width: 100%; padding: 10px 40px 10px 12px; border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.07);
+            color: var(--sidebar-text); outline: none; transition: var(--transition);
+        }
+        .search-input::placeholder { color: var(--sidebar-text-muted); }
+        .search-input:focus { border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(59, 111, 212, 0.25); }
+        .search-icon { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--sidebar-text-muted); }
+        .sidebar-content { flex: 1; overflow-y: auto; padding: 8px 10px; }
+
+        .accordion-controls { display: flex; gap: 6px; margin-bottom: 8px; }
+        .accordion-controls button {
+            flex: 1; padding: 5px 8px; font-size: 0.78rem; border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.09); background: rgba(255,255,255,0.05);
+            color: var(--sidebar-text-muted); cursor: pointer; display: flex; align-items: center;
+            justify-content: center; gap: 5px; transition: var(--transition); font-weight: 700;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.3), 0 1px 0 rgba(255,255,255,0.05) inset;
+        }
+        .accordion-controls button:hover { background: var(--primary-color); color: white; border-color: var(--primary-color); box-shadow: 0 6px 18px rgba(59,111,212,0.4), 0 2px 8px rgba(0,0,0,0.3); }
+
+        /* ===== وضع التعديل ===== */
+        .btn-edit-mode {
+            padding: 8px 18px; border-radius: 10px; border: 2px dashed rgba(251,191,36,0.6);
+            background: rgba(251,191,36,0.08);
+            color: #fbbf24; cursor: pointer; display: flex; align-items: center;
+            gap: 8px; font-size: 0.9rem; font-weight: 700; transition: var(--transition);
+            white-space: nowrap;
+        }
+        .btn-edit-mode:hover { background: rgba(251,191,36,0.18); border-color: #fbbf24; }
+        .btn-edit-mode.active {
+            background: linear-gradient(135deg, rgba(251,191,36,0.9), rgba(245,158,11,0.9));
+            color: #1a2340; border: 2px solid transparent;
+            box-shadow: 0 4px 14px rgba(251,191,36,0.5);
+        }
+        /* إخفاء أزرار التعديل افتراضياً */
+        .btn-add-category,
+        .cat-btn-add, .cat-btn-del,
+        .item-del-btn { display: none !important; }
+        /* إظهارها عند تفعيل وضع التعديل */
+        body.edit-mode .btn-add-category,
+        body.edit-mode .cat-btn-add,
+        body.edit-mode .cat-btn-del,
+        body.edit-mode .item-del-btn { display: inline-flex !important; }
+
+        /* ===== زر إضافة قسم جديد ===== */
+        .btn-add-category {
+            width: 100%; padding: 9px 14px; border-radius: 10px; border: none;
+            background: linear-gradient(135deg, rgba(16,185,129,0.85), rgba(5,150,105,0.85));
+            color: white; cursor: pointer; align-items: center; justify-content: center;
+            gap: 8px; font-size: 0.9rem; font-weight: 700; transition: var(--transition);
+            box-shadow: 0 4px 14px rgba(16,185,129,0.4); margin-bottom: 8px;
+        }
+        .btn-add-category:hover { filter: brightness(1.1); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(16,185,129,0.5); }
+
+        /* ===== زر حفظ الملف ===== */
+        .btn-save-file {
+            background: linear-gradient(135deg, #10b981, #059669);
+            border: none; color: white; padding: 8px 18px; border-radius: 10px;
+            cursor: pointer; display: flex; align-items: center; gap: 8px;
+            font-size: 0.9rem; font-weight: 700; transition: var(--transition);
+            box-shadow: 0 4px 14px rgba(16,185,129,0.4);
+        }
+        .btn-save-file:hover { filter: brightness(1.1); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(16,185,129,0.5); }
+
+        .accordion-item { margin-bottom: 6px; border-radius: 10px; overflow: visible; border: none; background: transparent; }
+        .accordion-header {
+            padding: 9px 14px; background: var(--primary-color); color: white; cursor: pointer;
+            display: flex; align-items: center; justify-content: space-between; transition: var(--transition);
+            user-select: none; border-radius: 10px; border: 1px solid rgba(59,111,212,0.5);
+            box-shadow: 0 6px 22px rgba(59,111,212,0.45), 0 2px 8px rgba(0,0,0,0.3); margin-bottom: 4px;
+        }
+        .accordion-header:hover { background: var(--primary-dark); box-shadow: 0 8px 28px rgba(59,111,212,0.6), 0 2px 10px rgba(0,0,0,0.35); transform: translateX(-2px); }
+        .accordion-header i.chevron { transition: var(--transition); font-size: 0.75rem; color: rgba(255,255,255,0.7); }
+        .accordion-header.open { background: var(--primary-dark); color: white; border-color: rgba(42,82,168,0.7); box-shadow: 0 4px 18px rgba(42,82,168,0.5), 0 2px 8px rgba(0,0,0,0.4), inset 0 2px 6px rgba(0,0,0,0.2); }
+        .accordion-header.open i.chevron { transform: rotate(180deg); color: white; }
+        .accordion-body { max-height: 0; overflow: hidden; transition: max-height 0.4s ease-out; background: transparent; padding: 0 2px; }
+        .accordion-body.open { max-height: 2000px; }
+
+        /* أزرار التحكم على رأس القسم */
+        .cat-action-btns { display: flex; align-items: center; gap: 4px; }
+        .cat-action-btns button {
+            background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25);
+            color: white; width: 26px; height: 26px; border-radius: 6px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; font-size: 0.75rem;
+            transition: var(--transition); flex-shrink: 0;
+        }
+        .cat-action-btns button:hover { transform: scale(1.1); }
+        .cat-btn-add:hover { background: rgba(16,185,129,0.7) !important; border-color: rgba(16,185,129,0.8) !important; }
+        .cat-btn-del:hover { background: rgba(239,68,68,0.7) !important; border-color: rgba(239,68,68,0.8) !important; }
+
+        .menu-item {
+            padding: 8px 30px 8px 14px; cursor: pointer; display: flex; align-items: center;
+            gap: 10px; transition: var(--transition); font-size: 0.88rem; color: var(--sidebar-text);
+            border-bottom: none; border-radius: 9px; margin: 3px 2px; background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.07); box-shadow: 0 3px 10px rgba(0,0,0,0.3), 0 1px 0 rgba(255,255,255,0.05) inset;
+        }
+        .menu-item:hover {
+            background: var(--sidebar-item-hover); color: white; padding-right: 35px;
+            border-color: rgba(255,255,255,0.12); box-shadow: 0 6px 18px rgba(0,0,0,0.4), 0 2px 8px rgba(59,111,212,0.15); transform: translateX(-3px);
+        }
+        .menu-item.active {
+            background: var(--sidebar-item-active); color: white; font-weight: 600;
+            border-color: rgba(59,111,212,0.5); box-shadow: 0 6px 22px rgba(59,111,212,0.4), 0 2px 8px rgba(0,0,0,0.3);
+        }
+        .menu-item .item-del-btn {
+            margin-right: auto; background: rgba(239,68,68,0.2); border: 1px solid rgba(239,68,68,0.4);
+            color: rgba(255,100,100,0.9); width: 22px; height: 22px; border-radius: 5px;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            font-size: 0.7rem; transition: var(--transition); flex-shrink: 0;
+        }
+        .menu-item .item-del-btn:hover { background: rgba(239,68,68,0.6); color: white; transform: scale(1.1); }
+
+        .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; }
+        .top-bar {
+            height: 70px; background: var(--header-bg); border-bottom: 1px solid rgba(255,255,255,0.07);
+            display: flex; align-items: center; justify-content: space-between; padding: 0 30px;
+            z-index: 90; box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+        }
+        .brand { display: flex; align-items: center; gap: 15px; }
+        .brand img { width: 45px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1)); }
+        .brand h1 { font-size: 1.9rem; font-weight: 800; color: #ffffff; }
+        .top-actions { display: flex; align-items: center; gap: 12px; }
+        .theme-toggle {
+            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+            width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex;
+            align-items: center; justify-content: center; color: white; transition: var(--transition);
+        }
+        .theme-toggle:hover { background: var(--primary-color); color: white; transform: rotate(20deg); }
+
+        .viewer-area {
+            flex: 1; padding: 20px; overflow: hidden; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; background-color: var(--bg-light);
+            background-image: radial-gradient(var(--primary-color) 1px, transparent 1px);
+            background-size: 32px 32px; background-position: center; opacity: 1; transition: var(--transition);
+        }
+        [data-theme="light"] .viewer-area { background-image: radial-gradient(rgba(59, 111, 212, 0.35) 1.8px, transparent 1.8px); }
+        [data-theme="dark"] .viewer-area { background-color: transparent; background-image: none; }
+
+        .welcome-card {
+            background: var(--bg-white); padding: 60px; border-radius: 24px; text-align: center;
+            box-shadow: var(--shadow); max-width: 600px; margin-top: 100px; border: 1px solid var(--border-color);
+            animation: fadeInUp 0.6s ease-out;
+        }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .welcome-card i { font-size: 4rem; color: var(--primary-color); margin-bottom: 20px; }
+
+        .preview-container {
+            display: none; width: 100%; height: 100%; flex-direction: row-reverse;
+            align-items: center; justify-content: center; gap: 30px; padding: 20px;
+            position: relative; animation: fadeInScale 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        @keyframes fadeInScale { from { opacity: 0; transform: scale(0.98) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+
+        .pdf-wrapper {
+            flex: 0 0 auto; background: white; border-radius: 15px; box-shadow: var(--shadow);
+            position: relative; border: 1px solid var(--border-color); overflow: hidden; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .pdf-wrapper.portrait { width: 600px; height: calc(100vh - 150px); max-height: 848px; }
+        .pdf-wrapper.landscape { width: calc(100% - 300px); max-width: 1000px; height: auto; aspect-ratio: 1.414 / 1; }
+        .pdf-frame { width: 100%; height: 100%; border: none; display: block; }
+
+        .side-toolbar {
+            display: flex; flex-direction: column; gap: 15px; background: var(--bg-white);
+            padding: 20px; border-radius: 20px; border: 1px solid var(--border-color);
+            box-shadow: var(--shadow); width: 240px; height: fit-content; transition: var(--transition);
+        }
+        .toolbar-divider { height: 1px; background: var(--border-color); margin: 10px 0; width: 100%; }
+
+        .badge-orientation {
+            background: var(--primary-color); color: white; padding: 10px; border-radius: 12px;
+            font-size: 0.9rem; font-weight: 700; display: flex; align-items: center; justify-content: center;
+            gap: 8px; text-align: center; transition: var(--transition); cursor: pointer; user-select: none;
+        }
+        .badge-orientation:hover { filter: brightness(1.1); transform: translateY(-2px); }
+        .badge-orientation.landscape { background: var(--accent-orange); }
+
+        .btn {
+            padding: 12px 28px; border-radius: 12px; border: none; cursor: pointer; font-weight: 700;
+            display: flex; align-items: center; justify-content: center; gap: 10px; transition: var(--transition);
+            font-size: 1rem; text-decoration: none;
+        }
+        .btn-primary { background: var(--primary-color); color: white; }
+        .btn-primary:hover { background: var(--primary-dark); transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(26, 86, 219, 0.3); }
+        .btn-outline { background: var(--bg-white); border: 2px solid var(--primary-color); color: var(--primary-color); }
+        .btn-outline:hover { background: rgba(26, 86, 219, 0.05); transform: translateY(-2px); }
+
+        .status-bar {
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--primary-color);
+            color: white; padding: 10px 25px; border-radius: 30px; box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            display: none; align-items: center; gap: 12px; z-index: 1000; animation: slideUp 0.3s ease-out;
+        }
+        @keyframes slideUp { from { bottom: -50px; } to { bottom: 20px; } }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--secondary-color); }
+
+        /* ====================================================== */
+        /* =================== المودال ========================= */
+        /* ====================================================== */
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.55); backdrop-filter: blur(4px);
+            z-index: 9000; display: none; align-items: center; justify-content: center;
+            animation: fadeIn 0.2s ease;
+        }
+        .modal-overlay.open { display: flex; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .modal-box {
+            background: var(--bg-white); border-radius: 20px; padding: 30px; width: 460px; max-width: 95vw;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.3); border: 1px solid var(--border-color);
+            animation: popIn 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        @keyframes popIn { from { opacity: 0; transform: scale(0.92) translateY(20px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+
+        .modal-title {
+            font-size: 1.2rem; font-weight: 800; color: var(--text-main); margin-bottom: 20px;
+            padding-bottom: 12px; border-bottom: 2px solid var(--border-color);
+            display: flex; align-items: center; gap: 10px;
+        }
+        .modal-title i { color: var(--primary-color); }
+
+        .modal-field { margin-bottom: 16px; }
+        .modal-field label { display: block; font-size: 0.85rem; font-weight: 700; color: var(--text-muted); margin-bottom: 6px; }
+        .modal-field input, .modal-field select {
+            width: 100%; padding: 10px 14px; border: 1.5px solid var(--border-color); border-radius: 10px;
+            font-size: 0.95rem; background: var(--bg-light); color: var(--text-main); outline: none;
+            transition: var(--transition); font-family: 'Cairo', sans-serif;
+        }
+        .modal-field input:focus, .modal-field select:focus { border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(59,111,212,0.15); }
+
+        .modal-hint { font-size: 0.78rem; color: var(--text-muted); margin-top: 5px; }
+
+        .path-input-group { display: flex; align-items: center; border: 1.5px solid var(--border-color); border-radius: 8px; overflow: hidden; background: var(--card-bg); transition: border-color 0.2s, box-shadow 0.2s; }
+        .path-input-group:focus-within { border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(59,111,212,0.15); }
+        .path-prefix, .path-suffix { padding: 0 10px; background: var(--sidebar-bg); color: var(--text-muted); font-size: 0.88rem; font-weight: 700; white-space: nowrap; border: none; line-height: 40px; height: 40px; }
+        .path-prefix { border-left: 1.5px solid var(--border-color); }
+        .path-suffix { border-right: 1.5px solid var(--border-color); }
+        .path-input-group input { border: none !important; box-shadow: none !important; outline: none; background: transparent; height: 40px; padding: 0 10px; color: var(--text-color); font-size: 0.95rem; width: 100%; }
+
+        .modal-actions { display: flex; gap: 10px; margin-top: 22px; }
+        .modal-actions button { flex: 1; padding: 11px; border-radius: 10px; border: none; font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: var(--transition); }
+        .modal-btn-confirm { background: var(--primary-color); color: white; }
+        .modal-btn-confirm:hover { background: var(--primary-dark); transform: translateY(-1px); }
+        .modal-btn-cancel { background: var(--bg-light); color: var(--text-muted); border: 1.5px solid var(--border-color) !important; }
+        .modal-btn-cancel:hover { background: var(--border-color); }
+
+        /* ====================================================== */
+        /* ============== نماذج النماذج التفاعلية =============== */
+        /* ====================================================== */
+        .leave-container {
+            display: none; width: 100%; height: 100%; flex-direction: row; align-items: flex-start;
+            justify-content: center; gap: 30px; padding: 20px; overflow-y: auto;
+            animation: fadeInScale 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .leave-form-panel {
+            flex: 0 0 320px; background: var(--bg-white); border: 2px solid var(--primary-color);
+            border-radius: 20px; box-shadow: 0 8px 32px rgba(59, 111, 212, 0.2), var(--shadow);
+            padding: 20px; display: flex; flex-direction: column; gap: 12px; height: fit-content;
+            max-height: calc(100vh - 110px); overflow-y: auto; position: relative;
+            background: linear-gradient(135deg, var(--bg-white) 0%, rgba(59, 111, 212, 0.03) 100%);
+        }
+        .leave-form-panel::before {
+            content: ''; position: absolute; top: 0; right: 0; bottom: 0; left: 0;
+            border: 2px solid transparent; border-radius: 20px;
+            background: linear-gradient(135deg, rgba(59, 111, 212, 0.5) 0%, rgba(100, 116, 139, 0.3) 100%) border-box;
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none; opacity: 0.6;
+        }
+
+        @media print {
+            .leave-form-panel::before { display: none !important; }
+            .leave-form-panel { border: 1px solid var(--border-color) !important; box-shadow: none !important; background: var(--bg-white) !important; }
+        }
+
+        .leave-form-panel h3 {
+            font-size: 1.1rem; font-weight: 800; color: var(--text-main); margin-bottom: 4px;
+            text-align: center; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;
+        }
+
+        .leave-form-group { display: flex; flex-direction: row; align-items: center; gap: 8px; position: relative; z-index: 1; }
+        .leave-form-group label { font-size: 0.8rem; font-weight: 700; color: var(--text-muted); white-space: nowrap; min-width: fit-content; flex-shrink: 0; }
+        
+        .leave-form-group input,
+        .leave-form-group select,
+        .leave-form-group textarea {
+            padding: 8px 10px; border: 1.5px solid var(--border-color); border-radius: 8px;
+            font-size: 0.9rem; font-family: 'Cairo', sans-serif; flex: 1; min-width: 120px;
+            background: var(--bg-light); color: var(--text-main); outline: none; transition: var(--transition); box-sizing: border-box;
+        }
+        .leave-form-group textarea { resize: vertical; min-height: 80px; }
+        .leave-form-group input:focus, .leave-form-group select:focus, .leave-form-group textarea:focus { border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(59,111,212,0.15); }
+
+        .leave-form-row { display: flex; flex-direction: column; gap: 8px; }
+        .leave-form-row .leave-form-group { flex: 1; min-width: 0; width: 100%; }
+
+        .leave-actions { display: flex; gap: 8px; margin-top: 8px; }
+        .leave-actions .btn { flex: 1; padding: 11px; font-size: 0.9rem; }
+
+        .leave-doc-wrapper {
+            flex: 0 0 auto; width: 600px; max-width: 100%; background: white; border-radius: 8px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.2), 0 0 0 12px #fff, 0 0 0 13px #1a3a6b;
+            margin: 20px; overflow: hidden; aspect-ratio: 210 / 297; position: relative; transition: var(--transition);
+        }
+        @media screen { .leave-doc-wrapper:hover { transform: translateY(-5px); box-shadow: 0 30px 60px rgba(0,0,0,0.25), 0 0 0 12px #fff, 0 0 0 13px var(--primary-color); } }
+
+        .leave-document-paper {
+            border: 4px double #1a3a6b; height: calc(100% - 20mm); width: calc(100% - 20mm);
+            margin: 10mm auto; box-sizing: border-box; padding: 4px;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fb 100%); box-shadow: inset 0 0 0 1px rgba(26, 58, 107, 0.1); position: relative;
+        }
+        .leave-inner-border {
+            border: 2px solid #3a5a9b; height: 100%; padding: 5% 7%; box-sizing: border-box;
+            display: flex; flex-direction: column; position: relative;
+            background: linear-gradient(to bottom, #ffffff 0%, #fafbfc 100%); color: #1a1a1a;
+            border-radius: 2px; box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05); overflow: hidden;
+        }
+        .leave-inner-border::before {
+            content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 80%; height: 80%; background-image: url('logo.png'); background-repeat: no-repeat;
+            background-position: center; background-size: contain; opacity: 0.06; pointer-events: none; z-index: 0; filter: blur(0.5px);
+        }
+
+        @media screen {
+            .leave-document-paper::before, .leave-document-paper::after {
+                content: ''; position: absolute; width: 20px; height: 20px; border: 2px solid #1a3a6b; pointer-events: none;
+            }
+            .leave-document-paper::before { top: 8px; right: 8px; border-right: none; border-bottom: none; border-radius: 2px 0 0 0; }
+            .leave-document-paper::after { bottom: 8px; left: 8px; border-left: none; border-top: none; border-radius: 0 0 0 2px; }
+        }
+
+        .leave-inner-border > * { position: relative; z-index: 1; }
+        .leave-doc-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+        .leave-header-right { text-align: right; font-family: 'Cairo', sans-serif; font-size: 1.1rem; line-height: 1.3; }
+        .leave-header-right .entity-name { font-weight: 700; font-size: 1.25rem; display: block; color: #1a3a6b; }
+        .leave-header-left img { width: 55px; height: auto; }
+        .leave-title-wrap { text-align: center; margin-top: 15px; }
+        .leave-title-box { font-family: 'Cairo', sans-serif; font-size: 1.8rem; font-weight: 700; text-decoration: underline; margin-bottom: 8px; color: #1a3a6b; text-shadow: 0 1px 2px rgba(26, 58, 107, 0.1); }
+        .leave-recipient { font-family: 'Cairo', sans-serif; font-size: 1.4rem; font-weight: 700; text-align: center; color: #1a3a6b; }
+        .leave-body-text {
+            flex: 1; font-family: 'Cairo', sans-serif; font-size: 1.3rem; line-height: 1.5;
+            text-align: center; margin-top: 30px; margin-bottom: 20px; display: flex; flex-direction: column; align-items: center;
+        }
+        .leave-body-text p { margin: 0 0 12px 0; }
+        .leave-body-text .leave-thanks { margin-top: 20px; font-size: 1.4rem; font-weight: 700; }
+        .leave-highlight { font-weight: 700; text-decoration: none; display: inline; color: #1a3a6b; }
+        .leave-footer-sigs { margin-top: auto; display: flex; flex-direction: column; gap: 12px; margin-bottom: 10px; }
+        .leave-sig-row { display: flex; }
+        .leave-sig-row-right { justify-content: flex-end; }
+        .leave-sig-row-left { justify-content: flex-start; }
+        .leave-sig-block { text-align: center; min-width: 150px; }
+        .leave-sig-title { font-family: 'Cairo', sans-serif; font-size: 1.1rem; font-weight: 700; display: block; margin-bottom: 4px; color: #1a3a6b; }
+        .leave-sig-name { font-family: 'Cairo', sans-serif; font-size: 1.05rem; font-weight: 700; margin-bottom: 2px; }
+        .leave-sig-line { font-size: 0.9rem; letter-spacing: 1px; color: #444; }
+    </style>
+<script src="niabat-config-loader.js"></script>
+</head>
+<body data-theme="light">
+
+    <!-- ===== مودال إضافة قسم جديد ===== -->
+    <div class="modal-overlay" id="modalAddCategory">
+        <div class="modal-box">
+            <div class="modal-title"><i class="fas fa-folder-plus"></i> إضافة قسم جديد</div>
+            <div class="modal-field">
+                <label>اسم القسم الجديد</label>
+                <input type="text" id="newCategoryName" placeholder="مثال: أحكام جلسات">
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn-confirm" onclick="confirmAddCategory()"><i class="fas fa-plus"></i> إضافة</button>
+                <button class="modal-btn-cancel" onclick="closeModal('modalAddCategory')">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== مودال إضافة مطبوعة جديدة ===== -->
+    <div class="modal-overlay" id="modalAddItem">
+        <div class="modal-box">
+            <div class="modal-title"><i class="fas fa-file-plus"></i> إضافة مطبوعة جديدة</div>
+            <div class="modal-field">
+                <label>اسم المطبوعة</label>
+                <input type="text" id="newItemName" placeholder="مثال: نموذج التنفيذ">
+            </div>
+            <div class="modal-field">
+                <label>اسم ملف PDF <span style="font-size:0.8em;color:#7aaeff;">(اكتب الاسم فقط بدون مسار أو امتداد)</span></label>
+                <div class="path-input-group" dir="ltr">
+                    <span class="path-prefix">files/</span>
+                    <input type="text" id="newItemPdf" placeholder="اسم الملف" style="flex:1;border-radius:0;direction:ltr;">
+                    <span class="path-suffix">.pdf</span>
+                </div>
+                <div class="modal-hint">ضع ملف PDF داخل مجلد <b>files</b> بجانب الملف الرئيسي، ثم اكتب اسمه هنا فقط</div>
+            </div>
+            <div class="modal-field">
+                <label>اسم ملف Word (اختياري) <span style="font-size:0.8em;color:#7aaeff;">(اكتب الاسم فقط)</span></label>
+                <div class="path-input-group" dir="ltr">
+                    <span class="path-prefix">files/</span>
+                    <input type="text" id="newItemWord" placeholder="اسم الملف" style="flex:1;border-radius:0;direction:ltr;">
+                    <span class="path-suffix">.docx</span>
+                </div>
+            </div>
+            <div class="modal-field">
+                <label>اتجاه الورقة</label>
+                <select id="newItemOrientation">
+                    <option value="portrait">طولي (A4)</option>
+                    <option value="landscape">عرضي (A4)</option>
+                </select>
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn-confirm" onclick="confirmAddItem()"><i class="fas fa-plus"></i> إضافة</button>
+                <button class="modal-btn-cancel" onclick="closeModal('modalAddItem')">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== مودال تأكيد الحذف ===== -->
+    <div class="modal-overlay" id="modalConfirmDelete">
+        <div class="modal-box">
+            <div class="modal-title"><i class="fas fa-exclamation-triangle" style="color:#ef4444;"></i> تأكيد الحذف</div>
+            <p style="color:var(--text-muted); font-size:0.95rem; line-height:1.6;" id="deleteConfirmMsg">هل أنت متأكد من الحذف؟</p>
+            <div class="modal-actions" style="margin-top:20px;">
+                <button class="modal-btn-confirm" style="background:#ef4444;" onclick="confirmDelete()"><i class="fas fa-trash"></i> حذف</button>
+                <button class="modal-btn-cancel" onclick="closeModal('modalConfirmDelete')">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+<!-- Sidebar -->
+<aside class="sidebar">
+    <div class="sidebar-header">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+            <span style="font-size: 1.5rem;">🖨️</span>
+            <h2 style="font-size: 1.2rem; font-weight: 900; color: white;">قائمة المطبوعات</h2>
+        </div>
+            <div class="search-container">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" class="search-input" id="searchInput" placeholder="بحث عن مطبوعة..." onkeyup="filterMenu()">
+            </div>
+        </div>
+
+        <div class="sidebar-content">
+            <!-- زر إضافة قسم جديد -->
+            <button class="btn-add-category" onclick="openAddCategoryModal()">
+                <i class="fas fa-folder-plus"></i> إضافة قسم جديد
+            </button>
+
+            <div class="accordion-controls">
+                <button onclick="expandAll()"><i class="fas fa-expand-alt"></i> فتح الكل</button>
+                <button onclick="collapseAll()"><i class="fas fa-compress-alt"></i> طي الكل</button>
+            </div>
+            <div id="menuContainer"><div class="accordion-item"><div class="accordion-header" style="cursor: pointer;">
+                    <span style="font-weight:700; flex:1; pointer-events:none;">
+                        <i class="fas fa-folder-open" style="margin-left:8px; color:rgba(255,255,255,0.8);"></i>المطبوعات الأساسية
+                    </span>
+                    <div class="cat-action-btns">
+                        <button class="cat-btn-add" title="إضافة مطبوعة" onclick="openAddItemModal(0); event.stopPropagation();">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                        <button class="cat-btn-del" title="حذف القسم" onclick="openDeleteCategoryModal(0); event.stopPropagation();">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                        <i class="fas fa-chevron-down chevron" style="margin-right:4px; pointer-events:none;"></i>
+                    </div></div><div class="accordion-body"><div class="menu-item"><i class="far fa-file-alt"></i><span style="flex:1;">طلب تظلم</span>
+                            <button class="item-del-btn" title="حذف" onclick="openDeleteItemModal(0, 0); event.stopPropagation();">
+                                <i class="fas fa-times"></i>
+                            </button></div><div class="menu-item"><i class="far fa-file-alt"></i><span style="flex:1;">بيان صرف لوحات</span>
+                            <button class="item-del-btn" title="حذف" onclick="openDeleteItemModal(0, 1); event.stopPropagation();">
+                                <i class="fas fa-times"></i>
+                            </button></div><div class="menu-item"><i class="far fa-file-alt"></i><span style="flex:1;">ورقة فارغة</span>
+                            <button class="item-del-btn" title="حذف" onclick="openDeleteItemModal(0, 2); event.stopPropagation();">
+                                <i class="fas fa-times"></i>
+                            </button></div><div class="menu-item"><i class="far fa-file-alt"></i><span style="flex:1;">كشف ارسال جلسات</span>
+                            <button class="item-del-btn" title="حذف" onclick="openDeleteItemModal(0, 3); event.stopPropagation();">
+                                <i class="fas fa-times"></i>
+                            </button></div><div class="menu-item"><i class="far fa-file-alt"></i><span style="flex:1;">خطاب سداد رخصة مسحوبة</span>
+                            <button class="item-del-btn" title="حذف" onclick="openDeleteItemModal(0, 4); event.stopPropagation();">
+                                <i class="fas fa-times"></i>
+                            </button></div><div class="menu-item"><i class="far fa-file-alt"></i><span style="flex:1;">بيان المركبات المسلمة الشهري</span>
+                            <button class="item-del-btn" title="حذف" onclick="openDeleteItemModal(0, 5); event.stopPropagation();">
+                                <i class="fas fa-times"></i>
+                            </button></div></div></div><div class="accordion-item"><div class="accordion-header" style="cursor: pointer;">
+                    <span style="font-weight:700; flex:1; pointer-events:none;">
+                        <i class="fas fa-folder-open" style="margin-left:8px; color:rgba(255,255,255,0.8);"></i>الإحصائيات والتقارير
+                    </span>
+                    <div class="cat-action-btns">
+                        <button class="cat-btn-add" title="إضافة مطبوعة" onclick="openAddItemModal(1); event.stopPropagation();">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                        <button class="cat-btn-del" title="حذف القسم" onclick="openDeleteCategoryModal(1); event.stopPropagation();">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                        <i class="fas fa-chevron-down chevron" style="margin-right:4px; pointer-events:none;"></i>
+                    </div></div><div class="accordion-body"><div class="menu-item"><i class="far fa-file-alt"></i><span style="flex:1;">الإحصائية الشهرية</span>
+                            <button class="item-del-btn" title="حذف" onclick="openDeleteItemModal(1, 0); event.stopPropagation();">
+                                <i class="fas fa-times"></i>
+                            </button></div><div class="menu-item"><i class="far fa-file-alt"></i><span style="flex:1;">البيان العددي</span>
+                            <button class="item-del-btn" title="حذف" onclick="openDeleteItemModal(1, 1); event.stopPropagation();">
+                                <i class="fas fa-times"></i>
+                            </button></div><div class="menu-item"><i class="far fa-file-alt"></i><span style="flex:1;">إحصائية المطالبة</span>
+                            <button class="item-del-btn" title="حذف" onclick="openDeleteItemModal(1, 2); event.stopPropagation();">
+                                <i class="fas fa-times"></i>
+                            </button></div></div></div><div class="accordion-item"><div class="accordion-header" style="cursor: pointer;">
+                    <span style="font-weight:700; flex:1; pointer-events:none;">
+                        <i class="fas fa-folder-open" style="margin-left:8px; color:rgba(255,255,255,0.8);"></i>طلبات
+                    </span>
+                    <div class="cat-action-btns">
+                        <button class="cat-btn-add" title="إضافة مطبوعة" onclick="openAddItemModal(2); event.stopPropagation();">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                        <button class="cat-btn-del" title="حذف القسم" onclick="openDeleteCategoryModal(2); event.stopPropagation();">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                        <i class="fas fa-chevron-down chevron" style="margin-right:4px; pointer-events:none;"></i>
+                    </div></div><div class="accordion-body"><div class="menu-item"><i class="fas fa-edit"></i><span style="flex:1;">طلب اجازة</span></div><div class="menu-item"><i class="fas fa-edit"></i><span style="flex:1;">خطاب صادر</span></div></div></div><div class="accordion-item"><div class="accordion-header open" style="cursor: pointer;">
+                    <span style="font-weight:700; flex:1; pointer-events:none;">
+                        <i class="fas fa-folder-open" style="margin-left:8px; color:rgba(255,255,255,0.8);"></i>خاص بموظفي النيابة
+                    </span>
+                    <div class="cat-action-btns">
+                        <button class="cat-btn-add" title="إضافة مطبوعة" onclick="openAddItemModal(3); event.stopPropagation();">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                        <button class="cat-btn-del" title="حذف القسم" onclick="openDeleteCategoryModal(3); event.stopPropagation();">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                        <i class="fas fa-chevron-down chevron" style="margin-right:4px; pointer-events:none;"></i>
+                    </div></div><div class="accordion-body open"><div class="menu-item active"><i class="far fa-file-alt"></i><span style="flex:1;">جواب التأمين الصحى</span>
+                            <button class="item-del-btn" title="حذف" onclick="openDeleteItemModal(3, 0); event.stopPropagation();">
+                                <i class="fas fa-times"></i>
+                            </button></div></div></div></div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="top-bar">
+            <div style="display: flex; align-items: center; justify-content: flex-start;">
+                <div style="text-align: right; border-left: 1px solid rgba(255,255,255,0.2); padding-left: 20px; margin-left: 20px; color: white;">
+                    <span style="font-size: 1.3rem; font-weight: 700; display: block;">مطبوعات النيابة</span>
+                    <span style="font-size: 1rem; color: #7aaeff;">اختر من القائمة الجانبية</span>
+                </div>
+            </div>
+
+            <div class="brand" style="display: flex;font-size: 1.2rem; align-items: center; gap: 15px; justify-content: center;">
+                <img src="logo.png" alt="شعار النيابة" onerror="this.src=''" style="width: 45px;">
+                <h1 data-config="prosecution-name">نيابة مرور عين الصيرة</h1>
+            </div>
+
+            <div class="top-actions">
+                <button id="btnExport" class="btn-save-file" onclick="exportHtmlFile()" title="تصدير نسخة من الملف بكل التعديلات">
+                    <i class="fas fa-file-export"></i> تصدير الملف
+                </button>
+                <button class="btn-edit-mode" id="btnEditMode" onclick="toggleEditMode()" title="تفعيل/إيقاف وضع التعديل">
+    <i class="fas fa-lock" id="editModeIcon"></i>
+    <span id="editModeLabel">وضع التعديل</span>
+</button>
+                <p style="font-size: 1.2rem; color: #7aaeff; font-weight: 900; margin: 0;" id="currentDate">الاثنين، ٦ يوليو ٢٠٢٦</p>
+                <button class="theme-toggle" onclick="toggleTheme()" title="تبديل الوضع الليلي/النهاري">
+                    <i class="fas fa-moon" id="themeIcon"></i>
+                </button>
+            </div>
+        </header>
+
+        <div class="viewer-area">
+            <!-- Welcome Box -->
+            <div id="welcomeBox" class="welcome-card" style="opacity: 0; transform: translateY(-20px); transition: 0.4s; display: none;">
+    <i class="fas fa-file-invoice" style="font-size: 4rem; color: var(--primary-color); margin-bottom: 15px; display: inline-block;"></i>
+    <h2 style="margin-bottom: 10px;">مرحباً بك في نظام مطبوعات النيابة المطور</h2>
+    <p style="color: var(--text-muted); line-height: 1.5; margin-bottom: 20px;">يرجى اختيار المطبوعة المطلوبة من القائمة الجانبية.</p>
+
+    <div style="background: rgba(59, 111, 212, 0.05); border: 1px solid rgba(59, 111, 212, 0.2); border-radius: 12px; padding: 15px; text-align: right;">
+        <h3 style="color: var(--primary-color); font-size: 1.1rem; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+            <i class="fas fa-info-circle" style="font-size: 1.2rem; margin: 0; color: var(--primary-color);"></i>
+            دليل إدارة النظام
+        </h3>
+        <ul style="list-style: none; padding: 0; margin: 0; font-size: 0.9rem; line-height: 1.6; color: var(--text-main);">
+            <li style="margin-bottom: 10px; display: flex; align-items: center; gap: 10px;">
+                <i class="fas fa-lock" style="color: #fbbf24; font-size: 1.2rem; margin: 0; min-width: 20px; text-align: center;"></i>
+                <span>لتعديل القائمة (إضافة أو حذف)، قم بتفعيل <strong>"وضع التعديل"</strong> من الأعلى.</span>
+            </li>
+            <li style="display: flex; align-items: center; gap: 10px;">
+                <i class="fas fa-file-export" style="color: #10b981; font-size: 1.2rem; margin: 0; min-width: 20px; text-align: center;"></i>
+                <span>لحفظ التعديلات، اضغط على <strong>"تصدير الملف"</strong> لتحميل النسخة الجديدة.</span>
+            </li>
+        </ul>
+    </div>
+</div>
+
+            <!-- Preview Box (PDFs) -->
+            <div id="previewBox" class="preview-container" style="display: flex; animation: 0.5s cubic-bezier(0.4, 0, 0.2, 1) 0s 1 normal none running fadeInScale;">
+                <div id="pdfWrapper" class="pdf-wrapper portrait">
+                    <iframe id="pdfViewer" class="pdf-frame" src="files/جواب التأمين الصحى.pdf"></iframe>
+                </div>
+                <div class="side-toolbar">
+                    <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 700; margin-bottom: 5px; text-align: center;">اتجاه الورقة</div>
+                    <div id="orientationBadge" class="badge-orientation" onclick="manualToggleOrientation()"><i class="fas fa-arrows-alt-v"></i> <span>طولي (A4)</span></div>
+                    <div class="toolbar-divider"></div>
+                    <button class="btn btn-primary" onclick="printPdf()" style="width: 100%;"><i class="fas fa-print"></i> طباعة فورية</button>
+                    <div style="display: flex; gap: 8px; margin-top: 10px;">
+                        <input type="file" id="wordFileInput" accept=".doc,.docx" style="display:none">
+                        <button class="btn btn-outline" onclick="document.getElementById('wordFileInput').click()" style="flex: 1; padding: 0px 0px; font-size: 1.rem;"><i class="fas fa-file-word"></i> فتح في وورد</button>
+                        <button class="btn btn-outline" onclick="copyFolderPath()" style="width: 70px; padding: 0;"><i class="fas fa-copy"></i>نسخ <br> مسار</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Leave Request Form View -->
+            <div id="leaveContainer" class="leave-container" style="display: none;">
+                <div class="leave-form-panel no-print">
+                    <h3><i class="fas fa-calendar-check"></i> بيانات طلب الإجازة</h3>
+                    <div class="leave-form-group"><label>نوع الإجازة</label><select id="leaveType" onchange="syncLeave()"><option value="اعتيادي">اعتيادي</option><option value="عارضة">عارضة</option></select></div>
+                    <div class="leave-form-row"><div class="leave-form-group"><label>عدد الأيام</label><input type="number" id="leaveDays" min="1" oninput="syncLeave()" placeholder="مثال: 3"></div></div>
+                    <div class="leave-form-row">
+                        <div class="leave-form-group"><label>البداية</label><input type="date" id="leaveStartDate" onchange="syncLeave()"></div>
+                        <div class="leave-form-group"><label>النهاية</label><input type="date" id="leaveEndDate" onchange="syncLeave()"></div>
+                    </div>
+                    <div class="leave-form-group"><label>مقدم الطلب</label><input type="text" id="leaveRequesterName" oninput="syncLeave()" placeholder="الاسم"></div>
+                    <div class="leave-form-group"><label>القائم بالعمل</label><input type="text" id="leaveEmployeeName" oninput="syncLeave()" placeholder="الاسم"></div>
+                    <div class="leave-form-group"><label>رئيس القلم</label><input type="text" id="leaveClerkName" oninput="syncLeave()" placeholder="الاسم"></div>
+                    <div class="leave-form-group"><label>تاريخ التحرير</label><input type="date" id="leaveWrittenDate" onchange="syncLeave()"></div>
+                    <div class="leave-actions">
+                        <button class="btn btn-primary" onclick="printLeaveRequest()"><i class="fas fa-print"></i> طباعة</button>
+                        <button class="btn btn-outline" onclick="clearLeaveForm()"><i class="fas fa-eraser"></i> تفريغ</button>
+                    </div>
+                </div>
+
+                <div class="leave-doc-wrapper leave-print-area" id="leaveDocWrapper">
+                    <div class="leave-document-paper">
+                        <div class="leave-inner-border">
+                            <div class="leave-doc-header">
+                                <div class="leave-header-right"><span class="entity-name">النيابة العامة</span><span>نيابة مرور القاهرة</span><br><span data-config="prosecution-name">نيابة مرور عين الصيرة</span></div>
+                                <div class="leave-header-left"><img src="logo.png" alt=""></div>
+                            </div>
+                            <div class="leave-title-wrap">
+                                <div class="leave-title-box">طلب اجازة (<span id="lv_type">اعتيادي</span>)</div>
+                                <div class="leave-recipient">السيد مدير <span data-config="prosecution-name">نيابة مرور عين الصيرة</span></div>
+                            </div>
+                            <div class="leave-body-text">
+                                <p>الرجاء من سيادتكم الموافقة على اجازة (<span class="leave-highlight" id="lv_type2">اعتيادي</span>) لمدة <span id="lv_daysCountWrap">(<span class="leave-highlight" id="lv_days">....</span>) </span><span id="lv_daysWord">أيام</span></p>
+                                <p>تبدأ من يوم <span class="leave-highlight" id="lv_startDay">....</span> الموافق <span class="leave-highlight" id="lv_startDate">....../....../....</span></p>
+                                <p>و تنتهي في يوم <span class="leave-highlight" id="lv_endDay">....</span> الموافق <span class="leave-highlight" id="lv_endDate">....../....../....</span></p>
+                                <p class="leave-thanks" style="margin-top: 12px;">ولسيادتكم جزيل الشكر</p>
+                                <p style="font-size: 1rem; font-weight: 600; margin-top: 6px; margin-bottom: 0; text-align: right;">تحريراً في: <span id="lv_writtenDate">....../....../....</span></p>
+                            </div>
+                            <div class="leave-footer-sigs" style="margin-top: 6px; gap: 6px; margin-bottom: 6px;">
+                                <div class="leave-sig-row" id="lv_requesterRow"><div class="leave-sig-block"><span class="leave-sig-title">مقدمه لسيادتكم</span><div class="leave-sig-name" id="lv_requesterName">...........................</div><div class="leave-sig-line">...........................</div></div></div>
+                                <div class="leave-sig-row leave-sig-row-left" id="lv_employeeRow"><div class="leave-sig-block"><span class="leave-sig-title">الموظف القائم بالعمل</span><div class="leave-sig-name" id="lv_employeeName">...........................</div><div class="leave-sig-line">...........................</div></div></div>
+                                <div class="leave-sig-row leave-sig-row-right"><div class="leave-sig-block"><span class="leave-sig-title">رئيس القلم</span><div class="leave-sig-name" id="lv_clerkName">...........................</div><div class="leave-sig-line">...........................</div></div></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Outgoing Letter Form View -->
+            <div id="outgoingLetterContainer" class="leave-container" style="display: none;">
+                <div class="leave-form-panel no-print">
+                    <h3><i class="fas fa-envelope-open-text"></i> بيانات الخطاب الصادر</h3>
+                    <div class="leave-form-group">
+                        <label>موجه إلى</label>
+                        <select id="outLetterRecipient" onchange="toggleOutLetterOther(); syncOutLetter()">
+                            <option value="رئيس نيابة مرور القاهرة">رئيس نيابة مرور القاهرة</option>
+                            <option value="رئيس قلم نيابة مرور القاهرة">رئيس قلم نيابة مرور القاهرة</option>
+                            <option value="أخرى">أخرى</option>
+                        </select>
+                    </div>
+                    <div class="leave-form-group" id="outLetterOtherGroup" style="display: none;">
+                        <label>الجهة/الشخص</label>
+                        <input type="text" id="outLetterOther" oninput="syncOutLetter()" placeholder="اكتب الجهة الموجه إليها">
+                    </div>
+                    <div class="leave-form-group">
+                        <label style="align-self: flex-start; margin-top: 8px;">المحتوى</label>
+                        <textarea id="outLetterContent" oninput="syncOutLetter()" placeholder="اكتب نص الخطاب هنا..."></textarea>
+                    </div>
+                    <div class="leave-form-group">
+                        <label>تحريراً في</label>
+                        <input type="date" id="outLetterDate" onchange="syncOutLetter()">
+                    </div>
+                    <div class="leave-form-group">
+                        <label>التوقيعات</label>
+                        <select id="outLetterSignatureType" onchange="toggleOutLetterSignatures(); syncOutLetter()">
+                            <option value="مدير النيابة">مدير النيابة</option>
+                            <option value="رئيس القلم">رئيس القلم</option>
+                            <option value="مدير النيابة ورئيس القلم">مدير النيابة ورئيس القلم</option>
+                            <option value="أخرى">أخرى</option>
+                        </select>
+                    </div>
+                    <div class="leave-form-group" id="outLetterManagerGroup">
+                        <label>اسم مدير النيابة</label>
+                        <input type="text" id="outLetterManagerName" oninput="syncOutLetter()" placeholder="الاسم">
+                    </div>
+                    <div class="leave-form-group" id="outLetterClerkGroup" style="display: none;">
+                        <label>اسم رئيس القلم</label>
+                        <input type="text" id="outLetterClerkName" oninput="syncOutLetter()" placeholder="الاسم">
+                    </div>
+                    <div class="leave-form-group" id="outLetterOtherSigTitleGroup" style="display: none;">
+                        <label>صفة الموقع</label>
+                        <input type="text" id="outLetterOtherSigTitle" oninput="syncOutLetter()" placeholder="مثال: وكيل النيابة">
+                    </div>
+                    <div class="leave-form-group" id="outLetterOtherSigNameGroup" style="display: none;">
+                        <label>اسم الموقع</label>
+                        <input type="text" id="outLetterOtherSigName" oninput="syncOutLetter()" placeholder="الاسم">
+                    </div>
+                    <div class="leave-actions">
+                        <button class="btn btn-primary" onclick="printOutLetter()"><i class="fas fa-print"></i> طباعة</button>
+                        <button class="btn btn-outline" onclick="clearOutLetterForm()"><i class="fas fa-eraser"></i> تفريغ</button>
+                    </div>
+                </div>
+
+                <div class="leave-doc-wrapper leave-print-area" id="outLetterDocWrapper">
+                    <div class="leave-document-paper">
+                        <div class="leave-inner-border">
+                            <div class="leave-doc-header">
+                                <div class="leave-header-right">
+                                    <span class="entity-name">النيابة العامة</span>
+                                    <span>نيابة مرور القاهرة</span><br>
+                                    <span data-config="prosecution-name">نيابة مرور عين الصيرة</span>
+                                </div>
+                                <div class="leave-header-left"><img src="logo.png" alt=""></div>
+                            </div>
+                            <div class="leave-title-wrap" style="margin-top: 15px;">
+                                <div style="font-size: 2.2rem; font-weight: bold; text-decoration: underline; margin-bottom: 20px; color: #1a3a6b;">( خطاب صادر )</div>
+                                <div class="leave-recipient" style="font-size: 1.6rem; margin-bottom: 10px;">
+                                    السيد / <span id="out_recipient_display" class="leave-highlight">رئيس نيابة مرور القاهرة</span>
+                                </div>
+                                <div style="font-size: 1.3rem; font-weight: bold; color: #333;">( تحية طيبة وبعد )</div>
+                            </div>
+                            <div class="leave-body-text" style="flex: 1; display: block; width: 100%; text-align: center; margin-top: 40px;">
+                                <div id="outLetterBodyDisplay" style="white-space: pre-wrap; font-size: 1.5rem; margin-bottom: 30px; text-align: center;">
+                                    <p style="color: #aaa; font-size: 1.2rem; margin: 0 auto;">(سيتم إدراج محتوى الخطاب الصادر هنا)</p>
+                                </div>
+                                <div class="out-letter-closing" style="font-size: 1.5rem; font-weight: bold; color: #1a3a6b; text-align: center; margin: 0 auto; width: 100%;">وتفضلوا بقبول فائق الاحترام والتقدير،،،</div>
+                            </div>
+                            <div style="margin-top: auto; display: flex; flex-direction: column; gap: 20px; margin-bottom: 10px;">
+                                <div style="text-align: right; font-size: 1.2rem; font-weight: bold; font-family: 'Cairo', sans-serif;">
+                                    تحريراً في: <span id="out_date_display"></span>
+                                </div>
+<div style="text-align: right; font-size: .7rem; font-weight: bold; font-family: 'Cairo', sans-serif;">
+                                    رقم الصادر / ...................................... <span id="out_date_display"></span>
+                                </div>
+                                <div id="out_signatures_container" style="display: flex; justify-content: space-between; margin-top: 10px;">
+                                    <div id="out_sig_right" class="leave-sig-block" style="display: none;">
+                                        <span class="leave-sig-title" id="out_sig_right_title">رئيس القلم</span>
+                                        <div class="leave-sig-name" id="out_sig_right_name">...........................</div>
+                                        <div class="leave-sig-line">...........................</div>
+                                    </div>
+                                    <div id="out_sig_left" class="leave-sig-block" style="margin-right: auto; margin-left: 0;">
+                                        <span class="leave-sig-title" id="out_sig_left_title">مدير النيابة</span>
+                                        <div class="leave-sig-name" id="out_sig_left_name">...........................</div>
+                                        <div class="leave-sig-line">...........................</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Status Toast -->
+    <div id="statusToast" class="status-bar" style="display: none;">
+        <i class="fas fa-check-circle"></i>
+        <span id="statusText">📂 جاري عرض: جواب التأمين الصحى</span>
+    </div>
+
+    <script>
+        // ============================================================
+        // بيانات المطبوعات — يتم تحديثها تلقائياً عند الحفظ
+        // ============================================================
+        const publicationsData = [
+          {
+                    "category": "المطبوعات الأساسية",
+                    "items": [
+                              {
+                                        "name": "طلب تظلم",
+                                        "pdf": "files/طلب تظلم.pdf",
+                                        "word": "files/طلب تظلم.docx",
+                                        "orientation": "portrait"
+                              },
+                              {
+                                        "name": "بيان صرف لوحات",
+                                        "pdf": "files/بيان صرف لوحات.pdf",
+                                        "word": "files/بيان صرف لوحات.docx",
+                                        "orientation": "portrait"
+                              },
+                              {
+                                        "name": "ورقة فارغة",
+                                        "pdf": "files/فارغة.pdf",
+                                        "word": "files/فارغة.docx",
+                                        "orientation": "portrait"
+                              },
+                              {
+                                        "name": "كشف ارسال جلسات",
+                                        "pdf": "files/كشف ارسال جلسات.pdf",
+                                        "word": "files/كشف ارسال جلسات.docx",
+                                        "orientation": "portrait"
+                              },
+                              {
+                                        "name": "خطاب سداد رخصة مسحوبة",
+                                        "pdf": "files/خطاب سداد رخصة مسحوبة.pdf",
+                                        "word": "files/خطاب سداد رخصة مسحوبة.docx",
+                                        "orientation": "portrait"
+                              },
+                              {
+                                        "name": "بيان المركبات المسلمة الشهري",
+                                        "pdf": "files/بيان المركبات المسلمة الشهري.pdf",
+                                        "word": "",
+                                        "orientation": "portrait"
+                              }
+                    ]
+          },
+          {
+                    "category": "الإحصائيات والتقارير",
+                    "items": [
+                              {
+                                        "name": "الإحصائية الشهرية",
+                                        "pdf": "files/الإحصائية الشهرية.pdf",
+                                        "word": "files/الإحصائية الشهرية.docx",
+                                        "orientation": "landscape"
+                              },
+                              {
+                                        "name": "البيان العددي",
+                                        "pdf": "files/البيان العددي.pdf",
+                                        "word": "files/البيان العددي.docx",
+                                        "orientation": "portrait"
+                              },
+                              {
+                                        "name": "إحصائية المطالبة",
+                                        "pdf": "files/إحصائية المطالبة.pdf",
+                                        "word": "files/إحصائية المطالبة.docx",
+                                        "orientation": "landscape"
+                              }
+                    ]
+          },
+          {
+                    "category": "طلبات و خطابات",
+                    "items": [
+                              {
+                                        "name": "طلب اجازة",
+                                        "type": "form",
+                                        "formId": "leave"
+                              },
+                              {
+                                        "name": "خطاب صادر",
+                                        "type": "form",
+                                        "formId": "outgoing_letter"
+                              }
+                    ]
+          },
+          {
+                    "category": "خاص بموظفي النيابة",
+                    "items": [
+                              {
+                                        "name": "جواب التأمين الصحى",
+                                        "pdf": "files/جواب التأمين الصحى.pdf",
+                                        "word": "files/جواب التأمين الصحى.docx",
+                                        "orientation": "portrait"
+                              }
+                    ]
+          }
+];
+
+        // ============================================================
+        // متغيرات الحالة
+        // ============================================================
+        let currentPdfPath = '';
+        let currentWordPath = '';
+        let currentPublicationName = '';
+        let currentOrientation = 'portrait';
+        let pendingDeleteType = null;   // 'category' | 'item'
+        let pendingDeleteCatIndex = -1;
+        let pendingDeleteItemIndex = -1;
+        let pendingAddCatIndex = -1;    // القسم المراد إضافة مطبوعة إليه
+
+        // ============================================================
+        // بناء القائمة
+        // ============================================================
+        function initMenu() {
+            const container = document.getElementById('menuContainer');
+            container.innerHTML = '';
+            publicationsData.forEach((cat, catIdx) => {
+                const accordionItem = document.createElement('div');
+                accordionItem.className = 'accordion-item';
+
+                // رأس القسم — الضغط في أي مكان يفتح/يطوي عدا أزرار التحكم
+                const header = document.createElement('div');
+                header.className = 'accordion-header';
+                header.style.cursor = 'pointer';
+                header.onclick = function() { toggleAccordionEl(this); };
+                header.innerHTML = `
+                    <span style="font-weight:700; flex:1; pointer-events:none;">
+                        <i class="fas fa-folder-open" style="margin-left:8px; color:rgba(255,255,255,0.8);"></i>${cat.category}
+                    </span>
+                    <div class="cat-action-btns">
+                        <button class="cat-btn-add" title="إضافة مطبوعة" onclick="openAddItemModal(${catIdx}); event.stopPropagation();">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                        <button class="cat-btn-del" title="حذف القسم" onclick="openDeleteCategoryModal(${catIdx}); event.stopPropagation();">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                        <i class="fas fa-chevron-down chevron" style="margin-right:4px; pointer-events:none;"></i>
+                    </div>`;
+
+                // جسم القسم
+                const body = document.createElement('div');
+                body.className = 'accordion-body';
+                cat.items.forEach((pub, itemIdx) => {
+                    const menuItem = document.createElement('div');
+                    menuItem.className = 'menu-item';
+                    if (pub.type === 'form') {
+                        menuItem.innerHTML = `<i class="fas fa-edit"></i><span style="flex:1;">${pub.name}</span>`;
+                        menuItem.onclick = () => selectFormView(pub.formId, pub.name, menuItem);
+                    } else {
+                        menuItem.innerHTML = `<i class="far fa-file-alt"></i><span style="flex:1;">${pub.name}</span>
+                            <button class="item-del-btn" title="حذف" onclick="openDeleteItemModal(${catIdx}, ${itemIdx}); event.stopPropagation();">
+                                <i class="fas fa-times"></i>
+                            </button>`;
+                        menuItem.onclick = () => selectPublication(pub.name, pub.pdf, pub.word || '', pub.orientation || 'portrait', menuItem);
+                    }
+                    body.appendChild(menuItem);
+                });
+
+                accordionItem.appendChild(header);
+                accordionItem.appendChild(body);
+                container.appendChild(accordionItem);
+            });
+        }
+
+        // ============================================================
+        // الأكورديون
+        // ============================================================
+        function toggleAccordionEl(header) {
+            const body = header.nextElementSibling;
+            const isOpen = header.classList.contains('open');
+            document.querySelectorAll('.accordion-header').forEach(h => { h.classList.remove('open'); if(h.nextElementSibling) h.nextElementSibling.classList.remove('open'); });
+            if (!isOpen) { header.classList.add('open'); body.classList.add('open'); }
+        }
+        function expandAll() { document.querySelectorAll('.accordion-header').forEach(h => { h.classList.add('open'); if(h.nextElementSibling) h.nextElementSibling.classList.add('open'); }); }
+        function collapseAll() { document.querySelectorAll('.accordion-header').forEach(h => { h.classList.remove('open'); if(h.nextElementSibling) h.nextElementSibling.classList.remove('open'); }); }
+
+        function filterMenu() {
+            const input = document.getElementById('searchInput').value.toLowerCase();
+            document.querySelectorAll('.menu-item').forEach(item => {
+                const visible = item.textContent.toLowerCase().includes(input);
+                item.style.display = visible ? 'flex' : 'none';
+                if (visible) {
+                    const body = item.parentElement; const header = body?.previousElementSibling;
+                    if (body) body.classList.add('open');
+                    if (header) header.classList.add('open');
+                }
+            });
+            document.querySelectorAll('.accordion-item').forEach(acc => {
+                const anyVisible = Array.from(acc.querySelectorAll('.menu-item')).some(i => i.style.display !== 'none');
+                acc.style.display = anyVisible ? 'block' : 'none';
+            });
+        }
+
+        // ============================================================
+        // مودالات الإضافة
+        // ============================================================
+        function openAddCategoryModal() {
+            document.getElementById('newCategoryName').value = '';
+            openModal('modalAddCategory');
+            setTimeout(() => document.getElementById('newCategoryName').focus(), 100);
+        }
+
+        function confirmAddCategory() {
+            const name = document.getElementById('newCategoryName').value.trim();
+            if (!name) { alert('يرجى إدخال اسم القسم'); return; }
+            publicationsData.push({ category: name, items: [] });
+            closeModal('modalAddCategory');
+            initMenu();
+            triggerAutoSave();
+            // افتح القسم الجديد
+            const headers = document.querySelectorAll('.accordion-header');
+            const lastHeader = headers[headers.length - 1];
+            if (lastHeader) { lastHeader.classList.add('open'); if(lastHeader.nextElementSibling) lastHeader.nextElementSibling.classList.add('open'); }
+            showToast(`✅ تم إضافة قسم "${name}" بنجاح`);
+        }
+
+        function openAddItemModal(catIndex) {
+            pendingAddCatIndex = catIndex;
+            document.getElementById('newItemName').value = '';
+            document.getElementById('newItemPdf').value = '';
+            document.getElementById('newItemWord').value = '';
+            document.getElementById('newItemOrientation').value = 'portrait';
+            openModal('modalAddItem');
+            setTimeout(() => document.getElementById('newItemName').focus(), 100);
+        }
+
+        function buildPath(filename, ext) {
+            if (!filename) return '';
+            // إذا كتب المستخدم المسار كاملاً نتركه كما هو، وإلا نُكمّله تلقائياً
+            const f = filename.replace(/\\/g, '/');
+            if (f.includes('/') || f.toLowerCase().endsWith('.pdf') || f.toLowerCase().endsWith('.docx')) return f;
+            return 'files/' + f + ext;
+        }
+
+        function confirmAddItem() {
+            const name = document.getElementById('newItemName').value.trim();
+            const pdfRaw  = document.getElementById('newItemPdf').value.trim();
+            const wordRaw = document.getElementById('newItemWord').value.trim();
+            const orientation = document.getElementById('newItemOrientation').value;
+            if (!name)   { alert('يرجى إدخال اسم المطبوعة'); return; }
+            if (!pdfRaw) { alert('يرجى إدخال اسم ملف PDF'); return; }
+            const pdf  = buildPath(pdfRaw, '.pdf');
+            const word = wordRaw ? buildPath(wordRaw, '.docx') : '';
+            publicationsData[pendingAddCatIndex].items.push({ name, pdf, word, orientation });
+            closeModal('modalAddItem');
+            initMenu();
+            triggerAutoSave();
+            // افتح القسم المعني
+            const headers = document.querySelectorAll('.accordion-header');
+            if (headers[pendingAddCatIndex]) {
+                headers[pendingAddCatIndex].classList.add('open');
+                if(headers[pendingAddCatIndex].nextElementSibling) headers[pendingAddCatIndex].nextElementSibling.classList.add('open');
+            }
+            showToast(`✅ تم إضافة "${name}" بنجاح`);
+        }
+
+        // ============================================================
+        // مودالات الحذف
+        // ============================================================
+        function openDeleteCategoryModal(catIdx) {
+            pendingDeleteType = 'category';
+            pendingDeleteCatIndex = catIdx;
+            document.getElementById('deleteConfirmMsg').textContent = `هل تريد حذف قسم "${publicationsData[catIdx].category}" وجميع مطبوعاته؟`;
+            openModal('modalConfirmDelete');
+        }
+
+        function openDeleteItemModal(catIdx, itemIdx) {
+            pendingDeleteType = 'item';
+            pendingDeleteCatIndex = catIdx;
+            pendingDeleteItemIndex = itemIdx;
+            document.getElementById('deleteConfirmMsg').textContent = `هل تريد حذف مطبوعة "${publicationsData[catIdx].items[itemIdx].name}"؟`;
+            openModal('modalConfirmDelete');
+        }
+
+        function confirmDelete() {
+            if (pendingDeleteType === 'category') {
+                publicationsData.splice(pendingDeleteCatIndex, 1);
+                showToast('🗑️ تم حذف القسم');
+            } else if (pendingDeleteType === 'item') {
+                publicationsData[pendingDeleteCatIndex].items.splice(pendingDeleteItemIndex, 1);
+                showToast('🗑️ تم حذف المطبوعة');
+            }
+            closeModal('modalConfirmDelete');
+            initMenu();
+            triggerAutoSave();
+        }
+
+        // ============================================================
+        // فتح/إغلاق المودال
+        // ============================================================
+        function openModal(id) { document.getElementById(id).classList.add('open'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+        // إغلاق المودال عند الضغط على الخلفية
+        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', function(e) { if (e.target === this) this.classList.remove('open'); });
+        });
+
+        // إغلاق بـ Enter في مودال إضافة قسم
+        document.getElementById('newCategoryName').addEventListener('keydown', e => { if(e.key === 'Enter') confirmAddCategory(); });
+        document.getElementById('newItemName').addEventListener('keydown', e => { if(e.key === 'Enter') document.getElementById('newItemPdf').focus(); });
+
+        // ============================================================
+        // حفظ تلقائي بـ localStorage — فوري وبدون أي خطوات
+        // ============================================================
+        const DATA_KEY = 'niabat_publications_data';
+
+        // ============================================================
+        // وضع التعديل
+        // ============================================================
+        function toggleEditMode() {
+            const isActive = document.body.classList.toggle('edit-mode');
+            const btn   = document.getElementById('btnEditMode');
+            const icon  = document.getElementById('editModeIcon');
+            const label = document.getElementById('editModeLabel');
+            if (isActive) {
+                btn.classList.add('active');
+                icon.className  = 'fas fa-lock-open';
+                label.textContent = 'إيقاف وضع التعديل';
+                showToast('🔓 وضع التعديل مفعّل — يمكنك الإضافة والحذف الآن');
+            } else {
+                btn.classList.remove('active');
+                icon.className  = 'fas fa-lock';
+                label.textContent = 'وضع التعديل';
+                showToast('🔒 وضع التعديل مُوقَف');
+            }
+        }
+
+        function triggerAutoSave() {
+            try {
+                localStorage.setItem(DATA_KEY, JSON.stringify(publicationsData));
+            } catch(e) {}
+        }
+
+        function loadSavedData() {
+            try {
+                const saved = localStorage.getItem(DATA_KEY);
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    if (Array.isArray(parsed) && parsed.length > 0) {
+                        publicationsData.length = 0;
+                        parsed.forEach(item => publicationsData.push(item));
+                    }
+                }
+            } catch(e) {}
+        }
+
+        // تصدير الملف — لنقل التعديلات لجهاز آخر أو كنسخة احتياطية
+        function exportHtmlFile() {
+            const dataStr = JSON.stringify(publicationsData, null, 12);
+            let html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+            html = html.replace(
+                /const publicationsData = \[[\s\S]*?\];(\s*\/\/ ={10,})/,
+                `const publicationsData = ${dataStr};$1`
+            );
+            const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+            const url  = URL.createObjectURL(blob);
+            const a    = document.createElement('a');
+            a.href = url; a.download = 'مطبوعات_النيابة.html';
+            document.body.appendChild(a); a.click();
+            document.body.removeChild(a); URL.revokeObjectURL(url);
+            showToast('📥 تم تصدير الملف المحدَّث');
+        }
+
+        function initAutoSave() { loadSavedData(); }
+
+        // ============================================================
+        // عرض المطبوعة / PDF
+        // ============================================================
+        function selectPublication(name, pdfPath, wordPath, defaultOrientation, element) {
+            document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
+            element.classList.add('active');
+
+            const welcomeBox = document.getElementById('welcomeBox');
+            const previewBox = document.getElementById('previewBox');
+            const leaveContainer = document.getElementById('leaveContainer');
+            const outLetterContainer = document.getElementById('outgoingLetterContainer');
+            if (leaveContainer) leaveContainer.style.display = 'none';
+            if (outLetterContainer) outLetterContainer.style.display = 'none';
+
+            if (welcomeBox.style.display !== 'none') {
+                welcomeBox.style.opacity = '0'; welcomeBox.style.transform = 'translateY(-20px)'; welcomeBox.style.transition = 'all 0.4s ease';
+                setTimeout(() => { welcomeBox.style.display = 'none'; previewBox.style.display = 'flex'; }, 400);
+            } else {
+                previewBox.style.display = 'flex'; previewBox.style.animation = 'none'; void previewBox.offsetWidth; previewBox.style.animation = 'fadeInScale 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
+            }
+
+            currentPdfPath = pdfPath; currentWordPath = wordPath; currentPublicationName = name;
+            document.getElementById('pdfViewer').src = pdfPath;
+
+            const savedOrientation = localStorage.getItem('orient_' + name);
+            if (savedOrientation) { updateOrientationBadge(savedOrientation, false); }
+            else {
+                if (/\.(jpg|jpeg|png|webp|gif)$/i.test(pdfPath)) { detectImageOrientation(pdfPath); }
+                else { updateOrientationBadge(defaultOrientation, false); }
+            }
+            showToast(`📂 جاري عرض: ${name}`);
+        }
+
+        function detectImageOrientation(url) {
+            const img = new Image();
+            img.onload = function() { updateOrientationBadge((this.width > this.height) ? 'landscape' : 'portrait', true); };
+            img.src = url;
+        }
+
+        function manualToggleOrientation() {
+            const newOrientation = (currentOrientation === 'portrait') ? 'landscape' : 'portrait';
+            updateOrientationBadge(newOrientation, true);
+            showToast(`💾 تم حفظ تفضيلك: ${newOrientation === 'landscape' ? 'عرضي' : 'طولي'}`);
+        }
+
+        function updateOrientationBadge(orientation, shouldSave) {
+            currentOrientation = orientation;
+            const badge = document.getElementById('orientationBadge');
+            const wrapper = document.getElementById('pdfWrapper');
+            if (shouldSave && currentPublicationName) localStorage.setItem('orient_' + currentPublicationName, orientation);
+            wrapper.classList.remove('portrait', 'landscape');
+            if (orientation === 'landscape') {
+                badge.className = 'badge-orientation landscape'; badge.innerHTML = '<i class="fas fa-arrows-alt-h"></i> <span>عرضي (A4)</span>'; wrapper.classList.add('landscape');
+            } else {
+                badge.className = 'badge-orientation'; badge.innerHTML = '<i class="fas fa-arrows-alt-v"></i> <span>طولي (A4)</span>'; wrapper.classList.add('portrait');
+            }
+        }
+
+        // ============================================================
+        // الإشعارات
+        // ============================================================
+        function showToast(text) {
+            const toast = document.getElementById('statusToast');
+            document.getElementById('statusText').textContent = text;
+            toast.style.display = 'flex';
+            setTimeout(() => { toast.style.display = 'none'; }, 3000);
+        }
+
+        // ============================================================
+        // الوضع الليلي
+        // ============================================================
+        function toggleTheme() {
+            const body = document.body; const icon = document.getElementById('themeIcon');
+            if (body.getAttribute('data-theme') === 'light') { body.setAttribute('data-theme', 'dark'); icon.className = 'fas fa-sun'; localStorage.setItem('theme', 'dark'); }
+            else { body.setAttribute('data-theme', 'light'); icon.className = 'fas fa-moon'; localStorage.setItem('theme', 'light'); }
+        }
+
+        // ============================================================
+        // الطباعة
+        // ============================================================
+        function printPdf() {
+            if (!currentPdfPath) return;
+            const viewer = document.getElementById('pdfViewer');
+            try { viewer.contentWindow.focus(); viewer.contentWindow.print(); }
+            catch (e) {
+                const popup = window.open(currentPdfPath, '_blank', 'width=900,height=700,left=100,top=50');
+                popup.onload = function() { popup.print(); setTimeout(() => popup.close(), 1000); };
+            }
+        }
+
+        function copyFolderPath() {
+            const tempInput = document.createElement("input");
+            tempInput.value = "E:\\بوابه نيابه مرور عين الصيره\\نيابة_مرور_عين_الصيرة اللي فيها ترس الضبط\\files";
+            document.body.appendChild(tempInput); tempInput.select(); document.execCommand("copy"); document.body.removeChild(tempInput);
+            showToast("📋 تم نسخ مسار مجلد الملفات");
+        }
+
+        // ============================================================
+        // أدوات التاريخ
+        // ============================================================
+        function formatDateAr(dateStr) {
+            if (!dateStr) return null;
+            const parts = dateStr.split('-'); if (parts.length !== 3) return null;
+            const [y, m, d] = parts; return { display: `${d}/${m}/${y}`, dateObj: new Date(Number(y), Number(m) - 1, Number(d)) };
+        }
+
+        // ============================================================
+        // عرض النماذج التفاعلية
+        // ============================================================
+        function selectFormView(formId, name, element) {
+            document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active')); element.classList.add('active');
+            const welcomeBox = document.getElementById('welcomeBox');
+            const previewBox = document.getElementById('previewBox');
+            const leaveContainer = document.getElementById('leaveContainer');
+            const outLetterContainer = document.getElementById('outgoingLetterContainer');
+            previewBox.style.display = 'none';
+            if (leaveContainer) leaveContainer.style.display = 'none';
+            if (outLetterContainer) outLetterContainer.style.display = 'none';
+            let targetContainer = formId === 'leave' ? leaveContainer : (formId === 'outgoing_letter' ? outLetterContainer : null);
+            if (welcomeBox.style.display !== 'none') {
+                welcomeBox.style.opacity = '0'; welcomeBox.style.transform = 'translateY(-20px)'; welcomeBox.style.transition = 'all 0.4s ease';
+                setTimeout(() => { welcomeBox.style.display = 'none'; if (targetContainer) targetContainer.style.display = 'flex'; }, 400);
+            } else {
+                if (targetContainer) { targetContainer.style.display = 'flex'; targetContainer.style.animation = 'none'; void targetContainer.offsetWidth; targetContainer.style.animation = 'fadeInScale 0.5s cubic-bezier(0.4, 0, 0.2, 1)'; }
+            }
+            currentPdfPath = ''; currentPublicationName = name;
+            if (formId === 'leave') { loadLeaveData(); syncLeave(); }
+            else if (formId === 'outgoing_letter') {
+                if (!document.getElementById('outLetterDate').value) document.getElementById('outLetterDate').value = new Date().toISOString().split('T')[0];
+                syncOutLetter();
+            }
+            showToast(`📂 جاري عرض: ${name}`);
+        }
+
+        // ============================================================
+        // وظائف الإجازة
+        // ============================================================
+        const LEAVE_STORAGE_KEY = 'leave_request_data';
+        function syncLeave() {
+            const type = document.getElementById('leaveType').value;
+            const days = document.getElementById('leaveDays').value;
+            const start = formatDateAr(document.getElementById('leaveStartDate').value);
+            const end   = formatDateAr(document.getElementById('leaveEndDate').value);
+            document.getElementById('lv_type').textContent = type || 'اعتيادي';
+            document.getElementById('lv_type2').textContent = type || 'اعتيادي';
+            const daysNum = parseInt(days, 10);
+            const daysCountWrap = document.getElementById('lv_daysCountWrap');
+            if (!days || isNaN(daysNum)) { document.getElementById('lv_days').textContent = '.......................'; document.getElementById('lv_daysWord').textContent = 'أيام'; daysCountWrap.style.display = ''; }
+            else if (daysNum === 1) { document.getElementById('lv_daysWord').textContent = 'يوم'; daysCountWrap.style.display = 'none'; }
+            else if (daysNum === 2) { document.getElementById('lv_daysWord').textContent = 'يومين'; daysCountWrap.style.display = 'none'; }
+            else { document.getElementById('lv_days').textContent = daysNum; document.getElementById('lv_daysWord').textContent = 'أيام'; daysCountWrap.style.display = ''; }
+            const ARABIC_DAYS = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+            document.getElementById('lv_startDay').textContent  = start ? ARABIC_DAYS[start.dateObj.getDay()] : '.....................';
+            document.getElementById('lv_startDate').textContent = start ? start.display : '............./............./.............';
+            document.getElementById('lv_endDay').textContent    = end   ? ARABIC_DAYS[end.dateObj.getDay()]   : '.....................';
+            document.getElementById('lv_endDate').textContent   = end   ? end.display   : '............./............./.............';
+            document.getElementById('lv_employeeName').textContent  = document.getElementById('leaveEmployeeName').value  || '...........................';
+            document.getElementById('lv_clerkName').textContent     = document.getElementById('leaveClerkName').value     || '...........................';
+            document.getElementById('lv_requesterName').textContent = document.getElementById('leaveRequesterName').value || '...........................';
+            const writtenDate = formatDateAr(document.getElementById('leaveWrittenDate').value);
+            document.getElementById('lv_writtenDate').textContent = writtenDate ? writtenDate.display : '....../....../.......';
+            const employeeRow   = document.getElementById('lv_employeeRow');
+            const requesterRow  = document.getElementById('lv_requesterRow');
+            const employeeInput = document.getElementById('leaveEmployeeName').closest('.leave-form-group');
+            if (type === 'عارضة') {
+                if (employeeRow) employeeRow.style.display = 'none'; if (employeeInput) employeeInput.style.display = 'none';
+                if (requesterRow) requesterRow.style.justifyContent = 'flex-start';
+            } else {
+                if (employeeRow) employeeRow.style.display = 'flex'; if (employeeInput) employeeInput.style.display = 'flex';
+                if (requesterRow) requesterRow.style.justifyContent = 'flex-end';
+            }
+            try { localStorage.setItem(LEAVE_STORAGE_KEY, JSON.stringify({ type, days, startDate: document.getElementById('leaveStartDate').value, endDate: document.getElementById('leaveEndDate').value, employeeName: document.getElementById('leaveEmployeeName').value, clerkName: document.getElementById('leaveClerkName').value, requesterName: document.getElementById('leaveRequesterName').value, writtenDate: document.getElementById('leaveWrittenDate').value })); } catch(e) {}
+        }
+
+        function loadLeaveData() {
+            try {
+                const data = JSON.parse(localStorage.getItem(LEAVE_STORAGE_KEY)); if (!data) return;
+                if (data.type)         document.getElementById('leaveType').value = data.type;
+                if (data.days)         document.getElementById('leaveDays').value = data.days;
+                if (data.startDate)    document.getElementById('leaveStartDate').value = data.startDate;
+                if (data.endDate)      document.getElementById('leaveEndDate').value = data.endDate;
+                if (data.employeeName) document.getElementById('leaveEmployeeName').value = data.employeeName;
+                if (data.clerkName)    document.getElementById('leaveClerkName').value = data.clerkName;
+                if (data.requesterName)document.getElementById('leaveRequesterName').value = data.requesterName;
+                if (data.writtenDate)  document.getElementById('leaveWrittenDate').value = data.writtenDate;
+            } catch(e) {}
+        }
+
+        function clearLeaveForm() {
+            document.getElementById('leaveType').value = 'اعتيادي';
+            document.getElementById('leaveDays').value = '';
+            document.getElementById('leaveStartDate').value = '';
+            document.getElementById('leaveEndDate').value = '';
+            document.getElementById('leaveEmployeeName').value = '';
+            document.getElementById('leaveClerkName').value = '';
+            document.getElementById('leaveRequesterName').value = '';
+            document.getElementById('leaveWrittenDate').value = '';
+            syncLeave(); showToast('🧹 تم تفريغ النموذج');
+        }
+
+        function printLeaveRequest() { triggerPrintWindow(document.getElementById('leaveDocWrapper').innerHTML, "طلب اجازة"); }
+
+        // ============================================================
+        // وظائف الخطاب الصادر
+        // ============================================================
+        function toggleOutLetterOther() {
+            const select = document.getElementById('outLetterRecipient');
+            document.getElementById('outLetterOtherGroup').style.display = (select.value === 'أخرى') ? 'flex' : 'none';
+        }
+
+        function toggleOutLetterSignatures() {
+            const sigType = document.getElementById('outLetterSignatureType').value;
+            document.getElementById('outLetterManagerGroup').style.display     = (sigType === 'مدير النيابة' || sigType === 'مدير النيابة ورئيس القلم') ? 'flex' : 'none';
+            document.getElementById('outLetterClerkGroup').style.display       = (sigType === 'رئيس القلم'   || sigType === 'مدير النيابة ورئيس القلم') ? 'flex' : 'none';
+            document.getElementById('outLetterOtherSigTitleGroup').style.display = (sigType === 'أخرى') ? 'flex' : 'none';
+            document.getElementById('outLetterOtherSigNameGroup').style.display  = (sigType === 'أخرى') ? 'flex' : 'none';
+        }
+
+        function syncOutLetter() {
+            const select = document.getElementById('outLetterRecipient');
+            const otherInput = document.getElementById('outLetterOther');
+            document.getElementById('out_recipient_display').textContent = (select.value === 'أخرى') ? (otherInput.value || '...........................') : select.value;
+            const content = document.getElementById('outLetterContent').value;
+            document.getElementById('outLetterBodyDisplay').innerHTML = content
+                ? `<div style="margin:0 auto; display:inline-block; text-align:center;">${content}</div>`
+                : `<p style="color:#aaa; font-size:1.2rem; margin:0 auto;">(سيتم إدراج محتوى الخطاب الصادر هنا)</p>`;
+            const dateVal = document.getElementById('outLetterDate').value;
+            const dateObj = formatDateAr(dateVal);
+            document.getElementById('out_date_display').textContent = dateObj ? dateObj.display : '....../....../..........';
+            const sigType  = document.getElementById('outLetterSignatureType').value;
+            const rightSig = document.getElementById('out_sig_right');
+            const leftSig  = document.getElementById('out_sig_left');
+            if (sigType === 'مدير النيابة') {
+                rightSig.style.display = 'none'; leftSig.style.display = 'block';
+                document.getElementById('out_sig_left_title').textContent = 'مدير النيابة';
+                document.getElementById('out_sig_left_name').textContent  = document.getElementById('outLetterManagerName').value || '...........................';
+            } else if (sigType === 'رئيس القلم') {
+                rightSig.style.display = 'none'; leftSig.style.display = 'block';
+                document.getElementById('out_sig_left_title').textContent = 'رئيس القلم';
+                document.getElementById('out_sig_left_name').textContent  = document.getElementById('outLetterClerkName').value || '...........................';
+            } else if (sigType === 'أخرى') {
+                rightSig.style.display = 'none'; leftSig.style.display = 'block';
+                document.getElementById('out_sig_left_title').textContent = document.getElementById('outLetterOtherSigTitle').value || '...........................';
+                document.getElementById('out_sig_left_name').textContent  = document.getElementById('outLetterOtherSigName').value || '...........................';
+            } else if (sigType === 'مدير النيابة ورئيس القلم') {
+                rightSig.style.display = 'block'; leftSig.style.display = 'block';
+                document.getElementById('out_sig_right_title').textContent = 'رئيس القلم';
+                document.getElementById('out_sig_right_name').textContent  = document.getElementById('outLetterClerkName').value || '...........................';
+                document.getElementById('out_sig_left_title').textContent  = 'مدير النيابة';
+                document.getElementById('out_sig_left_name').textContent   = document.getElementById('outLetterManagerName').value || '...........................';
+            }
+        }
+
+        function clearOutLetterForm() {
+            document.getElementById('outLetterRecipient').value     = 'رئيس نيابة مرور القاهرة';
+            document.getElementById('outLetterOther').value         = '';
+            document.getElementById('outLetterContent').value       = '';
+            document.getElementById('outLetterDate').value          = new Date().toISOString().split('T')[0];
+            document.getElementById('outLetterSignatureType').value = 'مدير النيابة';
+            document.getElementById('outLetterManagerName').value   = '';
+            document.getElementById('outLetterClerkName').value     = '';
+            document.getElementById('outLetterOtherSigTitle').value = '';
+            document.getElementById('outLetterOtherSigName').value  = '';
+            toggleOutLetterOther(); toggleOutLetterSignatures(); syncOutLetter();
+            showToast('🧹 تم تفريغ النموذج');
+        }
+
+        function printOutLetter() { triggerPrintWindow(document.getElementById('outLetterDocWrapper').innerHTML, "خطاب صادر"); }
+
+        // ============================================================
+        // دالة الطباعة العامة
+        // ============================================================
+        function triggerPrintWindow(docHTML, title) {
+            const css = `
+                @page { size: A4; margin: 0; }
+                * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; margin: 0; padding: 0; }
+                html, body { width: 210mm; height: 297mm; overflow: hidden; background: white; }
+                .leave-document-paper { width: 190mm; height: 277mm; margin: 10mm auto; border: 4px double #1a3a6b; padding: 4px; background: white; position: relative; }
+                .leave-inner-border { border: 2px solid #3a5a9b; width: 100%; height: 100%; padding: 12mm 14mm; box-sizing: border-box; display: flex; flex-direction: column; position: relative; overflow: hidden; background: #fff; font-family: 'Cairo', 'Arial', sans-serif; color: #1a1a1a; }
+                .leave-inner-border::before { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80%; height: 80%; background-image: url('logo.png'); background-repeat: no-repeat; background-position: center; background-size: contain; opacity: 0.06; z-index: 0; }
+                .leave-inner-border > * { position: relative; z-index: 1; }
+                .leave-doc-header { display: flex; justify-content: space-between; align-items: flex-start; }
+                .leave-header-right { text-align: right; font-size: 15pt; line-height: 1.5; }
+                .entity-name { font-weight: 700; font-size: 16pt; display: block; color: #1a3a6b; }
+                .leave-header-left img { width: 65px; height: auto; }
+                .leave-title-wrap { text-align: center; margin-top: 8mm; }
+                .leave-title-box { font-size: 22pt; font-weight: 700; text-decoration: underline; margin-bottom: 4mm; color: #1a3a6b; }
+                .leave-recipient { font-size: 18pt; font-weight: 700; color: #1a3a6b; margin-bottom: 2mm; }
+                .leave-body-text { font-size: 16pt; line-height: 1.5; text-align: center; margin-top: 10mm; margin-bottom: 12mm; flex: 1; display: block; width: 100%; }
+                #outLetterBodyDisplay { white-space: pre-wrap; text-align: center; width: 100%; display: block; margin: 0 auto; }
+                .leave-thanks { font-size: 17pt; font-weight: 700; margin-top: 8mm; }
+                .out-letter-closing { font-size: 17pt; font-weight: 700; color: #1a3a6b; margin-top: 10mm; text-align: center; width: 100%; display: block; margin: 0 auto; }
+                .leave-highlight { font-weight: 700; color: #1a3a6b; }
+                .leave-footer-sigs { margin-top: auto; display: flex; flex-direction: column; gap: 8mm; margin-bottom: 8mm; }
+                .leave-sig-row { display: flex; }
+                .leave-sig-row-right { justify-content: flex-end; }
+                .leave-sig-row-left  { justify-content: flex-start; }
+                .leave-sig-block { text-align: center; min-width: 50mm; }
+                .leave-sig-title { font-size: 17pt; font-weight: 700; display: block; margin-bottom: 3mm; color: #1a3a6b; }
+                .leave-sig-name  { font-size: 16pt; font-weight: 700; margin-bottom: 3mm; }
+                .leave-sig-line  { font-size: 15pt; letter-spacing: 1px; color: #444; }
+            `;
+            const w = window.open('', '_blank', 'width=794,height=1123,toolbar=no,scrollbars=no,resizable=no,location=no,menubar=no,status=no');
+            if (!w) { alert('يرجى السماح بفتح النوافذ المنبثقة للطباعة'); return; }
+            w.document.write(`<!DOCTYPE html><html dir="rtl" lang="ar"><head><meta charset="UTF-8"><title>${title}</title><style>${css}</style></head><body>${docHTML}<script>(function(){let p=false;function c(){try{window.close();}catch(e){}}window.addEventListener('load',function(){setTimeout(function(){window.print();p=true;},300);});window.addEventListener('afterprint',c);window.onafterprint=c;setTimeout(function(){if(p&&!window.closed)c();},8000);document.addEventListener('keydown',function(e){if(e.key==='Escape')c();});})();<\/script></body></html>`);
+            w.document.close();
+        }
+
+        // ============================================================
+        // تهيئة الصفحة
+        // ============================================================
+        window.addEventListener('afterprint', () => { document.body.classList.remove('print-leave'); });
+        document.getElementById('currentDate').textContent = new Date().toLocaleDateString('ar-EG', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        if (localStorage.getItem('theme') === 'dark') { document.body.setAttribute('data-theme', 'dark'); document.getElementById('themeIcon').className = 'fas fa-sun'; }
+
+        initAutoSave();   // تحميل البيانات المحفوظة أولاً
+        initMenu();       // ثم بناء القائمة بالبيانات المحدَّثة
+        const firstHeader = document.querySelector('.accordion-header');
+        if (firstHeader) { firstHeader.classList.add('open'); if(firstHeader.nextElementSibling) firstHeader.nextElementSibling.classList.add('open'); }
+    </script>
+
+<script>
+    (function(){
+      var K='niabat_config';
+      function load(){try{return JSON.parse(localStorage.getItem(K));}catch(e){return null;}}
+
+      function replaceNiabatName(newName) {
+        /* تحديث العناوين اللي واخدة الكلاس أو الـ data-config */
+        var nameEls = document.querySelectorAll('[data-config="prosecution-name"]');
+        nameEls.forEach(function(el) {
+            el.textContent = newName;
+        });
+
+        /* مسح شامل للنص في الصفحة (التركاية بتاعتنا) */
+        var pat = /نيابة مرور (عيـن|عين) (الصيـرة|الصيرة|الصيره)/g;
+        var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
+        var nodes = []; var n;
+        while ((n = walker.nextNode())) if (pat.test(n.nodeValue)) nodes.push(n);
+        nodes.forEach(function(nd) {
+          nd.nodeValue = nd.nodeValue.replace(/نيابة مرور (عيـن|عين) (الصيـرة|الصيرة|الصيره)/g, newName);
+        });
+      }
+
+      function apply(cfg) {
+        if (!cfg) return;
+        
+        /* تحديث اسم النيابة الشامل */
+        if (cfg.prosecutionName) replaceNiabatName(cfg.prosecutionName);
+      }
+
+      if (document.readyState === 'loading')
+        document.addEventListener('DOMContentLoaded', function() { apply(load()); });
+      else apply(load());
+      
+      /* استقبال الإعدادات أونلاين من البوابة */
+      window.addEventListener('message', function(e) {
+        if (e.data && e.data.type === 'NIABAT_CONFIG_UPDATE') apply(e.data.config);
+      });
+      
+      /* استقبال الإعدادات محلياً */
+      window.addEventListener('storage', function(e) { if (e.key === K) apply(load()); });
+    })();
+    </script>
+
+
+
+</body></html>

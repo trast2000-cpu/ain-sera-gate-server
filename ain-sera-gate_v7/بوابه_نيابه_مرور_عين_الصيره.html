@@ -1,0 +1,1489 @@
+﻿<!DOCTYPE html>
+<html lang="ar" dir="rtl"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>بوابة نيابة مرور عين الصيرة</title>
+<link href="fontawesome-free-6.4.0-web/css/all.min.css" rel="stylesheet">
+
+<link href="cairo.css" rel="stylesheet">
+<script src="api.js"></script>
+<style>
+
+
+
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --navy:        #0d1b2e;
+  --gold:        #c9a84c;
+  --gold2:       #e8c97a;
+  --white:       #f8f6f0;
+  --muted:       #8a9ab5;
+  --card-bg:     #152035;
+  --card-border: #1e3050;
+  --radius:      16px;
+  --bar-h:       56px;
+
+--transition: .9s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+html, body { height:100%; font-family:'Cairo',sans-serif; background:var(--navy); color:var(--white); overflow:hidden; }
+
+body::before {
+  content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 0%,  rgba(201,168,76,.07) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 40% at 90% 90%, rgba(26,48,85,.8)    0%, transparent 60%),
+    radial-gradient(ellipse 30% 30% at 10% 80%, rgba(26,48,85,.6)    0%, transparent 60%);
+}
+body::after {
+  content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
+  background-image: radial-gradient(circle, rgba(201,168,76,.08) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* ══════ LAUNCHER ══════ */
+#launcher {
+  position:fixed; inset:0; z-index:10;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  padding:24px 16px;
+  transition: opacity var(--transition), transform var(--transition);
+  transform-origin: top center;
+}
+#launcher.hiding { opacity:0; transform:scale(0.92) translateY(-30px); pointer-events:none; }
+#launcher.hidden  { display:none; }
+
+.lnc-header { text-align:center; margin-top: 40px; margin-bottom:5px; animation:fadeUp .5s ease both; }
+.emblem-ring {
+  width:64px; height:64px; border:2px solid var(--gold); border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  position:relative; margin:0 auto 14px;
+}
+.emblem-ring::before {
+  content:''; position:absolute; width:50px; height:50px;
+  border:1px solid rgba(201,168,76,.3); border-radius:50%;
+}
+.emblem-icon { font-size:26px; line-height:1; }
+.lnc-header h1 { font-size:26px; font-weight:700; letter-spacing:.02em; }
+.header-line { width:60px; height:2px; margin:10px auto; background:linear-gradient(90deg,transparent,var(--gold),transparent); }
+.lnc-header p { font-size:13px; color:var(--muted); }
+
+.cards-grid {
+  display:grid; grid-template-columns:repeat(3,1fr);
+  gap:15px; width:100%; max-width:1050px; perspective:1000px;
+  zoom:1;
+}
+
+.app-card {
+  background: linear-gradient(
+    145deg,
+    rgba(255,255,255,.08) 0%,
+    rgba(255,255,255,.03) 40%,
+    rgba(13,27,46,.45)    100%
+  );
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border: 1px solid rgba(255,255,255,.11);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.12),
+    inset 0 -1px 0 rgba(0,0,0,.12),
+    0 10px 28px rgba(0,0,0,.38),
+    0 3px  8px  rgba(0,0,0,.22),
+    0 0 0 1px   rgba(255,255,255,.04);
+  border-radius:var(--radius); padding:18px 14px 16px;
+  cursor:pointer; display:flex; flex-direction:column;
+  align-items:center; gap:10px; text-align:center;
+  color:inherit; position:relative; overflow:hidden;
+  transition:border-color .3s, transform .35s cubic-bezier(.34,1.56,.64,1), box-shadow .3s;
+}
+.app-card::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:2px;
+  background:linear-gradient(90deg,transparent,var(--card-accent,var(--gold)),transparent);
+  opacity:0; transition:opacity .3s;
+}
+.app-card::after {
+  content:''; position:absolute; inset:0; border-radius:var(--radius);
+  background:radial-gradient(ellipse 80% 60% at 50% 120%,var(--card-accent,var(--gold)),transparent 70%);
+  opacity:0; transition:opacity .3s; pointer-events:none;
+}
+.app-card:hover {
+  border-color: var(--card-accent, var(--gold));
+  transform: translateY(-14px) scale(1.03);
+  background: linear-gradient(145deg, rgba(255,255,255,.13) 0%, rgba(255,255,255,.06) 40%, rgba(13,27,46,.35) 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.2),
+    0 28px 52px rgba(0,0,0,.55),
+    0 10px 20px rgba(0,0,0,.3),
+    0 0 0 1px var(--card-accent, rgba(201,168,76,.35)),
+    0 0 36px -6px var(--card-accent, rgba(201,168,76,.45));
+}
+.app-card:hover::before { opacity:1; }
+.app-card:hover::after  { opacity:.06; }
+.app-card:hover .card-icon-wrap { transform:translateY(-4px) scale(1.08); }
+.app-card:hover .card-name { color:#fff; }
+.app-card:active { transform:translateY(-5px) scale(1.01); }
+.app-card.coming-soon { opacity:.5; cursor:default; }
+.app-card.coming-soon:hover { transform:none; box-shadow:none; border-color:var(--card-border); }
+.app-card.coming-soon::before, .app-card.coming-soon::after { display:none; }
+
+.card-icon-wrap {
+  width:55px; height:55px; border-radius:14px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:26px; flex-shrink:0; position:relative;
+  transition:transform .35s cubic-bezier(.34,1.56,.64,1);
+}
+.card-icon-wrap::after { content:''; position:absolute; inset:0; border-radius:17px; border:1px solid rgba(255,255,255,.08); }
+.card-body { flex:1; display:flex; flex-direction:column; gap:7px; align-items:center; width:100%; }
+.card-name { font-size:18px; font-weight:700; color:var(--white); line-height:1.3; transition:color .25s; }
+.card-desc { font-size:14px; color:var(--muted); line-height:1.4; flex:1; }
+.card-badge { display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:500; padding:4px 11px; border-radius:20px; margin-top:auto; }
+.badge-active { background:rgba(34,197,94,.12); color:#4ade80; border:1px solid rgba(34,197,94,.2); animation:pulse-active 2.5s ease-in-out infinite; }
+
+@keyframes pulse-active {
+  0%, 100% { box-shadow:0 0 0 0 rgba(74,222,128,0); border-color:rgba(34,197,94,.2); color:#4ade80; }
+  50%       { box-shadow:0 0 8px 2px rgba(74,222,128,.25); border-color:rgba(74,222,128,.55); color:#86efac; }
+}
+.badge-soon   { background:rgba(201,168,76,.1); color:var(--gold2); border:1px solid rgba(201,168,76,.2); }
+
+.c1 { --card-accent:#4e8ef7; } .c1 .card-icon-wrap { background:rgba(78,142,247,.12); }
+.c2 { --card-accent:#c9a84c; } .c2 .card-icon-wrap { background:rgba(201,168,76,.12); }
+.c3 { --card-accent:#34d399; } .c3 .card-icon-wrap { background:rgba(52,211,153,.12); }
+.c4 { --card-accent:#f87171; } .c4 .card-icon-wrap { background:rgba(248,113,113,.12); }
+.c5 { --card-accent:#a78bfa; } .c5 .card-icon-wrap { background:rgba(167,139,250,.12); }
+.c6 { --card-accent:#00d2ff; } .c6 .card-icon-wrap { background:rgba(0,210,255,.12); }
+
+.lnc-footer { text-align:center; margin-top:28px; font-size:13px; color:rgba(138,154,181,.5); }
+
+.lnc-footer .dev-credit {
+  display:inline-block;
+  cursor:default;
+  position:relative;
+  padding:2px 6px;
+  border-radius:6px;
+  transition:color .4s ease;
+  background:transparent;
+}
+.lnc-footer .dev-credit::before {
+  content:'';
+  position:absolute; inset:0; border-radius:6px;
+  background:linear-gradient(90deg, rgba(201,168,76,0), rgba(201,168,76,.18), rgba(201,168,76,0));
+  opacity:0;
+  transition:opacity .4s ease;
+}
+.lnc-footer .dev-credit::after {
+  content:'';
+  position:absolute; bottom:0; left:10%; right:10%; height:1px;
+  background:linear-gradient(90deg, transparent, var(--gold), transparent);
+  opacity:0;
+  transition:opacity .4s ease;
+}
+.lnc-footer .dev-credit:hover { color:var(--gold2); text-shadow:0 0 12px rgba(201,168,76,.6), 0 0 24px rgba(201,168,76,.3); }
+.lnc-footer .dev-credit:hover::before { opacity:1; }
+.lnc-footer .dev-credit:hover::after  { opacity:1; }
+
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
+}
+.lnc-footer .dev-credit:hover .dev-name {
+  background: linear-gradient(90deg, var(--gold), var(--gold2), #fff, var(--gold2), var(--gold));
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer 2s linear infinite;
+}
+
+@keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+.lnc-header            { animation:fadeUp .5s ease both; }
+.app-card:nth-child(1) { animation:fadeUp .5s  .10s ease both; }
+.app-card:nth-child(2) { animation:fadeUp .5s  .17s ease both; }
+.app-card:nth-child(3) { animation:fadeUp .5s  .24s ease both; }
+.app-card:nth-child(4) { animation:fadeUp .5s  .31s ease both; }
+.app-card:nth-child(5) { animation:fadeUp .5s  .38s ease both; }
+
+/* ══════ TOP BAR ══════ */
+#topbar {
+  position:fixed; top:0; left:0; right:0;
+  height:var(--bar-h); z-index:100;
+  background: linear-gradient(
+    135deg,
+    rgba(255,255,255,.07) 0%,
+    rgba(255,255,255,.03) 50%,
+    rgba(201,168,76,.05) 100%
+  );
+  backdrop-filter: blur(28px) saturate(180%) brightness(1.08);
+  -webkit-backdrop-filter: blur(28px) saturate(180%) brightness(1.08);
+  border-bottom: 1px solid rgba(255,255,255,.10);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.08),
+    0 8px 32px rgba(0,0,0,.35),
+    0 2px 8px rgba(0,0,0,.2);
+  display:flex; align-items:center;
+  padding:0 6px; gap:2px;
+  overflow-x:auto; overflow-y:hidden;
+  scrollbar-width:none;
+  opacity:0; transform:translateY(-100%);
+  transition:opacity var(--transition), transform var(--transition);
+  pointer-events:none;
+}
+#topbar::-webkit-scrollbar { display:none; }
+#topbar.visible { opacity:1; transform:translateY(0); pointer-events:all; }
+#topbar::after {
+  content:''; position:absolute; bottom:0; left:0; right:0; height:1px;
+  background:linear-gradient(90deg,transparent,rgba(201,168,76,.35),transparent);
+}
+
+/* زرار الرئيسية */
+.tb-home {
+  display:flex; align-items:center; gap:5px;
+  padding:0 10px; height:34px; border-radius:10px;
+  border:1px solid rgba(201,168,76,.35); background:rgba(201,168,76,.1);
+  color:var(--gold2); font-family:'Cairo',sans-serif;
+  font-size:14px; font-weight:600; cursor:pointer;
+  white-space:nowrap; flex-shrink:0;
+  transition:background .2s, border-color .2s;
+}
+.tb-home:hover { background:rgba(201,168,76,.2); border-color:rgba(201,168,76,.55); }
+
+.tb-sep { width:1px; height:24px; flex-shrink:0; background:rgba(201,168,76,.15); margin:0 2px; }
+
+/* عناصر الشريط */
+.tb-item {
+  display:flex; align-items:center; gap:6px;
+  padding:0 13px; height:36px; border-radius:10px;
+  border:1.5px solid color-mix(in srgb, var(--tb-accent, var(--gold)) 60%, transparent);
+  background: color-mix(in srgb, var(--tb-accent, var(--gold)) 16%, transparent);
+  color:var(--white); font-family:'Cairo',sans-serif;
+  font-size:14px; font-weight:700; cursor:pointer;
+  white-space:nowrap; flex-shrink:0; min-width:0;
+  position:relative;
+  transition: color .22s, background .22s, border-color .22s,
+              transform .25s cubic-bezier(.34,1.56,.64,1),
+              box-shadow .22s;
+  overflow:hidden;
+}
+.tb-item::before {
+  content:''; position:absolute; inset:0; border-radius:10px;
+  background: radial-gradient(ellipse 80% 60% at 50% 120%, var(--tb-accent, var(--gold)), transparent 70%);
+  opacity:0; transition:opacity .25s; pointer-events:none;
+}
+.tb-item::after {
+  content:''; position:absolute; bottom:0; left:15%; right:15%; height:2px;
+  border-radius:2px 2px 0 0;
+  background:var(--tb-accent,var(--gold));
+  opacity:0; transition:opacity .25s;
+}
+.tb-item:hover {
+  color:var(--white);
+  background: color-mix(in srgb, var(--tb-accent, var(--gold)) 28%, transparent);
+  border-color: color-mix(in srgb, var(--tb-accent, var(--gold)) 90%, transparent);
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 6px 18px -4px color-mix(in srgb, var(--tb-accent, var(--gold)) 45%, transparent);
+}
+.tb-item:hover::before { opacity:.1; }
+.tb-item:active {
+  transform: translateY(0px) scale(0.97);
+  box-shadow: 0 2px 6px -2px color-mix(in srgb, var(--tb-accent, var(--gold)) 35%, transparent);
+}
+.tb-item.active {
+  color:var(--white);
+  background: color-mix(in srgb, var(--tb-accent, var(--gold)) 32%, transparent);
+  border-color: color-mix(in srgb, var(--tb-accent, var(--gold)) 100%, transparent);
+  box-shadow: 0 0 14px -2px color-mix(in srgb, var(--tb-accent, var(--gold)) 55%, transparent);
+}
+.tb-item.active::after { opacity:1; }
+.tb-item.tb-disabled { opacity:.65; cursor:default; pointer-events:none; }
+
+.tb-icon  { font-size:15px; line-height:1; flex-shrink:0; }
+.tb-label { overflow:hidden; text-overflow:ellipsis; }
+.tb-soon  { font-size:9px; padding:1px 5px; border-radius:6px; background:rgba(167,139,250,.15); color:#c4b5fd; border:1px solid rgba(167,139,250,.25); flex-shrink:0; }
+
+/* ══════ CONTENT ══════ */
+#content-area {
+  position:fixed; top:var(--bar-h); left:0; right:0; bottom:0; z-index:5;
+  opacity:0; pointer-events:none;
+  transition:opacity .3s .25s;
+}
+#content-area.visible { opacity:1; pointer-events:all; }
+
+.sys-frame {
+  position:absolute; inset:0;
+  width:100%; height:100%;
+  border:none; background:var(--navy);
+  opacity:0;
+  transform:translateY(100px);
+  transition:opacity .8s ease, transform 0.9s cubic-bezier(0.34, 1.56, 0.64, 1);
+  pointer-events:none;
+}
+
+.sys-frame.active-frame {
+  opacity:1;
+  transform:translateY(0);
+  pointer-events:all;
+}
+
+@keyframes fadeUp {
+  from { opacity:0; }
+  to   { opacity:1; }
+}
+.fade-up {
+  animation: fadeUp 0.6s ease-in-out forwards;
+}
+
+#content-placeholder {
+  width:100%; height:100%;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px;
+  color:var(--muted);
+}
+#content-placeholder .ph-icon { font-size:48px; opacity:.4; }
+#content-placeholder p { font-size:14px; }
+
+
+/* ══════════════════════════════════════════
+   زر الترس وإعدادات النيابة
+══════════════════════════════════════════ */
+
+/* زر الترس الأساسي (في الشاشة الرئيسية) */
+#settings-btn {
+  position: fixed;
+  top: 25px;
+  left: 30px; /* تثبيته على اليسار */
+  right: auto;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(201,168,76,.12);
+  border: 1.5px solid rgba(201,168,76,.35);
+  color: var(--gold2);
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 300;
+  /* تأثير حركي سلس جداً عند تغيير مكانه */
+  transition: top 0.6s cubic-bezier(.34,1.56,.64,1), 
+              left 0.6s cubic-bezier(.34,1.56,.64,1), 
+              width 0.6s, height 0.6s, background 0.25s, 
+              border-color 0.25s, transform 0.4s, box-shadow 0.25s;
+  box-shadow: 0 4px 18px rgba(0,0,0,.35);
+}
+
+#settings-btn:hover {
+  background: rgba(201,168,76,.22);
+  border-color: var(--gold2);
+  transform: rotate(72deg) scale(1.1);
+  box-shadow: 0 6px 24px rgba(201,168,76,.25);
+}
+
+/* حالة الزرار لما يكون جوه الشريط العلوي */
+#settings-btn.in-topbar {
+  top: 6px;
+  left: 15px;
+  width: 42px;
+  height: 42px;
+  font-size: 18px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.2);
+}
+
+/* الخلفية المعتمة للمودال */
+#settings-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.70);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 500;
+  align-items: center;
+  justify-content: center;
+}
+#settings-overlay.open { display: flex; }
+
+/* صندوق المودال */
+#settings-modal {
+  background: linear-gradient(145deg, #16263f 0%, #0d1b2e 100%);
+  border: 1px solid rgba(201,168,76,.22);
+  border-radius: 10px;
+  box-shadow:
+    0 40px 100px rgba(0,0,0,.7),
+    0 0 0 1px rgba(255,255,255,.04),
+    inset 0 1px 0 rgba(255,255,255,.07);
+  width: 92%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 30px 28px 26px;
+  direction: rtl;
+  animation: modalPop .28s cubic-bezier(.34,1.56,.64,1) both;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(201,168,76,.2) transparent;
+}
+#settings-modal::-webkit-scrollbar { width: 5px; }
+#settings-modal::-webkit-scrollbar-thumb { background: rgba(201,168,76,.2); border-radius: 4px; }
+
+@keyframes modalPop {
+  from { opacity:0; transform: scale(.88) translateY(28px); }
+  to   { opacity:1; transform: scale(1) translateY(0); }
+}
+
+.cfg-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+.cfg-modal-title {
+  font-size: 19px;
+  font-weight: 800;
+  color: var(--gold2);
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.cfg-modal-close {
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.1);
+  color: var(--muted);
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  font-size: 15px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background .2s, color .2s;
+}
+.cfg-modal-close:hover { background: rgba(255,255,255,.12); color: var(--white); }
+
+.cfg-divider {
+  height: 1px;
+  background: linear-gradient(90deg, rgba(201,168,76,.5), transparent);
+  margin: 12px 0 22px;
+}
+
+.cfg-section-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: #f0c040;
+  letter-spacing: 0.5px;
+  text-transform: none;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.cfg-section-title::before {
+  content: '';
+  width: 3px;
+  height: 12px;
+  background: var(--gold);
+  border-radius: 2px;
+  display: inline-block;
+}
+
+.cfg-field-label {
+  font-size: 14px;
+  color: #c8d4e8;
+  margin-bottom: 8px;
+}
+
+.cfg-input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1.5px solid rgba(201,168,76,.35);
+  border-radius: 11px;
+  background: rgba(255,255,255,.07);
+  color: #ffffff;
+  font-family: 'Cairo', sans-serif;
+  font-size: 16px;
+  outline: none;
+  transition: border-color .22s, background .22s;
+  margin-bottom: 18px;
+}
+.cfg-input:focus {
+  border-color: rgba(201,168,76,.55);
+  background: rgba(255,255,255,.07);
+}
+.cfg-input::placeholder { color: rgba(138,154,181,.5); }
+
+/* قائمة الوكلاء */
+.agents-list {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  margin-bottom: 12px;
+}
+.agent-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.agent-row .cfg-input {
+  margin-bottom: 0;
+  flex: 1;
+}
+.btn-remove-agent {
+  background: rgba(248,113,113,.1);
+  border: 1px solid rgba(248,113,113,.25);
+  color: #f87171;
+  border-radius: 9px;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 13px;
+  transition: background .2s, transform .15s;
+  flex-shrink: 0;
+}
+.btn-remove-agent:hover { background: rgba(248,113,113,.2); transform: scale(1.1); }
+
+.btn-add-agent {
+  background: rgba(52,211,153,.08);
+  border: 1px dashed rgba(52,211,153,.3);
+  color: #34d399;
+  border-radius: 11px;
+  padding: 11px 16px;
+  font-family: 'Cairo', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  transition: background .2s, border-color .2s;
+  width: 100%;
+  justify-content: center;
+  margin-bottom: 22px;
+}
+.btn-add-agent:hover { background: rgba(52,211,153,.15); border-color: rgba(52,211,153,.5); }
+
+/* أزرار الإجراءات */
+.modal-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 4px;
+}
+.modal-actions-row2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.btn-save-cfg {
+  grid-column: 1 / -1;
+  background: linear-gradient(135deg, #c9a84c, #a8852e);
+  border: none;
+  border-radius: 13px;
+  padding: 13px 20px;
+  color: #0d1b2e;
+  font-family: 'Cairo', sans-serif;
+  font-size: 15px;
+  font-weight: 900;
+  cursor: pointer;
+  transition: opacity .2s, transform .15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  letter-spacing: .3px;
+}
+.btn-save-cfg:hover { opacity: .9; transform: translateY(-1px); }
+.btn-save-cfg:active { transform: translateY(0); }
+
+.btn-export-cfg {
+  background: rgba(78,142,247,.1);
+  border: 1.5px solid rgba(78,142,247,.3);
+  border-radius: 12px;
+  padding: 13px 14px;
+  color: #7ab4fa;
+  font-family: 'Cairo', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background .2s, border-color .2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.btn-export-cfg:hover { background: rgba(78,142,247,.18); border-color: rgba(78,142,247,.55); }
+
+.btn-import-cfg {
+  background: rgba(167,139,250,.08);
+  border: 1.5px solid rgba(167,139,250,.25);
+  border-radius: 12px;
+  padding: 13px 14px;
+  color: #d4c5ff;
+  font-family: 'Cairo', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background .2s, border-color .2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.btn-import-cfg:hover { background: rgba(167,139,250,.15); border-color: rgba(167,139,250,.5); }
+
+.btn-close-cfg {
+  
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 12px;
+  padding: 12px 20px;
+  color: #c8d4e8;
+  font-family: 'Cairo', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .2s, color .2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.btn-close-cfg:hover { background: rgba(255,255,255,.09); color: var(--white); }
+
+/* رسالة النجاح */
+.cfg-feedback {
+  display: none;
+  border-radius: 11px;
+  padding: 13px 16px;
+  font-size: 15px;
+  font-weight: 700;
+  text-align: center;
+  margin-top: 14px;
+  animation: fadeUp .3s ease both;
+}
+.cfg-feedback.success {
+  display: block;
+  background: rgba(52,211,153,.1);
+  border: 1px solid rgba(52,211,153,.25);
+  color: #34d399;
+}
+.cfg-feedback.info {
+  display: block;
+  background: rgba(78,142,247,.1);
+  border: 1px solid rgba(78,142,247,.25);
+  color: #7ab4fa;
+}
+.cfg-feedback.error {
+  display: block;
+  background: rgba(248,113,113,.1);
+  border: 1px solid rgba(248,113,113,.25);
+  color: #f87171;
+}
+
+/* توضيح صغير أسفل المودال */
+.cfg-note {
+  font-size: 13px;
+  color: rgba(200,212,232,.70);
+  text-align: center;
+  margin-top: 16px;
+  line-height: 1.6;
+}
+
+
+/* حاوية لجمع العنوان والحقل في سطر واحد */
+.cfg-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  margin-bottom: 16px;
+  background: rgba(255, 255, 255, 0.02);
+  padding: 10px 15px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* قسم المعلومات (العنوان والوصف) */
+.cfg-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* إلغاء الهوامش السفلية داخل الحاوية الجديدة لتوفير المساحة */
+.cfg-row .cfg-section-title {
+  margin-bottom: 2px;
+}
+
+.cfg-row .cfg-field-label {
+  margin-bottom: 0;
+  font-size: 12px !important;
+}
+
+/* تعديل مربع الإدخال ليناسب العرض الجديد */
+.cfg-row .cfg-input {
+  margin-bottom: 0;
+  width: 260px; /* يمكنك زيادة أو تقليل العرض كما يناسبك */
+}
+
+
+</style>
+<style>
+/* ══ تكبير نصوص نافذة الإعدادات ══ */
+.cfg-modal-title  { font-size: 22px !important; }
+.cfg-section-title{ font-size: 16px !important; }
+.cfg-field-label  { font-size: 14px !important; }
+.cfg-input        { font-size: 15px !important; padding: 9px 12px !important; }
+.cfg-input::placeholder { font-size: 14px !important; }
+.btn-add-agent    { font-size: 14px !important; padding: 9px 16px !important; }
+.btn-save-cfg     { font-size: 15px !important; padding: 12px !important; }
+.btn-export-cfg, .btn-import-cfg { font-size: 13px !important; padding: 9px 14px !important; }
+.btn-close-cfg    { font-size: 13px !important; padding: 9px 14px !important; }
+.cfg-note         { font-size: 13px !important; line-height: 1.7 !important; }
+.cfg-feedback     { font-size: 14px !important; padding: 10px 16px !important; }
+.agent-row .cfg-input { font-size: 15px !important; }
+
+
+/* حالة النجاح لزر الحفظ الجديد */
+.btn-save-cfg.btn-success {
+  background: linear-gradient(135deg, #10b981, #059669) !important;
+  color: #ffffff !important;
+  pointer-events: none; /* عشان نمنع الضغط عليه وهو بيحفظ */
+  transform: scale(0.98);
+}
+
+
+</style>
+<style id="horizontal-settings-layout">
+/* تخطيط أفقي متوسط لنافذة إعدادات النيابة */
+/* أنيميشن متناسق للظهور والاختفاء في الاتجاهين */
+#settings-overlay {
+  display: flex;
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .26s ease, visibility 0s linear .26s;
+}
+#settings-overlay.open {
+  display: flex;
+  visibility: visible;
+  opacity: 1;
+  pointer-events: auto;
+  transition: opacity .26s ease, visibility 0s linear 0s;
+}
+#settings-modal {
+  opacity: 0;
+  transform: scale(.96) translateY(16px);
+  animation: none;
+  transition: opacity .24s ease, transform .28s cubic-bezier(.22,.8,.25,1);
+}
+#settings-overlay.open #settings-modal {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+}
+#settings-modal {
+  width: min(900px, calc(100vw - 32px));
+  max-width: 900px;
+  max-height: 88vh;
+  padding: 24px 26px 22px;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+.cfg-settings-top,
+.cfg-settings-bottom {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  direction: rtl;
+}
+.cfg-settings-top { align-items: stretch; margin-bottom: 14px; }
+.cfg-settings-bottom { align-items: start; }
+.cfg-top-card,
+.cfg-bottom-card {
+  min-width: 0;
+  width: auto;
+  margin-bottom: 0;
+  box-sizing: border-box;
+}
+.cfg-top-card {
+  min-height: 122px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 225px;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+}
+.cfg-top-card .cfg-info {
+  min-width: 0;
+}
+.cfg-top-card .cfg-field-label {
+  font-size: 13px !important;
+  line-height: 1.55;
+}
+.cfg-top-card .cfg-input {
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+  box-sizing: border-box;
+}
+.cfg-bottom-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 225px;
+  align-items: start;
+  gap: 12px;
+  padding: 14px;
+}
+.cfg-bottom-card .cfg-info {
+  min-width: 0;
+  margin-bottom: 0;
+  padding-top: 2px;
+}
+.cfg-bottom-card .cfg-field-label {
+  font-size: 13px !important;
+  line-height: 1.55;
+}
+.cfg-list-control {
+  width: 225px;
+  min-width: 0;
+}
+.cfg-list-control .agents-list {
+  width: 100%;
+}
+.cfg-list-control .btn-add-agent {
+  width: 100%;
+  margin-bottom: 0;
+}
+.cfg-bottom-card .agent-row {
+  width: 100%;
+  min-width: 0;
+}
+.cfg-bottom-card .agent-row .cfg-input {
+  width: auto;
+  min-width: 0;
+  flex: 1 1 auto;
+  box-sizing: border-box;
+}
+@media (max-width: 720px) {
+  #settings-modal { width: calc(100vw - 24px); padding: 20px 16px; }
+  .cfg-settings-top,
+  .cfg-settings-bottom { grid-template-columns: 1fr; }
+  .cfg-top-card {
+    min-height: 0;
+    grid-template-columns: minmax(0, 1fr) 185px;
+    padding: 14px;
+  }
+  .cfg-bottom-card {
+    grid-template-columns: minmax(0, 1fr) 185px;
+  }
+  .cfg-list-control {
+    width: 185px;
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- ══ SETTINGS GEAR BUTTON ══ -->
+<button id="settings-btn" title="إعدادات النيابة" onclick="openSettings()" class="">
+  <i class="fa-solid fa-gear"></i>
+</button>
+
+<!-- ══ SETTINGS MODAL ══ -->
+<div id="settings-overlay" onclick="handleOverlayClick(event)" class="">
+  <div id="settings-modal">
+
+    <div class="cfg-modal-header">
+      <div class="cfg-modal-title">
+        <i class="fa-solid fa-gear"></i>
+        إعدادات النيابة
+      </div>
+      <button class="cfg-modal-close" onclick="closeSettings()" title="إغلاق">✕</button>
+    </div>
+    <div class="cfg-divider"></div>
+
+    <div class="cfg-settings-top" aria-label="بيانات النيابة الأساسية">
+      <!-- اسم النيابة — الجهة اليمنى -->
+      <div class="cfg-row cfg-top-card">
+        <div class="cfg-info">
+          <div class="cfg-section-title">اسم النيابة</div>
+          <div class="cfg-field-label">يظهر في جميع الأنظمة والمستندات المطبوعة</div>
+        </div>
+        <input type="text" id="cfg-prosecution-name" class="cfg-input" placeholder="مثال: نيابة مرور عين الصيرة">
+      </div>
+
+      <!-- السنة القضائية — الجهة اليسرى -->
+      <div class="cfg-row cfg-top-card">
+        <div class="cfg-info">
+          <div class="cfg-section-title">السنة القضائية</div>
+          <div class="cfg-field-label">تظهر كقيمة افتراضية في جميع حقول السنة بجميع الأنظمة</div>
+        </div>
+        <input type="number" id="cfg-fiscal-year" class="cfg-input" placeholder="مثال: 2026">
+      </div>
+    </div>
+
+    <div class="cfg-settings-bottom" aria-label="قوائم النيابة">
+      <!-- وكلاء النيابة — الجهة اليمنى -->
+      <div class="cfg-row cfg-bottom-card">
+        <div class="cfg-info">
+          <div class="cfg-section-title">وكلاء النيابة</div>
+          <div class="cfg-field-label">تظهر في القرارات والعرائض</div>
+        </div>
+        <div class="cfg-list-control">
+          <div class="agents-list" id="agents-list"><div class="agent-row"><input type="text" class="cfg-input agent-input" placeholder="اسم وكيل النيابة / المسمى الوظيفي" value="اسلام ناجى"><button class="btn-remove-agent" onclick="this.parentElement.remove()" title="حذف هذا الوكيل"><i class="fa-solid fa-trash-can"></i></button></div><div class="agent-row"><input type="text" class="cfg-input agent-input" placeholder="اسم وكيل النيابة / المسمى الوظيفي" value="محمد جمال"><button class="btn-remove-agent" onclick="this.parentElement.remove()" title="حذف هذا الوكيل"><i class="fa-solid fa-trash-can"></i></button></div></div>
+          <button class="btn-add-agent" onclick="addAgentRow()">
+            <i class="fa-solid fa-plus"></i> إضافة وكيل نيابة
+          </button>
+        </div>
+      </div>
+
+      <!-- أقسام الشرطة — الجهة اليسرى -->
+      <div class="cfg-row cfg-bottom-card">
+        <div class="cfg-info">
+          <div class="cfg-section-title">أقسام الشرطة</div>
+          <div class="cfg-field-label">تظهر في القرارات</div>
+        </div>
+        <div class="cfg-list-control">
+          <div class="agents-list" id="stations-list"><div class="agent-row"><input type="text" class="cfg-input station-input" placeholder="اسم قسم الشرطة" value="مصر القديمة"><button class="btn-remove-agent" onclick="this.parentElement.remove()" title="حذف هذا القسم"><i class="fa-solid fa-trash-can"></i></button></div><div class="agent-row"><input type="text" class="cfg-input station-input" placeholder="اسم قسم الشرطة" value="السيدة زينب"><button class="btn-remove-agent" onclick="this.parentElement.remove()" title="حذف هذا القسم"><i class="fa-solid fa-trash-can"></i></button></div></div>
+          <button class="btn-add-agent" onclick="addStationRow()" style="border-color:rgba(167,139,250,.4);color:#c4b5fd">
+            <i class="fa-solid fa-plus"></i> إضافة قسم شرطه </button>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- أزرار الإجراءات -->
+    <div class="modal-actions">
+      <button class="btn-save-cfg" onclick="saveSettings()"><i class="fa-solid fa-floppy-disk"></i> حفظ الإعدادات</button>
+    </div>
+    <div class="modal-actions-row2">
+      <button class="btn-export-cfg" onclick="exportConfig()">
+        <i class="fa-solid fa-download"></i> تصدير ملف احتياطي
+      </button>
+      
+      <button class="btn-close-cfg" onclick="closeSettings()">
+        <i class="fa-solid fa-xmark"></i> إغلاق
+      </button>
+    </div>
+
+    <div class="cfg-feedback" id="cfg-feedback"></div>
+
+    <div class="cfg-note">
+      ● الحفظ يُخزّن الإعدادات في المتصفح ويُطبّقها فوراً على جميع الأنظمة المفتوحة<br>
+      ● التصدير يُنشئ نسخه  (html)محدثة من ملف البوابة قم بألاستبدال في مجلد البوابة<br>
+       
+    </div>
+
+    
+  </div>
+</div>
+
+
+<!-- ══ LAUNCHER ══ -->
+
+<div id="launcher" class="">
+
+  <div class="lnc-header">
+
+<div class="emblem-ring"><img src="logo.png" class="emblem-icon" style="width:120px;height:120px;object-fit:contain;"></div>
+
+    <h1 id="portal-title">بوابة نيابة مرور عين الصيرة</h1>
+
+    <div class="header-line"></div>
+
+    <p>اختر النظام المطلوب للبدء</p>
+
+  </div>
+
+  <div class="cards-grid">
+    <div class="app-card c1" onclick="openSystem(0)">
+      <div class="card-icon-wrap">
+        <svg width="34" height="34" viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg">
+          <rect x="2" y="2" width="40" height="40" rx="10" fill="rgba(78,142,247,0.18)" stroke="rgba(78,142,247,0.45)" stroke-width="1.5"></rect>
+          <text x="22" y="17" text-anchor="middle" dominant-baseline="middle" font-family="Cairo,sans-serif" font-size="14" font-weight="700" fill="#7ab4fa">س</text>
+          <line x1="9" y1="23" x2="35" y2="23" stroke="rgba(78,142,247,0.35)" stroke-width="1"></line>
+          <text x="22" y="33" text-anchor="middle" dominant-baseline="middle" font-family="Cairo,sans-serif" font-size="14" font-weight="700" fill="#7ab4fa">ج</text>
+        </svg>
+      </div>
+      <div class="card-body">
+        <div class="card-name">نظام محاضر التحقيق المتكامل</div>
+        <div class="card-desc">إدخال وإدارة محاضر التحقيق و نماذج الحبس الاحتياطي و العرض علي الطب الشرعي </div>
+        <span class="card-badge badge-active">● نشط</span>
+      </div>
+    </div>
+
+    <div class="app-card c5" onclick="openSystem(1)">
+      <div class="card-icon-wrap"><i class="fa-solid fa-file-lines"></i></div>
+      <div class="card-body">
+        <div class="card-name">قرارات المحاضر / التلبسات</div>
+        <div class="card-desc">إصدار قرارات المحاضر والتلبسات</div>
+        <span class="card-badge badge-active">● نشط</span>
+      </div>
+    </div>
+
+    <div class="app-card c2" onclick="openSystem(2)">
+      <div class="card-icon-wrap"><i class="fa-solid fa-money-check"></i></div>
+      <div class="card-body">
+        <div class="card-name">قرارات ما بعد السداد</div>
+        <div class="card-desc">إصدار قرارات التسليم و التحفظ عقب إتمام السداد</div>
+        <span class="card-badge badge-active">● نشط</span>
+      </div>
+    </div>
+
+    <div class="app-card c3" onclick="openSystem(3)">
+      <div class="card-icon-wrap"><i class="fa-solid fa-microscope"></i></div>
+      <div class="card-body">
+        <div class="card-name">نظام محاضر الفحص</div>
+        <div class="card-desc">كشوف الأوامر الجنائية المرسله للفحص</div>
+        <span class="card-badge badge-active">● نشط</span>
+      </div>
+    </div>
+
+    <div class="app-card c4" onclick="openSystem(4)">
+      <div class="card-icon-wrap"><i class="fa-solid fa-scale-balanced"></i></div>
+      <div class="card-body">
+        <div class="card-name">عرائض الهيئة القضائية</div>
+        <div class="card-desc">مذكرات وعرائض الهيئات القضائيه</div>
+        <span class="card-badge badge-active">● نشط</span>
+      </div>
+    </div>
+
+    <div class="app-card c6" onclick="openSystem(5)">
+  <div class="card-icon-wrap">🖨️</div>
+  <div class="card-body">
+    <div class="card-name">مطبوعات</div>
+    <div class="card-desc">إدارة المطبوعات والنماذج الورقية</div>
+    <span class="card-badge badge-active">● نشط</span>
+  </div>
+</div>
+
+
+  </div>
+
+  <div class="lnc-footer">
+    <span class="dev-credit">Developed by <span class="dev-name"> Ibrahem Ahmed | v1.4.1</span></span>
+  </div>
+</div>
+
+
+<!-- ══ TOP BAR ══ -->
+<div id="topbar" class="">
+  <div class="tb-home" onclick="goHome()">
+    <span style="font-size:15px"><i class="fa-solid fa-house"></i></span>
+    <span>الرئيسية</span>
+  </div>
+
+  <div class="tb-sep"></div>
+
+  <div class="tb-item" id="tb0" style="--tb-accent:#4e8ef7" onclick="switchSystem(0)">
+    <span class="tb-icon">
+      <svg width="20" height="20" viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg">
+        <rect x="2" y="2" width="40" height="40" rx="10" fill="rgba(78,142,247,0.18)" stroke="rgba(78,142,247,0.45)" stroke-width="1.5"></rect>
+        <text x="22" y="17" text-anchor="middle" dominant-baseline="middle" font-family="Cairo,sans-serif" font-size="14" font-weight="700" fill="#7ab4fa">س</text>
+        <line x1="9" y1="23" x2="35" y2="23" stroke="rgba(78,142,247,0.35)" stroke-width="1"></line>
+        <text x="22" y="33" text-anchor="middle" dominant-baseline="middle" font-family="Cairo,sans-serif" font-size="14" font-weight="700" fill="#7ab4fa">ج</text>
+      </svg>
+    </span>
+    <span class="tb-label">نظام محاضر التحقيق</span>
+  </div>
+
+  <div class="tb-item" id="tb1" style="--tb-accent:#a78bfa" onclick="switchSystem(1)">
+    <span class="tb-icon"><i class="fa-solid fa-file-lines"></i></span>
+    <span class="tb-label">قرارات المحاضر / التلبسات</span>
+  </div>
+
+  <div class="tb-item" id="tb2" style="--tb-accent:#c9a84c" onclick="switchSystem(2)">
+    <span class="tb-icon"><i class="fa-solid fa-money-check"></i></span>
+    <span class="tb-label">قرارات بعد السداد</span>
+  </div>
+
+  <div class="tb-item" id="tb3" style="--tb-accent:#34d399" onclick="switchSystem(3)">
+    <span class="tb-icon"><i class="fa-solid fa-microscope"></i></span>
+    <span class="tb-label">كشف المحاضر المرسلة للفحص</span>
+  </div>
+
+  <div class="tb-item" id="tb4" style="--tb-accent:#f87171" onclick="switchSystem(4)">
+    <span class="tb-icon"><i class="fa-solid fa-scale-balanced"></i></span>
+    <span class="tb-label">عرائض الهيئات القضائية</span>
+  </div>
+
+  <div class="tb-item" id="tb5" style="--tb-accent:#00d2ff" onclick="switchSystem(5)">
+    <span class="tb-icon">🖨️</span>
+    <span class="tb-label">مطبوعات</span>
+  </div>
+</div>
+
+
+<!-- ══ CONTENT ══ -->
+<div id="content-area" class="">
+  <div id="content-placeholder" style="display: none;">
+    <div class="ph-icon">📂</div>
+    <p>اختر نظاماً من الشريط العلوي</p>
+  </div>
+  <iframe id="frame-0" class="sys-frame"></iframe>
+  <iframe id="frame-1" class="sys-frame"></iframe>
+  <iframe id="frame-2" class="sys-frame"></iframe>
+  <iframe id="frame-3" class="sys-frame"></iframe>
+  <iframe id="frame-4" class="sys-frame"></iframe>
+  <iframe id="frame-5" class="sys-frame"></iframe>
+</div>
+
+
+<script>
+const SYSTEMS = [
+  { file: 'نظام محاضر التحقيق.html'         },
+  { file: 'نظام قرارات محاضر - تلبسات.html' },
+  { file: 'نظام قرارات ما_بعد السداد.html' },
+  { file: 'نظام محاضر الفحص.html'           },
+  { file: 'عريضه هيئه قضائيه.html'           },
+  { file: 'مطبوعات النيابه.html' }
+];
+let activeIdx = -1;
+const loadedFrames = {};
+
+function openSystem(idx) {
+  const launcher = document.getElementById('launcher');
+  launcher.classList.add('hiding');
+  document.getElementById('settings-btn').classList.add('in-topbar'); 
+  setTimeout(() => {
+    launcher.classList.add('hidden');
+    document.getElementById('topbar').classList.add('visible');
+    document.getElementById('content-area').classList.add('visible');
+    _load(idx);
+  }, 500);
+}
+
+function switchSystem(idx) {
+  if (idx === activeIdx) return;
+  _load(idx);
+}
+function _load(idx) {
+  document.querySelectorAll('.tb-item').forEach((el, i) => el.classList.toggle('active', i === idx));
+  activeIdx = idx;
+  const ph  = document.getElementById('content-placeholder');
+  const sys = SYSTEMS[idx];
+
+  sessionStorage.setItem('lastOpenedIdx', idx);
+
+  document.querySelectorAll('.sys-frame').forEach(f => {
+    f.classList.remove('active-frame');
+  });
+
+  if (sys.file) {
+    ph.style.display = 'none';
+
+    const frame = document.getElementById('frame-' + idx);
+
+    if (!loadedFrames[idx]) {
+      frame.src = sys.file;
+      loadedFrames[idx] = true;
+    }
+
+    // === الدفع المباشر والآمن للبيانات للتغلب على قيود المتصفح المتخفي ===
+    const pushConfig = async () => {
+      try {
+        if (frame.contentWindow) {
+          let cfg = await loadConfig();
+          frame.contentWindow.postMessage({ type: 'NIABAT_CONFIG_UPDATE', config: cfg }, '*');
+        }
+      } catch(e) {}
+    };
+    
+    pushConfig(); 
+    frame.onload = pushConfig; 
+    // ===================================================================
+
+    void frame.offsetWidth;
+    frame.classList.add('active-frame');
+  } else {
+    ph.style.display = 'flex';
+    ph.innerHTML = '<div class="ph-icon">🚧</div><p>هذا النظام قيد التطوير</p>';
+  }
+}
+
+function goHome() {
+  document.getElementById('topbar').classList.remove('visible');
+  document.getElementById('content-area').classList.remove('visible');
+  document.getElementById('settings-btn').classList.remove('in-topbar'); 
+  
+  const launcher = document.getElementById('launcher');
+  launcher.classList.remove('hidden');
+  requestAnimationFrame(() => requestAnimationFrame(() => launcher.classList.remove('hiding')));
+  activeIdx = -1;
+  sessionStorage.removeItem('lastOpenedIdx');
+
+  document.querySelectorAll('.sys-frame').forEach(f => f.classList.remove('active-frame'));
+
+  const ph = document.getElementById('content-placeholder');
+  ph.style.display = 'flex';
+  ph.innerHTML = '<div class="ph-icon">📂</div><p>اختر نظاماً من الشريط العلوي</p>';
+  document.querySelectorAll('.tb-item').forEach(el => el.classList.remove('active'));
+}
+
+window.addEventListener('DOMContentLoaded', async function() {
+  const saved = sessionStorage.getItem('lastOpenedIdx');
+  if (saved !== null) {
+    const idx = parseInt(saved);
+    if (!isNaN(idx) && idx >= 0 && idx < SYSTEMS.length) {
+      const launcher = document.getElementById('launcher');
+      launcher.classList.add('hiding');
+      launcher.classList.add('hidden');
+      document.getElementById('topbar').classList.add('visible');
+      document.getElementById('content-area').classList.add('visible');
+      document.getElementById('settings-btn').classList.add('in-topbar'); 
+      _load(idx);
+    }
+  }
+  
+  let cfg = await loadConfig();
+  applyConfigToPortal(cfg);
+});
+
+const CFG_KEY = 'niabat_config';
+
+const DEFAULT_CONFIG = {
+  "prosecutionName": "نيابة مرور عين الصيرة",
+  "fiscalYear": 2026,
+  "agents": [
+    "اسلام ناجى",
+    "محمد جمال"
+  ],
+  "stations": [
+    "مصر القديمة",
+    "السيدة زينب"
+  ]
+};
+
+async function loadConfig() {
+  let config;
+  try {
+    let db = await fetchServerData();
+    config = db && db[CFG_KEY];
+    if (config) {
+      // تحديث اللوكال ستوريدج لخدمة باقي الأنظمة
+      localStorage.setItem(CFG_KEY, JSON.stringify(config));
+    }
+  } catch (e) {}
+  if (!config) {
+    // الرجوع للقيم القديمة في حالة كان السيرفر جديداً
+    try {
+      config = JSON.parse(localStorage.getItem(CFG_KEY) || '{}');
+    } catch (e) {
+      config = {};
+    }
+  }
+  return Object.assign({}, DEFAULT_CONFIG, config);
+}
+
+async function saveConfigToStorage(data) {
+  let db = await fetchServerData();
+  db[CFG_KEY] = data;
+  await saveToServerData(db);
+  localStorage.setItem(CFG_KEY, JSON.stringify(data)); // الاحتفاظ بنسخة محلية للأنظمة القديمة
+}
+
+function applyConfigToPortal(cfg) {
+  const title = document.getElementById('portal-title');
+  if (title) title.textContent = 'بوابة ' + cfg.prosecutionName;
+  document.title = 'بوابة ' + cfg.prosecutionName;
+}
+
+function notifyFrames(cfg) {
+  document.querySelectorAll('.sys-frame').forEach(function(frame) {
+    try {
+      if (frame.contentWindow) {
+        frame.contentWindow.postMessage({ type: 'NIABAT_CONFIG_UPDATE', config: cfg }, '*');
+      }
+    } catch (e) {}
+  });
+}
+
+async function openSettings() {
+  const cfg = await loadConfig();
+  document.getElementById('cfg-prosecution-name').value = cfg.prosecutionName || '';
+  document.getElementById('cfg-fiscal-year').value = cfg.fiscalYear || new Date().getFullYear();
+
+  // --- [التعديل هنا: إعادة ضبط الزرار عند فتح النافذة] ---
+  const saveBtn = document.querySelector('.btn-save-cfg');
+  saveBtn.classList.remove('btn-success');
+  saveBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> حفظ الإعدادات';
+  // ---------------------------------------------------
+
+  const list = document.getElementById('agents-list');
+  list.innerHTML = '';
+  const agents = (cfg.agents && cfg.agents.length > 0) ? cfg.agents : ['', '', ''];
+  agents.forEach(function(name) { addAgentRow(name); });
+
+  const stList = document.getElementById('stations-list');
+  stList.innerHTML = '';
+  const stations = (cfg.stations && cfg.stations.length > 0) ? cfg.stations : ['مصر القديمة', 'السيدة زينب'];
+  stations.forEach(function(name) { addStationRow(name); });
+
+  hideFeedback();
+  document.getElementById('settings-overlay').classList.add('open');
+}
+
+
+function closeSettings() {
+  document.getElementById('settings-overlay').classList.remove('open');
+}
+
+function handleOverlayClick(e) {
+  if (e.target === document.getElementById('settings-overlay')) {
+    closeSettings();
+  }
+}
+
+function addAgentRow(value) {
+  value = value || '';
+  const list = document.getElementById('agents-list');
+  const row = document.createElement('div');
+  row.className = 'agent-row';
+  row.innerHTML =
+    '<input type="text" class="cfg-input agent-input" placeholder="اسم وكيل النيابة / المسمى الوظيفي" value="' + escapeHtml(value) + '">' +
+    '<button class="btn-remove-agent" onclick="this.parentElement.remove()" title="حذف هذا الوكيل"><i class="fa-solid fa-trash-can"></i></button>';
+  list.appendChild(row);
+}
+
+function addStationRow(value) {
+  value = value || '';
+  const list = document.getElementById('stations-list');
+  const row = document.createElement('div');
+  row.className = 'agent-row';
+  row.innerHTML =
+    '<input type="text" class="cfg-input station-input" placeholder="اسم قسم الشرطة" value="' + escapeHtml(value) + '">' +
+    '<button class="btn-remove-agent" onclick="this.parentElement.remove()" title="حذف هذا القسم"><i class="fa-solid fa-trash-can"></i></button>';
+  list.appendChild(row);
+}
+
+function getFormData() {
+  const name = (document.getElementById('cfg-prosecution-name').value || '').trim();
+  const fiscalYear = parseInt(document.getElementById('cfg-fiscal-year').value) || new Date().getFullYear();
+  const agents = Array.from(document.querySelectorAll('.agent-input'))
+    .map(function(inp) { return inp.value.trim(); })
+    .filter(function(v) { return v.length > 0; });
+  const stationsData = Array.from(document.querySelectorAll('.station-input'))
+    .map(function(inp) { return inp.value.trim(); })
+    .filter(function(v) { return v.length > 0; });
+  return {
+    prosecutionName: name || DEFAULT_CONFIG.prosecutionName,
+    fiscalYear: fiscalYear,
+    agents: agents,
+    stations: stationsData
+  };
+}
+
+async function saveSettings() {
+  const data = getFormData();
+  await saveConfigToStorage(data);
+  applyConfigToPortal(data);
+  notifyFrames(data);
+  
+  const saveBtn = document.querySelector('.btn-save-cfg');
+  const originalHTML = saveBtn.innerHTML; 
+  
+  saveBtn.classList.add('btn-success');
+  saveBtn.innerHTML = '<i class="fa-solid fa-check"></i> تم الحفظ بنجاح';
+  hideFeedback();
+  
+  setTimeout(function() {
+    saveBtn.classList.remove('btn-success');
+    saveBtn.innerHTML = originalHTML;
+  }, 2000);
+}
+
+/** تصدير ملف HTML محدث للبوابة */
+async function exportConfig() {
+  const data = getFormData();
+  await saveConfigToStorage(data);
+  applyConfigToPortal(data);
+
+  const dataStr = JSON.stringify(data, null, 2);
+
+  // === إنشاء نسخة خفية من الواجهة وتنظيفها لضمان فتحها على البطاقات دائماً ===
+  const docClone = document.documentElement.cloneNode(true);
+
+  const overlay = docClone.querySelector('#settings-overlay');
+  if(overlay) overlay.classList.remove('open');
+  
+  const launcher = docClone.querySelector('#launcher');
+  if(launcher) launcher.classList.remove('hiding', 'hidden');
+  
+  const topbar = docClone.querySelector('#topbar');
+  if(topbar) topbar.classList.remove('visible');
+  
+  const contentArea = docClone.querySelector('#content-area');
+  if(contentArea) contentArea.classList.remove('visible');
+  
+  const settingsBtn = docClone.querySelector('#settings-btn');
+  if(settingsBtn) settingsBtn.classList.remove('in-topbar');
+  
+  docClone.querySelectorAll('.sys-frame').forEach(f => {
+      f.classList.remove('active-frame');
+      f.removeAttribute('src');
+  });
+  docClone.querySelectorAll('.tb-item').forEach(el => el.classList.remove('active'));
+
+  // أخذ نسخة الكود النظيفة تماماً
+  let html = '<!DOCTYPE html>\n' + docClone.outerHTML;
+
+  // استبدال الـ DEFAULT_CONFIG بالبيانات الجديدة
+  html = html.replace(
+    /const DEFAULT_CONFIG = \{[\s\S]*?\};/,
+    `const DEFAULT_CONFIG = ${dataStr};`
+  );
+
+  // إنشاء وتحميل الملف للمستخدم
+  const blob = new Blob(['\uFEFF' + html], { type: 'text/html;charset=utf-8' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = 'بوابه_نيابه_مرور_عين_الصيره.html';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+
+  showFeedback('info',
+    'تم تجهيز البوابة المحدثة بنجاح! قم باستبدال الملف القديم بالملف الجديد.'
+  );
+}
+
+function showFeedback(type, msg) {
+  const el = document.getElementById('cfg-feedback');
+  el.className = 'cfg-feedback ' + type;
+  el.textContent = msg;
+  clearTimeout(el._timer);
+  el._timer = setTimeout(function() {
+    el.className = 'cfg-feedback';
+  }, 5000);
+}
+
+function hideFeedback() {
+  const el = document.getElementById('cfg-feedback');
+  el.className = 'cfg-feedback';
+}
+
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+window.addEventListener('message', async function(e) {
+  if (e.data && e.data.type === 'NIABAT_CONFIG_REQUEST') {
+    const cfg = await loadConfig();
+    try {
+      e.source.postMessage({ type: 'NIABAT_CONFIG_UPDATE', config: cfg }, '*');
+    } catch (err) {}
+  }
+});
+</script>
+
+
+
+</body></html>

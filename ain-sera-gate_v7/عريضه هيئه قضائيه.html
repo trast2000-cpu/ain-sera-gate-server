@@ -1,0 +1,1768 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>نظام مذكرات نيابة مرور عين الصيرة</title>
+
+
+
+    
+        <link rel="stylesheet" href="fontawesome-free-6.4.0-web/css/all.min.css">
+
+<link href="cairo.css" rel="stylesheet">
+
+    <script src="niabat-config-loader.js"></script>
+    <script src="api.js"></script>
+    <style>   
+/* ===== نظام المتغيرات والألوان المطور ===== */
+:root {
+    --primary: #1a3a6b;
+    --primary-light: #2d5a8c;
+    --accent: #c8a45a;
+    --bg-light: #dce4f0; /* أغمق قليلاً - درجات الأزرق والرصاصي */
+    --bg-white: #ebf0f6; /* أغمق قليلاً - درجات الأزرق والرصاصي */
+    --text-main: #1a2a44;
+    --text-muted: #4a5568;
+    --border-color: #cbd5e0;
+    --shadow: 0 4px 12px rgba(26, 45, 74, 0.15);
+    --grid-color: rgba(26, 58, 107, 0.3);
+    --panel-grid-color: rgba(26, 58, 107, 0.12); /* شفافية أقل لنقاط الحاوية */
+    --input-bg: #ffffff;
+}
+
+/* وضع الليل (Dark Mode) الشامل */
+[data-theme="dark"] {
+    --bg-light: #0f172a;
+    --bg-white: #1e293b;
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+    --border-color: #334155;
+    --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+    --grid-color: rgba(248, 250, 252, 0.25); /* زيادة وضوح النقاط في المود المظلم */
+    --panel-grid-color: rgba(248, 250, 252, 0.2); /* شفافية أقل جداً لنقاط الحاوية في الدارك مود */
+    --input-bg: #2a3f63;
+    --primary: #7aaeff;
+    --primary-light: #1e2d4a;
+}
+
+/* ظلال خاصة للمود المظلم */
+[data-theme="dark"] .input-panel {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, .2);
+}
+
+[data-theme="dark"] input, 
+[data-theme="dark"] select {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] input:focus, 
+[data-theme="dark"] select:focus {
+    box-shadow: 0 0 0 3px rgba(122, 174, 255, 0.15), 0 6px 16px rgba(0, 0, 0, 0.4);
+}
+
+/* إصلاح حقل التاريخ في الوضع الليلي */
+[data-theme="dark"] #docDate {
+    background-color: var(--input-bg) !important;
+    color: var(--text-main) !important;
+    border-color: var(--border-color) !important;
+}
+
+ 
+
+
+        :root {
+            --primary: #1a3a6b;
+            --primary-light: #2a5298;
+            --accent: #c8a45a;
+            --bg: #EFEFEF;
+            --panel-bg: #f7f8fc;
+            --border: #c5cad8;
+            --input-border: #b0b8cc;
+            --label-color: #1a3a6b;
+            --shadow: 0 4px 20px rgba(26,58,107,0.10);
+        }
+
+        * { box-sizing: border-box; }
+
+
+        body {
+            font-family: 'Cairo', 'Segoe UI', Arial, sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-main);
+            margin: 0;
+            padding: 16px;
+            min-height: 100vh;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            /* خلفية الشبكة المنقطة */
+            background-image: radial-gradient(rgba(30,58,95,0.35) 1.8px, transparent 1.8px);
+
+            background-size: 32px 32px;
+            background-position: center;
+}
+
+/* تكبير الواجهة على الشاشة فقط — لا يؤثر على الطباعة */
+@media screen {
+    body {
+        zoom: 1.1;
+    }
+}
+
+        /* ====== لوحة التحكم ====== */
+        .main-container {
+            max-width: 1050px;
+            margin: auto;
+            transition: background-color 0.3s ease;
+        }
+
+        .system-title-bar {
+            background: linear-gradient(135deg, var(--primary), #2d5a8c);
+            color: white;
+            text-align: center;
+            padding: 8px;
+            font-size: 20px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border-bottom: 2px solid #c9a200;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .input-panel {
+            background: var(--bg-white);
+            /* استخدام متغير منفصل للتحكم في حجم وشفافية نقاط الحاوية */
+            background-image: radial-gradient(rgba(30,58,95,0.20) 1.4px, transparent 1.4px);
+            background-size: 32px 32px;
+            background-position: center;
+            padding: 12px 16px 6px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 12px;
+            box-shadow: 0 8px 24px rgba(26, 58, 107, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            border-top: 4px solid var(--primary);
+            transition: all 0.3s ease;
+        }
+
+        .panel-section-title {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+            padding-bottom: 4px;
+            border-bottom: 1px dashed var(--border);
+        }
+
+        .row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+            align-items: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .form-group { display: flex; flex-direction: column; flex: 1; min-width: 100px; }
+        .form-group-xs { flex: 0.3; min-width: 70px; max-width: 120px; }
+        .form-group-sm { flex: 0.4; min-width: 80px; max-width: 160px; }
+        .form-group-name { flex: 1.4; }
+        .form-group-director { flex: 0.5; min-width: 120px; max-width: 200px; }
+        
+        /* تقليل عرض حقول معينة */
+        .form-group-narrow { flex: 0.6; max-width: 250px; }
+
+        label {
+            margin-bottom: 3px;
+            font-weight: 700;
+            color: var(--text-main);
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        label::before {
+            content: '▪';
+            color: var(--accent);
+            font-size: 9px;
+        }
+
+        input, select {
+            padding: 9px 12px;
+            border: 1.5px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 16px;
+            font-family: 'Cairo', sans-serif;
+            width: 100%;
+            background: var(--input-bg);
+            color: var(--text-main);
+            transition: all 0.3s ease;
+            outline: none;
+            box-shadow: 0 4px 12px rgba(26, 58, 107, 0.1);
+        }
+        input:focus, select:focus {
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 3px rgba(42,82,152,0.12), 0 6px 16px rgba(26, 58, 107, 0.15);
+            background: white;
+        }
+
+        /* تنسيق مربعات رقم المركبة */
+        .car-num-container {
+            display: flex;
+            gap: 4px;
+            direction: rtl;
+            justify-content: flex-start;
+        }
+        .car-num-container input {
+            text-align: center;
+            padding: 5px 2px;
+        }
+        .car-letter { width: 35px; }
+        .car-digit { width: 100px; }
+        .btn-clear-plate {
+            background: linear-gradient(135deg, #c0392b, #e74c3c);
+            color: white;
+            border: none;
+            border-radius: 7px;
+            padding: 5px 10px;
+            font-size: 12px;
+            font-family: 'Cairo', sans-serif;
+            font-weight: 700;
+            cursor: pointer;
+            white-space: nowrap;
+            align-self: center;
+            transition: opacity 0.15s;
+            box-shadow: 0 2px 6px rgba(192,57,43,0.3);
+        }
+        .btn-clear-plate:hover { opacity: 0.85; }
+        .car-num-row { display: flex; align-items: flex-end; gap: 8px; }
+
+        .top-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .btn-clear {
+            background: linear-gradient(135deg, #c0392b, #e74c3c);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 10px 18px;
+            font-family: 'Cairo', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: opacity 0.15s, transform 0.15s, box-shadow 0.15s, filter 0.15s;
+            white-space: nowrap;
+            box-shadow: 0 3px 10px rgba(192,57,43,0.3);
+        }
+        .btn-clear:hover { opacity: 0.9; transform: translateY(-2px); box-shadow: 0 6px 16px rgba(192,57,43,0.4); }
+        .btn-clear:active { transform: translateY(0) scale(.96); filter: brightness(.9); box-shadow: inset 0 3px 6px rgba(0,0,0,0.3); }
+
+        /* تغذية بصرية عند الضغط على F9 على زر "مسح الحقول" */
+        #petition-clear-all.keyboard-pressed {
+            transform: scale(.96) !important;
+            filter: brightness(.9);
+            box-shadow: inset 0 3px 6px rgba(0,0,0,0.3) !important;
+            transition: none;
+        }
+
+        /* تغذية بصرية عند الضغط على Ctrl+P على زر "طباعة المذكرة" */
+        #petition-print.keyboard-pressed {
+            transform: translateY(0) scale(.96) !important;
+            filter: brightness(.9);
+            box-shadow: inset 0 3px 6px rgba(0,0,0,0.3) !important;
+            transition: none;
+        }
+
+        /* تغذية بصرية عند الضغط على Ctrl+R على زر "استرجاع عريضة سابقة" */
+        #petition-history.keyboard-pressed {
+            transform: translateY(0) scale(.96) !important;
+            filter: brightness(.9);
+            box-shadow: inset 0 3px 6px rgba(0,0,0,0.3) !important;
+            transition: none;
+        }
+
+        /* تويست تأكيد المسح */
+        .petition-toast {
+            position: fixed;
+            bottom: 26px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: linear-gradient(135deg, #1e824c, #2ecc71);
+            color: #fff;
+            padding: 12px 22px;
+            border-radius: 10px;
+            font-family: 'Cairo', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            box-shadow: 0 8px 22px rgba(30,130,76,0.35);
+            z-index: 10000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity .25s ease, transform .25s ease, visibility .25s ease;
+            white-space: nowrap;
+        }
+        .petition-toast.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* مودال الهيستوري */
+        .history-modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.45);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .history-modal-overlay.open { display: flex; }
+        .history-modal {
+            background: white;
+            border-radius: 18px;
+            box-shadow: 0 20px 60px rgba(26,58,107,0.25);
+            min-width: 360px;
+            max-width: 480px;
+            width: 90%;
+            overflow: hidden;
+            animation: modalIn 0.22s ease;
+        }
+        @keyframes modalIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to   { transform: scale(1);   opacity: 1; }
+        }
+        .history-modal-header {
+            padding: 18px 20px 12px;
+            border-bottom: 1.5px solid #eef0f5;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .history-modal-title {
+            font-size: 17px;
+            font-weight: 900;
+            color: var(--primary);
+        }
+        .history-modal-close {
+            background: #f0f2f7;
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #555;
+        }
+        .history-modal-body { padding: 10px 14px 6px; max-height: 320px; overflow-y: auto; }
+        .history-modal-footer { padding: 10px 14px 16px; }
+        .btn-history {
+            background: linear-gradient(135deg, #6a4c9c, #8b5cf6);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 10px 18px;
+            font-family: 'Cairo', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 3px 10px rgba(106,76,156,0.3);
+            transition: transform 0.15s, box-shadow 0.15s, filter 0.15s;
+        }
+        .btn-history:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(106,76,156,0.4); }
+        .btn-history:active { transform: translateY(0) scale(.96); filter: brightness(.9); box-shadow: inset 0 3px 6px rgba(0,0,0,0.3); }
+        .history-item {
+            padding: 10px 14px;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+        .history-item:hover { background: #f0f5ff; }
+        .history-item .h-car { font-weight: 700; font-size: 13px; color: var(--primary); }
+        .history-item .h-name { font-size: 12px; color: #555; }
+
+        .hidden { display: none !important; }
+        .btn-print {
+            background: linear-gradient(135deg, #1a3a6b 0%, #2a5298 100%);
+            color: white;
+            padding: 13px 40px;
+            border: none;
+            border-radius: 10px;
+            font-size: 17px;
+            font-weight: 700;
+            font-family: 'Cairo', sans-serif;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(26,58,107,0.35);
+            transition: transform 0.15s, box-shadow 0.15s, filter 0.15s;
+        }
+        .btn-print:hover { transform: translateY(-2px); box-shadow: 0 7px 20px rgba(26,58,107,0.45); }
+        .btn-print:active { transform: translateY(0) scale(.96); filter: brightness(.9); box-shadow: inset 0 3px 6px rgba(0,0,0,0.3); }
+
+        /* ====== ورقة المذكرة ====== */
+        .document-wrapper {
+            width: 210mm;
+            height: 297mm;
+            padding: 10mm;
+            margin: 10px auto;
+            background: #fff;
+            box-sizing: border-box;
+            overflow: hidden;
+            box-shadow: 0 0 30px rgba(0,0,0,0.22);
+            display: none;
+        }
+
+        .document-paper {
+            border: 3.5px double #1a3a6b;
+            height: 100%;
+            width: 100%;
+            box-sizing: border-box;
+            padding: 3px;
+        }
+
+        .inner-border {
+            border: 1px solid #3a5a9b;
+            height: 100%;
+            padding: 18px 30px 70px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .inner-border::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            height: 80%;
+            background-image: url('logo.png');
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: contain;
+            opacity: 0.08;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .inner-border > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* الهيدر */
+        .header-section { margin-bottom: 10px; }
+        .doc-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 5px; }
+        .header-right { text-align: right; font-family: 'Calibri', sans-serif; font-size: 18px; line-height: 1.2; }
+        .entity-name { font-weight: 700; font-size: 20px; }
+        .header-left img { width: 60px; height: auto; }
+        .doc-main-title-wrap { text-align: center; margin-top: -5px; }
+        .doc-title-box { font-family: 'Calibri', sans-serif; font-size: 28px; font-weight: 700; text-decoration: underline; margin-bottom: 3px; }
+        .doc-main-title { font-family: 'Calibri', sans-serif; font-size: 24px; font-weight: 700; }
+
+        /* جسم المذكرة */
+        .doc-body-text { flex: 1; font-family: 'Calibri', sans-serif; font-size: 21px; line-height: 1.2; text-align: center; } /* تغيير المحاذاة لليمين لمنع الفراغات */
+        .doc-body-text p { margin-bottom: 8px; text-indent: 30px; }
+        
+        /* منع انكسار الأسماء والبيانات المتغيرة بطريقة آمنة */
+        .highlight { 
+            font-weight: 700; 
+            text-decoration: none; 
+            display: inline;
+        }
+
+        /* الفوتر */
+        .footer-section-wrap { margin-top: 5px; }
+        .liza-title { text-align: center; margin-bottom: 10px; }
+        .big-word { display: block; font-family: 'Calibri', sans-serif; font-size: 26px; font-weight: 900; margin-bottom: 3px; text-decoration: underline; }
+        .resolution { font-family: 'Calibri', sans-serif; font-size: 22px; font-weight: 700; }
+        .footer-section { display: flex; justify-content: space-between; align-items: flex-end; font-family: 'Calibri', sans-serif; }
+        .date-block { font-size: 18px; }
+        .sig-block { text-align: center; min-width: 180px; }
+        .sig-title { font-size: 22px; font-weight: 700; display: block; margin-bottom: 5px; }
+        .sig-line { font-size: 20px; font-weight: 700; }
+
+        /* ====== لوحة الإعدادات العائمة ====== */
+        .settings-panel {
+            position: fixed;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 9999;
+            display: flex;
+            flex-direction: row-reverse;
+            align-items: stretch;
+        }
+        .settings-tab {
+            background: linear-gradient(180deg, #1a3a6b, #2a5298);
+            color: white;
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            padding: 14px 8px;
+            font-size: 12px;
+            font-weight: 700;
+            font-family: 'Cairo', sans-serif;
+            border-radius: 8px 0 0 8px;
+            cursor: pointer;
+            letter-spacing: 2px;
+            box-shadow: -3px 0 12px rgba(26,58,107,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+            min-height: 140px;
+        }
+        .settings-body {
+            background: white;
+            width: 0;
+            overflow: hidden;
+            transition: width 0.32s cubic-bezier(0.4,0,0.2,1);
+            box-shadow: -4px 0 24px rgba(26,58,107,0.18);
+            border-radius: 12px 0 0 12px;
+        }
+        .settings-panel:hover .settings-body {
+            width: 295px;
+        }
+        .settings-inner {
+            width: 295px;
+            padding: 14px 13px;
+            display: flex;
+            flex-direction: column;
+            gap: 9px;
+            max-height: 88vh;
+            overflow-y: auto;
+        }
+        .settings-inner::-webkit-scrollbar { width: 4px; }
+        .settings-inner::-webkit-scrollbar-thumb { background: #c5cad8; border-radius: 4px; }
+        .settings-header {
+            font-size: 13px;
+            font-weight: 900;
+            color: var(--primary);
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 7px;
+            margin-bottom: 2px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .settings-section {
+            background: #f7f8fc;
+            border-radius: 8px;
+            padding: 9px 11px;
+            border: 1px solid #e0e4ee;
+        }
+        .settings-section-title {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--accent);
+            letter-spacing: 0.8px;
+            margin-bottom: 7px;
+        }
+        .settings-row {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        .settings-row:last-child { margin-bottom: 0; }
+        .settings-input {
+            flex: 1;
+            padding: 5px 8px;
+            border: 1.5px solid var(--input-border);
+            border-radius: 6px;
+            font-size: 12px;
+            font-family: 'Cairo', sans-serif;
+            background: white;
+            color: #1a2540;
+            outline: none;
+        }
+        .settings-input:focus {
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 2px rgba(42,82,152,0.12);
+        }
+        .settings-btn {
+            padding: 6px 10px;
+            border: none;
+            border-radius: 6px;
+            font-family: 'Cairo', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: opacity 0.15s;
+            white-space: nowrap;
+        }
+        .settings-btn:hover { opacity: 0.85; }
+        .btn-blue  { background: linear-gradient(135deg,#1a3a6b,#2a5298); color:white; }
+        .btn-green { background: linear-gradient(135deg,#1a7a4a,#27ae60); color:white; }
+        .btn-orange{ background: linear-gradient(135deg,#d35400,#e67e22); color:white; }
+        .btn-red   { background: linear-gradient(135deg,#c0392b,#e74c3c); color:white; }
+        .btn-purple{ background: linear-gradient(135deg,#6a4c9c,#8b5cf6); color:white; }
+        .btn-full  { width:100%; padding:8px; font-size:12px; margin-top:2px; }
+        .seq-status {
+            font-size: 11px;
+            color: #555;
+            background: #eef0f5;
+            border-radius: 5px;
+            padding: 5px 8px;
+            text-align: center;
+            font-family: 'Cairo', sans-serif;
+            line-height: 1.7;
+        }
+        .seq-status strong { color: var(--primary); }
+
+        /* مودال الرقم المفقود */
+        .sp-modal-overlay {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.55); z-index: 10000;
+            justify-content: center; align-items: center;
+        }
+        .sp-modal-overlay.open { display: flex; }
+        .sp-modal {
+            background: white; border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(26,58,107,0.3);
+            width: 340px; overflow: hidden;
+            animation: modalIn 0.22s ease;
+        }
+        .sp-modal-hdr {
+            padding: 16px 20px 10px;
+        }
+        .sp-modal-title { font-size: 15px; font-weight: 900; margin-bottom: 6px; }
+        .sp-modal-msg   { font-size: 12px; color: #555; line-height: 1.6; }
+        .sp-modal-ftr   {
+            padding: 10px 20px 16px; display: flex; gap: 8px;
+        }
+        .sp-modal-ftr button {
+            flex:1; padding:10px; border:none; border-radius:8px;
+            font-family:'Cairo',sans-serif; font-size:13px;
+            font-weight:700; cursor:pointer;
+        }
+        .missing-modal  { border-top: 5px solid #e67e22; }
+        .missing-modal .sp-modal-hdr { background:#fff8f0; }
+        .missing-modal .sp-modal-title { color:#d35400; }
+        .btn-yes { background:linear-gradient(135deg,#c0392b,#e74c3c); color:white; }
+        .btn-no  { background:#f0f2f7; color:#333; }
+
+        /* مودال استدعاء */
+        .recall-modal  { border-top: 5px solid var(--primary); max-width:95vw; }
+        .recall-modal .sp-modal-hdr { background:#f0f5ff; display:flex; justify-content:space-between; align-items:center; }
+        .recall-result {
+            background:#f7f8fc; border-radius:8px; padding:10px 14px;
+            font-size:12px; color:#333; line-height:1.85;
+            border:1px solid #e0e4ee; margin-top:10px; display:none;
+            font-family:'Cairo',sans-serif;
+        }
+        .recall-result.show { display:block; }
+        .recall-result .r-lbl { font-weight:700; color:var(--primary); }
+        .recall-result .r-cancel { color:#c0392b; font-weight:700; font-size:13px; text-align:center; }
+        .modal-close-btn {
+            background:#f0f2f7; border:none; border-radius:50%;
+            width:30px; height:30px; cursor:pointer; font-size:14px;
+            display:flex; align-items:center; justify-content:center;
+        }
+
+        /* مودال السجل */
+        .registry-modal { border-top:5px solid var(--primary); max-width:95vw; width:500px; display:flex; flex-direction:column; max-height:80vh; }
+        .registry-modal .sp-modal-hdr { background:#f0f5ff; display:flex; justify-content:space-between; align-items:center; flex-shrink:0; }
+        .registry-modal-body { padding:12px; overflow-y:auto; flex:1; }
+        .registry-legend { display:flex; gap:12px; padding:0 14px 8px; font-size:11px; font-family:'Cairo',sans-serif; flex-shrink:0; }
+        .leg-item { display:flex; align-items:center; gap:5px; }
+        .leg-dot  { width:12px; height:12px; border-radius:3px; }
+        .registry-grid { display:flex; flex-wrap:wrap; gap:6px; }
+        .reg-item {
+            width:52px; height:42px; border-radius:8px;
+            display:flex; flex-direction:column; align-items:center; justify-content:center;
+            font-family:'Cairo',sans-serif; font-size:11px; font-weight:700;
+            cursor:pointer; border:2px solid transparent; transition:transform 0.1s;
+        }
+        .reg-item:hover { transform:scale(1.08); }
+        .reg-item.executed  { background:#d4edda; color:#155724; border-color:#28a745; }
+        .reg-item.cancelled { background:#f8d7da; color:#721c24; border-color:#dc3545; }
+        .reg-item.empty     { background:#f0f0f0; color:#999; border-color:#ddd; }
+        .reg-num    { font-size:13px; }
+        .reg-status { font-size:8px; font-weight:400; }
+
+        /* مودال تأكيد */
+        .confirm-modal { border-top:5px solid #c0392b; }
+        .confirm-modal-body { padding:20px; text-align:center; }
+        .confirm-icon  { font-size:36px; margin-bottom:8px; }
+        .confirm-title { font-size:16px; font-weight:900; color:#c0392b; margin-bottom:8px; }
+        .confirm-msg   { font-size:12px; color:#555; line-height:1.6; margin-bottom:12px; }
+        .confirm-input {
+            width:100%; padding:8px 12px; border:2px solid #ddd; border-radius:8px;
+            font-size:13px; font-family:'Cairo',sans-serif; text-align:center;
+            outline:none; margin-bottom:10px;
+        }
+        .confirm-input:focus { border-color:#c0392b; }
+
+        @media print {
+            @page { size: A4; margin: 0; }
+            .no-print { display: none !important; }
+            .settings-panel { display: none !important; }
+            body { background: white; padding: 0; margin: 0; }
+            .main-container { max-width: 100%; padding: 0; margin: 0; }
+            .document-wrapper { display: block !important; margin: 0; box-shadow: none; width: 210mm; height: 297mm; page-break-inside: avoid; }
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+        }
+
+
+.dev-tag {
+    background: linear-gradient(135deg, #1a3a6b 0%, #c8a45a 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 900;
+    font-size: 10px;
+    padding: 8px 15px;
+    border-left: 3px solid var(--accent);
+    font-family: 'Cairo', sans-serif;
+    letter-spacing: 0.5px;
+    transition: 0.3s;
+    user-select: none;
+}
+
+.dev-tag:hover {
+    transform: translateX(5px);
+    opacity: 0.8;
+}
+
+/* زر تبديل الوضع */
+.theme-toggle-btn {
+    background: rgba(255, 255, 255, 0.15);
+    border: 2px solid rgba(255, 255, 255, 0.25);
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.3rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.theme-toggle-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.4);
+    transform: rotate(20deg) scale(1.05);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+}
+
+.theme-toggle-btn:active {
+    transform: rotate(20deg) scale(0.95);
+}
+
+
+/* ضبط اتجاه حقل التاريخ من اليمين لليسار */
+        #docDate {
+            text-align: right !important;
+            direction: rtl !important;
+        }
+
+
+    </style>
+</head>
+<body>
+
+<div class="main-container">
+
+    <!-- لوحة التحكم -->
+    <div class="no-print">  
+        <div class="system-title-bar" style="display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 10px 15px; min-height: 70px;">
+            <!-- القسم الأيسر: فارغ للتوازن بعد النقل -->
+            <div></div>
+
+            <!-- القسم الأوسط: العنوان -->
+            <div style="display: flex; align-items: center; gap: 10px; justify-content: center;">
+                <i class="fas fa-gavel" style="color: var(--accent); font-size: 1.4rem;"></i>
+                <span style="font-size: 1.2rem;">عرائض الهيئات القضائية</span>
+            </div>
+
+            <!-- القسم الأيمن: التاريخ والتبديل (تم نقله هنا) -->
+            <div style="display: flex; align-items: center; gap: 10px; justify-content: flex-end;">
+                <button id="themeToggle" class="theme-toggle-btn" onclick="toggleTheme()" title="تبديل الوضع الليلي/النهاري" style="width: 40px; height: 40px; font-size: 1.1rem;">
+                    <i class="fas fa-moon" id="themeIcon"></i>
+                </button>
+                <span style="color: rgba(255,255,255,0.4);">|</span>
+                <span id="currentDateDisplay" style="font-size: 14px; font-weight: 700; color: #fff;"></span>
+            </div>
+        </div>
+
+        <div class="input-panel" id="inputPanel">
+            <div class="panel-section-title">بيانات العريضة والمركبة ومدير النيابة</div>
+            <div class="row">
+                <div class="form-group form-group-xs"><label>رقم العريضة</label><input type="text" id="pNum" oninput="sync()"></div>
+                <div class="form-group form-group-xs"><label>السنة</label><input type="number" id="pYear" oninput="sync()"></div>
+                <div class="form-group">
+                    <label>رقم المركبة</label>
+                    <div class="car-num-row">
+                        <div class="car-num-container">
+                            <input type="text" id="carL1" class="car-letter" maxlength="1" oninput="handleAutoTab(this, 'carL2')" onkeydown="handleBackSpace(this, null)">
+                            <input type="text" id="carL2" class="car-letter" maxlength="1" oninput="handleAutoTab(this, 'carL3')" onkeydown="handleBackSpace(this, 'carL1')">
+                            <input type="text" id="carL3" class="car-letter" maxlength="1" oninput="handleAutoTab(this, 'carDigits')" onkeydown="handleBackSpace(this, 'carL2')">
+                            <input type="text" id="carDigits" class="car-digit" placeholder="" oninput="sync()" onkeydown="handleBackSpace(this, 'carL3')">
+                        </div>
+                        <button class="btn-clear-plate" onclick="clearPlateFields()" title="مسح رقم المركبة">🗑️ مسح</button>
+                    </div>
+                </div>
+                <!-- نقل مدير النيابة للأعلى -->
+                <div class="form-group form-group-director">
+                    <label>مدير النيابة</label>
+                    <select id="directorSelect" onchange="onDirectorChange()">
+                        <option value="" data-static="true">--- اختر ---</option>
+                        
+                        
+                        <option value="أخرى" data-static="true">أخرى (اكتب يدوياً)</option>
+                    </select>
+                </div>
+                <div id="directorOtherContainer" class="form-group form-group-narrow hidden">
+                    <label>اكتب الاسم يدوياً</label>
+                    <input type="text" id="directorOtherText" oninput="sync()" placeholder="اسم مدير النيابة">
+                </div>
+            </div>
+
+            <div class="panel-section-title">بيانات المالك</div>
+            <div class="row">
+                <div class="form-group form-group-xs">
+                    <label>نوع المالك</label>
+                    <select id="ownerType" onchange="reconstructForm()">
+                        <option value="شخص">شخص</option>
+                        <option value="زوجه">زوجة</option>
+                        <option value="جهه">جهة</option>
+                    </select>
+                </div>
+                <div id="ownerNameContainer" class="form-group form-group-name">
+                    <label id="label_ownerName">اسم العضو</label>
+                    <input type="text" id="ownerName" oninput="sync()" placeholder="( اسم العضو بدون القاب )">
+                </div>
+                <div id="wifeInputContainer" class="form-group hidden">
+                    <label>اسم الزوجة</label>
+                    <input type="text" id="wifeName" oninput="sync()" placeholder="( اسم الزوجه بدون القاب )">
+                </div>
+                <div id="workPlaceContainer" class="form-group">
+                    <label id="label_jobTitle">جهة العمل</label>
+                    <select id="jobTitle" onchange="reconstructForm()">
+                        <option value="">--- اختر ---</option>
+                        <option value="مستشار بمجلس الدولة">مستشار بمجلس الدولة</option>
+                        <option value="مستشار بهيئة قضايا الدولة">مستشار بهيئة قضايا الدولة</option>
+                        <option value="بالنيابة الادارية">بالنيابة الادارية</option>
+                        <option value="رئيس محكمة">رئيس محكمة</option>
+                        <option value="رئيس نيابة">رئيس نيابة</option>
+                        <option value="محام عام">محام عام</option>
+                        <option value="وكيل النائب العام">وكيل النائب العام</option>
+                        <option value="عضو مجلس الشعب">عضو مجلس الشعب</option>
+                        <option value="عضو مجلس الشيوخ">عضو مجلس الشيوخ</option>
+                        <option value="أخرى">أخرى</option>
+                    </select>
+                </div>
+                <div id="entitySelectContainer" class="form-group form-group-narrow hidden">
+                    <label>اختر الجهة</label>
+                    <select id="entityList" onchange="reconstructForm()">
+                        <option value="">--- اختر ---</option>
+                        <option value="وزارة العدل">وزارة العدل</option>
+                        <option value="مجلس الشيوخ">مجلس الشيوخ</option>
+                        <option value="مجلس النواب">مجلس النواب</option>
+                        <option value="أخرى">أخرى</option>
+                    </select>
+                </div>
+                <div id="otherInputContainer" class="form-group form-group-narrow hidden">
+                    <label id="label_otherInput">اكتب المسمى</label>
+                    <input type="text" id="otherInputText" oninput="sync()">
+                </div>
+            </div>
+
+            <div class="panel-section-title">صفة الحاضر والتاريخ</div>
+            <div class="row">
+                <div class="form-group form-group-sm">
+                    <label>صفة الحاضر</label>
+                    <select id="ownerStatus" onchange="reconstructForm()">
+                        <option value="مالك">مالك</option>
+                        <option value="بالتوكيل">بالتوكيل</option>
+                        <option value="بالعقد المسجل">بالعقد المسجل</option>
+                    </select>
+                </div>
+                <div id="proxyFields" class="form-group hidden">
+                    <label id="proxyFieldsLabel">بيانات التوكيل</label>
+                    <div style="display:flex; gap:6px;">
+                        <input type="text" id="proxyNum" oninput="sync()" placeholder="رقم">
+                        <input type="text" id="proxyLetter" oninput="sync()" placeholder="حرف">
+                        <input type="number" id="proxyYear" oninput="sync()">
+                    </div>
+                </div>
+                <div class="form-group form-group-sm" id="dateContainer">
+                    <label>تاريخ المذكرة</label>
+                    <input type="text" id="docDate" onchange="sync()" placeholder="يوم/شهر/سنة" style="background: var(--input-bg); color: var(--text-main);">
+                </div>
+            </div>
+        </div>
+
+<div class="btn-print-wrap no-print" id="btnPrintWrap" style="display: flex; justify-content: space-between; align-items: center; margin: 16px 0 8px; width: 100%; flex-wrap: wrap; gap: 12px; direction: rtl;">
+    
+    <!-- الأزرار أصبحت الآن في جهة اليسار (بسبب توزيع المساحة) -->
+    <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+        <button class="btn-print" id="petition-print" onclick="saveToHistory(); window.print()" title="طباعة المذكرة (Ctrl+P)">🖨️ طباعة المذكرة (Ctrl+P)</button>
+        <button class="btn-history" id="petition-history" onclick="toggleHistory()" title="استرجاع عريضة سابقة (Ctrl+R)">📋 استرجاع عريضة سابقة (Ctrl+R)</button>
+        <button class="btn-clear" id="petition-clear-all" onclick="clearForm()" title="مسح الحقول (F9)">🗑️ مسح الحقول (F9)</button>
+    </div>
+
+    <!-- الجملة أصبحت الآن في أقصى اليمين -->
+    <div class="dev-tag" style="border-left: none; border-right: 3px solid var(--accent); padding-right: 15px;">
+        Developed by Ibrahem Ahmed | v1.4.1
+    </div>
+</div>
+
+        <!-- مودال الهيستوري -->
+        <div class="history-modal-overlay" id="historyModalOverlay" onclick="closeHistoryModal(event)">
+            <div class="history-modal" id="historyModal">
+                <div class="history-modal-header">
+                    <div>
+                        <div class="history-modal-title">📁 استرجع كشف محفوظ</div>
+                    </div>
+                    <button class="history-modal-close" onclick="closeHistoryModal()">✕</button>
+                </div>
+                <div class="history-modal-body">
+                    <div id="historyItems"></div>
+                </div>
+                <div class="history-modal-footer">
+                    <button class="btn-clear" style="width:100%; padding:11px;" onclick="closeHistoryModal()">إلغاء</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ورقة المذكرة -->
+    <div class="document-wrapper">
+        <div class="document-paper">
+            <div class="inner-border">
+                <div class="header-section">
+                    <div class="doc-header">
+                        <div class="header-right">
+                            <span class="entity-name">النيابة العامة</span><br>
+                            <span class="sub-entity">نيابة مرور القاهرة</span><br>
+                            <span class="sub-entity" id="niabat-prosecution-name">نيابة مرور عين الصيرة</span>
+                        </div>
+                        <div style="text-align:center; font-family:'Calibri',sans-serif; font-size:14px; color:#bbb; letter-spacing:0.5px; align-self:flex-start; padding-top:2px;">
+                            رقم الصادر / ـــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــ
+                        </div>
+                        <div class="header-left">
+                            <img src="logo.png" alt="">
+                        </div>
+                    </div>
+                    <div class="doc-main-title-wrap">
+                        <div class="doc-title-box">مذكرة عرض</div>
+                        <div class="doc-main-title">
+                            في العريضة رقم (<span id="v_pNum">....</span>) لسنة (<span id="v_pYear">....</span>) عرائض <span id="niabat-doc-title">نيابة مرور عين الصيرة</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="doc-body-text">
+                    <p>حيث تخلص الواقعة فيما أثبته ضابط الواقعة بمحضر الضبط المحرر ضد المركبة رقم (<span id="v_carNum" class="highlight">........</span>) من الجنح والمخالفات المرورية المرفقة طي الأوراق.</p>
+                    <p>وحيث إنه في مجال التكييف القانوني للواقعة فإنها تشكل الجنح والمخالفات المؤثمة بالمواد 1، 2، 3، 4 طبقاً للقانون رقم 66 لسنة 1973 المعدل بالقانون رقم 210 لسنة 1980 والقانون رقم 155 لسنة 1999 والقانون رقم 121 لسنة 2008 والقانون رقم 59 لسنة 2014 المعدل من اللائحة التنفيذية.</p>
+                    <p>وبإمعان النظر بالأوراق نجد أن السيارة سالفة البيان موضوع المخالفات مملوكه لــ <span id="v_finalOwner" class="highlight">........</span> <br><span id="v_proxyText" class="highlight"></span> <span id="v_jobFullText">ويعمل سيادته <span id="v_job" class="highlight">........</span></span></p>
+                    <p>وحيث نصت المادة رقم 941 من التعليمات القضائية للنيابة العامة على أن ترسل إلى مكتب النائب العام المساعد عن طريق نيابات الاستئناف أو النيابات الكلية – حسب الأحوال – القضائية والأوراق المبينة بمذكرات الرأي (فقرة 20) جنح ومخالفات المرور الخاصة بأي من رئيس الوزراء وأعضاء مجلسي الشعب والشورى ورجال الهيئات القضائية.</p>
+                    <p>ولما كان الثابت من الاطلاع على المخالفات المثبتة سلفاً بالأوراق أنها تستدعي إجراءات قانونية لرفع الحصانة إلا أن ذلك يتناقض مع أهمية الجرم المرتكب وهو الأمر الذي ترى معه النيابة حفظ الأوراق قطعياً من قبيل عدم الأهمية.</p>
+                    <p>وحيث إن الثابت من الأوراق أن مالك السيارة هو <span id="v_finalOwner2" class="highlight">........</span>، الأمر الذي يستوجب معه إرسال الأوراق للسيد المستشار المحامي العام الأول لنيابة استئناف القاهرة للتفضل بالنظر والموافقة.</p>
+                </div>
+
+                <div class="footer-section-wrap">
+                    <div class="liza-title">
+                        <span class="big-word">لـــذلـــك</span>
+                        <span class="resolution">نرى لدى الموافقة حفظ الأوراق قطعياً من قبيل عدم الأهمية</span>
+                    </div>
+                    <div class="footer-section">
+                        <div class="date-block">
+                            تحريراً في:<br>
+                            <span id="v_date" class="highlight" style="font-size:18px;"></span>
+                        </div>
+                        <div class="sig-block">
+                            <span class="sig-title">مدير النيابة</span>
+                            <div class="sig-line"><span id="v_director" class="highlight">...........................</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- تم حذف لوحة الإعدادات الجانبية -->
+
+<!-- تم حذف مودال الرقم المفقود -->
+
+
+<!-- تم حذف مودال استدعاء عريضة -->
+
+<!-- تم حذف مودال سجل الأرقام -->
+
+<!-- تم حذف مودال استيراد السجل -->
+
+<!-- تم حذف مودالات التصفير وبداية السنة -->
+
+<script>
+    function handleAutoTab(current, nextId) {
+        if (current.value.length >= current.maxLength) {
+            if (nextId) document.getElementById(nextId).focus();
+        }
+        sync();
+    }
+
+    function handleBackSpace(current, prevId) {
+        if (event.key === "Backspace" && current.value === "") {
+            if (prevId) {
+                const prev = document.getElementById(prevId);
+                prev.focus();
+                prev.setSelectionRange(0, prev.value.length);
+            }
+        }
+    }
+
+    function clearPlateFields() {
+        ['carL1','carL2','carL3','carDigits'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.value = '';
+        });
+        sync();
+        const first = document.getElementById('carL1');
+        if (first) first.focus();
+    }
+
+    function showPetitionKeyboardPressFeedback(button) {
+        if (!button) return;
+        button.classList.remove('keyboard-pressed');
+        void button.offsetWidth;
+        button.classList.add('keyboard-pressed');
+        clearTimeout(button._keyboardFeedbackTimer);
+        button._keyboardFeedbackTimer = setTimeout(function() {
+            button.classList.remove('keyboard-pressed');
+        }, 180);
+    }
+
+    var petitionToastTimer = null;
+    var petitionToastHideTimer = null;
+    function showPetitionToast(message) {
+        var toast = document.getElementById('petition-toast');
+        if (!toast) {
+            toast = document.createElement('div');
+            toast.id = 'petition-toast';
+            toast.className = 'petition-toast no-print';
+            document.body.appendChild(toast);
+        }
+        toast.textContent = message;
+        clearTimeout(petitionToastTimer);
+        clearTimeout(petitionToastHideTimer);
+        toast.classList.remove('show');
+        void toast.offsetWidth;
+        toast.classList.add('show');
+        petitionToastTimer = setTimeout(function() {
+            toast.classList.remove('show');
+        }, 2200);
+    }
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'F9') {
+            e.preventDefault();
+            showPetitionKeyboardPressFeedback(document.getElementById('petition-clear-all'));
+            clearForm();
+        }
+        if (e.ctrlKey && (e.code === 'KeyP' || e.key === 'p' || e.key === 'P' || e.key === 'ح')) {
+            e.preventDefault(); // منع نافذة طباعة المتصفح الافتراضية لكامل الشاشة
+            showPetitionKeyboardPressFeedback(document.getElementById('petition-print'));
+            saveToHistory();
+            window.print();
+        }
+        if (e.ctrlKey && (e.code === 'KeyR' || e.key === 'r' || e.key === 'R' || e.key === 'ق')) {
+            e.preventDefault(); // منع إعادة تحميل الصفحة الافتراضية للمتصفح
+            showPetitionKeyboardPressFeedback(document.getElementById('petition-history'));
+            toggleHistory();
+        }
+    });
+
+    function clearForm() {
+        ['pNum','carL1','carL2','carL3','carDigits','ownerName','wifeName','otherInputText',
+         'proxyNum','proxyLetter','directorOtherText'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.value = '';
+        });
+        const now = new Date();
+        document.getElementById('pYear').value = now.getFullYear();
+        document.getElementById('proxyYear').value = now.getFullYear();
+        document.getElementById('docDate').value = getLocalDateStr(now);
+        document.getElementById('ownerType').value = 'شخص';
+        document.getElementById('jobTitle').value = '';
+        document.getElementById('ownerStatus').value = 'مالك';
+        document.getElementById('directorSelect').value = '';
+        reconstructForm();
+        setTimeout(() => { document.getElementById('pNum').focus(); }, 50);
+        showPetitionToast('تم مسح الحقول بنجاح ✅');
+    }
+
+    async function saveToHistory() {
+        try {
+        const entry = {
+            ownerType: document.getElementById('ownerType').value,
+            ownerName: document.getElementById('ownerName').value,
+            wifeName: document.getElementById('wifeName').value,
+            jobTitle: document.getElementById('jobTitle').value,
+            entityList: document.getElementById('entityList').value,
+            otherInputText: document.getElementById('otherInputText').value,
+            ownerStatus: document.getElementById('ownerStatus').value,
+            proxyNum: document.getElementById('proxyNum').value,
+            proxyLetter: document.getElementById('proxyLetter').value,
+            proxyYear: document.getElementById('proxyYear').value,
+            pNum: document.getElementById('pNum').value,
+            pYear: document.getElementById('pYear').value,
+            carL1: document.getElementById('carL1').value,
+            carL2: document.getElementById('carL2').value,
+            carL3: document.getElementById('carL3').value,
+            carDigits: document.getElementById('carDigits').value,
+            directorSelect: document.getElementById('directorSelect').value,
+            directorOtherText: document.getElementById('directorOtherText').value,
+            date: document.getElementById('docDate').value,
+            ts: Date.now()
+        };
+        
+        let hist = await getHistory();
+        hist.unshift(entry);
+        hist = hist.slice(0, 30); // الاحتفاظ بآخر 30 عريضة
+        let db = await fetchServerData();
+        db.petitionHistory = hist;
+        await saveToServerData(db);
+        } catch(e) { /* تعذر الحفظ في قاعدة بيانات السيرفر */ }
+    }
+
+    async function getHistory() {
+        try {
+            let db = await fetchServerData();
+            return Array.isArray(db.petitionHistory) ? db.petitionHistory : [];
+        } catch { return []; }
+    }
+
+    async function toggleHistory() {
+        document.getElementById('historyModalOverlay').classList.add('open');
+        await renderHistory();
+    }
+
+    function closeHistoryModal(e) {
+        if (e && e.target !== document.getElementById('historyModalOverlay')) return;
+        document.getElementById('historyModalOverlay').classList.remove('open');
+    }
+
+    async function renderHistory() {
+        const hist = await getHistory();
+        const container = document.getElementById('historyItems');
+        if (!hist.length) {
+            container.innerHTML = '<div class="history-empty">لا توجد عرائض محفوظة بعد</div>';
+            return;
+        }
+        container.innerHTML = hist.map((h, i) => {
+            const car = (h.carL1 + ' ' + h.carL2 + ' ' + h.carL3 + ' ' + h.carDigits).trim();
+            const name = (h.ownerType === 'زوجه') ? `${h.wifeName} / ${h.ownerName}` : (h.ownerName || h.otherInputText || '---');
+            const petitionNo = (h.pNum || h.pYear) ? `${h.pNum || '---'} لسنة ${h.pYear || '---'}` : '---';
+            return `
+            <div class="history-item" onclick="loadHistory(${i})">
+                <div style="flex:1">
+                    <div class="h-car">🏛️ ${name}</div>
+                    <div class="h-name">📄 عريضة رقم ${petitionNo}</div>
+                    <div class="h-name">🚗 ${car || '---'}</div>
+                </div>
+                <button onclick="deleteHistory(event,${i})" style="background:#f8d7da;border:none;border-radius:8px;padding:6px 9px;cursor:pointer;">🗑️</button>
+            </div>`;
+        }).join('');
+    }
+
+    async function deleteHistory(e, idx) {
+        e.stopPropagation();
+        let hist = await getHistory();
+        hist.splice(idx, 1);
+        let db = await fetchServerData();
+        db.petitionHistory = hist;
+        await saveToServerData(db);
+        await renderHistory();
+    }
+
+    async function loadHistory(idx) {
+        const hist = await getHistory();
+        const h = hist[idx];
+        if (!h) return;
+        
+        document.getElementById('historyModalOverlay').classList.remove('open');
+        
+        // استعادة كافة الحقول
+        document.getElementById('ownerType').value = h.ownerType || 'شخص';
+        document.getElementById('ownerName').value = h.ownerName || '';
+        document.getElementById('wifeName').value = h.wifeName || '';
+        document.getElementById('jobTitle').value = h.jobTitle || '';
+        document.getElementById('entityList').value = h.entityList || '';
+        document.getElementById('otherInputText').value = h.otherInputText || '';
+        document.getElementById('ownerStatus').value = h.ownerStatus || 'مالك';
+        document.getElementById('proxyNum').value = h.proxyNum || '';
+        document.getElementById('proxyLetter').value = h.proxyLetter || '';
+        document.getElementById('proxyYear').value = h.proxyYear || new Date().getFullYear();
+        document.getElementById('pNum').value = h.pNum || '';
+        document.getElementById('pYear').value = h.pYear || new Date().getFullYear();
+        document.getElementById('carL1').value = h.carL1 || '';
+        document.getElementById('carL2').value = h.carL2 || '';
+        document.getElementById('carL3').value = h.carL3 || '';
+        document.getElementById('carDigits').value = h.carDigits || '';
+        document.getElementById('directorSelect').value = h.directorSelect || '';
+        document.getElementById('directorOtherText').value = h.directorOtherText || '';
+        document.getElementById('docDate').value = h.date || getLocalDateStr(new Date());
+        
+        onDirectorChange();
+        reconstructForm();
+    }
+
+    function reconstructForm() {
+        const type = document.getElementById('ownerType').value;
+        const job = document.getElementById('jobTitle').value;
+        const entity = document.getElementById('entityList').value;
+        const status = document.getElementById('ownerStatus').value;
+        
+        document.getElementById('ownerNameContainer').classList.add('hidden');
+        document.getElementById('wifeInputContainer').classList.add('hidden');
+        document.getElementById('workPlaceContainer').classList.add('hidden');
+        document.getElementById('entitySelectContainer').classList.add('hidden');
+        document.getElementById('otherInputContainer').classList.add('hidden');
+        
+        if (type === 'زوجه') {
+            document.getElementById('ownerNameContainer').classList.remove('hidden');
+            document.getElementById('wifeInputContainer').classList.remove('hidden');
+            document.getElementById('workPlaceContainer').classList.remove('hidden');
+            document.getElementById('label_ownerName').innerText = "اسم العضو";
+            document.getElementById('ownerName').placeholder = "( اسم العضو بدون القاب )";
+            document.getElementById('label_jobTitle').innerText = "وظيفة العضو";
+            if (job === 'أخرى') document.getElementById('otherInputContainer').classList.remove('hidden');
+        } else if (type === 'جهه') {
+            document.getElementById('entitySelectContainer').classList.remove('hidden');
+            if (entity === 'أخرى') document.getElementById('otherInputContainer').classList.remove('hidden');
+        } else {
+            document.getElementById('ownerNameContainer').classList.remove('hidden');
+            document.getElementById('workPlaceContainer').classList.remove('hidden');
+            document.getElementById('label_ownerName').innerText = "اسم العضو";
+            document.getElementById('ownerName').placeholder = "( اسم العضو بدون القاب )";
+            document.getElementById('label_jobTitle').innerText = "جهة العمل";
+            if (job === 'أخرى') document.getElementById('otherInputContainer').classList.remove('hidden');
+        }
+        document.getElementById('proxyFields').classList.toggle('hidden', status !== 'بالتوكيل' && status !== 'بالعقد المسجل');
+        
+        // تحديث نص الملصق حسب نوع الصفة
+        if (status === 'بالعقد المسجل') {
+            document.getElementById('proxyFieldsLabel').innerText = 'بيانات العقد المسجل';
+        } else if (status === 'بالتوكيل') {
+            document.getElementById('proxyFieldsLabel').innerText = 'بيانات التوكيل';
+        }
+        
+        sync();
+    }
+
+    function onDirectorChange() {
+        const val = document.getElementById('directorSelect').value;
+        document.getElementById('directorOtherContainer').classList.toggle('hidden', val !== 'أخرى');
+        sync();
+    }
+
+    function preventBreak(text) {
+        if (!text) return '';
+        return text.split(' ').join('\u00A0');
+    }
+
+    function sync() {
+        const type = document.getElementById('ownerType').value;
+        const owner = document.getElementById('ownerName').value || '....';
+        const job = document.getElementById('jobTitle').value;
+        const entity = document.getElementById('entityList').value;
+        const otherVal = document.getElementById('otherInputText').value || '....';
+        const wife = document.getElementById('wifeName').value || '....';
+        const status = document.getElementById('ownerStatus').value;
+        const dateVal = document.getElementById('docDate').value;
+        
+        document.getElementById('v_pNum').innerText = document.getElementById('pNum').value || '....';
+        document.getElementById('v_pYear').innerText = document.getElementById('pYear').value;
+        
+        const carFull = (document.getElementById('carL1').value + ' ' + 
+                         document.getElementById('carL2').value + ' ' + 
+                         document.getElementById('carL3').value + ' ' + 
+                         document.getElementById('carDigits').value).trim();
+        document.getElementById('v_carNum').innerText = preventBreak(carFull) || '........';
+        
+        if (type === 'زوجه') {
+            const finalJob = (job === 'أخرى') ? otherVal : (job || '....');
+            const txt = `السيدة / ${preventBreak(wife)} — حرم المستشار / ${preventBreak(owner)}`;
+            document.getElementById('v_finalOwner').innerHTML = txt;
+            document.getElementById('v_finalOwner2').innerHTML = txt;
+            document.getElementById('v_job').innerText = preventBreak(finalJob);
+            document.getElementById('v_jobFullText').style.display = 'inline';
+        } else if (type === 'جهه') {
+            const finalEntity = (entity === 'أخرى') ? otherVal : (entity || '....');
+            const txt = `جهة / ${preventBreak(finalEntity)}`;
+            document.getElementById('v_finalOwner').innerHTML = txt;
+            document.getElementById('v_finalOwner2').innerHTML = txt;
+            document.getElementById('v_jobFullText').style.display = 'none';
+        } else {
+            const finalJob = (job === 'أخرى') ? otherVal : (job || '....');
+            const txt = `السيد المستشار / ${preventBreak(owner)}`;
+            document.getElementById('v_finalOwner').innerHTML = txt;
+            document.getElementById('v_finalOwner2').innerHTML = txt;
+            document.getElementById('v_job').innerText = preventBreak(finalJob);
+            document.getElementById('v_jobFullText').style.display = 'inline';
+        }
+        
+        if (dateVal) {
+            document.getElementById('v_date').innerText = dateVal;
+        }
+        
+let pStr = "";
+if (status === 'بالتوكيل') {
+    const pNum = document.getElementById('proxyNum').value || '....';
+    const pYear = document.getElementById('proxyYear').value || '....';
+    const pLetter = document.getElementById('proxyLetter').value || '....';
+    // استخدمنا دالة preventBreak لضمان بقاء السطر كتلة واحدة
+    pStr = preventBreak(`(بموجب التوكيل رقم ${pNum} لسنة ${pYear} حرف ${pLetter})`);
+} else if (status === 'بالعقد المسجل') {
+    const pNum = document.getElementById('proxyNum').value || '....';
+    const pYear = document.getElementById('proxyYear').value || '....';
+    const pLetter = document.getElementById('proxyLetter').value || '....';
+    // استخدمنا دالة preventBreak لضمان بقاء السطر كتلة واحدة
+    pStr = preventBreak(`(بموجب العقد المسجل رقم ${pNum} لسنة ${pYear} حرف ${pLetter})`);
+}
+document.getElementById('v_proxyText').innerText = pStr;
+
+
+        
+        const dirSel = document.getElementById('directorSelect').value;
+        const dirOther = document.getElementById('directorOtherText').value;
+        let dirName = '...........................';
+        if (dirSel === 'أخرى') { dirName = dirOther || '...........................'; }
+        else if (dirSel) { dirName = dirSel; }
+        document.getElementById('v_director').innerText = preventBreak(dirName);
+    }
+
+
+    // ====== نظام التسلسل تم إلغاؤه ======
+    function getReg()         { return {}; }
+    function saveReg(r)       { }
+    function getSettings()    { return { startNum:1, year:new Date().getFullYear() }; }
+    function saveSettings(s)  { }
+    function getLastNum()     { return 0; }
+    function updateSeqStatus(){ }
+    function checkSequence(v) { }
+    function saveToRegistry() { }
+    function openRegistryModal()   { }
+    function exportData()          { }
+    function setStartNumber()      { }
+    function openConfirm(id)       { }
+    function doFullReset()         { }
+    function doNewYear()           { }
+    function importAndSearch(e)    { }
+    function setImportSearchMode(m){ }
+    function performImportSearch() { }
+    function performImportSearchByCar()  { }
+    function performImportSearchByName() { }
+    function loadImportedPetition()      { }
+    function setRecallMode(mode) {
+        _recallMode = mode;
+        const el1 = document.getElementById('recallByNumRow');
+        const el2 = document.getElementById('recallByCarRow');
+        if (el1) el1.style.display = mode === 'num' ? 'flex' : 'none';
+        if (el2) el2.style.display = mode === 'car' ? 'flex' : 'none';
+    }
+
+    // ====== استدعاء عريضة ======
+    let _recalledData = null;
+
+    function openRecallModal() {
+        const recallInput = document.getElementById('recallInput');
+        const recallOverlay = document.getElementById('recallOverlay');
+        const recallModalInput = document.getElementById('recallModalInput');
+        const recallResult = document.getElementById('recallResult');
+        const recallActionBtns = document.getElementById('recallActionBtns');
+        if (!recallOverlay) return;
+        const val = recallInput ? recallInput.value : '';
+        if (recallModalInput) recallModalInput.value = val || '';
+        if (recallResult) recallResult.classList.remove('show');
+        if (recallActionBtns) recallActionBtns.style.display = 'none';
+        _recalledData = null;
+        recallOverlay.classList.add('open');
+        if (val) performRecall();
+    }
+
+    function performRecall() {
+        const val = document.getElementById('recallModalInput').value;
+        const num = parseInt(val);
+        const res = document.getElementById('recallResult');
+        document.getElementById('recallActionBtns').style.display = 'none';
+        _recalledData = null;
+
+        if (!val || isNaN(num)) {
+            res.innerHTML = '<div style="color:#c0392b;text-align:center">أدخل رقماً صحيحاً</div>';
+            res.classList.add('show'); return;
+        }
+        const reg = getReg(); const entry = reg[num];
+        if (!entry) {
+            res.innerHTML = `<div style="color:#888;text-align:center">الرقم <strong>${num}</strong> غير موجود في السجل</div>`;
+            res.classList.add('show'); return;
+        }
+        if (entry.status === 'cancelled') {
+            res.innerHTML = `<div class="r-cancel">🚫 العريضة رقم ${num} — ملغاة</div>`;
+            res.classList.add('show'); return;
+        }
+        const car = ((entry.carL1||'')+' '+(entry.carL2||'')+' '+(entry.carL3||'')+' '+(entry.carDigits||'')).trim();
+        const owner = entry.ownerType==='زوجه' ? `${entry.wifeName||'—'} / حرم ${entry.ownerName||'—'}`
+            : entry.ownerType==='جهه' ? (entry.entityList==='أخرى'?entry.otherInputText:entry.entityList)||'—'
+            : entry.ownerName||'—';
+        const dateDisp = entry.date ? new Date(entry.date).toLocaleDateString('ar-EG') : '—';
+        res.innerHTML = `
+            <div><span class="r-lbl">رقم العريضة:</span> ${entry.pNum} / ${entry.pYear}</div>
+            <div><span class="r-lbl">المركبة:</span> ${car||'—'}</div>
+            <div><span class="r-lbl">المالك:</span> ${owner}</div>
+            <div><span class="r-lbl">جهة العمل:</span> ${entry.jobTitle==='أخرى'?entry.otherInputText:(entry.jobTitle||'—')}</div>
+            <div><span class="r-lbl">التاريخ:</span> ${dateDisp}</div>
+            <div><span class="r-lbl">مدير النيابة:</span> ${entry.directorSelect==='أخرى'?entry.directorOtherText:(entry.directorSelect||'—')}</div>`;
+        res.classList.add('show');
+        document.getElementById('recallActionBtns').style.display = 'flex';
+        _recalledData = entry;
+    }
+
+    function _fillFormFromRecalled(h) {
+        document.getElementById('ownerType').value      = h.ownerType || 'شخص';
+        document.getElementById('ownerName').value      = h.ownerName || '';
+        document.getElementById('wifeName').value       = h.wifeName  || '';
+        document.getElementById('jobTitle').value       = h.jobTitle  || '';
+        document.getElementById('entityList').value     = h.entityList|| '';
+        document.getElementById('otherInputText').value = h.otherInputText || '';
+        document.getElementById('ownerStatus').value    = h.ownerStatus || 'مالك';
+        document.getElementById('proxyNum').value       = h.proxyNum  || '';
+        document.getElementById('proxyLetter').value    = h.proxyLetter|| '';
+        document.getElementById('proxyYear').value      = h.proxyYear || new Date().getFullYear();
+        document.getElementById('pNum').value           = h.pNum      || '';
+        document.getElementById('pYear').value          = h.pYear     || new Date().getFullYear();
+        document.getElementById('carL1').value          = h.carL1     || '';
+        document.getElementById('carL2').value          = h.carL2     || '';
+        document.getElementById('carL3').value          = h.carL3     || '';
+        document.getElementById('carDigits').value      = h.carDigits || '';
+        document.getElementById('directorSelect').value = h.directorSelect || '';
+        document.getElementById('directorOtherText').value = h.directorOtherText || '';
+        document.getElementById('docDate').value        = h.date || getLocalDateStr(new Date());
+        onDirectorChange(); reconstructForm();
+    }
+
+    function loadRecalledPetitionOnly() {
+        if (!_recalledData) return;
+        _fillFormFromRecalled(_recalledData);
+        closeModal('recallOverlay');
+    }
+
+    function loadRecalledPetitionAndPrint() {
+        if (!_recalledData) return;
+        _fillFormFromRecalled(_recalledData);
+        closeModal('recallOverlay');
+        setTimeout(() => { saveToRegistry(); window.print(); }, 300);
+    }
+
+    // ====== سجل الأرقام (محذوف) ======
+    function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+    function closeOnBg(e, id) { if (e.target === document.getElementById(id)) closeModal(id); }
+    function quickRecall(num) {
+        closeModal('registryOverlay');
+        document.getElementById('recallModalInput').value = num;
+        document.getElementById('recallResult').classList.remove('show');
+        document.getElementById('recallActionBtns').style.display = 'none';
+        _recalledData = null;
+        document.getElementById('recallOverlay').classList.add('open');
+        performRecall();
+    }
+
+    function getLocalDateStr(d) {
+        const day   = String(d.getDate()).padStart(2,'0');
+        const month = String(d.getMonth()+1).padStart(2,'0');
+        const year  = d.getFullYear();
+        return `${year}/${month}/${day}`;
+    }
+
+    function refreshDate() {
+        const now = new Date();
+        const todayStr = getLocalDateStr(now);
+        const current = document.getElementById('docDate').value;
+        if (current !== todayStr) {
+            document.getElementById('docDate').value = todayStr;
+            document.getElementById('pYear').value = now.getFullYear();
+            document.getElementById('proxyYear').value = now.getFullYear();
+            sync();
+        }
+    }
+
+    // ====== وضع البحث في الشريط الجانبي ======
+    let _recallMode = 'num';
+    function setRecallMode(mode) {
+        _recallMode = mode;
+        const el1 = document.getElementById('recallByNumRow');
+        const el2 = document.getElementById('recallByCarRow');
+        const btn1 = document.getElementById('searchTypeBtn1');
+        const btn2 = document.getElementById('searchTypeBtn2');
+        if (el1) el1.style.display = mode === 'num' ? 'flex' : 'none';
+        if (el2) el2.style.display = mode === 'car' ? 'flex' : 'none';
+        if (btn1) { btn1.style.opacity = mode === 'num' ? '1' : '0.5'; btn1.style.background = mode === 'num' ? 'var(--primary-light)' : '#888'; }
+        if (btn2) { btn2.style.background = mode === 'car' ? 'var(--primary-light)' : '#888'; }
+    }
+
+    // ====== وضع البحث داخل المودال ======
+    let _modalRecallMode = 'num';
+    function setModalRecallMode(mode) {
+        _modalRecallMode = mode;
+        document.getElementById('recallByNumSection').style.display = mode === 'num' ? 'block' : 'none';
+        document.getElementById('recallByCarSection').style.display = mode === 'car' ? 'block' : 'none';
+        const btn1 = document.getElementById('modalSearchTypeBtn1');
+        const btn2 = document.getElementById('modalSearchTypeBtn2');
+        if (mode === 'num') {
+            btn1.style.background = 'var(--primary-light)'; btn1.style.color = 'white'; btn1.style.borderColor = 'var(--primary-light)';
+            btn2.style.background = '#f0f2f7'; btn2.style.color = '#555'; btn2.style.borderColor = '#aaa';
+        } else {
+            btn2.style.background = 'var(--primary-light)'; btn2.style.color = 'white'; btn2.style.borderColor = 'var(--primary-light)';
+            btn1.style.background = '#f0f2f7'; btn1.style.color = '#555'; btn1.style.borderColor = '#aaa';
+        }
+        document.getElementById('recallResult').classList.remove('show');
+        document.getElementById('recallActionBtns').style.display = 'none';
+        _recalledData = null;
+    }
+
+    // ====== فتح المودال بحث برقم المركبة من الشريط الجانبي ======
+    function openRecallByCarModal() {
+        const l1 = document.getElementById('recallCarL1').value.trim();
+        const l2 = document.getElementById('recallCarL2').value.trim();
+        const l3 = document.getElementById('recallCarL3').value.trim();
+        const digits = document.getElementById('recallCarDigits').value.trim();
+        setModalRecallMode('car');
+        document.getElementById('recallModalCarL1').value = l1;
+        document.getElementById('recallModalCarL2').value = l2;
+        document.getElementById('recallModalCarL3').value = l3;
+        document.getElementById('recallModalCarDigits').value = digits;
+        document.getElementById('recallResult').classList.remove('show');
+        document.getElementById('recallActionBtns').style.display = 'none';
+        _recalledData = null;
+        document.getElementById('recallOverlay').classList.add('open');
+        if (l1 || l2 || l3 || digits) performRecallByCar();
+    }
+
+    // ====== البحث برقم المركبة ======
+    function performRecallByCar() {
+        const l1 = document.getElementById('recallModalCarL1').value.trim();
+        const l2 = document.getElementById('recallModalCarL2').value.trim();
+        const l3 = document.getElementById('recallModalCarL3').value.trim();
+        const digits = document.getElementById('recallModalCarDigits').value.trim();
+        const val = (l1 + ' ' + l2 + ' ' + l3 + ' ' + digits).trim().replace(/\s+/g,' ');
+        const res = document.getElementById('recallResult');
+        document.getElementById('recallActionBtns').style.display = 'none';
+        _recalledData = null;
+
+        if (!l1 && !l2 && !l3 && !digits) {
+            res.innerHTML = '<div style="color:#c0392b;text-align:center">أدخل رقم المركبة</div>';
+            res.classList.add('show'); return;
+        }
+
+        const reg = getReg();
+        const matches = [];
+        for (const key in reg) {
+            const e = reg[key];
+            if (!e || e.status === 'cancelled') continue;
+            const car = ((e.carL1||'') + ' ' + (e.carL2||'') + ' ' + (e.carL3||'') + ' ' + (e.carDigits||'')).trim().replace(/\s+/g,' ');
+            const carCompact = ((e.carL1||'') + (e.carL2||'') + (e.carL3||'') + (e.carDigits||'')).replace(/\s+/g,'');
+            const searchCompact = val.replace(/\s+/g,'');
+            if (car.includes(val) || carCompact.includes(searchCompact) || val.includes(car)) {
+                matches.push(e);
+            }
+        }
+
+        if (matches.length === 0) {
+            res.innerHTML = `<div style="color:#888;text-align:center">لا توجد نتائج للمركبة <strong>${val}</strong></div>`;
+            res.classList.add('show'); return;
+        }
+
+        if (matches.length === 1) {
+            _recalledData = matches[0];
+            const e = matches[0];
+            const car = ((e.carL1||'')+' '+(e.carL2||'')+' '+(e.carL3||'')+' '+(e.carDigits||'')).trim();
+            const owner = e.ownerType==='زوجه' ? `${e.wifeName||'—'} / حرم ${e.ownerName||'—'}`
+                : e.ownerType==='جهه' ? (e.entityList==='أخرى'?e.otherInputText:e.entityList)||'—'
+                : e.ownerName||'—';
+            const dateDisp = e.date ? new Date(e.date).toLocaleDateString('ar-EG') : '—';
+            res.innerHTML = `
+                <div><span class="r-lbl">رقم العريضة:</span> ${e.pNum} / ${e.pYear}</div>
+                <div><span class="r-lbl">المركبة:</span> ${car||'—'}</div>
+                <div><span class="r-lbl">المالك:</span> ${owner}</div>
+                <div><span class="r-lbl">التاريخ:</span> ${dateDisp}</div>
+                <div><span class="r-lbl">مدير النيابة:</span> ${e.directorSelect==='أخرى'?e.directorOtherText:(e.directorSelect||'—')}</div>`;
+            res.classList.add('show');
+            document.getElementById('recallActionBtns').style.display = 'flex';
+        } else {
+            let html = `<div style="color:#1a3a6b;font-weight:700;margin-bottom:6px">وُجدت ${matches.length} نتائج، اختر:</div>`;
+            matches.forEach(e => {
+                const car = ((e.carL1||'')+' '+(e.carL2||'')+' '+(e.carL3||'')+' '+(e.carDigits||'')).trim();
+                html += `<div onclick="selectCarMatch(${e.pNum})" style="padding:7px 10px;cursor:pointer;border-radius:7px;border:1px solid #dde3ec;margin-bottom:5px;background:#f7f8fc;font-family:'Cairo',sans-serif;font-size:12px;">
+                    <strong>عريضة ${e.pNum} / ${e.pYear}</strong> — ${car}
+                </div>`;
+            });
+            res.innerHTML = html;
+            res.classList.add('show');
+        }
+    }
+
+    function selectCarMatch(pNum) {
+        document.getElementById('recallModalInput').value = pNum;
+        setModalRecallMode('num');
+        performRecall();
+    }
+
+
+
+    // ====== استيراد سجل قديم (تم الحذف) ======
+
+    // ====== دالة تبديل الوضع ======
+    function toggleTheme() {
+        const body = document.body;
+        const themeIcon = document.getElementById('themeIcon');
+        const currentTheme = body.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        
+        body.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+        
+        if (newTheme === 'dark') {
+            themeIcon.className = 'fas fa-sun';
+        } else {
+            themeIcon.className = 'fas fa-moon';
+        }
+    }
+
+    window.onload = () => {
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.body.setAttribute('data-theme', savedTheme);
+        const themeIcon = document.getElementById('themeIcon');
+        if (savedTheme === 'dark') {
+            themeIcon.className = 'fas fa-sun';
+        } else {
+            themeIcon.className = 'fas fa-moon';
+        }
+        
+        const now = new Date();
+        // عرض التاريخ في الشريط العلوي
+        const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        document.getElementById('currentDateDisplay').textContent = now.toLocaleDateString('ar-EG', dateOptions);
+
+        document.getElementById('pYear').value = now.getFullYear();
+        document.getElementById('proxyYear').value = now.getFullYear();
+        document.getElementById('docDate').value = getLocalDateStr(now);
+        reconstructForm();
+        setInterval(refreshDate, 60000);
+
+//  لجعل المؤشر يركز على حقل رقم العريضة عند تحميل الصفحه
+    document.getElementById('pNum').focus();
+
+    };
+</script>
+
+  <!-- ══ تحميل إعدادات النيابة من البوابة الرئيسية ══ -->
+  <script>
+  (function(){
+    var K='niabat_config';
+    function load(){try{return JSON.parse(localStorage.getItem(K));}catch(e){return null;}}
+
+    function rebuildSelect(sel, items, addOther) {
+      if (!sel || !items || !items.length) return;
+      var cur = sel.value;
+
+      /* الاحتفاظ بالخيارات الثابتة الأساسية */
+      var staticOpts = Array.from(sel.options).filter(function(o) {
+          return o.dataset.static === 'true' && o.value !== 'أخرى';
+      });
+
+      sel.innerHTML = '';
+      staticOpts.forEach(function(o) { sel.appendChild(o); });
+
+      /* إضافة الوكلاء الجداد */
+      items.forEach(function(n) {
+        if (!n) return;
+        var o = document.createElement('option');
+        o.value = n; o.textContent = n; sel.appendChild(o);
+      });
+
+      /* إضافة اختيار "أخرى" في النهاية */
+      if (addOther) {
+        var oth = document.createElement('option');
+        oth.value = 'أخرى'; oth.textContent = 'أخرى (اكتب يدوياً)';
+        oth.dataset.static = 'true';
+        sel.appendChild(oth);
+      }
+      
+      if (cur) sel.value = cur;
+    }
+
+    function replaceNiabatName(newName) {
+      /* تغيير الاسم في العناوين المباشرة */
+      var nameEl = document.getElementById('niabat-prosecution-name');
+      if (nameEl) nameEl.textContent = newName;
+
+      var titleEl = document.getElementById('niabat-doc-title');
+      if (titleEl) titleEl.textContent = newName;
+
+      /* مسح شامل للنص في الصفحة (التركاية) */
+      var pat = /نيابة مرور (عيـن|عين) (الصيـرة|الصيرة|الصيره)/g;
+      var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
+      var nodes = []; var n;
+      while ((n = walker.nextNode())) if (pat.test(n.nodeValue)) nodes.push(n);
+      nodes.forEach(function(nd) {
+        nd.nodeValue = nd.nodeValue.replace(/نيابة مرور (عيـن|عين) (الصيـرة|الصيرة|الصيره)/g, newName);
+      });
+    }
+
+    function apply(cfg) {
+      if (!cfg) return;
+      
+      /* تحديث قائمة مدير النيابة */
+      rebuildSelect(document.getElementById('directorSelect'), cfg.agents, true);
+      
+      /* تحديث اسم النيابة الشامل */
+      if (cfg.prosecutionName) replaceNiabatName(cfg.prosecutionName);
+
+      /* تحديث السنة القضائية للعريضة فقط (بدون التوكيل) */
+      if (cfg.fiscalYear) {
+        var pYearEl = document.getElementById('pYear');
+        if (pYearEl) pYearEl.value = cfg.fiscalYear;
+
+        /* تشغيل دالة التزامن عشان السنة تسمّع فوراً في ورقة الطباعة */
+        if (typeof sync === 'function') sync();
+      }
+    }
+
+    if (document.readyState === 'loading')
+      document.addEventListener('DOMContentLoaded', function() { apply(load()); });
+    else apply(load());
+    
+    /* استقبال الإعدادات أونلاين من البوابة */
+    window.addEventListener('message', function(e) {
+      if (e.data && e.data.type === 'NIABAT_CONFIG_UPDATE') apply(e.data.config);
+    });
+    
+    /* استقبال الإعدادات محلياً */
+    window.addEventListener('storage', function(e) { if (e.key === K) apply(load()); });
+  })();
+  </script>
+  
+</body>
+</html>
