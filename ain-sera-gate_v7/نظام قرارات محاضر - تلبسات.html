@@ -3908,6 +3908,12 @@ function renderViolItems() {
     }
     const autoBox = document.getElementById('viol-autocomplete-box');
     if (autoBox) autoBox.style.display = 'none';
+
+    // إزالة اللون الأحمر التنبيهي فور إضافة أي مخالفة
+    const violTrigger = document.getElementById('viol-select-cs-trigger');
+    if (violTrigger && typeof violItems !== 'undefined' && violItems.length > 0) {
+        if (typeof restoreValidationHighlight === 'function') restoreValidationHighlight(violTrigger);
+    }
 }
 
 
@@ -5063,6 +5069,127 @@ async function saveMahdarData() {
 
 
 
+/* ===================================================
+   نظام التنبيه الذكي للحقول الفارغة
+=================================================== */
+const validationHighlightOriginals = new WeakMap();
+
+function restoreValidationHighlight(targetEl) {
+    if (!targetEl) return;
+    const original = validationHighlightOriginals.get(targetEl);
+    if (original) {
+        if (original.borderValue) {
+            targetEl.style.setProperty('border', original.borderValue, original.borderPriority);
+        } else {
+            targetEl.style.removeProperty('border');
+        }
+        if (original.shadowValue) {
+            targetEl.style.setProperty('box-shadow', original.shadowValue, original.shadowPriority);
+        } else {
+            targetEl.style.removeProperty('box-shadow');
+        }
+        validationHighlightOriginals.delete(targetEl);
+    } else {
+        targetEl.style.removeProperty('border');
+        targetEl.style.removeProperty('box-shadow');
+    }
+    targetEl.removeAttribute('data-validation-highlight');
+}
+
+function scrollToValidationField(el) {
+    if (!el) return;
+    const stickyBar = document.querySelector('.system-title-bar');
+    const stickyHeight = stickyBar ? stickyBar.getBoundingClientRect().height : 0;
+    const rect = el.getBoundingClientRect();
+    // منتصف الشاشة المتاحة فعلياً بعد استبعاد ارتفاع الشريط العلوي الثابت (sticky)
+    const viewportAvailable = window.innerHeight - stickyHeight;
+    const desiredTop = window.scrollY + rect.top - stickyHeight - Math.max((viewportAvailable - rect.height) / 2, 20);
+    window.scrollTo({ top: Math.max(desiredTop, 0), behavior: 'smooth' });
+}
+
+function clearValidationHighlightsForFilledFields() {
+    document.querySelectorAll('[data-validation-highlight="true"]').forEach((el) => {
+        if (el.value != null && String(el.value).trim() !== '') {
+            restoreValidationHighlight(el);
+        }
+    });
+}
+
+function validateFields() {
+    const errors = [];
+    
+    function addErr(id, msg) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        
+        // تجاهل الحقول داخل البطاقات المغلقة
+        const card = el.closest('.card');
+        if (card && card.classList.contains('collapsed')) return;
+        
+        // تجاهل الحقول المخفية
+        if (el.style.display === 'none') return;
+        const wrapper = el.closest('[style*="display: none"]');
+        if (wrapper) return;
+
+        errors.push({ msg: msg, id: id });
+    }
+
+    if (!get('input-caseNum')) addErr('input-caseNum', 'رقم المحضر غير مكتوب');
+    if (!get('input-dept-select')) {
+        addErr('input-dept-select', 'قسم الشرطة غير محدد');
+    } else if (get('input-dept-select') === 'أخرى' && !get('input-dept-other')) {
+        addErr('input-dept-other', 'قسم الشرطة (يدوي) غير مكتوب');
+    }
+    if (!get('input-year')) addErr('input-year', 'سنة المحضر غير مكتوبة');
+    if (!get('input-date')) addErr('input-date', 'تاريخ التحرير غير مكتوب');
+    if (!get('input-boss-select')) {
+        addErr('input-boss-select', 'مدير النيابة غير محدد');
+    } else if (get('input-boss-select') === 'أخرى' && !get('input-boss-other')) {
+        addErr('input-boss-other', 'اسم مدير النيابة (يدوي) غير مكتوب');
+    }
+
+    if (!get('input-name')) addErr('input-name', 'اسم المتهم غير مكتوب');
+    if (!get('f-national-id')) addErr('f-national-id', 'الرقم القومي غير مكتوب');
+    if (!get('f-incident-date')) addErr('f-incident-date', 'تاريخ الواقعة غير مكتوب');
+    
+    if (!get('vehicle-type')) {
+        addErr('vehicle-type', 'نوع المركبة غير محدد');
+    } else if (get('vehicle-type') === 'أخرى' && !get('vehicle-type-other')) {
+        addErr('vehicle-type-other', 'نوع المركبة (أخرى) غير مكتوب');
+    }
+
+    const pType = get('plate-type');
+    if (pType === 'with-plate') {
+        const c1 = get('c1'), c2 = get('c2'), c3 = get('c3'), n1 = get('n1');
+        if (!c1 && !c2 && !c3 && !n1) {
+            addErr('c1', 'رقم اللوحة غير مكتوب');
+        }
+    } else {
+        if (!get('input-no-plate')) addErr('input-no-plate', 'نص اللوحة غير مكتوب');
+    }
+
+    const violCard = document.getElementById('card-violations');
+    if (violCard && !violCard.classList.contains('collapsed')) {
+        if (typeof violItems !== 'undefined' && violItems.length === 0) {
+            addErr('viol-select-cs-trigger', 'يجب اختيار بند اتهام واحد على الأقل');
+        }
+    }
+
+    if (!get('sabeel-select')) addErr('sabeel-select', 'قرار إخلاء السبيل غير محدد');
+    if (!get('f-fine')) addErr('f-fine', 'مبلغ الغرامة غير مكتوب');
+    if (!get('vehicle-decision-select')) addErr('vehicle-decision-select', 'قرار المركبة غير محدد');
+
+    if (!get('f-jalsa-day-select')) {
+        addErr('f-jalsa-day-select', 'يوم الجلسة غير محدد');
+    } else if (get('f-jalsa-day-select') === 'أخرى' && !get('f-jalsa-day-other')) {
+        addErr('f-jalsa-day-other', 'يوم الجلسة (يدوي) غير مكتوب');
+    }
+    if (!get('f-jalsa-date')) addErr('f-jalsa-date', 'تاريخ الجلسة غير مكتوب');
+
+    return errors;
+}
+
+
 async function printDoc() {
     if (currentDecision === -1) {
         showCustomAlert('الرجاء اختيار القرار المناسب من القائمة الجانبية قبل الطباعة', {
@@ -5072,12 +5199,59 @@ async function printDoc() {
         return;
     }
 
+    // --- الفحص الذكي للحقول ---
+    const validationErrors = validateFields();
+    if (validationErrors.length > 0) {
+        const errorMessages = validationErrors.map(err => err.msg);
+        let firstEl = null;
+
+        validationErrors.forEach((err) => {
+            let targetEl = document.getElementById(err.id);
+            if (targetEl) {
+                if (!validationHighlightOriginals.has(targetEl)) {
+                    validationHighlightOriginals.set(targetEl, {
+                        borderValue: targetEl.style.getPropertyValue('border'),
+                        borderPriority: targetEl.style.getPropertyPriority('border'),
+                        shadowValue: targetEl.style.getPropertyValue('box-shadow'),
+                        shadowPriority: targetEl.style.getPropertyPriority('box-shadow')
+                    });
+                }
+                targetEl.setAttribute('data-validation-highlight', 'true');
+                targetEl.style.setProperty('border', '2px solid #ef4444', 'important');
+                targetEl.style.setProperty('box-shadow', '0 0 10px rgba(239, 68, 68, 0.6)', 'important');
+                
+                const removeHighlight = () => {
+                    restoreValidationHighlight(targetEl);
+                    targetEl.removeEventListener('input', removeHighlight);
+                    targetEl.removeEventListener('change', removeHighlight);
+                };
+                targetEl.addEventListener('input', removeHighlight);
+                targetEl.addEventListener('change', removeHighlight);
+
+                if (!firstEl) firstEl = targetEl;
+            }
+        });
+
+        showCustomAlert('الحقول الفارغة:\n\n' + errorMessages.join('\n'), {
+            title: 'بيانات ناقصة',
+            type: 'error',
+            list: true,
+            onClose: function() {
+                if (firstEl) {
+                    scrollToValidationField(firstEl);
+                    setTimeout(() => firstEl.focus(), 300);
+                }
+            }
+        });
+        return; 
+    }
+
     // ---- فحص: هل رقم المحضر (+ السنة + القسم) محفوظ من قبل؟ ----
-    const get = id => { const el = document.getElementById(id); return el ? el.value : ''; };
-    const caseNum = get('input-caseNum').trim();
-    const year    = get('input-year').trim();
+    const getVal = id => { const el = document.getElementById(id); return el ? el.value : ''; };
+    const caseNum = getVal('input-caseNum').trim();
+    const year    = getVal('input-year').trim();
     const deptSel = document.getElementById('input-dept-select');
-    const dept    = deptSel ? (deptSel.value === 'أخرى' ? get('input-dept-other').trim() : deptSel.value) : '';
+    const dept    = deptSel ? (deptSel.value === 'أخرى' ? getVal('input-dept-other').trim() : deptSel.value) : '';
 
     const continueDecisionPrint = async () => {
         updateAll();
@@ -5187,41 +5361,50 @@ async function loadMahdarFromStorage() {
         if (typeof updateViolDisplay === 'function') updateViolDisplay();
     }
 
+    // إزالة أي تمييز أحمر من الحقول النصية التي امتلأت للتو (قبل أي منطق قد يفشل لاحقًا)
+    if (typeof clearValidationHighlightsForFilledFields === 'function') clearValidationHighlightsForFilledFields();
+
     // استرجاع القرار المختار وتحديث القائمة الجانبية
-    if (d.currentDecision !== undefined && d.currentDecision !== -1) {
-        selectDecision(d.currentDecision);
-        
-        // 💡 تحديث الزر بناءً على القرار المُسترجع (صباحي أم مسائي)
-        const isMasai = (d.currentDecision >= 5 && d.currentDecision <= 8);
-        const btn = document.getElementById('timing-toggle-btn');
-        
-        // إذا كان المحضر مسائي والواجهة على الصباحي، أو العكس، قم بالتبديل
-        if ((isMasai && btn.classList.contains('sabahi-mode')) || 
-            (!isMasai && btn.classList.contains('masai-mode'))) {
-            toggleNiabaTiming();
-        }
-        
+    try {
+        if (d.currentDecision !== undefined && d.currentDecision !== -1) {
+            selectDecision(d.currentDecision);
+            
+            // 💡 تحديث الزر بناءً على القرار المُسترجع (صباحي أم مسائي)
+            const isMasai = (d.currentDecision >= 5 && d.currentDecision <= 8);
+            const btn = document.getElementById('timing-toggle-btn');
+            
+            // إذا كان المحضر مسائي والواجهة على الصباحي، أو العكس، قم بالتبديل
+            if (btn && ((isMasai && btn.classList.contains('sabahi-mode')) || 
+                (!isMasai && btn.classList.contains('masai-mode')))) {
+                toggleNiabaTiming();
+            }
+            
         } else {
+            updateAll();
+        }
+
+        // استرجاع حالة القرار الأول والتعديل اليدوي إن وُجدا في المحضر المحفوظ.
+        const firstDecisionModeSelect = document.getElementById('first-decision-mode');
+        if (firstDecisionModeSelect && d.firstDecisionMode) {
+            firstDecisionModeSelect.value = d.firstDecisionMode;
+        }
+        firstDecisionMode = d.firstDecisionMode === 'no-indict' ? 'no-indict' : 'indict';
+        firstDecisionManualOverride = Boolean(d.firstDecisionManualOverride && String(d.firstDecisionManualText || '').trim());
+        const firstDecisionPreview = document.getElementById('first-decision-preview');
+        const firstDecisionEditToggle = document.getElementById('first-decision-edit-toggle');
+        if (firstDecisionEditToggle) firstDecisionEditToggle.checked = firstDecisionManualOverride;
+        if (firstDecisionManualOverride && firstDecisionPreview && firstDecisionMode === 'indict') {
+            firstDecisionPreview.value = d.firstDecisionManualText;
+            toggleFirstDecisionEdit({ checked: true });
+        }
+        updateFirstDecisionUI();
         updateAll();
+    } catch (e) {
+        // لا نسمح لأي خطأ غير متوقع هنا بإيقاف باقي عملية الاسترجاع (التوست وإزالة التظليل الأحمر)
     }
 
-    // استرجاع حالة القرار الأول والتعديل اليدوي إن وُجدا في المحضر المحفوظ.
-    const firstDecisionModeSelect = document.getElementById('first-decision-mode');
-    if (firstDecisionModeSelect && d.firstDecisionMode) {
-        firstDecisionModeSelect.value = d.firstDecisionMode;
-    }
-    firstDecisionMode = d.firstDecisionMode === 'no-indict' ? 'no-indict' : 'indict';
-    firstDecisionManualOverride = Boolean(d.firstDecisionManualOverride && String(d.firstDecisionManualText || '').trim());
-    const firstDecisionPreview = document.getElementById('first-decision-preview');
-    const firstDecisionEditToggle = document.getElementById('first-decision-edit-toggle');
-    if (firstDecisionEditToggle) firstDecisionEditToggle.checked = firstDecisionManualOverride;
-    if (firstDecisionManualOverride && firstDecisionPreview && firstDecisionMode === 'indict') {
-        firstDecisionPreview.value = d.firstDecisionManualText;
-        toggleFirstDecisionEdit({ checked: true });
-    }
-    updateFirstDecisionUI();
-    updateAll();
-
+    // إزالة أي تمييز أحمر من الحقول التي امتلأت من المحضر المحفوظ
+    if (typeof clearValidationHighlightsForFilledFields === 'function') clearValidationHighlightsForFilledFields();
 
     // toast نجاح
     const toast = document.createElement('div');
@@ -5612,7 +5795,11 @@ function pickerToText(picker, textId) {
     if (!picker.value) return;
     const [y,m,d] = picker.value.split('-');
     const el = document.getElementById(textId);
-    if (el) el.value = y + '/' + m + '/' + d;
+    if (el) {
+        el.value = y + '/' + m + '/' + d;
+        // إزالة التمييز الأحمر فوراً عند الاختيار من التقويم (لا يُصدر حدث input/change على الحقل النصي نفسه)
+        if (typeof restoreValidationHighlight === 'function') restoreValidationHighlight(el);
+    }
 }
 
 /* ===================================================
@@ -10331,6 +10518,8 @@ function calculateTotalFine() {
     // ── نافذة التنبيه المخصصة ──
     let infoAlertKeyHandler = null;
 
+    let pendingInfoAlertOnClose = null;
+
     function showCustomAlert(message, options) {
         options = options || {};
         const titleEl = document.getElementById('info-alert-modal-title');
@@ -10343,6 +10532,8 @@ function calculateTotalFine() {
         if (iconEl) iconEl.className = options.type === 'error'
             ? 'fa-solid fa-circle-exclamation'
             : 'fa-solid fa-circle-check';
+
+        pendingInfoAlertOnClose = typeof options.onClose === 'function' ? options.onClose : null;
 
         const overlay = document.getElementById('info-alert-modal-overlay');
         if (overlay) overlay.classList.add('show');
@@ -10368,6 +10559,9 @@ function calculateTotalFine() {
             document.removeEventListener('keydown', infoAlertKeyHandler, true);
             infoAlertKeyHandler = null;
         }
+        const onClose = pendingInfoAlertOnClose;
+        pendingInfoAlertOnClose = null;
+        if (typeof onClose === 'function') onClose();
     }
 
     // ── اختصارات نافذة استيراد محضر جديد ──
