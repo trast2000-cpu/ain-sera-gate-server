@@ -378,18 +378,20 @@
         }
 
         .leave-form-panel {
-            flex: 0 0 320px; background: var(--bg-white); border: 2px solid var(--primary-color);
-            border-radius: 20px; box-shadow: 0 8px 32px rgba(59, 111, 212, 0.2), var(--shadow);
-            padding: 20px; display: flex; flex-direction: column; gap: 12px; height: fit-content;
-            max-height: calc(100vh - 110px); overflow-y: auto; position: relative;
-            background: linear-gradient(135deg, var(--bg-white) 0%, rgba(59, 111, 212, 0.03) 100%);
+            flex: 0 0 360px; /* عرض مريح جداً للحقول */
+            padding: 10px 20px; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 16px; /* مسافات أوسع وأريح للعين بين الحقول */
+            height: auto; 
+            overflow: visible; /* 💡 السر الأول: إلغاء السكرول الداخلي نهائياً لتظهر الأزرار مباشرة */
+            position: relative;
+            background: transparent !important; /* 💡 السر الثاني: إلغاء لون الخلفية */
+            border: none !important; /* 💡 السر الثالث: إلغاء البرواز */
+            box-shadow: none !important; /* إلغاء الظل */
         }
         .leave-form-panel::before {
-            content: ''; position: absolute; top: 0; right: 0; bottom: 0; left: 0;
-            border: 2px solid transparent; border-radius: 20px;
-            background: linear-gradient(135deg, rgba(59, 111, 212, 0.5) 0%, rgba(100, 116, 139, 0.3) 100%) border-box;
-            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-            -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none; opacity: 0.6;
+            display: none !important; /* إخفاء البرواز المزخرف بالكامل */
         }
 
         @media print {
@@ -398,20 +400,68 @@
         }
 
         .leave-form-panel h3 {
-            font-size: 1.1rem; font-weight: 800; color: var(--text-main); margin-bottom: 4px;
-            text-align: center; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;
+            font-size: 1.3rem; /* تكبير العنوان قليلاً */
+            font-weight: 800; 
+            color: var(--primary-color); /* إعطائه لون مميز */
+            margin-bottom: 5px;
+            text-align: right; /* محاذاته لليمين ليتماشى مع الصفحة المفتوحة */
+            border-bottom: 2px solid var(--border-color); 
+            padding-bottom: 12px;
         }
 
         .leave-form-group { display: flex; flex-direction: row; align-items: center; gap: 8px; position: relative; z-index: 1; }
-        .leave-form-group label { font-size: 0.8rem; font-weight: 700; color: var(--text-muted); white-space: nowrap; min-width: fit-content; flex-shrink: 0; }
         
+
+
+
+/* 💡 1. تكبير وإبراز عناوين الحقول */
+        .leave-form-group label { 
+            font-size: 1.05rem !important; /* تكبير الخط */
+            font-weight: 800 !important; /* زيادة سماكة الخط */
+            color: #1e3a8a !important; /* لون أزرق داكن واضح جداً */
+            white-space: nowrap; 
+            min-width: 85px; /* تثبيت مساحة العنوان عشان الحقول كلها تطلع محاذية لبعض */
+            flex-shrink: 0; 
+        }
+
+        /* 💡 تفتيح لون العناوين في الوضع الليلي عشان تقرأ بوضوح */
+        body[data-theme="dark"] .leave-form-group label {
+            color: #93c5fd !important;
+        }
+        
+        /* 💡 2. إبراز الحقول نفسها (خلفية بيضاء + إطار أسمك + ظل بارز) */
         .leave-form-group input,
         .leave-form-group select,
         .leave-form-group textarea {
-            padding: 8px 10px; border: 1.5px solid var(--border-color); border-radius: 8px;
-            font-size: 0.9rem; font-family: 'Cairo', sans-serif; flex: 1; min-width: 120px;
-            background: var(--bg-light); color: var(--text-main); outline: none; transition: var(--transition); box-sizing: border-box;
+            padding: 10px 12px !important; 
+            border: 2px solid #94a3b8 !important; /* إطار أسمك ولون أغمق يفصل الحقل عن الصفحة */
+            border-radius: 8px;
+            font-size: 1rem !important; 
+            font-weight: 700 !important; /* خط الإدخال يكون عريض وواضح */
+            font-family: 'Cairo', sans-serif; 
+            flex: 1; 
+            min-width: 120px;
+            background: #ffffff !important; /* 🌟 السر هنا: خلفية بيضاء ناصعة تفصل الحقل تماماً */
+            color: var(--text-main); 
+            outline: none; 
+            transition: var(--transition); 
+            box-sizing: border-box;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05) !important; /* ظل خفيف يبرز الحقل للأمام */
         }
+
+        /* 💡 3. تظبيط الحقول في الوضع الليلي */
+        body[data-theme="dark"] .leave-form-group input,
+        body[data-theme="dark"] .leave-form-group select,
+        body[data-theme="dark"] .leave-form-group textarea {
+            background: #1e293b !important;
+            border-color: #475569 !important;
+            color: #f8fafc !important;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2) !important;
+        }
+
+
+
+
         .leave-form-group textarea { resize: vertical; min-height: 80px; }
         .leave-form-group input:focus, .leave-form-group select:focus, .leave-form-group textarea:focus { border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(59,111,212,0.15); }
 
@@ -476,6 +526,32 @@
         .leave-sig-title { font-family: 'Cairo', sans-serif; font-size: 1.1rem; font-weight: 700; display: block; margin-bottom: 4px; color: #1a3a6b; }
         .leave-sig-name { font-family: 'Cairo', sans-serif; font-size: 1.05rem; font-weight: 700; margin-bottom: 2px; }
         .leave-sig-line { font-size: 0.9rem; letter-spacing: 1px; color: #444; }
+
+
+
+/* 💡 تكبير حقل التاريخ وإجبار المتصفح على عرض تفاصيل أوضح */
+.leave-form-group input[type="date"] {
+    font-size: 1.3rem !important; /* تكبير الأرقام والخط داخل الحقل */
+    font-weight: bold;
+    padding: 12px 14px !important;
+    height: 50px !important; /* تعريض الحقل ليكون مريحاً للضغط */
+    cursor: pointer;
+}
+
+/* 💡 تكبير أيقونة النتيجة (التقويم) مرة ونصف لتسهيل الضغط */
+.leave-form-group input[type="date"]::-webkit-calendar-picker-indicator {
+    transform: scale(1.6); /* التكبير بنسبة 160% */
+    margin-right: 8px;
+    cursor: pointer;
+    opacity: 0.8;
+}
+.leave-form-group input[type="date"]::-webkit-calendar-picker-indicator:hover {
+    opacity: 1;
+    transform: scale(1.8); /* تكبير إضافي عند وقوف الماوس */
+}
+
+
+
     </style>
 <script src="niabat-config-loader.js"></script>
 </head>
@@ -710,6 +786,18 @@
             <!-- Preview Box (PDFs) -->
             <div id="previewBox" class="preview-container" style="display: flex; animation: 0.5s cubic-bezier(0.4, 0, 0.2, 1) 0s 1 normal none running fadeInScale;">
                 <div id="pdfWrapper" class="pdf-wrapper portrait">
+                    
+                    <!-- 💡 تصميم رسالة الخطأ المخصصة -->
+                    <div id="pdfNotFoundMsg" style="display: none; width: 100%; height: 100%; flex-direction: column; align-items: center; justify-content: center; background: var(--bg-light); color: var(--text-main); text-align: center; padding: 20px;">
+                        <i class="fas fa-file-circle-xmark" style="font-size: 5rem; color: var(--accent-red); margin-bottom: 20px;"></i>
+                        <h3 style="font-size: 1.8rem; font-weight: 800; margin-bottom: 10px;">المعاينة غير متوفرة</h3>
+                        <p style="font-size: 1.2rem; color: var(--text-muted);">عذراً، لم يتم العثور على ملف المطبوعة.</p>
+                        <p style="font-size: 1rem; margin-top: 15px; color: var(--accent-orange); background: rgba(245, 158, 11, 0.1); padding: 10px 15px; border-radius: 8px; border: 1px dashed var(--accent-orange);">
+                            يرجى التأكد من إضافة الملف داخل مجلد <b>files</b> باسمه الصحيح.
+                        </p>
+                    </div>
+
+                    <!-- الـ iframe الأصلي -->
                     <iframe id="pdfViewer" class="pdf-frame" src="files/جواب التأمين الصحى.pdf"></iframe>
                 </div>
                 <div class="side-toolbar">
@@ -718,9 +806,9 @@
                     <div class="toolbar-divider"></div>
                     <button class="btn btn-primary" onclick="printPdf()" style="width: 100%;"><i class="fas fa-print"></i> طباعة فورية</button>
                     <div style="display: flex; gap: 8px; margin-top: 10px;">
-                        <input type="file" id="wordFileInput" accept=".doc,.docx" style="display:none">
-                        <button class="btn btn-outline" onclick="document.getElementById('wordFileInput').click()" style="flex: 1; padding: 0px 0px; font-size: 1.rem;"><i class="fas fa-file-word"></i> فتح في وورد</button>
-                        <button class="btn btn-outline" onclick="copyFolderPath()" style="width: 70px; padding: 0;"><i class="fas fa-copy"></i>نسخ <br> مسار</button>
+                        <!-- تم إلغاء input الرفع واستبدال دالة الزر -->
+                        <button class="btn btn-outline" onclick="openWordFileViaServer()" style="flex: 1; padding: 0px 0px; font-size: 1.rem;"><i class="fas fa-file-signature"></i> فتح الملف للتعديل</button>
+                        <button class="btn btn-outline" onclick="openOrCopyFolderPath()" style="width: 70px; padding: 0;"><i class="fas fa-folder-open"></i>فتح <br> المجلد</button>
                     </div>
                 </div>
             </div>
@@ -732,16 +820,16 @@
                     <div class="leave-form-group"><label>نوع الإجازة</label><select id="leaveType" onchange="syncLeave()"><option value="اعتيادي">اعتيادي</option><option value="عارضة">عارضة</option></select></div>
                     <div class="leave-form-row"><div class="leave-form-group"><label>عدد الأيام</label><input type="number" id="leaveDays" min="1" oninput="syncLeave()" placeholder="مثال: 3"></div></div>
                     <div class="leave-form-row">
-                        <div class="leave-form-group"><label>البداية</label><input type="date" id="leaveStartDate" onchange="syncLeave()"></div>
-                        <div class="leave-form-group"><label>النهاية</label><input type="date" id="leaveEndDate" onchange="syncLeave()"></div>
+                        <div class="leave-form-group"><label>تـبـدأ مـــن</label><input type="date" id="leaveStartDate" onchange="syncLeave()"></div>
+                        <div class="leave-form-group"><label>تنتهي في</label><input type="date" id="leaveEndDate" onchange="syncLeave()"></div>
                     </div>
-                    <div class="leave-form-group"><label>مقدم الطلب</label><input type="text" id="leaveRequesterName" oninput="syncLeave()" placeholder="الاسم"></div>
+                    <div class="leave-form-group"><label>مـقـدم الطلب</label><input type="text" id="leaveRequesterName" oninput="syncLeave()" placeholder="الاسم"></div>
                     <div class="leave-form-group"><label>القائم بالعمل</label><input type="text" id="leaveEmployeeName" oninput="syncLeave()" placeholder="الاسم"></div>
-                    <div class="leave-form-group"><label>رئيس القلم</label><input type="text" id="leaveClerkName" oninput="syncLeave()" placeholder="الاسم"></div>
-                    <div class="leave-form-group"><label>تاريخ التحرير</label><input type="date" id="leaveWrittenDate" onchange="syncLeave()"></div>
+                    <div class="leave-form-group"><label>رئـيـس الـقـلم</label><input type="text" id="leaveClerkName" oninput="syncLeave()" placeholder="الاسم"></div>
+                    <div class="leave-form-group"><label>تـاريـخ الـتحرير</label><input type="date" id="leaveWrittenDate" onchange="syncLeave()"></div>
                     <div class="leave-actions">
                         <button class="btn btn-primary" onclick="printLeaveRequest()"><i class="fas fa-print"></i> طباعة</button>
-                        <button class="btn btn-outline" onclick="clearLeaveForm()"><i class="fas fa-eraser"></i> تفريغ</button>
+                        <button class="btn btn-outline" onclick="clearLeaveForm()"><i class="fas fa-eraser"></i>مسح</button>
                     </div>
                 </div>
 
@@ -807,7 +895,7 @@
                         </select>
                     </div>
                     <div class="leave-form-group" id="outLetterManagerGroup">
-                        <label>اسم مدير النيابة</label>
+                        <label>مدير النيابة</label>
                         <input type="text" id="outLetterManagerName" oninput="syncOutLetter()" placeholder="الاسم">
                     </div>
                     <div class="leave-form-group" id="outLetterClerkGroup" style="display: none;">
@@ -824,7 +912,7 @@
                     </div>
                     <div class="leave-actions">
                         <button class="btn btn-primary" onclick="printOutLetter()"><i class="fas fa-print"></i> طباعة</button>
-                        <button class="btn btn-outline" onclick="clearOutLetterForm()"><i class="fas fa-eraser"></i> تفريغ</button>
+                        <button class="btn btn-outline" onclick="clearOutLetterForm()"><i class="fas fa-eraser"></i>مسح</button>
                     </div>
                 </div>
 
@@ -1273,7 +1361,38 @@
             }
 
             currentPdfPath = pdfPath; currentWordPath = wordPath; currentPublicationName = name;
-            document.getElementById('pdfViewer').src = pdfPath;
+            
+            // 💡 الفحص الذكي لوجود الملف قبل العرض
+            const iframe = document.getElementById('pdfViewer');
+            const notFoundMsg = document.getElementById('pdfNotFoundMsg');
+
+            // إخفاء كلاهما مؤقتاً أثناء الفحص
+            iframe.style.display = 'none';
+            notFoundMsg.style.display = 'none';
+
+            // إذا كان المسار فارغاً
+            if (!pdfPath) {
+                notFoundMsg.style.display = 'flex';
+            } else {
+                // فحص هل الملف موجود فعلياً على السيرفر
+                fetch(pdfPath, { method: 'HEAD' })
+                    .then(response => {
+                        if (response.ok) {
+                            // ✅ الملف موجود: اعرض الـ iframe
+                            iframe.src = pdfPath;
+                            iframe.style.display = 'block';
+                        } else {
+                            // ❌ الملف غير موجود (Error 404): اعرض رسالة الخطأ الشيك
+                            notFoundMsg.style.display = 'flex';
+                        }
+                    })
+                    .catch(error => {
+                        // في حالة وجود مشكلة في الاتصال (أو تشغيل الملف بدون سيرفر localhost)
+                        // نعتمد على الـ iframe كحل أخير
+                        iframe.src = pdfPath;
+                        iframe.style.display = 'block';
+                    });
+            }
 
             const savedOrientation = localStorage.getItem('orient_' + name);
             if (savedOrientation) { updateOrientationBadge(savedOrientation, false); }
@@ -1343,9 +1462,29 @@
 
         function copyFolderPath() {
             const tempInput = document.createElement("input");
-            tempInput.value = "E:\\بوابه نيابه مرور عين الصيره\\نيابة_مرور_عين_الصيرة اللي فيها ترس الضبط\\files";
+            tempInput.value = "\\\\DESKTOP-GHTTPMA\\Users\\$Roqa$\\Desktop\\node-v16.20.2-win-x86\\ain-sera-gate-server\\ain-sera-gate_v7\\files";
             document.body.appendChild(tempInput); tempInput.select(); document.execCommand("copy"); document.body.removeChild(tempInput);
-            showToast("📋 تم نسخ مسار مجلد الملفات");
+            showToast("📋 تم نسخ مسار مجلد الملفات، الصقه في مستكشف الملفات");
+        }
+
+        // زرار "فتح المجلد": بيجرب يفتح المجلد على طول لو إحنا على جهاز السيرفر نفسه،
+        // ولو الطلب جاي من جهاز تاني في الشبكة، السيرفر بيرفض يفتح عنده (مالوش لازمة)
+        // فبنرجع تلقائيًا لنسخ المسار زي زرار "نسخ مسار" القديم
+        function openOrCopyFolderPath() {
+            fetch('/api/open-folder', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.opened) {
+                        showToast('✅ جاري فتح مجلد الملفات...');
+                    } else {
+                        // مش جهاز السيرفر (أو حصل خطأ) → نسخ المسار بدل الفتح
+                        copyFolderPath();
+                    }
+                })
+                .catch(() => {
+                    // تعذر الاتصال بالسيرفر لأي سبب → نفس الحل الاحتياطي
+                    copyFolderPath();
+                });
         }
 
         // ============================================================
@@ -1613,6 +1752,46 @@
       /* استقبال الإعدادات محلياً */
       window.addEventListener('storage', function(e) { if (e.key === K) apply(load()); });
     })();
+
+
+
+
+
+
+// دالة إرسال طلب للسيرفر لفتح ملف الوورد مباشرة
+        function openWordFileViaServer() {
+            if (!currentWordPath || currentWordPath.trim() === '') {
+                showToast('❌ لا يوجد ملف وورد مخصص لهذه المطبوعة');
+                return;
+            }
+
+            // إرسال المسار إلى السيرفر
+            fetch('/api/open-word', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ filePath: currentWordPath })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showToast('✅ جاري فتح ملف الوورد...');
+                } else {
+                    showToast('❌ فشل الفتح: ' + (data.error || 'تأكد من وجود الملف'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('❌ حدث خطأ في الاتصال بالسيرفر');
+            });
+        }
+
+
+
+
+
+
     </script>
 
 
