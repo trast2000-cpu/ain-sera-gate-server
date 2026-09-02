@@ -237,8 +237,15 @@ const server = http.createServer((req, res) => {
     }
 
 
-// مسار ذكي لفتح الملفات مباشرة عبر السيرفر بأي امتداد (وورد، نصوص، إلخ)
+// مسار ذكي لفتح الملفات مباشرة عبر السيرفر بأي امتداد (وورد، نصوص، إلخ) —
+// بس لو الطلب جاي من نفس جهاز السيرفر؛ أي جهاز تاني في الشبكة يرجعله
+// success:false + isRemote:true عشان الصفحة تلجأ تلقائيًا لنسخ مسار الملف
+// بدل ما تحاول تفتح حاجة هتفتح فعليًا على شاشة جهاز السيرفر مش عندهم
     if (req.url === '/api/open-word' && req.method === 'POST') {
+        if (!isRequestFromServerDevice(req)) {
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            return res.end(JSON.stringify({ success: false, isRemote: true }));
+        }
         let body = '';
         req.on('data', chunk => { body += chunk.toString(); });
         req.on('end', () => {
