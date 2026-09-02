@@ -1467,6 +1467,16 @@
             showToast("📋 تم نسخ مسار مجلد الملفات، الصقه في مستكشف الملفات");
         }
 
+        // نسخ مسار ملف وورد محدد (مش المجلد كله) — تُستخدم كبديل لفتح الملف مباشرة
+        // لو الجهاز الحالي مش جهاز السيرفر نفسه
+        function copyWordFilePath(relativePath) {
+            const fileName = String(relativePath || '').replace(/^files\//, '').replace(/\//g, '\\');
+            const tempInput = document.createElement("input");
+            tempInput.value = "\\\\DESKTOP-GHTTPMA\\Users\\$Roqa$\\Desktop\\node-v16.20.2-win-x86\\ain-sera-gate-server\\ain-sera-gate_v7\\files\\" + fileName;
+            document.body.appendChild(tempInput); tempInput.select(); document.execCommand("copy"); document.body.removeChild(tempInput);
+            showToast("📋 تم نسخ مسار الملف، الصقه في مستكشف الملفات");
+        }
+
         // زرار "فتح المجلد": بيجرب يفتح المجلد على طول لو إحنا على جهاز السيرفر نفسه،
         // ولو الطلب جاي من جهاز تاني في الشبكة، السيرفر بيرفض يفتح عنده (مالوش لازمة)
         // فبنرجع تلقائيًا لنسخ المسار زي زرار "نسخ مسار" القديم
@@ -1777,6 +1787,9 @@
             .then(data => {
                 if (data.success) {
                     showToast('✅ جاري فتح ملف الوورد...');
+                } else if (data.isRemote) {
+                    // مش جهاز السيرفر → نسخ مسار الملف بدل محاولة فتحه (كان هيفتح على شاشة السيرفر مش عندنا)
+                    copyWordFilePath(currentWordPath);
                 } else {
                     showToast('❌ فشل الفتح: ' + (data.error || 'تأكد من وجود الملف'));
                 }
