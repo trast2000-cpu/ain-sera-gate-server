@@ -251,7 +251,7 @@ body, .app-layout {
 
         .card-header {
             display: flex; align-items: center; gap: 6px;
-            padding: 4px 10px;
+    padding: 4px 10px;
             background: #b0c4de;
             border-bottom: 1px solid #c8d3e3;
             cursor: pointer; user-select: none;
@@ -520,7 +520,7 @@ body, .app-layout {
         .decision-header { text-align: center; margin-top: -28px; font-family: 'Cairo', 'Segoe UI', Arial, sans-serif; }
         .recipient-line { font-size: 21px; font-weight: normal; font-family: 'Cairo', 'Segoe UI', Arial, sans-serif; margin-bottom: 6px; }
         .case-line {
-            font-size: 18px;
+    font-size: 18px;
             font-weight: normal;
             display: inline-block;
             padding-bottom: 7px;
@@ -541,7 +541,7 @@ body, .app-layout {
         }
         .case-line .case-num-bold { font-weight: bold; }
         .print-info-right { text-align: right; margin-top: 10px; font-family: 'Cairo', 'Segoe UI', Arial, sans-serif; }
-        .info-line { font-size: 17px; font-weight: normal; margin-bottom: 17px; }
+    font-size: 18px;
         .info-line .var-data { font-weight: normal; font-size: 19px; }
         .plate-number-display { font-family: 'Cairo', 'Segoe UI', Arial, sans-serif; display: inline-flex; gap: 8px; font-size: 19px; vertical-align: middle; font-weight: bold; }
         .decision-content { margin-top: 10px; line-height: 1.95; font-weight: normal; text-align: center; font-family: 'Cairo', 'Segoe UI', Arial, sans-serif; }
@@ -643,7 +643,7 @@ body, .app-layout {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 4px 10px 4px 7px;
+    padding: 4px 10px;
     border: 1.5px solid #c5cfe0;
     border-radius: 6px;
     background: #fff;
@@ -653,7 +653,7 @@ body, .app-layout {
     cursor: pointer;
     user-select: none;
     transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
-    min-height: 32px;
+    height: 32px;
     box-shadow: 0 2px 6px rgba(30, 58, 95, 0.08), 0 1px 2px rgba(0,0,0,0.04);
 }
 .custom-select-trigger:hover {
@@ -768,6 +768,130 @@ body, .app-layout {
     transform: scale(1.2);
 }
 
+/* ── قائمة السنة المستقلة: كنترول مخصوص عشان نتحكم في اتجاه الفتح (لتحت دايمًا) — الـ<select> العادي مش بيدي أي تحكم في الاتجاه، والمتصفح المستخدم بيفتحها لفوق أحيانًا حتى مع باقي القوائم العادية ── */
+.year-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    padding: 4px 8px;
+    border: 1.5px solid #c5cfe0;
+    border-radius: 6px;
+    background: #fff;
+    color: #1e293b;
+    font-size: 13px;
+    font-family: inherit;
+    cursor: pointer;
+    user-select: none;
+    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+    box-sizing: border-box;
+    height: 37px;
+    line-height: 1.2;
+    box-shadow: 0 2px 6px rgba(30, 58, 95, 0.08), 0 1px 2px rgba(0,0,0,0.04);
+}
+.year-trigger:hover {
+    border-color: #7a9cbf;
+    background: #f4f7fb;
+}
+.year-trigger.open {
+    border-color: #7a9cbf;
+    box-shadow: 0 0 0 3px rgba(138,155,181,0.22);
+}
+    #input-year-trigger-label {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    max-width: calc(100% - 34px);
+}
+.year-trigger-arrow {
+    font-size: 10px;
+    color: #8a9bb5;
+    transition: transform 0.2s ease;
+    margin-right: 4px;
+    flex-shrink: 0;
+}
+.year-trigger.open .year-trigger-arrow {
+    transform: rotate(180deg);
+}
+.year-dropdown {
+    display: none;
+    position: fixed;
+    max-height: 340px;
+    overflow-y: auto;
+    background: #fff;
+    border: 1.5px solid #7a9cbf;
+    border-radius: 8px;
+    box-shadow: 0 6px 18px rgba(30,58,95,0.18);
+        z-index: 99999;
+    margin: 0 !important;
+    transform: translate(0, 0) !important;
+    box-sizing: border-box;
+}
+.year-dropdown.open { display: block; }
+.year-option {
+    padding: 9px 10px;
+    font-size: 22px;
+    font-family: inherit;
+    color: #1e293b;
+    cursor: pointer;
+    text-align: center;
+    border-bottom: 1px solid #edf0f7;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+.year-option:last-child { border-bottom: none; }
+.year-option:hover {
+    background: linear-gradient(135deg, #e8f0fb, #dce8f7);
+    color: #1e3a5f;
+}
+.year-option.selected {
+    background: #dce8f7;
+    color: #1e3a5f;
+    font-weight: bold;
+}
+.year-option.placeholder-opt {
+    color: #aaa;
+    font-size: 13px;
+}
+body[data-theme="dark"] .year-trigger {
+    background: #1a2d45 !important;
+    color: #e2e8f0 !important;
+    border-color: #2d4060 !important;
+}
+body[data-theme="dark"] .year-trigger:hover {
+    background: #1e3555 !important;
+    border-color: #4a7ab5 !important;
+}
+body[data-theme="dark"] .year-trigger.open {
+    border-color: #4a7ab5 !important;
+    box-shadow: 0 0 0 3px rgba(74,122,181,0.25) !important;
+}
+body[data-theme="dark"] .year-trigger-arrow {
+    color: #94a3b8 !important;
+}
+body[data-theme="dark"] .year-dropdown {
+    background: #1a2744 !important;
+    border-color: #2d4060 !important;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.5) !important;
+}
+body[data-theme="dark"] .year-option {
+    color: #e2e8f0 !important;
+    border-bottom-color: #2d4060 !important;
+    background: #1a2744 !important;
+}
+body[data-theme="dark"] .year-option:hover {
+    background: linear-gradient(135deg, #1e3555, #243d65) !important;
+    color: #93c5fd !important;
+}
+body[data-theme="dark"] .year-option.selected {
+    background: #1e3a5f !important;
+    color: #93c5fd !important;
+}
+body[data-theme="dark"] .year-option.placeholder-opt {
+    color: #64748b !important;
+}
+
+
         /* ===== Toast إشعار F9 ===== */
         #f9-clear-toast {
             display: flex;
@@ -802,7 +926,7 @@ body, .app-layout {
             transform: translateX(-50%) translateY(20px);
         }
         .f9-toast-check {
-            font-size: 17px;
+    font-size: 18px;
             color: #7ecfff;
         }
     
@@ -982,7 +1106,6 @@ body {
         color: #93c5fd !important;
         outline-color: #4a7ab5 !important;
     }
-
 
 
 
@@ -1329,6 +1452,22 @@ body[data-theme="dark"] .custom-select-option.option-light {
     flex-shrink: 0;
 }
 body[data-theme="dark"] .badge-paid { background: rgba(5,150,105,0.15) !important; color: #34d399 !important; border-color: #0d5c46 !important; }
+.badge-paid-remove {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 12px;
+    height: 12px;
+    margin-right: 1px;
+    border-radius: 50%;
+    font-size: 9px;
+    line-height: 1;
+    color: #059669;
+    opacity: 0.55;
+}
+.badge-paid-remove:hover { opacity: 1; background: #059669; color: #fff; }
+body[data-theme="dark"] .badge-paid-remove { color: #34d399; }
+body[data-theme="dark"] .badge-paid-remove:hover { background: #34d399; color: #0b2e22; }
 body[data-theme="dark"] .badge-session { background: #c9a200 !important; color: #1e3a5f !important; }
 
 .archive-date-divider {
@@ -1595,7 +1734,7 @@ body[data-theme="dark"] .rec-date { color: #64748b !important; }
     margin: 0;
     line-height: 1.8;
     font-size: 16px;
-    text-align: center;
+    text-align: right;
     white-space: pre-line;
 }
 #info-alert-modal-actions {
@@ -1712,8 +1851,174 @@ body[data-theme="dark"] .rec-date { color: #64748b !important; }
                     </div>
                     <div class="field-group">
                         <label>السنة</label>
-                        <input type="number" id="input-year" value="2026" oninput="sync()" style="width:68px;">
+                        <div id="input-year-wrap" style="position:relative; width:100px;">
+                            <select id="input-year" onchange="sync()" style="display:none;">
+                                <option value="">--- اختر ---</option>
+                            </select>
+                            <div id="input-year-trigger" class="year-trigger" onclick="toggleYearDropdown(event)" tabindex="0">
+                                <span id="input-year-trigger-label" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0;">--- اختر ---</span>
+                                
+                            </div>
+                        </div>
                     </div>
+                    <script>
+                    (function(){
+                        var yearSel = document.getElementById('input-year');
+                        var trigger = document.getElementById('input-year-trigger');
+                        var label = document.getElementById('input-year-trigger-label');
+                        var wrap = document.getElementById('input-year-wrap');
+                        var MIN_YEAR = 2009;
+
+                        // السبب في كنترول مخصوص هنا: الـ<select> العادي مبيدّناش أي تحكم في اتجاه فتح القائمة —
+                        // القرار (لفوق / لتحت) بياخده المتصفح/الـ WebView وحده، وده اللي كان بيخليها تفتح لفوق أحيانًا
+                        // حتى مع باقي القوائم العادية في الصفحة. هنا بنفرض "لتحت دايمًا" إلا لو فعلاً مفيش مساحة خالص.
+                        var dropdown = document.createElement('div');
+                        dropdown.id = 'input-year-dropdown';
+                        dropdown.className = 'year-dropdown';
+                        document.documentElement.appendChild(dropdown); // برّه body عشان يهرب من الـ zoom: 1.3 المطبق عليها
+
+                        var curY = new Date().getFullYear(); // بيتحسب من تاريخ الجهاز، فالسنة الجديدة هتظهر تلقائيًا فوق القائمة
+                        for (var y = curY; y >= MIN_YEAR; y--) {
+                            var o = document.createElement('option');
+                            o.value = String(y); o.textContent = String(y);
+                            yearSel.appendChild(o);
+                        }
+
+                        function refresh() {
+                            var val = yearSel.value;
+                            var opt = Array.prototype.find.call(yearSel.options, function(o){ return o.value === val; });
+                            label.textContent = opt ? opt.textContent : '--- اختر ---';
+                            Array.prototype.forEach.call(dropdown.querySelectorAll('.year-option'), function(div){
+                                div.classList.toggle('selected', div.dataset.value === val);
+                            });
+                        }
+                        window.refreshYearDropdownDisplay = refresh;
+
+                        function ensureCurrentYear() {
+                            var current = String(new Date().getFullYear());
+                            var exists = Array.prototype.some.call(yearSel.options, function(o){ return o.value === current; });
+                            if (!exists) {
+                                var currentOption = document.createElement('option');
+                                currentOption.value = current;
+                                currentOption.textContent = current;
+                                yearSel.insertBefore(currentOption, yearSel.options[1] || null);
+                            }
+                        }
+
+                        function build() {
+                            ensureCurrentYear();
+                            dropdown.innerHTML = '';
+                            Array.prototype.forEach.call(yearSel.options, function(opt){
+                                var div = document.createElement('div');
+                                div.className = 'year-option' + (opt.value === '' ? ' placeholder-opt' : '');
+                                div.dataset.value = opt.value;
+                                div.textContent = opt.textContent;
+                                div.addEventListener('click', function(e){
+                                    e.stopPropagation();
+                                    yearSel.value = opt.value;
+                                    close();
+                                    yearSel.dispatchEvent(new Event('change'));
+                                });
+                                dropdown.appendChild(div);
+                            });
+                            refresh();
+                        }
+                        window.buildYearDropdownOptions = build;
+
+                        function close() {
+                            dropdown.classList.remove('open');
+                            trigger.classList.remove('open');
+                        }
+                        window.closeYearDropdown = close;
+
+                        // بناءً على تجربتك: منطق "افتح لفوق لو مفيش مساحة" كان بيدي نتيجة غير ثابتة حسب موضع السكرول.
+                        // تم تبسيطها: القائمة تفتح لتحت دايمًا مهما كان موضع الصفحة، وبيبقى ليها سكرول داخلي لو المساحة قلّت.
+                        function getFixedViewportCalibration() {
+                            // عند فتح الصفحة داخل iframe قد يختلف أصل إحداثيات position:fixed
+                            // عن إحداثيات getBoundingClientRect() بسبب zoom / scrollbar / viewport.
+                            // نقيس التحويل الحقيقي من خلال عنصر fixed مؤقت بدل استخدام رقم ثابت.
+                            var probe = document.createElement('div');
+                            probe.style.cssText = [
+                                'position:fixed',
+                                'left:0',
+                                'top:0',
+                                'width:1px',
+                                'height:1px',
+                                'visibility:hidden',
+                                'pointer-events:none',
+                                'z-index:-1'
+                            ].join(';');
+                            document.documentElement.appendChild(probe);
+
+                            var origin = probe.getBoundingClientRect();
+                            probe.style.setProperty('left', '100px', 'important');
+                            probe.style.setProperty('top', '100px', 'important');
+                            var sample = probe.getBoundingClientRect();
+                            probe.remove();
+
+                            var scaleX = (sample.left - origin.left) / 100;
+                            var scaleY = (sample.top - origin.top) / 100;
+                            return {
+                                originX: origin.left,
+                                originY: origin.top,
+                                scaleX: isFinite(scaleX) && scaleX > 0 ? scaleX : 1,
+                                scaleY: isFinite(scaleY) && scaleY > 0 ? scaleY : 1
+                            };
+                        }
+
+                        function position() {
+                            var r = trigger.getBoundingClientRect();
+                            var calibration = getFixedViewportCalibration();
+                            var rectLeft = r.left;
+                            var rectBottom = r.bottom;
+                            var rectWidth = r.width;
+                            var spaceBelow = window.innerHeight - rectBottom;
+                            var fixedLeft = (rectLeft - calibration.originX) / calibration.scaleX;
+                            var fixedTop = (rectBottom - calibration.originY) / calibration.scaleY;
+                            var fixedWidth = rectWidth / calibration.scaleX;
+                            var fixedMaxHeight = spaceBelow / calibration.scaleY;
+                            dropdown.style.bottom = 'auto';
+                            dropdown.style.top = fixedTop + 'px';
+                            dropdown.style.maxHeight = Math.max(180, Math.min(340, fixedMaxHeight - 8)) + 'px';
+                            dropdown.style.setProperty('left', fixedLeft + 'px', 'important');
+                            dropdown.style.setProperty('right', 'auto', 'important');
+                            dropdown.style.setProperty('top', fixedTop + 'px', 'important');
+                            dropdown.style.setProperty('width', fixedWidth + 'px', 'important');
+                            dropdown.style.setProperty('margin', '0', 'important');
+                        }
+
+                        window.toggleYearDropdown = function(e) {
+                            e.stopPropagation();
+                            var isOpen = dropdown.classList.contains('open');
+                            document.querySelectorAll('.year-dropdown.open').forEach(function(d){ d.classList.remove('open'); });
+                            document.querySelectorAll('.year-trigger.open').forEach(function(t){ t.classList.remove('open'); });
+                            if (!isOpen) {
+                                ensureCurrentYear();
+                                build();
+                                position();
+                                dropdown.classList.add('open');
+                                trigger.classList.add('open');
+                                dropdown.scrollTop = 0; // ابدأ من فوق دايمًا (اختر / أحدث سنة) بدل آخر سكرول قديم
+                            }
+                        };
+
+                        trigger.addEventListener('keydown', function(e){
+                            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); window.toggleYearDropdown(e); }
+                        });
+
+                        document.addEventListener('click', function(e){
+                            if (!wrap.contains(e.target) && !dropdown.contains(e.target)) close();
+                        });
+                        window.addEventListener('scroll', function(e){
+                            if (dropdown.contains(e.target)) return;
+                            close();
+                        }, true);
+                        window.addEventListener('resize', close);
+
+                        build();
+                        yearSel.addEventListener('change', refresh);
+                    })();
+                    </script>
                     <div class="field-group">
                         <label>موجه إلى</label>
                         <select id="input-recipient-select" onchange="toggleOther('input-recipient-select', 'recipient-other-wrapper'); sync();" style="width:120px;">
@@ -2448,7 +2753,9 @@ window.addEventListener('beforeprint', function() {
             document.getElementById('input-dept-other').value = '';
             document.getElementById('dept-other-wrapper').style.display = 'none';
             document.getElementById('input-caseNum').value = '';
-            document.getElementById('input-year').value = '2026';
+            document.getElementById('input-year').value = '';
+            if (document.getElementById('input-year-other')) document.getElementById('input-year-other').value = '';
+            if (document.getElementById('year-other-wrapper')) document.getElementById('year-other-wrapper').style.display = 'none';
             document.getElementById('input-date').value = '';
             dateAutoFilled = false;
             document.getElementById('input-boss-select').value = '';
@@ -2479,6 +2786,7 @@ window.addEventListener('beforeprint', function() {
             // تحديث عرض جميع الـ custom selects
             ['input-dept-select','input-boss-select','fine-type','eng-type','vehicle-status-type',
              'violations-type','violations-pay-method','fine-receipt-type','plate-type'].forEach(id => syncCustomSelectDisplay(id));
+            if (typeof refreshYearDropdownDisplay === 'function') refreshYearDropdownDisplay();
             updateFineText();
             updateAllTexts();
             updateViolationsText();
@@ -3205,8 +3513,11 @@ function renderArrestItems() {
                 if (!caseNum || !year || !dept) return; // لا يوجد محضر محدد لربط بيانات السداد به
 
                 const fineReceiptType = (document.getElementById('fine-receipt-type') || {}).value || '';
-                const isPaid = fineReceiptType === 'paid';
                 const fineReceiptNo = (document.getElementById('fine-receipt-num') || {}).value || '';
+                // "القرارات الجاهزة" في القائمة الجانبية بتضبط fine-receipt-type = 'paid' تلقائيًا
+                // كجزء من نص القرار، حتى لو محدش كتب رقم قسيمة فعلي — فالمحضر يُعتبر "مسدد"
+                // فقط لو فيه رقم قسيمة مكتوب فعلاً بالإضافة لضبط النوع على "مسدد".
+                const isPaid = fineReceiptType === 'paid' && !!fineReceiptNo.trim();
                 const violationsReceiptNo = (document.getElementById('violations-receipt') || {}).value || '';
                 const violationsType = (document.getElementById('violations-type') || {}).value || '';
 
@@ -3236,7 +3547,170 @@ function renderArrestItems() {
             } catch(e) { /* تعذر حفظ بيانات السداد في السيرفر */ }
         }
 
-        async function printPostSettlement() {
+        /* ===================================================
+   نظام التنبيه الذكي للحقول الفارغة
+=================================================== */
+function get(id) {
+    const el = document.getElementById(id);
+    return el ? el.value.trim() : '';
+}
+
+const validationHighlightOriginals = new WeakMap();
+
+function restoreValidationHighlight(targetEl) {
+    if (!targetEl) return;
+    const original = validationHighlightOriginals.get(targetEl);
+    if (original) {
+        if (original.borderValue) {
+            targetEl.style.setProperty('border', original.borderValue, original.borderPriority);
+        } else {
+            targetEl.style.removeProperty('border');
+        }
+        if (original.shadowValue) {
+            targetEl.style.setProperty('box-shadow', original.shadowValue, original.shadowPriority);
+        } else {
+            targetEl.style.removeProperty('box-shadow');
+        }
+        validationHighlightOriginals.delete(targetEl);
+    } else {
+        targetEl.style.removeProperty('border');
+        targetEl.style.removeProperty('box-shadow');
+    }
+    targetEl.removeAttribute('data-validation-highlight');
+    targetEl.removeAttribute('data-validation-value-id');
+}
+
+function clearValidationHighlightsForFilledFields() {
+    document.querySelectorAll('[data-validation-highlight="true"]').forEach((el) => {
+        const valueId = el.getAttribute('data-validation-value-id');
+        const valueEl = valueId ? document.getElementById(valueId) : el;
+        if (valueEl && valueEl.value != null && String(valueEl.value).trim() !== '') {
+            restoreValidationHighlight(el);
+        }
+    });
+}
+
+function scrollToValidationField(el) {
+    if (!el) return;
+    const stickyBar = document.querySelector('.system-title-bar');
+    const stickyHeight = stickyBar ? stickyBar.getBoundingClientRect().height : 0;
+    const rect = el.getBoundingClientRect();
+    // منتصف الشاشة المتاحة فعلياً بعد استبعاد ارتفاع الشريط العلوي الثابت (sticky)
+    const viewportAvailable = window.innerHeight - stickyHeight;
+    const desiredTop = window.scrollY + rect.top - stickyHeight - Math.max((viewportAvailable - rect.height) / 2, 20);
+    window.scrollTo({ top: Math.max(desiredTop, 0), behavior: 'smooth' });
+}
+
+function validateFields() {
+    const errors = [];
+
+    function addErr(id, msg) {
+        const valueEl = document.getElementById(id);
+        if (!valueEl) return;
+
+        // السنة لها select مخفي وكنترول مرئي بديل؛ التحقق يجب أن يعتمد على
+        // قيمة الـselect، لكن التمييز والانتقال يكونان على الكنترول الظاهر.
+        const el = id === 'input-year'
+            ? (document.getElementById('input-year-trigger') || valueEl)
+            : valueEl;
+
+        // تجاهل الحقول داخل البطاقات المغلقة
+        const card = el.closest('.card');
+        if (card && card.classList.contains('collapsed')) return;
+
+        // تجاهل الحقول المخفية
+        if (el.style.display === 'none') return;
+        const wrapper = el.closest('[style*="display: none"]');
+        if (wrapper) return;
+
+        errors.push({ msg: msg, id: id, targetId: el.id });
+    }
+
+    // ── البيانات الأساسية ──
+    if (!get('input-caseNum')) addErr('input-caseNum', 'رقم المحضر غير مكتوب');
+    if (!get('input-dept-select')) {
+        addErr('input-dept-select', 'قسم الشرطة غير محدد');
+    } else if (get('input-dept-select') === 'أخرى' && !get('input-dept-other')) {
+        addErr('input-dept-other', 'قسم الشرطة (يدوي) غير مكتوب');
+    }
+    if (!get('input-year')) addErr('input-year', 'سنة المحضر غير مكتوبة');
+    if (!get('input-date')) addErr('input-date', 'تاريخ التحرير غير مكتوب');
+    if (!get('input-boss-select')) {
+        addErr('input-boss-select', 'مدير النيابة غير محدد');
+    } else if (get('input-boss-select') === 'أخرى' && !get('input-boss-other')) {
+        addErr('input-boss-other', 'اسم مدير النيابة (يدوي) غير مكتوب');
+    }
+
+    // ── بيانات المتهم والمركبة ──
+    if (!get('input-name')) addErr('input-name', 'اسم المتهم غير مكتوب');
+
+    const pType = get('plate-type');
+    if (pType === 'with-plate') {
+        const c1 = get('c1'), c2 = get('c2'), c3 = get('c3'), n1 = get('n1');
+        if (!c1 && !c2 && !c3 && !n1) {
+            addErr('c1', 'رقم اللوحة غير مكتوب');
+        }
+    } else {
+        if (!get('input-no-plate')) addErr('input-no-plate', 'نص اللوحة غير مكتوب');
+    }
+
+    // ── قرار الغرامة ──
+    const fineCard = document.getElementById('card-fine');
+    if (fineCard && !fineCard.classList.contains('collapsed')) {
+        const fineVal = get('fine-type');
+        if (!fineVal || fineVal === 'none') addErr('fine-type', 'قرار الغرامة غير محدد');
+    }
+
+    // ── الفحص الفني ──
+    const engCard = document.getElementById('card-eng');
+    if (engCard && !engCard.classList.contains('collapsed')) {
+        const engVal = get('eng-type');
+        if (!engVal || engVal === 'none') addErr('eng-type', 'قرار الفحص الفني غير محدد');
+    }
+
+    // ── قرار المركبة ──
+    const vehCard = document.getElementById('card-veh-status');
+    if (vehCard && !vehCard.classList.contains('collapsed')) {
+        const vehVal = get('vehicle-status-type');
+        if (!vehVal || vehVal === 'none') addErr('vehicle-status-type', 'قرار المركبة غير محدد');
+    }
+
+    // ── ملحوظة سداد المخالفات ──
+    const violCard = document.getElementById('card-violations');
+    if (violCard && !violCard.classList.contains('collapsed')) {
+        if (!get('violations-type')) addErr('violations-type', 'حالة سداد المخالفات غير محددة');
+        if (!get('violations-receipt')) addErr('violations-receipt', 'رقم قسيمة سداد المخالفات غير مكتوب');
+        if (!get('violations-amount')) addErr('violations-amount', 'مبلغ سداد المخالفات غير مكتوب');
+        if (!get('violations-pay-date')) addErr('violations-pay-date', 'تاريخ سداد المخالفات غير مكتوب');
+    }
+
+    // ── ملحوظة سداد غرامة المحضر ──
+    const fineReceiptCard = document.getElementById('card-fine-receipt');
+    if (fineReceiptCard && !fineReceiptCard.classList.contains('collapsed')) {
+        if (!get('fine-receipt-type')) addErr('fine-receipt-type', 'حالة سداد غرامة المحضر غير محددة');
+        if (!get('fine-receipt-num')) addErr('fine-receipt-num', 'رقم قسيمة سداد غرامة المحضر غير مكتوب');
+        if (!get('fine-receipt-amount')) addErr('fine-receipt-amount', 'مبلغ سداد غرامة المحضر غير مكتوب');
+        if (!get('fine-receipt-date')) addErr('fine-receipt-date', 'تاريخ سداد غرامة المحضر غير مكتوب');
+    }
+
+    // ── سبب الضبط ──
+    const arrestCard = document.getElementById('card-arrest-reason');
+    if (arrestCard && !arrestCard.classList.contains('collapsed')) {
+        if (typeof arrestItems !== 'undefined' && arrestItems.length === 0) {
+            addErr('arrest-select', 'يجب اختيار بند واحد على الأقل لسبب الضبط');
+        }
+    }
+
+    // ── ملحوظة تحديد الجلسة ──
+    const sessionCard = document.getElementById('card-session');
+    if (sessionCard && !sessionCard.classList.contains('collapsed')) {
+        if (!get('session-status')) addErr('session-status', 'حالة تحديد الجلسة غير محددة');
+    }
+
+    return errors;
+}
+
+async function printPostSettlement() {
             const selectedPreset = document.querySelector('.preset-btn.active');
             if (!selectedPreset) {
                 showCustomAlert('الرجاء اختيار القرار المناسب من القائمة الجانبية قبل الطباعة', {
@@ -3246,11 +3720,11 @@ function renderArrestItems() {
                 return;
             }
 
-            await savePaymentInfoToServer(); // حفظ بيانات السداد في قاعدة البيانات المشتركة قبل الطباعة، بصمت
-
             // إذا كان القرار سيُطبع فارغًا أصلاً (لا رقم محضر ولا قسم شرطة محددين)،
-            // فلا داعي لتنبيه "اسم وكيل النيابة غير محدد" لأن النموذج كله فارغ أصلاً
-            // وسيُملأ بالقلم لاحقًا — التنبيه في هذه الحالة عبثي.
+            // فلا داعي لأي من فحوصات الحقول الناقصة أدناه لأن النموذج كله فارغ أصلاً
+            // وسيُملأ بالقلم لاحقًا — الفحص في هذه الحالة عبثي.
+            // ملحوظة: حقل السنة مُستبعد عمدًا من هذا الفحص لأن له قيمة افتراضية ثابتة
+            // (2026) في الـ HTML، فلا يمكن الاعتماد عليه كإشارة لتحديد فارغ/ممتلئ.
             const caseNumForBlankCheck = ((document.getElementById('input-caseNum') || {}).value || '').trim();
             const deptSelForBlankCheck = document.getElementById('input-dept-select');
             const deptForBlankCheck = deptSelForBlankCheck
@@ -3259,6 +3733,70 @@ function renderArrestItems() {
                     : deptSelForBlankCheck.value.trim())
                 : '';
             const isBlankPrint = !caseNumForBlankCheck && !deptForBlankCheck;
+
+            // --- الفحص الذكي للحقول ---
+            if (!isBlankPrint) {
+                const validationErrors = validateFields();
+                if (validationErrors.length > 0) {
+                    const errorMessages = validationErrors.map(err => err.msg);
+                    let firstEl = null;
+
+                    validationErrors.forEach((err) => {
+                        let targetEl = document.getElementById(err.targetId || err.id);
+                        let valueEl = document.getElementById(err.id);
+                        if (targetEl) {
+                            if (!validationHighlightOriginals.has(targetEl)) {
+                                validationHighlightOriginals.set(targetEl, {
+                                    borderValue: targetEl.style.getPropertyValue('border'),
+                                    borderPriority: targetEl.style.getPropertyPriority('border'),
+                                    shadowValue: targetEl.style.getPropertyValue('box-shadow'),
+                                    shadowPriority: targetEl.style.getPropertyPriority('box-shadow')
+                                });
+                            }
+                            targetEl.setAttribute('data-validation-highlight', 'true');
+                            targetEl.setAttribute('data-validation-value-id', err.id);
+                            targetEl.style.setProperty('border', '2px solid #ef4444', 'important');
+                            targetEl.style.setProperty('box-shadow', '0 0 10px rgba(239, 68, 68, 0.6)', 'important');
+
+                            const removeHighlight = () => {
+                                restoreValidationHighlight(targetEl);
+                                targetEl.removeEventListener('input', removeHighlight);
+                                targetEl.removeEventListener('change', removeHighlight);
+                                targetEl.removeEventListener('click', removeHighlight);
+                                if (valueEl && valueEl !== targetEl) {
+                                    valueEl.removeEventListener('input', removeHighlight);
+                                    valueEl.removeEventListener('change', removeHighlight);
+                                }
+                            };
+                            targetEl.addEventListener('input', removeHighlight);
+                            targetEl.addEventListener('change', removeHighlight);
+                            targetEl.addEventListener('click', removeHighlight);
+                            if (valueEl && valueEl !== targetEl) {
+                                valueEl.addEventListener('input', removeHighlight);
+                                valueEl.addEventListener('change', removeHighlight);
+                            }
+
+                            if (!firstEl) firstEl = targetEl;
+                        }
+                    });
+
+                    showCustomAlert(errorMessages.map(m => '•  ' + m).join('\n'), {
+                        subHeading: 'الحقول الفارغة:',
+                        title: 'بيانات ناقصة',
+                        type: 'error',
+                        list: true,
+                        onClose: function() {
+                            if (firstEl) {
+                                scrollToValidationField(firstEl);
+                                setTimeout(() => firstEl.focus(), 300);
+                            }
+                        }
+                    });
+                    return;
+                }
+            }
+
+            await savePaymentInfoToServer(); // حفظ بيانات السداد في قاعدة البيانات المشتركة قبل الطباعة، بصمت
 
             if (!isBlankPrint) {
                 const bossSelect = document.getElementById('input-boss-select');
@@ -3521,7 +4059,7 @@ function renderArrestItems() {
                 const inFrame = (function() { try { return window.self !== window.top; } catch (e) { return true; } })();
                 if (inFrame) {
                     dropdown.style.right = ((window.innerWidth / zoom) - (rect.right / zoom)) + 'px';
-                    dropdown.style.left = 'auto';
+                    dropdown.style.left = r.left + 'px';
                 } else {
                     dropdown.style.left = (rect.left / zoom) + 'px';
                     dropdown.style.right = 'auto';
@@ -4101,6 +4639,9 @@ if (window.isPresetRunning) return;
             // ⑦ sync نهائي
             if (typeof sync === 'function') sync();
 
+            // إزالة أي تمييز أحمر من الحقول التي امتلأت من المحضر المستورد
+            if (typeof clearValidationHighlightsForFilledFields === 'function') clearValidationHighlightsForFilledFields();
+
             // بعد استيراد المحضر الأساسي مباشرة، ابحث عن المحضر المرتبط ثم اعرض توستًا واحدًا فقط.
             const linkedData = await importLinkedSessionMahdar();
             const primaryToastLine = '✔ تم تحميل بيانات المحضر (' + caseNum + ' / ' + year + ' / ' + dept + ') بنجاح';
@@ -4264,7 +4805,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const _inFrame = (function(){ try{ return window.self !== window.top; }catch(e){ return true; } })();
             if (_inFrame) {
                 dropdown.style.right = (window.innerWidth/zoom - fixedRight) + 'px';
-                dropdown.style.left = 'auto';
+                dropdown.style.left = r.left + 'px';
             } else {
                 dropdown.style.left = fixedLeft + 'px';
                 dropdown.style.right = 'auto';
@@ -4334,6 +4875,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 labelEl.textContent=icon?icon+' '+cleanText:cleanText;
             }
             if(dropdown){dropdown.querySelectorAll('.custom-select-option').forEach(opt=>{opt.classList.toggle('selected',opt.dataset.value===val);});}
+        }
+
+        // إضافة سنة غير موجودة ضمن القائمة الافتراضية (محضر قديم خارج نطاق آخر 10 سنين)
+        function ensureYearOption(yearStr) {
+            const sel = document.getElementById('input-year');
+            if (!sel || !yearStr) return;
+            const exists = Array.from(sel.options).some(o => o.value === yearStr);
+            if (!exists) {
+                const opt = document.createElement('option');
+                opt.value = yearStr; opt.textContent = yearStr;
+                sel.appendChild(opt);
+                if (typeof window.buildYearDropdownOptions === 'function') window.buildYearDropdownOptions();
+            }
+            sel.value = yearStr;
+            sel.dispatchEvent(new Event('change'));
         }
 
         function closeAllCustomSelects(){
@@ -4656,6 +5212,61 @@ function switchArchiveTab(stationName) {
     loadArchiveToSidebar();
 }
 
+// إلغاء حالة السداد بالكامل عن محضر (مسح paymentInfo كاملة، وليس تعطيلها فقط) —
+// حتى لا يفتح موظف المحضر لاحقًا ويلاقي رقم قسيمة قديم مكتوب فيفتكره صحيحًا
+// ولا يكتب الرقم الصحيح الجديد.
+function confirmRemovePaymentInfo(key) {
+    showCustomConfirm('هل تريد إلغاء حالة السداد لهذا المحضر؟ سيتم مسح رقم القسيمة والمبلغ المسجلين بالكامل.', {
+        title: 'إلغاء حالة السداد',
+        confirmText: 'إلغاء حالة السداد',
+        cancelText: 'تراجع',
+        type: 'danger',
+        onConfirm: () => removePaymentInfo(key)
+    });
+}
+
+async function removePaymentInfo(key) {
+    try {
+        let db = await fetchServerData();
+        // ملاحظة مهمة: الدمج في السيرفر إضافي (Object.assign) — إرسال المفتاح بقيمة null
+        // هو ما يجعله يُستبدل فعلياً على القرص؛ حذفه محلياً بـ delete لن يُحذف من السيرفر
+        // لأن Object.assign لا يحذف مفاتيح غائبة من البيانات المرسلة.
+        db[key] = db[key] || {};
+        db[key].paymentInfo = null;
+        await saveToServerData(db, key);
+        if (typeof loadArchiveToSidebar === 'function') loadArchiveToSidebar();
+
+        // لو نفس المحضر ده هو المحمّل حالياً في مساحة العمل، امسح حقول الدفع الظاهرة على
+        // الشاشة فورًا كمان، بدل ما تفضل ظاهرة لحد ما يُعاد استيراد المحضر من جديد
+        const caseNum = (document.getElementById('input-caseNum') || {}).value || '';
+        const year = (document.getElementById('input-year') || {}).value || '';
+        const deptSel = document.getElementById('input-dept-select');
+        const dept = deptSel
+            ? (deptSel.value === 'أخرى' ? ((document.getElementById('input-dept-other') || {}).value || '') : deptSel.value)
+            : '';
+        if (caseNum && year && dept) {
+            const currentKey = getMahdarKey(caseNum, year, normalizeMahdarPart(dept), 'main');
+            if (currentKey === key) clearPaymentInfoFields();
+        }
+    } catch(e) { /* تعذر إلغاء حالة السداد في السيرفر */ }
+}
+
+// مسح حقول بيانات السداد (غرامة المحضر + المخالفات المرتبطة) من الشاشة
+function clearPaymentInfoFields() {
+    // نفرّغ حقول البيانات فقط (أرقام، مبالغ، تواريخ)، ولا نلمس حقلي "حالة الغرامة"
+    // و"حالة المخالفة" (fine-receipt-type / violations-type) لأنهما قائمتان منسدلتان،
+    // وتفريغ قيمتهما يجبرهما على التحول لخيار "اختر" بدل مجرد إخلاء البيانات.
+    ['fine-receipt-num', 'fine-receipt-amount', 'fine-receipt-date',
+     'violations-receipt', 'violations-pay-method', 'violations-amount', 'violations-pay-date']
+        .forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.value = '';
+        });
+    if (typeof syncCustomSelectDisplay === 'function') syncCustomSelectDisplay('violations-pay-method');
+    if (typeof updateFineReceiptText === 'function') updateFineReceiptText();
+    if (typeof updateViolationsText === 'function') updateViolationsText();
+}
+
 async function loadArchiveToSidebar() {
     const container = document.getElementById('records-list');
     if (!container) return;
@@ -4725,7 +5336,7 @@ async function loadArchiveToSidebar() {
             ? '<span class="record-type-badge badge-session" title="محضر جلسة">ج</span>'
             : '<span class="record-type-badge badge-fine" title="محضر غرامة">غ</span>';
         const paidBadgeHtml = (d.paymentInfo && d.paymentInfo.paid)
-            ? '<span class="badge-paid" title="' + (d.paymentInfo.fineReceiptNo ? 'رقم القسيمة: ' + d.paymentInfo.fineReceiptNo : 'تم السداد') + '">✓ مسدد</span>'
+            ? '<span class="badge-paid" title="' + (d.paymentInfo.fineReceiptNo ? 'رقم القسيمة: ' + d.paymentInfo.fineReceiptNo : 'تم السداد') + '">✓ مسدد<span class="badge-paid-remove" title="إلغاء حالة السداد" data-key="' + key + '">✕</span></span>'
             : '';
 
         // إدراج فاصل بصري (بدون نص) عند تغيّر تاريخ المحضر عن السابق
@@ -4739,7 +5350,12 @@ async function loadArchiveToSidebar() {
 
         const btn = document.createElement('button');
         btn.className = 'record-btn';
-        btn.onclick = () => {
+        btn.onclick = (e) => {
+            if (e.target.closest('.badge-paid-remove')) {
+                e.stopPropagation();
+                confirmRemovePaymentInfo(key);
+                return;
+            }
             loadRecordToWorkspace(key);
             // تم إزالة toggleArchiveMenu() لتبقى القائمة مفتوحة عند الاختيار
         };
@@ -4779,7 +5395,9 @@ function applyRecordToWorkspace(key, raw) {
         const d = JSON.parse(raw);
         const set = (id, val) => { const el = document.getElementById(id); if (el && val != null) el.value = val; };
         set('input-caseNum', d.caseNum);
-        set('input-year', d.year);
+        if (d.year != null && String(d.year).trim() !== '') {
+            ensureYearOption(String(d.year).trim());
+        }
         const deptSel = document.getElementById('input-dept-select');
         if (deptSel) {
             let exists = Array.from(deptSel.options).some(opt => opt.value === d.deptSelect);
@@ -4876,6 +5494,11 @@ document.addEventListener("DOMContentLoaded", () => {
       rebuildSelect(document.getElementById('input-boss-select'), cfg.agents, true);
       rebuildSelect(document.getElementById('input-dept-select'), cfg.stations, true);
       if (typeof refreshPostPaymentSecondaryStationList === 'function') refreshPostPaymentSecondaryStationList();
+
+      /* ملحوظة: حقل السنة في هذا النظام (ما بعد السداد) بقى قائمة اختيار مستقلة بآخر 10 سنين،
+         ومقصود عمدًا عدم ربطه بزر الترس/السنة القضائية العامة، لأن هذا النظام
+         بيتعامل مع محاضر قديمة من سنين مختلفة (عكس نظام التلبسات اللي بيشتغل على محاضر اليوم فقط). */
+
       if (typeof buildArchiveTabs === 'function') { buildArchiveTabs(); }
     }
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function() { apply(load()); });
@@ -5074,7 +5697,7 @@ advancedStyle.innerHTML = `
 .code-part { flex: 1; position: relative; } 
 
 .smart-search-field {
-    width: 100%; height: 100%; min-height: 32px;
+    height: 32px;
     padding: 4px 28px 4px 8px !important; 
     border: 1.5px solid #c5cfe0; border-radius: 6px;
     font-size: 13px; font-weight: bold; color: #1e293b; background: #fff;
@@ -5588,7 +6211,7 @@ trigger.onclick = function(e) {
             const _inFrame = (function(){ try{ return window.self !== window.top; }catch(e){ return true; } })();
             if (_inFrame) {
                 dropdown.style.right = (window.innerWidth / zoom - fixedRight) + 'px';
-                dropdown.style.left = 'auto';
+                dropdown.style.left = r.left + 'px';
             } else {
                 dropdown.style.left = fixedLeft + 'px';
                 dropdown.style.right = 'auto';
@@ -5918,17 +6541,29 @@ function calculateTotalFine() {
 
     // ── نافذة التنبيه المعلوماتية المخصصة ──
     let infoAlertKeyHandler = null;
+    let pendingInfoAlertOnClose = null;
     function showCustomAlert(message, options) {
         options = options || {};
         const titleEl = document.getElementById('info-alert-modal-title');
         const msgEl = document.getElementById('info-alert-modal-message');
+        const subHeadingEl = document.getElementById('info-alert-modal-subheading');
         const headerEl = document.getElementById('info-alert-modal-header');
         const iconEl = headerEl ? headerEl.querySelector('i') : null;
         if (titleEl) titleEl.textContent = options.title || 'تنبيه';
         if (msgEl) msgEl.textContent = message || '';
+        if (subHeadingEl) {
+            if (options.subHeading) {
+                subHeadingEl.textContent = options.subHeading;
+                subHeadingEl.style.display = '';
+            } else {
+                subHeadingEl.textContent = '';
+                subHeadingEl.style.display = 'none';
+            }
+        }
         if (iconEl) iconEl.className = options.type === 'error'
             ? 'fa-solid fa-circle-exclamation'
             : 'fa-solid fa-circle-check';
+        pendingInfoAlertOnClose = typeof options.onClose === 'function' ? options.onClose : null;
         const overlay = document.getElementById('info-alert-modal-overlay');
         if (overlay) overlay.classList.add('show');
         const okButton = document.getElementById('info-alert-ok-btn');
@@ -5953,6 +6588,9 @@ function calculateTotalFine() {
             document.removeEventListener('keydown', infoAlertKeyHandler, true);
             infoAlertKeyHandler = null;
         }
+        const onClose = pendingInfoAlertOnClose;
+        pendingInfoAlertOnClose = null;
+        if (typeof onClose === 'function') onClose();
     }
 
     // الضغط على خلفية النوافذ المخصصة يعادل الإلغاء أو الإغلاق الآمن.
@@ -5983,6 +6621,7 @@ function calculateTotalFine() {
             <i class="fa-solid fa-circle-exclamation"></i>
             <h3 id="info-alert-modal-title">تنبيه</h3>
         </div>
+        <p id="info-alert-modal-subheading" style="margin:0 0 6px;text-align:center;font-weight:bold;display:none;"></p>
         <p id="info-alert-modal-message"></p>
         <div id="info-alert-modal-actions">
             <button id="info-alert-ok-btn" type="button" onclick="closeInfoAlertModal()">حسنًا</button>

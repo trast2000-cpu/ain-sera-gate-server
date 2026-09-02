@@ -2110,7 +2110,7 @@ body[data-theme="dark"] .record-title { color: #7aaeff !important; }
     margin: 0;
     line-height: 1.8;
     font-size: 16px;
-    text-align: center;
+    text-align: right;
     white-space: pre-line;
 }
 #info-alert-modal-actions {
@@ -5199,51 +5199,68 @@ async function printDoc() {
         return;
     }
 
+    // إذا كان القرار سيُطبع فارغًا أصلاً (لا رقم محضر ولا قسم شرطة محددين)،
+    // فلا داعي لأي من فحوصات الحقول الناقصة أدناه لأن النموذج كله فارغ أصلاً
+    // وسيُملأ بالقلم لاحقًا — الفحص في هذه الحالة عبثي.
+    // ملحوظة: حقل السنة مُستبعد عمدًا من هذا الفحص لأن له قيمة افتراضية ثابتة
+    // (2026) في الـ HTML، فلا يمكن الاعتماد عليه كإشارة لتحديد فارغ/ممتلئ.
+    const caseNumForBlankCheck = ((document.getElementById('input-caseNum') || {}).value || '').trim();
+    const deptSelForBlankCheck = document.getElementById('input-dept-select');
+    const deptForBlankCheck = deptSelForBlankCheck
+        ? (deptSelForBlankCheck.value === 'أخرى'
+            ? ((document.getElementById('input-dept-other') || {}).value || '').trim()
+            : deptSelForBlankCheck.value.trim())
+        : '';
+    const isBlankPrint = !caseNumForBlankCheck && !deptForBlankCheck;
+
     // --- الفحص الذكي للحقول ---
-    const validationErrors = validateFields();
-    if (validationErrors.length > 0) {
-        const errorMessages = validationErrors.map(err => err.msg);
-        let firstEl = null;
+    if (!isBlankPrint) {
+        const validationErrors = validateFields();
+        if (validationErrors.length > 0) {
+            const errorMessages = validationErrors.map(err => err.msg);
+            let firstEl = null;
 
-        validationErrors.forEach((err) => {
-            let targetEl = document.getElementById(err.id);
-            if (targetEl) {
-                if (!validationHighlightOriginals.has(targetEl)) {
-                    validationHighlightOriginals.set(targetEl, {
-                        borderValue: targetEl.style.getPropertyValue('border'),
-                        borderPriority: targetEl.style.getPropertyPriority('border'),
-                        shadowValue: targetEl.style.getPropertyValue('box-shadow'),
-                        shadowPriority: targetEl.style.getPropertyPriority('box-shadow')
-                    });
+            validationErrors.forEach((err) => {
+                let targetEl = document.getElementById(err.id);
+                if (targetEl) {
+                    if (!validationHighlightOriginals.has(targetEl)) {
+                        validationHighlightOriginals.set(targetEl, {
+                            borderValue: targetEl.style.getPropertyValue('border'),
+                            borderPriority: targetEl.style.getPropertyPriority('border'),
+                            shadowValue: targetEl.style.getPropertyValue('box-shadow'),
+                            shadowPriority: targetEl.style.getPropertyPriority('box-shadow')
+                        });
+                    }
+                    targetEl.setAttribute('data-validation-highlight', 'true');
+                    targetEl.style.setProperty('border', '2px solid #ef4444', 'important');
+                    targetEl.style.setProperty('box-shadow', '0 0 10px rgba(239, 68, 68, 0.6)', 'important');
+                    
+                    const removeHighlight = () => {
+                        restoreValidationHighlight(targetEl);
+                        targetEl.removeEventListener('input', removeHighlight);
+                        targetEl.removeEventListener('change', removeHighlight);
+                    };
+                    targetEl.addEventListener('input', removeHighlight);
+                    targetEl.addEventListener('change', removeHighlight);
+
+                    if (!firstEl) firstEl = targetEl;
                 }
-                targetEl.setAttribute('data-validation-highlight', 'true');
-                targetEl.style.setProperty('border', '2px solid #ef4444', 'important');
-                targetEl.style.setProperty('box-shadow', '0 0 10px rgba(239, 68, 68, 0.6)', 'important');
-                
-                const removeHighlight = () => {
-                    restoreValidationHighlight(targetEl);
-                    targetEl.removeEventListener('input', removeHighlight);
-                    targetEl.removeEventListener('change', removeHighlight);
-                };
-                targetEl.addEventListener('input', removeHighlight);
-                targetEl.addEventListener('change', removeHighlight);
+            });
 
-                if (!firstEl) firstEl = targetEl;
-            }
-        });
-
-        showCustomAlert('الحقول الفارغة:\n\n' + errorMessages.join('\n'), {
-            title: 'بيانات ناقصة',
-            type: 'error',
-            list: true,
-            onClose: function() {
-                if (firstEl) {
-                    scrollToValidationField(firstEl);
-                    setTimeout(() => firstEl.focus(), 300);
+            showCustomAlert(errorMessages.map(m => '•  ' + m).join('\n'), {
+                subHeading: 'الحقول الفارغة:',
+                title: 'بيانات ناقصة',
+                type: 'error',
+                list: true,
+                onClose: function() {
+                    if (firstEl) {
+                        scrollToValidationField(firstEl);
+                        setTimeout(() => firstEl.focus(), 300);
+                    }
                 }
-            }
-        });
-        return; 
+            });
+            return; 
+        }
     }
 
     // ---- فحص: هل رقم المحضر (+ السنة + القسم) محفوظ من قبل؟ ----
@@ -10524,10 +10541,20 @@ function calculateTotalFine() {
         options = options || {};
         const titleEl = document.getElementById('info-alert-modal-title');
         const msgEl = document.getElementById('info-alert-modal-message');
+        const subHeadingEl = document.getElementById('info-alert-modal-subheading');
         const headerEl = document.getElementById('info-alert-modal-header');
         const iconEl = headerEl ? headerEl.querySelector('i') : null;
         if (titleEl) titleEl.textContent = options.title || 'تنبيه';
         if (msgEl) msgEl.textContent = message || '';
+        if (subHeadingEl) {
+            if (options.subHeading) {
+                subHeadingEl.textContent = options.subHeading;
+                subHeadingEl.style.display = '';
+            } else {
+                subHeadingEl.textContent = '';
+                subHeadingEl.style.display = 'none';
+            }
+        }
         if (headerEl) headerEl.classList.toggle('is-error', options.type === 'error');
         if (iconEl) iconEl.className = options.type === 'error'
             ? 'fa-solid fa-circle-exclamation'
@@ -10701,6 +10728,7 @@ function calculateTotalFine() {
             <i class="fa-solid fa-circle-exclamation"></i>
             <h3 id="info-alert-modal-title">تنبيه</h3>
         </div>
+        <p id="info-alert-modal-subheading" style="margin:0 0 6px;text-align:center;font-weight:bold;display:none;"></p>
         <p id="info-alert-modal-message"></p>
         <div id="info-alert-modal-actions">
             <button id="info-alert-ok-btn" type="button" onclick="closeInfoAlertModal()">حسنًا</button>

@@ -5449,7 +5449,8 @@ let questionsHtml = "";
             });
 
             // عرض النافذة أولاً، ثم الذهاب بسلاسة إلى أول حقل ناقص بعد الضغط على «حسنًا»
-            showCustomAlert('يرجى ملء الحقول التالية:\n\n' + errorMessages.join('\n'), {
+            showCustomAlert(errorMessages.map(m => '•  ' + m).join('\n'), {
+                subHeading: 'يرجى ملء الحقول التالية:',
                 title: 'بيانات ناقصة',
                 type: 'error',
                 list: true,
@@ -7599,6 +7600,7 @@ ${cairoFontFaceTag2}
         options = options || {};
         const titleEl  = document.getElementById('info-alert-modal-title');
         const msgEl    = document.getElementById('info-alert-modal-message');
+        const subHeadingEl = document.getElementById('info-alert-modal-subheading');
         const headerEl = document.getElementById('info-alert-modal-header');
         const iconEl   = headerEl ? headerEl.querySelector('i') : null;
 
@@ -7606,6 +7608,15 @@ ${cairoFontFaceTag2}
         if (msgEl) {
             msgEl.textContent = message || '';
             msgEl.classList.toggle('is-list', options.list === true);
+        }
+        if (subHeadingEl) {
+            if (options.subHeading) {
+                subHeadingEl.textContent = options.subHeading;
+                subHeadingEl.style.display = '';
+            } else {
+                subHeadingEl.textContent = '';
+                subHeadingEl.style.display = 'none';
+            }
         }
 
         if (headerEl) headerEl.classList.toggle('is-error', options.type === 'error');
@@ -7881,6 +7892,7 @@ ${cairoFontFaceTag2}
                 <i class="fa-solid fa-circle-check"></i>
                 <h3 id="info-alert-modal-title">تنبيه</h3>
             </div>
+            <p id="info-alert-modal-subheading" style="margin:0 0 6px;text-align:center;font-weight:bold;display:none;"></p>
             <p id="info-alert-modal-message"></p>
             <div id="info-alert-modal-actions">
                 <button id="info-alert-ok-btn" type="button" onclick="closeInfoAlertModal()">حسناً</button>
