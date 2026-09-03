@@ -1020,13 +1020,13 @@ thead th[data-tip]:hover::before {
     min-width: 260px;
     max-width: 400px;
     max-height: calc((100vh / 1.3) - 110px); 
-    background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-    border: 1.5px solid #2d5a8e;
+    background: #edf0f7;
+    border-radius: 12px;
+    box-shadow: 0 15px 45px rgba(0,0,0,0.3);
+    border: 1.5px solid #c5cfe0;
     z-index: 9999;
     flex-direction: column;
-    padding: 10px 10px 15px 10px; 
+    padding: 12px; 
     margin-top: 5px;
     
     /* 💡 أكواد الأنيميشن المزدوج (فتح وإغلاق) */
@@ -1045,22 +1045,37 @@ thead th[data-tip]:hover::before {
     pointer-events: auto;
 }
 
+/* لوحة الرأس التي تجمع التبويبات وشريط الترتيب */
+.archive-header-panel {
+    background: #eef2f9;
+    border: 1px solid #c8d3e3;
+    border-radius: 10px;
+    padding: 8px;
+    margin-bottom: 10px;
+    overflow: hidden;
+    flex-shrink: 0;
+    border-bottom: 2px solid #c9a200;
+}
+
 .archive-tabs {
     display: flex;
-    gap: 5px;
-    margin-bottom: 10px;
+    gap: 3px;
+    margin-bottom: 6px;
     flex-shrink: 0;
+    background: #dde3ef;
+    border-radius: 9px;
+    padding: 3px;
 }
 
 .archive-tab-btn {
     flex: 1;
-    background: #243f6b;
-    color: #c8dff5;
-    border: 1px solid #2d5a8e;
-    border-radius: 6px;
+    background: #dce6f2;
+    color: #2d5a8e;
+    border: 1.5px solid #6f8fb3;
+    border-radius: 7px;
     padding: 7px 2px;
     font-family: inherit;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: bold;
     cursor: pointer;
     transition: 0.2s;
@@ -1068,14 +1083,51 @@ thead th[data-tip]:hover::before {
 }
 
 .archive-tab-btn:hover {
-    background: #2d5a8e;
-    color: #fff;
+    background: #b8c5d9;
+    color: #1e3a5f;
 }
 
 .archive-tab-btn.active {
-    background: #c9a200;
+    background: #2d5a8e;
+    color: #ffffff;
+    border: 1.5px solid #e6c34d;
+    box-shadow: 0 0 0 1px rgba(230,195,77,0.35), 0 1px 4px rgba(30,58,95,0.4);
+}
+
+.archive-sort-strip {
+    display: flex;
+    gap: 3px;
+    flex-shrink: 0;
+    background: #dde3ef;
+    border-radius: 9px;
+    padding: 3px;
+}
+
+.sort-strip-btn {
+    flex: 1;
+    background: #dce6f2;
+    color: #2d5a8e;
+    border: 1.5px solid #6f8fb3;
+    border-radius: 7px;
+    font-family: inherit;
+    font-size: 9px;
+    font-weight: bold;
+    padding: 2px 2px;
+    cursor: pointer;
+    transition: 0.2s;
+    text-align: center;
+}
+
+.sort-strip-btn:hover {
+    background: #b8c5d9;
     color: #1e3a5f;
-    border-color: #e6b800;
+}
+
+.sort-strip-btn.active {
+    background: #2d5a8e;
+    color: #ffffff;
+    border: 1.5px solid #e6c34d;
+    box-shadow: 0 0 0 1px rgba(230,195,77,0.35), 0 1px 4px rgba(30,58,95,0.4);
 }
 
 .archive-records-list {
@@ -1084,10 +1136,11 @@ thead th[data-tip]:hover::before {
     overflow-y: auto;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 5px;
     scrollbar-width: thin;
+    scrollbar-color: #4a7ab5 transparent;
     margin-bottom: 10px;
-    padding-right: 2px;
+    padding-right: 4px;
 }
 
 .archive-record-item {
@@ -1096,22 +1149,25 @@ thead th[data-tip]:hover::before {
     gap: 10px;
     background: #f4f6fb;
     border: 1.5px solid #c8d3e3;
-    padding: 8px 10px;
+    padding: 6px 8px;
     border-radius: 6px;
     cursor: pointer;
     transition: 0.2s;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.1);
 }
 
 .archive-record-item:hover {
+    background: #fff;
     border-color: #4a7ab5;
-    background: #e2e8f0;
+    transform: translateY(-1.5px);
+    box-shadow: 0 6px 15px rgba(30,58,95,0.15);
 }
 
 .archive-checkbox {
     width: 18px;
     height: 18px;
     cursor: pointer;
-    accent-color: #28a745;
+    accent-color: #2d5a8e;
 }
 
 .archive-record-info {
@@ -1134,9 +1190,10 @@ thead th[data-tip]:hover::before {
 .archive-record-sub {
     display: flex;
     justify-content: space-between;
-    font-size: 11px;
-    color: #5a6a82;
 }
+
+.rec-name { font-size: 11px; color: #5a6a82; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 65%; }
+.rec-date { font-size: 10px; color: #8a9bb5; white-space: nowrap; }
 
 .record-type-badge {
     display: inline-flex;
@@ -1222,18 +1279,25 @@ thead th[data-tip]:hover::before {
     font-family: inherit;
     transition: 0.2s;
     text-align: center;
-    box-shadow: 0 -5px 15px rgba(255, 255, 255, 0.95), 0 4px 10px rgba(0,0,0,0.15); 
+    box-shadow: 0 -5px 15px rgba(237, 240, 247, 0.95), 0 4px 10px rgba(0,0,0,0.15); 
     z-index: 10;
 }
 
 /* التوافق مع الوضع الليلي */
-[data-theme="dark"] .floating-archive-menu { background: #1a2744; border-color: #2d4060; }
-[data-theme="dark"] .archive-tab-btn { background: #1a2d45; border-color: #2d4060; color: #94a3b8; }
-[data-theme="dark"] .archive-tab-btn.active { background: #c9a200; color: #1e3a5f; }
-[data-theme="dark"] .archive-record-item { background: #1e2d45; border-color: #2d4060; }
-[data-theme="dark"] .archive-record-item:hover { background: #2d4060; border-color: #4a7ab5; }
+[data-theme="dark"] .floating-archive-menu { background: rgba(15, 26, 46, 0.97); border-color: #2d4060; }
+[data-theme="dark"] .archive-header-panel { background: rgba(15, 26, 46, 0.85); border-color: rgba(74, 122, 181, 0.3); }
+[data-theme="dark"] .archive-tabs, [data-theme="dark"] .archive-sort-strip { background: rgba(0,0,0,0.2); }
+[data-theme="dark"] .archive-tab-btn { background: #24344f; color: #a8c4e0; border-color: #4a6a94; }
+[data-theme="dark"] .archive-tab-btn:hover { background: rgba(255,255,255,0.08); color: #fff; }
+[data-theme="dark"] .archive-tab-btn.active { background: #2d5a8e; color: #ffffff; border-color: #e6c34d; }
+[data-theme="dark"] .sort-strip-btn { background: #24344f; color: #a8c4e0; border-color: #4a6a94; }
+[data-theme="dark"] .sort-strip-btn:hover { background: rgba(255,255,255,0.08); color: #fff; }
+[data-theme="dark"] .sort-strip-btn.active { background: #2d5a8e; color: #ffffff; border-color: #e6c34d; }
+[data-theme="dark"] .archive-record-item { background: rgba(30, 45, 69, 0.8); border-color: #2d4060; }
+[data-theme="dark"] .archive-record-item:hover { background: rgba(30, 45, 69, 0.8); border-color: #4a7ab5; }
 [data-theme="dark"] .archive-record-title { color: #7aaeff; }
-[data-theme="dark"] .archive-record-sub { color: #94a3b8; }
+[data-theme="dark"] .rec-name { color: #94a3b8; }
+[data-theme="dark"] .rec-date { color: #64748b; }
 
 /* إخفاء القائمة في الطباعة */
 @media print {
@@ -1273,7 +1337,14 @@ thead th[data-tip]:hover::before {
                         <i class="fa-solid fa-folder-open"></i> المحاضر المحفوظة
                     </button>
                     <div class="floating-archive-menu" id="floatingArchiveMenu" style="left: 0; right: auto; top: 110%;">
-                        <div class="archive-tabs" id="dynamic-archive-tabs"></div>
+                        <div class="archive-header-panel">
+                            <div class="archive-tabs" id="dynamic-archive-tabs"></div>
+                            <div class="archive-sort-strip" id="archive-sort-strip">
+                                <button class="sort-strip-btn" data-mode="asc" onclick="event.stopPropagation(); setFloatingArchiveSortMode('asc')">تصاعدي</button>
+                                <button class="sort-strip-btn" data-mode="desc" onclick="event.stopPropagation(); setFloatingArchiveSortMode('desc')">تنازلي</button>
+                                <button class="sort-strip-btn active" data-mode="day" onclick="event.stopPropagation(); setFloatingArchiveSortMode('day')">تاريخ اليوم</button>
+                            </div>
+                        </div>
                         <div class="archive-records-list" id="floatingRecordsList"></div>
                         <button class="bulk-insert-btn" onclick="insertSelectedRecords()">✔️ إدراج المحاضر المحددة</button>
                     </div>
@@ -2657,6 +2728,15 @@ function openShortcutsModal() {
 =================================================== */
 let floatingArchiveTab = "";
 let floatingRecordsLimit = 30;
+// وضع ترتيب قائمة المحاضر المحفوظة: day (تجميع حسب اليوم - الافتراضي) / asc (تصاعدي برقم المحضر) / desc (تنازلي برقم المحضر)
+let floatingArchiveSortMode = 'day';
+function setFloatingArchiveSortMode(mode) {
+    floatingArchiveSortMode = mode;
+    document.querySelectorAll('#archive-sort-strip .sort-strip-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-mode') === mode);
+    });
+    loadFloatingArchive();
+}
 
 // بنود تصنّف المحضر كـ "جلسة" حتى لو احتوى بنود غرامة أخرى
 const SESSION_KEYWORDS = [
@@ -2812,26 +2892,39 @@ async function loadFloatingArchive() {
         return;
     }
 
-    const groupsOrder = [];
-    const groupsMap = {};
-    filteredKeys.forEach(key => {
-        const d = db[key];
-        if (!d) return;
-        const dateOnly = d.savedAt ? d.savedAt.split(/[,،]/)[0].trim() : '';
-        if (!groupsMap[dateOnly]) {
-            groupsMap[dateOnly] = [];
-            groupsOrder.push(dateOnly);
-        }
-        const caseNumVal = parseInt(String(d.caseNum || '').replace(/\D/g, ''), 10);
-        groupsMap[dateOnly].push({ key: key, caseNum: isNaN(caseNumVal) ? 0 : caseNumVal });
-    });
-
     let sortedKeys = [];
-    groupsOrder.forEach(dateOnly => {
-        const group = groupsMap[dateOnly];
-        group.sort((a, b) => a.caseNum - b.caseNum);
-        sortedKeys = sortedKeys.concat(group.map(g => g.key));
-    });
+    if (floatingArchiveSortMode === 'asc' || floatingArchiveSortMode === 'desc') {
+        // ترتيب مسطّح برقم المحضر فقط، بغض النظر عن يوم الحفظ
+        const withCaseNum = filteredKeys.map(key => {
+            const d = db[key];
+            const caseNumVal = parseInt(String((d && d.caseNum) || '').replace(/\D/g, ''), 10);
+            return { key: key, caseNum: isNaN(caseNumVal) ? 0 : caseNumVal };
+        });
+        withCaseNum.sort((a, b) => floatingArchiveSortMode === 'asc' ? a.caseNum - b.caseNum : b.caseNum - a.caseNum);
+        sortedKeys = withCaseNum.map(g => g.key);
+    } else {
+        // الوضع الافتراضي: تجميع حسب يوم الحفظ مع الحفاظ على ترتيب الأيام الحالي (الأحدث فوق)،
+        // وفرز محاضر كل يوم على حدة تصاعدياً حسب رقم المحضر (من الأصغر للأكبر)
+        const groupsOrder = [];
+        const groupsMap = {};
+        filteredKeys.forEach(key => {
+            const d = db[key];
+            if (!d) return;
+            const dateOnly = d.savedAt ? d.savedAt.split(/[,،]/)[0].trim() : '';
+            if (!groupsMap[dateOnly]) {
+                groupsMap[dateOnly] = [];
+                groupsOrder.push(dateOnly);
+            }
+            const caseNumVal = parseInt(String(d.caseNum || '').replace(/\D/g, ''), 10);
+            groupsMap[dateOnly].push({ key: key, caseNum: isNaN(caseNumVal) ? 0 : caseNumVal });
+        });
+
+        groupsOrder.forEach(dateOnly => {
+            const group = groupsMap[dateOnly];
+            group.sort((a, b) => a.caseNum - b.caseNum);
+            sortedKeys = sortedKeys.concat(group.map(g => g.key));
+        });
+    }
 
     const keysToShow = sortedKeys.slice(0, floatingRecordsLimit);
     let lastDateSeen = null;
@@ -2849,7 +2942,7 @@ async function loadFloatingArchive() {
             ? '<span class="badge-paid" title="' + (d.paymentInfo.fineReceiptNo ? 'رقم القسيمة: ' + d.paymentInfo.fineReceiptNo : 'تم السداد') + '">✓ مسدد</span>'
             : '';
 
-        if (lastDateSeen !== null && dateOnly !== lastDateSeen) {
+        if (floatingArchiveSortMode === 'day' && lastDateSeen !== null && dateOnly !== lastDateSeen) {
             const divider = document.createElement('div');
             divider.className = 'archive-date-divider';
             divider.innerHTML = '<span class="divider-dot"></span>';

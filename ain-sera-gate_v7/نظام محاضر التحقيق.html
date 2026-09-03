@@ -1719,11 +1719,47 @@ box-sizing: border-box;
     transform: translateY(0) scale(1);
     pointer-events: auto;
 }
+.inv-archive-header-panel {
+    background: #eef2f9;
+    border: 1px solid #c8d3e3;
+    border-radius: 10px;
+    padding: 8px;
+    margin-bottom: 10px;
+    overflow: hidden;
+    flex-shrink: 0;
+    border-bottom: 2px solid #2563eb;
+}
 .inv-archive-tabs {
     display: flex;
     flex-direction: row;
     gap: 5px;
-    margin-bottom: 15px;
+    margin-bottom: 6px;
+}
+.inv-archive-sort-strip {
+    display: flex;
+    gap: 5px;
+}
+.inv-sort-strip-btn {
+    flex: 1;
+    background: #243f6b;
+    color: #c8dff5;
+    border: 1px solid #2d5a8e;
+    border-radius: 8px;
+    padding: 6px 2px;
+    font-family: 'Cairo', sans-serif;
+    font-size: 9.5px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+}
+.inv-sort-strip-btn:hover { background: #2d5a8e; color: #fff; transform: translateY(-2px); }
+.inv-sort-strip-btn.active {
+    background: #2563eb;
+    color: #fff;
+    border-color: #1d4ed8;
+    box-shadow: 0 4px 12px rgba(37,99,235,0.4);
 }
 .inv-tab-btn {
     flex: 1;
@@ -1985,7 +2021,14 @@ box-sizing: border-box;
                 <span>المحاضر المحفوظة</span>
             </button>
             <div class="inv-floating-archive-menu" id="invFloatingArchiveMenu">
-                <div class="inv-archive-tabs" id="inv-dynamic-archive-tabs"></div>
+                <div class="inv-archive-header-panel">
+                    <div class="inv-archive-tabs" id="inv-dynamic-archive-tabs"></div>
+                    <div class="inv-archive-sort-strip" id="inv-archive-sort-strip">
+                        <button class="inv-sort-strip-btn" data-mode="asc" onclick="setInvArchiveSortMode('asc')">تصاعدي</button>
+                        <button class="inv-sort-strip-btn" data-mode="desc" onclick="setInvArchiveSortMode('desc')">تنازلي</button>
+                        <button class="inv-sort-strip-btn active" data-mode="day" onclick="setInvArchiveSortMode('day')">تاريخ اليوم</button>
+                    </div>
+                </div>
                 <div class="inv-records-list" id="inv-records-list">
                     <!-- سيتم ملء المحاضر هنا برمجياً -->
                 </div>
@@ -8594,6 +8637,15 @@ document.addEventListener('DOMContentLoaded', () => {
    =================================================== */
 var invCurrentArchiveTab = "";
 var invRecordsLimit = 30;
+// وضع ترتيب قائمة المحاضر المحفوظة: day (تجميع حسب اليوم - الافتراضي) / asc (تصاعدي برقم المحضر) / desc (تنازلي برقم المحضر)
+var invArchiveSortMode = 'day';
+function setInvArchiveSortMode(mode) {
+    invArchiveSortMode = mode;
+    document.querySelectorAll('#inv-archive-sort-strip .inv-sort-strip-btn').forEach(function(btn) {
+        btn.classList.toggle('active', btn.getAttribute('data-mode') === mode);
+    });
+    loadInvArchiveToSidebar();
+}
 
 // ── بناء التبويبات حسب الأقسام (من niabat_config أو من المحاضر المحفوظة) ──
 async function buildInvArchiveTabs() {
@@ -8776,7 +8828,37 @@ async function loadInvArchiveToSidebar() {
   groupsMap[groupKey].push(key);
   });
 
-  groupsOrder.slice(0, invRecordsLimit).forEach(function(groupKey) {
+  // ── ترتيب المجموعات حسب الوضع المختار (تصاعدي / تنازلي / تاريخ اليوم) ──
+  function invGroupModeRank(k) { var d = db[k] || {}; return d.reportMode === 'bail_reduction' ? 2 : d.reportMode === 'objection' ? 1 : 0; }
+  var groupMeta = groupsOrder.map(function(groupKey) {
+    var gSorted = (groupsMap[groupKey] || []).slice().sort(function(a, b) { return invGroupModeRank(a) - invGroupModeRank(b); });
+    var primaryKey = gSorted.find(function(k) { return (db[k] || {}).reportMode !== 'bail_reduction'; }) || gSorted[0];
+    var primary = db[primaryKey] || {};
+    var caseNumVal = parseInt(String(primary.caseNum || '').replace(/\D/g, ''), 10);
+    var dateOnly = primary.savedAt ? primary.savedAt.split(/[,،]/)[0].trim() : '';
+    return { groupKey: groupKey, caseNum: isNaN(caseNumVal) ? 0 : caseNumVal, dateOnly: dateOnly };
+  });
+
+  var orderedGroupKeys = [];
+  if (invArchiveSortMode === 'asc' || invArchiveSortMode === 'desc') {
+    groupMeta.sort(function(a, b) { return invArchiveSortMode === 'asc' ? a.caseNum - b.caseNum : b.caseNum - a.caseNum; });
+    orderedGroupKeys = groupMeta.map(function(g) { return g.groupKey; });
+  } else {
+    var dateGroupsMap = {};
+    var dateGroupsOrder = [];
+    groupMeta.forEach(function(g) {
+      if (!dateGroupsMap[g.dateOnly]) { dateGroupsMap[g.dateOnly] = []; dateGroupsOrder.push(g.dateOnly); }
+      dateGroupsMap[g.dateOnly].push(g);
+    });
+    dateGroupsOrder.forEach(function(dateOnly) {
+      var arr = dateGroupsMap[dateOnly];
+      arr.sort(function(a, b) { return a.caseNum - b.caseNum; });
+      orderedGroupKeys = orderedGroupKeys.concat(arr.map(function(g) { return g.groupKey; }));
+    });
+  }
+
+  var invLastDateSeen = null;
+  orderedGroupKeys.slice(0, invRecordsLimit).forEach(function(groupKey) {
   var group = groupsMap[groupKey] || [];
   group.sort(function(a, b) {
   var mode = function(k) { var d = db[k] || {}; return d.reportMode === 'bail_reduction' ? 2 : d.reportMode === 'objection' ? 1 : 0; };
@@ -8792,6 +8874,14 @@ async function loadInvArchiveToSidebar() {
   });
   var shortName = primary.name ? primary.name.split(' ').slice(0, 3).join(' ') : 'بدون اسم';
   var dateOnly = primary.savedAt ? primary.savedAt.split(/[,،]/)[0].trim() : '';
+
+  if (invArchiveSortMode === 'day' && invLastDateSeen !== null && dateOnly !== invLastDateSeen) {
+    var divider = document.createElement('div');
+    divider.className = 'inv-archive-date-divider';
+    divider.innerHTML = '<span class="inv-divider-dot"></span>';
+    container.appendChild(divider);
+  }
+  invLastDateSeen = dateOnly;
 
   // تمييز نوع المحضر (غرامة / جلسة) من الكلمات المفتاحية في بنود الاتهام — بنفس منطق باقي الأنظمة
   var isSession = false;
@@ -9203,17 +9293,16 @@ function applyInvRecordToWorkspace(key, raw) {
             onClose: openDirectImportModal
         });
     }
-    async function submitDirectImport() {
-        const reportNoInput = document.querySelector('.direct-import-field input[placeholder="رقم المحضر"]');
-        const yearInput = document.querySelector('.direct-import-field input[placeholder="السنة"]');
-        const deptSelect = document.querySelector('.direct-import-field select');
-        
+    async function searchDirectImport() {
+        const reportNoInput = document.getElementById('direct-import-report-no');
+        const yearInput = document.getElementById('direct-import-year');
+
         const reportNo = reportNoInput ? reportNoInput.value.trim() : '';
         const year = yearInput ? yearInput.value.trim() : '';
-        const dept = deptSelect ? deptSelect.value.trim() : '';
+        const dept = getDirectImportStationValue();
 
-        if (!reportNo || !year || !dept || dept === '--- اختر القسم ---') {
-            showCustomAlert('يرجى إدخال رقم المحضر والسنة والقسم بشكل صحيح.', { title: 'خطأ', type: 'error' });
+        if (!reportNo || !year || !dept) {
+            directImportError('يرجى إدخال رقم المحضر والسنة والقسم بشكل صحيح.', 'خطأ');
             return;
         }
 
@@ -9239,8 +9328,12 @@ function applyInvRecordToWorkspace(key, raw) {
         const targetKey = candidateKeys.find(function(k) { return db[k]; }) || requestedKey;
         let data = db[targetKey];
 
-        if (!data) {
-            showCustomAlert('لا توجد بيانات لهذا المحضر على السيرفر.', { title: 'غير موجود', type: 'error' });
+        // نعتبر السجل "غير موجود" أيضاً إذا كان كائناً فارغاً لا يحمل أي بيانات فعلية
+        const hasUsableData = data && typeof data === 'object' &&
+            (data.fields && Object.keys(data.fields).length > 0 || data.name || data.nationalId || data.questions || data.violations);
+
+        if (!data || !hasUsableData) {
+            directImportError('لا توجد بيانات لهذا المحضر على السيرفر.', 'غير موجود');
             return;
         }
 
@@ -9264,11 +9357,16 @@ function applyInvRecordToWorkspace(key, raw) {
             if (mode === 'bail_reduction') savedBailQuestions = null;
             if (mode === 'objection') savedObjectionQuestions = null;
         }
-        applyLoadedData(dataForWorkspace);
-        
+        // نفس المنطق المستخدم في قائمة "المحاضر المحفوظة" بالضبط: تنبيه بالحذف
+        // والاستبدال إذا كان النموذج يحتوي بيانات محضر آخر، قبل تطبيق البيانات
+        // الجديدة (بما فيها المطابقة الذكية لقسم الشرطة ورقم المحضر ونوع المركبة).
         const overlay = document.getElementById('direct-import-modal-overlay');
         if (overlay) overlay.classList.remove('show');
-        showCustomAlert('✔ تم استيراد المحضر بنجاح من السيرفر');
+
+        confirmAndResetBeforeImport(function() {
+            applyInvRecordToWorkspace(targetKey, JSON.stringify(dataForWorkspace));
+            showCustomAlert('✔ تم استيراد المحضر بنجاح من السيرفر');
+        });
     }
 
     // ── إشعار منبثق ──

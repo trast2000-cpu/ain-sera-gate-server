@@ -1598,39 +1598,91 @@ body[data-theme="dark"] textarea.ta-locked {
     pointer-events: auto;
 }
 
+.archive-header-panel {
+    background: #eef2f9;
+    border: 1px solid #c8d3e3;
+    border-radius: 10px;
+    padding: 8px;
+    margin-bottom: 10px;
+    overflow: hidden;
+    flex-shrink: 0;
+    border-bottom: 2px solid #c9a200;
+}
 .archive-tabs {
     display: flex;
     flex-direction: row;
-    gap: 5px;
-    margin-bottom: 15px;
+    gap: 3px;
+    margin-bottom: 6px;
     flex-shrink: 0;
+    background: #dde3ef;
+    border-radius: 9px;
+    padding: 3px;
 }
+.archive-sort-strip {
+    display: flex;
+    gap: 3px;
+    flex-shrink: 0;
+    background: #dde3ef;
+    border-radius: 9px;
+    padding: 3px;
+}
+.sort-strip-btn {
+    flex: 1;
+    background: #dce6f2;
+    color: #2d5a8e;
+    border: 1.5px solid #6f8fb3;
+    border-radius: 7px;
+    font-family: 'Cairo', sans-serif;
+    font-size: 9px;
+    font-weight: bold;
+    padding: 2px 2px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+}
+.sort-strip-btn:hover {
+    background: #b8c5d9;
+    color: #1e3a5f;
+}
+.sort-strip-btn.active {
+    background: #2d5a8e;
+    color: #ffffff;
+    border: 1.5px solid #e6c34d;
+    box-shadow: 0 0 0 1px rgba(230,195,77,0.35), 0 1px 4px rgba(30,58,95,0.4);
+}
+body[data-theme="dark"] .archive-header-panel { background: rgba(15, 26, 46, 0.85) !important; border-color: rgba(74, 122, 181, 0.3) !important; }
+body[data-theme="dark"] .archive-tabs, body[data-theme="dark"] .archive-sort-strip { background: rgba(0,0,0,0.2) !important; }
+body[data-theme="dark"] .sort-strip-btn { background: #24344f !important; color: #a8c4e0 !important; border-color: #4a6a94 !important; }
+body[data-theme="dark"] .sort-strip-btn:hover { background: rgba(255,255,255,0.08) !important; color: #fff !important; }
+body[data-theme="dark"] .sort-strip-btn.active { background: #2d5a8e !important; color: #ffffff !important; border-color: #e6c34d !important; }
 .tab-btn {
     flex: 1;
-    background: #243f6b;
-    color: #c8dff5;
-    border: 1px solid #2d5a8e;
-    border-radius: 8px;
-    padding: 8px 2px;
+    background: #dce6f2;
+    color: #2d5a8e;
+    border: 1.5px solid #6f8fb3;
+    border-radius: 7px;
+    padding: 7px 2px;
     font-family: 'Cairo', sans-serif;
     font-size: 11px;
     font-weight: bold;
     cursor: pointer;
     transition: all 0.2s;
     text-align: center;
-    box-shadow: 0 3px 8px rgba(0,0,0,0.15);
 }
 .tab-btn:hover { 
-    background: #2d5a8e; 
-    color: #fff; 
-    transform: translateY(-2px);
+    background: #b8c5d9; 
+    color: #1e3a5f; 
 }
 .tab-btn.active {
-    background: #c9a200;
-    color: #1e3a5f;
-    border-color: #e6b800;
-    box-shadow: 0 4px 12px rgba(201,162,0,0.4);
+    background: #2d5a8e;
+    color: #ffffff;
+    border: 1.5px solid #e6c34d;
+    box-shadow: 0 0 0 1px rgba(230,195,77,0.35), 0 1px 4px rgba(30,58,95,0.4);
 }
+body[data-theme="dark"] .tab-btn { background: #24344f !important; color: #a8c4e0 !important; border-color: #4a6a94 !important; }
+body[data-theme="dark"] .tab-btn:hover { background: rgba(255,255,255,0.08) !important; color: #fff !important; }
+body[data-theme="dark"] .tab-btn.active { background: #2d5a8e !important; color: #ffffff !important; border-color: #e6c34d !important; }
+
 .archive-records-list {
     flex: 1;
     overflow-y: auto;
@@ -1809,8 +1861,6 @@ body[data-theme="dark"] .archive-date-divider .divider-dot { background: #7aaeff
 body[data-theme="dark"] .record-sub-row .rec-name { color: #94a3b8 !important; }
 body[data-theme="dark"] .record-sub-row .rec-date { color: #64748b !important; }
 body[data-theme="dark"] .floating-archive-menu { background: #1a2744 !important; border-color: #2d4060 !important; }
-body[data-theme="dark"] .tab-btn { background: rgba(26, 45, 69, 0.7) !important; backdrop-filter: blur(4px); border-color: rgba(74, 122, 181, 0.3) !important; color: #94a3b8 !important;}
-body[data-theme="dark"] .tab-btn.active { background: #c9a200 !important; color: #1e3a5f !important; }
 body[data-theme="dark"] .record-btn { background: rgba(30, 45, 69, 0.8) !important; backdrop-filter: blur(4px); border-color: #2d4060 !important; }
 body[data-theme="dark"] .record-btn:hover { background: #2d4060 !important; border-color: #4a7ab5 !important; }
 body[data-theme="dark"] .record-title { color: #7aaeff !important; }
@@ -2312,7 +2362,14 @@ body[data-theme="dark"] .record-title { color: #7aaeff !important; }
                     <span>المحاضر المحفوظة</span>
                 </button>
                 <div class="floating-archive-menu" id="floatingArchiveMenu">
-                    <div class="archive-tabs" id="dynamic-archive-tabs"></div>
+                    <div class="archive-header-panel">
+                        <div class="archive-tabs" id="dynamic-archive-tabs"></div>
+                        <div class="archive-sort-strip" id="archive-sort-strip">
+                            <button class="sort-strip-btn" data-mode="asc" onclick="setArchiveSortMode('asc')">تصاعدي</button>
+                            <button class="sort-strip-btn" data-mode="desc" onclick="setArchiveSortMode('desc')">تنازلي</button>
+                            <button class="sort-strip-btn active" data-mode="day" onclick="setArchiveSortMode('day')">تاريخ اليوم</button>
+                        </div>
+                    </div>
                     <div class="archive-records-list" id="records-list">
                         <!-- سيتم ملء المحاضر هنا برمجياً -->
                     </div>
@@ -5999,7 +6056,7 @@ function adjustArchiveMenuWidth() {
         document.body.removeChild(clone);
     });
 
-    const gapTotal = (buttons.length - 1) * 5;   // .archive-tabs { gap: 5px }
+    const gapTotal = (buttons.length - 1) * 3;   // .archive-tabs { gap: 3px }
     const horizontalPadding = 24;                 // padding: 12px
     let ideal = totalNaturalWidth + gapTotal + horizontalPadding;
     ideal = Math.max(220, Math.min(400, ideal));
@@ -6069,6 +6126,16 @@ function switchArchiveTab(stationName) {
     loadArchiveToSidebar();
 }
 
+// وضع ترتيب قائمة المحاضر المحفوظة: day (تجميع حسب اليوم - الافتراضي) / asc (تصاعدي برقم المحضر) / desc (تنازلي برقم المحضر)
+let archiveSortMode = 'day';
+function setArchiveSortMode(mode) {
+    archiveSortMode = mode;
+    document.querySelectorAll('#archive-sort-strip .sort-strip-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-mode') === mode);
+    });
+    loadArchiveToSidebar();
+}
+
 async function loadArchiveToSidebar() {
     const container = document.getElementById("records-list");
     if (!container) return;
@@ -6104,26 +6171,38 @@ async function loadArchiveToSidebar() {
         return;
     }
 
-    const groupsMap = {};
-    const groupsOrder = [];
-    filteredKeys.forEach(key => {
-        const d = db[key];
-        if (!d) return;
-        const dateOnly = d.savedAt ? d.savedAt.split(/[,،]/)[0].trim() : "";
-        if (!groupsMap[dateOnly]) {
-            groupsMap[dateOnly] = [];
-            groupsOrder.push(dateOnly);
-        }
-        const caseNumVal = parseInt(String(d.caseNum || "").replace(/\D/g, ""), 10);
-        groupsMap[dateOnly].push({ key: key, caseNum: isNaN(caseNumVal) ? 0 : caseNumVal });
-    });
-
     let sortedKeys = [];
-    groupsOrder.forEach(dateOnly => {
-        const group = groupsMap[dateOnly];
-        group.sort((a, b) => a.caseNum - b.caseNum);
-        sortedKeys = sortedKeys.concat(group.map(g => g.key));
-    });
+    if (archiveSortMode === 'asc' || archiveSortMode === 'desc') {
+        // ترتيب مسطّح برقم المحضر فقط، بغض النظر عن يوم الحفظ
+        const withCaseNum = filteredKeys.map(key => {
+            const d = db[key];
+            const caseNumVal = parseInt(String((d && d.caseNum) || "").replace(/\D/g, ""), 10);
+            return { key: key, caseNum: isNaN(caseNumVal) ? 0 : caseNumVal };
+        });
+        withCaseNum.sort((a, b) => archiveSortMode === 'asc' ? a.caseNum - b.caseNum : b.caseNum - a.caseNum);
+        sortedKeys = withCaseNum.map(g => g.key);
+    } else {
+        // الوضع الافتراضي: تجميع حسب يوم الحفظ، وترتيب تصاعدي برقم المحضر داخل كل يوم
+        const groupsMap = {};
+        const groupsOrder = [];
+        filteredKeys.forEach(key => {
+            const d = db[key];
+            if (!d) return;
+            const dateOnly = d.savedAt ? d.savedAt.split(/[,،]/)[0].trim() : "";
+            if (!groupsMap[dateOnly]) {
+                groupsMap[dateOnly] = [];
+                groupsOrder.push(dateOnly);
+            }
+            const caseNumVal = parseInt(String(d.caseNum || "").replace(/\D/g, ""), 10);
+            groupsMap[dateOnly].push({ key: key, caseNum: isNaN(caseNumVal) ? 0 : caseNumVal });
+        });
+
+        groupsOrder.forEach(dateOnly => {
+            const group = groupsMap[dateOnly];
+            group.sort((a, b) => a.caseNum - b.caseNum);
+            sortedKeys = sortedKeys.concat(group.map(g => g.key));
+        });
+    }
 
     const keysToShow = sortedKeys.slice(0, recordsLimit);
     let lastDateSeen = null;
@@ -6140,7 +6219,7 @@ async function loadArchiveToSidebar() {
             ? '<span class="badge-paid" title="' + (d.paymentInfo.fineReceiptNo ? 'رقم القسيمة: ' + d.paymentInfo.fineReceiptNo : 'تم السداد') + '">✓ مسدد</span>'
             : '';
 
-        if (lastDateSeen !== null && dateOnly !== lastDateSeen) {
+        if (archiveSortMode === 'day' && lastDateSeen !== null && dateOnly !== lastDateSeen) {
             const divider = document.createElement("div");
             divider.className = "archive-date-divider";
             divider.innerHTML = '<span class="divider-dot"></span>';
