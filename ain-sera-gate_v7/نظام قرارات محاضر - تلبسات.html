@@ -2706,7 +2706,7 @@ body[data-theme="dark"] .record-title { color: #7aaeff !important; }
                             <label>تاريخ الجلسة</label>
                             <div class="date-input-wrapper" style="width:145px;">
                                 <span class="date-cal-icon">📅</span>
-                                <input type="text" id="f-jalsa-date" oninput="updateJalsaDecisionText(); updateAll()" placeholder="يوم/شهر/سنة" maxlength="10" style="width:145px;">
+                                <input type="text" id="f-jalsa-date" autocomplete="off" oninput="updateJalsaDecisionText(); updateAll()" placeholder="يوم/شهر/سنة" maxlength="10" style="width:145px;">
                                 <input type="date" id="picker-jalsa-date" class="date-hidden-picker" onchange="pickerToText(this,'f-jalsa-date'); updateJalsaDecisionText(); updateAll()">
                             </div>
                         </div>
