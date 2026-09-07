@@ -42,7 +42,7 @@
 /* تكبير الواجهة على الشاشة فقط — لا يؤثر على الطباعة */
 @media screen {
     body {
-        zoom: 1.3;
+        zoom: 1.275;
     }
 }
 
@@ -63,6 +63,152 @@ option[data-category="dark"] {
     background: #e8f0f7 !important;
     color: #1e293b !important;
 }
+
+        /* ── لوحة ملخص المحضر: مساحة مستقلة ثابتة على يسار الواجهة ── */
+        .case-summary-panel {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            bottom: 10px;
+            width: 275px;
+            padding: 0;
+            direction: rtl;
+            background: #eef2f8;
+            border: 1.5px solid #c5cfe0;
+            border-radius: 10px;
+            box-shadow: 0 3px 16px rgba(30, 58, 95, 0.16);
+            overflow: hidden;
+            z-index: 900;
+            color: #1e293b;
+        }
+        .case-summary-header {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            min-height: 43px;
+            padding: 7px 12px;
+            color: #fff;
+            background: linear-gradient(135deg, #2c4a6e, #1e3a5f);
+            border-bottom: 2px solid #c9a200;
+            font-size: 15px;
+            font-weight: bold;
+        }
+        .case-summary-header i { color: #f5d76e; }
+        .case-summary-body {
+            height: calc(100% - 43px);
+            overflow-y: auto;
+            padding: 12px 10px;
+            scrollbar-width: thin;
+            scrollbar-color: #7a9cbf transparent;
+        }
+        .case-summary-empty {
+            min-height: 190px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 14px;
+            text-align: center;
+            line-height: 1.9;
+            color: #64748b;
+            font-size: 13px;
+            background: rgba(255,255,255,0.58);
+            border: 1px dashed #b5c3d6;
+            border-radius: 8px;
+        }
+        .case-summary-content { display: none; }
+        .case-summary-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 7px;
+            padding: 7px 3px;
+            border-bottom: 1px solid #d9e1ec;
+            font-size: 12px;
+            line-height: 1.65;
+        }
+        .case-summary-row:last-child { border-bottom: 0; }
+        /* صف رقم المحضر: هو مفتاح المحضر، فنميّزه بخط سفلي ذهبي رفيع بدل الرمادي العادي */
+        .case-summary-row.case-summary-key-row { border-bottom: 2px solid #c9a200; }
+        .case-summary-label {
+            flex: 0 0 86px;
+            color: #1e3a5f;
+            font-weight: bold;
+        }
+        .case-summary-value {
+            min-width: 0;
+            flex: 1;
+            color: #1e293b;
+            font-weight: bold;
+            overflow-wrap: anywhere;
+        }
+        .case-summary-key {
+            color: #1e3a5f;
+            font-size: 15px;
+        }
+        .case-summary-section-title {
+            margin: 12px 0 4px;
+            padding-bottom: 4px;
+            color: #1e3a5f;
+            border-bottom: 1px solid #b7c8dc;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .case-summary-list {
+            margin: 0;
+            padding: 0 18px 0 0;
+            color: #334155;
+            font-size: 12px;
+            line-height: 1.8;
+        }
+        .case-summary-status {
+            display: inline-block;
+            padding: 2px 9px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+        .case-summary-status.paid { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+        .case-summary-status.unpaid { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+        .case-summary-status.type { background: #dbeafe; color: #1e40af; border: 1px solid #93c5fd; }
+        .case-summary-status.session { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; }
+        /* صف المحضر المرتبط: صندوق مستقل ببنفسجي فاتح، لأنه معلومة عن محضر آخر مختلف نوعها عن باقي الصف */
+        .case-summary-row.case-summary-linked-row {
+            background: #f3e8ff;
+            border: 1px solid #d8b4fe;
+            border-radius: 8px;
+            padding: 7px 9px;
+            margin-top: 4px;
+        }
+        .case-summary-row.case-summary-linked-row .case-summary-label { color: #6b21a8; }
+        .case-summary-row.case-summary-linked-row .case-summary-value { color: #581c87; }
+        body[data-theme="dark"] .case-summary-row.case-summary-linked-row { background: rgba(107, 33, 168, 0.18); border-color: #7e3fb3; }
+        body[data-theme="dark"] .case-summary-row.case-summary-linked-row .case-summary-label { color: #d8b4fe; }
+        body[data-theme="dark"] .case-summary-row.case-summary-linked-row .case-summary-value { color: #e9d5ff; }
+        body[data-theme="dark"] .case-summary-panel { background: #17243b; border-color: #2d4060; color: #e2e8f0; }
+        body[data-theme="dark"] .case-summary-empty { background: rgba(15, 23, 42, 0.42); border-color: #385273; color: #94a3b8; }
+        body[data-theme="dark"] .case-summary-row { border-color: #2d4060; }
+        body[data-theme="dark"] .case-summary-row.case-summary-key-row { border-bottom-color: #c9a200; }
+        body[data-theme="dark"] .case-summary-label { color: #9fc3f5; }
+        body[data-theme="dark"] .case-summary-value { color: #e2e8f0; }
+        body[data-theme="dark"] .case-summary-key,
+        body[data-theme="dark"] .case-summary-section-title { color: #9fc3f5; }
+        body[data-theme="dark"] .case-summary-section-title { border-color: #385273; }
+        body[data-theme="dark"] .case-summary-list { color: #cbd5e1; }
+
+        @media print {
+            .case-summary-panel { display: none !important; }
+        }
+        @media screen and (max-width: 950px) {
+            .case-summary-panel { display: none; }
+        }
+
+        @media screen and (min-width: 951px) {
+            /* اللوحة اليسرى جزء من التخطيط: لا تغطي النموذج، بل تحجز له مساحة مستقلة */
+            .app-layout {
+                margin-left: 295px;
+                width: calc(100vw - 480px);
+                max-width: 1000px;
+            }
+        }
 
         /* Layout رئيسي: sidebar + panel */
 .app-layout {
@@ -1816,8 +1962,105 @@ body[data-theme="dark"] .rec-date { color: #64748b !important; }
     outline-offset: 2px;
 }
 </style>
+<style id="summary-panel-adjacent-layout">
+/* تثبيت شاشة الملخص ملاصقة لواجهة النظام دون فراغ يتغير مع الزووم */
+@media screen and (min-width: 951px) {
+    .case-summary-panel {
+        left: 0 !important;
+        width: 275px !important;
+        box-sizing: border-box !important;
+    }
+    .app-layout {
+        margin: 0 170px 8px 265px !important;
+        width: auto !important;
+        max-width: none !important;
+        padding-right: 0 !important;
+        box-sizing: border-box !important;
+    }
+}
+</style>
+<style id="summary-compact-layout">
+/* ضغط خفيف لشاشة الملخص مع إبقاء القراءة واضحة */
+.case-summary-body {
+    padding: 8px 10px !important;
+}
+.case-summary-row {
+    gap: 6px !important;
+    padding: 5px 3px !important;
+    line-height: 1.5 !important;
+}
+.case-summary-key {
+    white-space: nowrap !important;
+    overflow-wrap: normal !important;
+    font-size: 14px !important;
+    letter-spacing: -0.1px;
+}
+.case-summary-section-title {
+    margin: 8px 0 3px !important;
+    padding-bottom: 3px !important;
+}
+.case-summary-list {
+    line-height: 1.6 !important;
+}
+.case-summary-status {
+    padding: 1px 8px !important;
+}
+</style>
 </head>
 <body>
+
+    <!-- ملخص المحضر: لوحة مستقلة ثابتة في المساحة اليسرى، وتظهر بعد نجاح الاستيراد -->
+    <aside id="case-summary-panel" class="case-summary-panel" aria-label="ملخص المحضر">
+        <div class="case-summary-header">
+            <i class="fa-solid fa-file-circle-check"></i>
+            <span>ملخص المحضر</span>
+        </div>
+        <div class="case-summary-body">
+            <div id="case-summary-empty" class="case-summary-empty">
+                اكتب رقم المحضر وقسم الشرطة والسنة، ثم اضغط «بحث واستيراد» لعرض الملخص هنا.
+            </div>
+            <div id="case-summary-content" class="case-summary-content">
+                <div class="case-summary-row case-summary-key-row">
+                    <span class="case-summary-label">رقم المحضر</span>
+                    <span id="summary-case-key" class="case-summary-value case-summary-key">—</span>
+                </div>
+                <div class="case-summary-row">
+                    <span class="case-summary-label">اسم المتهم</span>
+                    <span id="summary-name" class="case-summary-value">—</span>
+                </div>
+                <div class="case-summary-row">
+                    <span class="case-summary-label">رقم المركبة</span>
+                    <span id="summary-plate" class="case-summary-value">—</span>
+                </div>
+                <div class="case-summary-row">
+                    <span class="case-summary-label">نوع المحضر</span>
+                    <span id="summary-type" class="case-summary-value"><span class="case-summary-status type">—</span></span>
+                </div>
+                <div class="case-summary-section-title">بنود الاتهام</div>
+                <ul id="summary-violations" class="case-summary-list"><li>—</li></ul>
+                <div class="case-summary-row">
+                    <span class="case-summary-label">الغرامة</span>
+                    <span id="summary-fine" class="case-summary-value">—</span>
+                </div>
+                <div class="case-summary-row">
+                    <span class="case-summary-label">حالة السداد</span>
+                    <span id="summary-payment" class="case-summary-value"><span class="case-summary-status unpaid">غير مسدد</span></span>
+                </div>
+                <div id="summary-linked-row" class="case-summary-row case-summary-linked-row" style="display:none;">
+                    <span class="case-summary-label">المحضر المرتبط</span>
+                    <span id="summary-linked" class="case-summary-value">—</span>
+                </div>
+                <div id="summary-session-date-row" class="case-summary-row case-summary-linked-row" style="display:none;">
+                    <span class="case-summary-label">تاريخ الجلسة</span>
+                    <span id="summary-session-date" class="case-summary-value">—</span>
+                </div>
+                <div id="summary-linked-violation-row" class="case-summary-row case-summary-linked-row" style="display:none;">
+                    <span class="case-summary-label">بند اتهام المحضر المرتبط</span>
+                    <span id="summary-linked-violation" class="case-summary-value">—</span>
+                </div>
+            </div>
+        </div>
+    </aside>
 
     <div class="app-layout">
 
@@ -2783,6 +3026,7 @@ window.addEventListener('beforeprint', function() {
             document.getElementById('violations-receipt').value = '';
             document.getElementById('violations-amount').value = '';
             document.getElementById('violations-pay-date').value = '';
+            document.getElementById('picker-violations-pay-date').value = '';
             updateViolationsText();
         }
 
@@ -2790,6 +3034,7 @@ window.addEventListener('beforeprint', function() {
             document.getElementById('fine-receipt-num').value = '';
             document.getElementById('fine-receipt-amount').value = '';
             document.getElementById('fine-receipt-date').value = '';
+            document.getElementById('picker-fine-receipt-date').value = '';
             updateFineReceiptText();
         }
 
@@ -2820,6 +3065,7 @@ window.addEventListener('beforeprint', function() {
             if (document.getElementById('input-year-other')) document.getElementById('input-year-other').value = '';
             if (document.getElementById('year-other-wrapper')) document.getElementById('year-other-wrapper').style.display = 'none';
             document.getElementById('input-date').value = '';
+            document.getElementById('picker-input-date').value = '';
             dateAutoFilled = false;
             document.getElementById('input-boss-select').value = '';
             document.getElementById('input-boss-other').value = '';
@@ -2842,10 +3088,12 @@ window.addEventListener('beforeprint', function() {
             document.getElementById('violations-pay-method').value = 'POS';
             document.getElementById('violations-amount').value = '';
             document.getElementById('violations-pay-date').value = '';
+            document.getElementById('picker-violations-pay-date').value = '';
             document.getElementById('fine-receipt-type').value = '';
             document.getElementById('fine-receipt-num').value = '';
             document.getElementById('fine-receipt-amount').value = '';
             document.getElementById('fine-receipt-date').value = '';
+            document.getElementById('picker-fine-receipt-date').value = '';
             // تحديث عرض جميع الـ custom selects
             ['input-dept-select','input-boss-select','fine-type','eng-type','vehicle-status-type',
              'violations-type','violations-pay-method','fine-receipt-type','plate-type'].forEach(id => syncCustomSelectDisplay(id));
@@ -2861,6 +3109,7 @@ window.addEventListener('beforeprint', function() {
             document.getElementById('session-day-other').value = '';
             document.getElementById('session-day-other-wrapper').style.display = 'none';
             document.getElementById('session-date').value = '';
+            document.getElementById('picker-session-date').value = '';
             document.getElementById('session-crime').value = '';
             document.getElementById('session-crime-manual').value = '';
             document.getElementById('session-crime-manual-wrapper').style.display = 'none';
@@ -2869,6 +3118,7 @@ window.addEventListener('beforeprint', function() {
             importedJalsaDay = '';
             importedLinkedSessionCaseNum = '';
             importedPrimaryMahdarData = null;
+            clearCaseSummary();
             linkedSessionLookupSignature = '';
             clearTimeout(linkedSessionLookupTimer);
             importedSessionKeywords = [];
@@ -4475,10 +4725,13 @@ async function printPostSettlement() {
             if(!picker.value) return;
             const [y,m,d]=picker.value.split('-');
             const el = document.getElementById(textId);
-            if (!el) return;
+            if (!el) { picker.value = ''; return; }
             el.value=`${y}/${m}/${d}`;
             // تشغيل oninput يدوياً حتى تعمل الدوال المرتبطة بالحقل
             el.dispatchEvent(new Event('input', { bubbles: true }));
+            // مهم: إعادة التقويم إلى قيمة فارغة بعد النقل حتى يُسجّل المتصفح
+            // اختيار نفس اليوم مرة أخرى كـ change event في المحضر التالي.
+            picker.value = '';
         }
 
         let dateAutoFilled=false;
@@ -4573,7 +4826,152 @@ if (window.isPresetRunning) return;
             }, success ? 3500 : 4000);
         }
 
+        // ── ملخص المحضر الثابت في الجهة اليسرى ──
+        function summaryText(value, fallback = '—') {
+            const text = String(value == null ? '' : value).trim();
+            return text || fallback;
+        }
+
+        function setSummaryText(id, value, fallback = '—') {
+            const el = document.getElementById(id);
+            if (el) el.textContent = summaryText(value, fallback);
+        }
+
+        function updateCaseSummaryPaymentState() {
+            const el = document.getElementById('summary-payment');
+            if (!el || !importedPrimaryMahdarData) return;
+            const savedPayment = importedPrimaryMahdarData.paymentInfo || {};
+            const fineType = (document.getElementById('fine-receipt-type') || {}).value || '';
+            const fineNo = ((document.getElementById('fine-receipt-num') || {}).value || '').trim();
+            const paid = !!savedPayment.paid || (fineType === 'paid' && !!fineNo);
+            el.innerHTML = paid
+                ? '<span class="case-summary-status paid">مسدد</span>'
+                : '<span class="case-summary-status unpaid">غير مسدد</span>';
+        }
+
+        function clearCaseSummary() {
+            const empty = document.getElementById('case-summary-empty');
+            const content = document.getElementById('case-summary-content');
+            if (empty) empty.style.display = 'flex';
+            if (content) content.style.display = 'none';
+            ['summary-case-key','summary-dept','summary-name','summary-plate','summary-fine',
+             'summary-linked','summary-session-date','summary-linked-violation'].forEach(id => setSummaryText(id, '—'));
+            const violations = document.getElementById('summary-violations');
+            if (violations) violations.innerHTML = '<li>—</li>';
+            const type = document.getElementById('summary-type');
+            if (type) type.innerHTML = '<span class="case-summary-status type">—</span>';
+            const payment = document.getElementById('summary-payment');
+            if (payment) payment.innerHTML = '<span class="case-summary-status unpaid">غير مسدد</span>';
+            ['summary-linked-row','summary-session-date-row','summary-linked-violation-row'].forEach(id => {
+                const row = document.getElementById(id);
+                if (row) row.style.display = 'none';
+            });
+        }
+
+        function renderCaseSummary(data, linkedData) {
+            if (!data) { clearCaseSummary(); return; }
+            const empty = document.getElementById('case-summary-empty');
+            const content = document.getElementById('case-summary-content');
+            if (empty) empty.style.display = 'none';
+            if (content) content.style.display = 'block';
+
+            const summaryDept = data.dept || data.department || '—';
+            setSummaryText('summary-case-key', data.caseNum ? `${data.caseNum} / ${data.year || '—'} / ${summaryDept}` : '—');
+            setSummaryText('summary-dept', data.dept || data.department);
+            setSummaryText('summary-name', data.name);
+            const plateType = String(data.plateType || '').trim();
+            const plateValue = plateType === 'no-plate'
+                ? (data.noPlateTxt || 'بدون لوحات')
+                : [data.c1, data.c2, data.c3, data.n1].map(value => String(value || '').trim()).filter(Boolean).join(' ');
+            setSummaryText('summary-plate', plateValue, 'غير مسجل');
+
+            const sessionKeywords = findImportedSessionKeywords(data.violations);
+            const isSession = typeof isSessionRecord === 'function'
+                ? isSessionRecord(data)
+                : sessionKeywords.length > 0;
+            const type = document.getElementById('summary-type');
+            if (type) type.innerHTML = `<span class="case-summary-status ${isSession ? 'session' : 'type'}">${isSession ? 'جلسة' : 'غرامة'}</span>`;
+
+            const violations = document.getElementById('summary-violations');
+            const violationItems = Array.isArray(data.violations)
+                ? data.violations.filter(item => String(item || '').trim())
+                : String(data.violations || '').split(/[,،\n]/).map(item => item.trim()).filter(Boolean);
+            if (violations) {
+                violations.innerHTML = violationItems.length
+                    ? violationItems.map(item => `<li>${String(item).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]))}</li>`).join('')
+                    : '<li>لا توجد بنود مسجلة</li>';
+            }
+
+            const fineValue = data.fine || data.fineAmount || '';
+            setSummaryText('summary-fine', fineValue ? `${fineValue} جنيه` : 'غير محددة');
+            updateCaseSummaryPaymentState();
+
+            const linked = linkedData || null;
+            const linkedRow = document.getElementById('summary-linked-row');
+            const linkedEl = document.getElementById('summary-linked');
+            if (linked && linked.caseNum) {
+                if (linkedEl) linkedEl.textContent = `${linked.caseNum} / ${linked.year || data.year || '—'}`;
+                if (linkedRow) linkedRow.style.display = 'flex';
+            } else {
+                if (linkedRow) linkedRow.style.display = 'none';
+            }
+
+            const sessionDate = (linked && linked.jalsaDate) || data.jalsaDate || importedJalsaDate || '';
+            const sessionDateRow = document.getElementById('summary-session-date-row');
+            setSummaryText('summary-session-date', sessionDate);
+            if (sessionDateRow) sessionDateRow.style.display = sessionDate ? 'flex' : 'none';
+
+            const linkedViolationRow = document.getElementById('summary-linked-violation-row');
+            const linkedViolationEl = document.getElementById('summary-linked-violation');
+            const linkedViolations = linked && Array.isArray(linked.violations)
+                ? linked.violations.filter(item => String(item || '').trim())
+                : [];
+            if (linkedViolations.length) {
+                if (linkedViolationEl) linkedViolationEl.textContent = linkedViolations.join('، ');
+                if (linkedViolationRow) linkedViolationRow.style.display = 'flex';
+            } else {
+                if (linkedViolationRow) linkedViolationRow.style.display = 'none';
+            }
+        }
+
+                // استعادة بيانات السداد بعد انتهاء clearAll وapplyPreset، حتى لا تُمسح القسائم أثناء الاستيراد.
+        function restorePaymentInfoToFields(paymentInfo) {
+            if (!paymentInfo) return;
+            const setPaymentValue = (id, value) => {
+                const el = document.getElementById(id);
+                if (el && value !== undefined && value !== null) el.value = value;
+            };
+
+            const violationsTypeVal = paymentInfo.violationsType || (paymentInfo.violationsReceiptNo ? 'paid' : '');
+            if (violationsTypeVal) {
+                const violationsTypeEl = document.getElementById('violations-type');
+                if (violationsTypeEl) {
+                    violationsTypeEl.value = violationsTypeVal;
+                    if (typeof syncCustomSelectDisplay === 'function') syncCustomSelectDisplay('violations-type');
+                }
+                setPaymentValue('violations-receipt', paymentInfo.violationsReceiptNo);
+                setPaymentValue('violations-pay-method', paymentInfo.violationsPayMethod || 'POS');
+                setPaymentValue('violations-amount', paymentInfo.violationsAmount);
+                setPaymentValue('violations-pay-date', paymentInfo.violationsPayDate);
+                if (typeof updateViolationsText === 'function') updateViolationsText();
+            }
+
+            const fineTypeVal = paymentInfo.fineReceiptType || (paymentInfo.paid ? 'paid' : '');
+            if (fineTypeVal) {
+                const fineTypeEl = document.getElementById('fine-receipt-type');
+                if (fineTypeEl) {
+                    fineTypeEl.value = fineTypeVal;
+                    if (typeof syncCustomSelectDisplay === 'function') syncCustomSelectDisplay('fine-receipt-type');
+                }
+                setPaymentValue('fine-receipt-num', paymentInfo.fineReceiptNo);
+                setPaymentValue('fine-receipt-amount', paymentInfo.fineAmount);
+                setPaymentValue('fine-receipt-date', paymentInfo.fineReceiptDate);
+                if (typeof updateFineReceiptText === 'function') updateFineReceiptText();
+            }
+        }
+
         async function lookupMahdar() {
+
             const caseNum = (document.getElementById('input-caseNum') || {}).value.trim();
             const year    = (document.getElementById('input-year')    || {}).value.trim();
             const deptSel = document.getElementById('input-dept-select');
@@ -4587,6 +4985,10 @@ if (window.isPresetRunning) return;
             if (!dept)    { showLookupToast('⚠ يرجى اختيار قسم الشرطة أولاً', false); return; }
             if (!year)    { showLookupToast('⚠ يرجى كتابة السنة أولاً', false); return; }
 
+            // لا نترك ملخص المحضر السابق ظاهرًا أثناء محاولة البحث عن محضر جديد.
+            importedPrimaryMahdarData = null;
+            clearCaseSummary();
+
             const key = getMahdarKey(caseNum, year, dept, 'main');
             let db = await fetchServerData();
             let data = db[key];
@@ -4596,6 +4998,30 @@ if (window.isPresetRunning) return;
             }
 
             try {
+
+            // توحيد سلوك زر "بحث واستيراد" مع الاستيراد من قائمة المحاضر المحفوظة:
+            // نمسح المحضر السابق بالكامل بعد التأكد من وجود المحضر الجديد،
+            // حتى لا تنتقل أرقام القسائم أو مبالغ وتواريخ السداد إلى المحضر الجديد.
+            clearAll(true);
+
+            // clearAll() يفرغ النموذج بالكامل، لذلك نعيد مفتاح المحضر الذي
+            // تم البحث به حتى تظل بياناته ظاهرة في الواجهة والطباعة.
+            const restoredCaseNumEl = document.getElementById('input-caseNum');
+            if (restoredCaseNumEl) restoredCaseNumEl.value = caseNum;
+            if (typeof ensureYearOption === 'function') ensureYearOption(year);
+            const restoredYearEl = document.getElementById('input-year');
+            if (restoredYearEl) restoredYearEl.value = year;
+            if (typeof refreshYearDropdownDisplay === 'function') refreshYearDropdownDisplay();
+            const restoredDeptEl = document.getElementById('input-dept-select');
+            if (restoredDeptEl) {
+                const matchingDept = Array.from(restoredDeptEl.options).some(option => option.value === dept);
+                restoredDeptEl.value = matchingDept ? dept : 'أخرى';
+                if (typeof toggleOther === 'function') toggleOther('input-dept-select', 'dept-other-wrapper');
+                if (!matchingDept) {
+                    const restoredOtherDeptEl = document.getElementById('input-dept-other');
+                    if (restoredOtherDeptEl) restoredOtherDeptEl.value = dept;
+                }
+            }
 
             importedPrimaryMahdarData = data;
             linkedSessionLookupSignature = '';
@@ -4700,13 +5126,19 @@ if (window.isPresetRunning) return;
 
 
             // ⑦ sync نهائي
+                        if (typeof sync === 'function') sync();
+
+            // إعادة بيانات القسائم بعد clearAll وapplyPreset؛ وهما قد يمسحان القيم التي سبقت الاستيراد.
+            restorePaymentInfoToFields(data.paymentInfo);
             if (typeof sync === 'function') sync();
 
             // إزالة أي تمييز أحمر من الحقول التي امتلأت من المحضر المستورد
+
             if (typeof clearValidationHighlightsForFilledFields === 'function') clearValidationHighlightsForFilledFields();
 
             // بعد استيراد المحضر الأساسي مباشرة، ابحث عن المحضر المرتبط ثم اعرض توستًا واحدًا فقط.
             const linkedData = await importLinkedSessionMahdar();
+            renderCaseSummary(data, linkedData);
             const primaryToastLine = '✔ تم تحميل بيانات المحضر (' + caseNum + ' / ' + year + ' / ' + dept + ') بنجاح';
             if (linkedData) {
                 showLookupToast([
@@ -4738,6 +5170,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 controlPanel.addEventListener('input',autoFillDateOnce,{once:false});
                 controlPanel.addEventListener('change',autoFillDateOnce,{once:false});
             }
+            ['fine-receipt-type', 'fine-receipt-num'].forEach(function(id) {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.addEventListener('input', updateCaseSummaryPaymentState);
+                    el.addEventListener('change', updateCaseSummaryPaymentState);
+                }
+            });
+            ['input-caseNum', 'input-dept-select', 'input-dept-other', 'input-year'].forEach(function(id) {
+                const el = document.getElementById(id);
+                if (el) {
+                    const clearOldSummary = function() {
+                        if (importedPrimaryMahdarData) {
+                            importedPrimaryMahdarData = null;
+                            clearCaseSummary();
+                        }
+                    };
+                    el.addEventListener('input', clearOldSummary);
+                    el.addEventListener('change', clearOldSummary);
+                }
+            });
             // بناء الـ custom selects — معطّل، نستخدم <select> العادية
             // document.querySelectorAll('.control-panel select').forEach(sel=>{
             //     if(sel.style.display==='none') return;
