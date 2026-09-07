@@ -1945,6 +1945,13 @@ body[data-theme="dark"] .record-title { color: #7aaeff !important; }
     border: 1px solid rgba(255, 255, 255, 0.08); /* حافة زجاجية خفيفة جداً */
 }
 
+/* النيابة الصباحية الجديدة (نيابة مرور القاهرة الصباحية) — نفس مجموعة أزرار المسائية، بلون مميز عنها */
+.timing-btn.sabahi-alt-mode {
+    background: linear-gradient(135deg, rgba(217, 119, 6, 0.85), rgba(146, 64, 14, 0.9));
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
 /* إضاءة خفيفة للزرار الزجاجي لما تقف عليه بالماوس */
 .timing-btn:hover {
     transform: translateY(-2px);
@@ -1954,6 +1961,7 @@ body[data-theme="dark"] .record-title { color: #7aaeff !important; }
 .timing-btn .arrow {
     font-size: 11px;
     opacity: 0.8;
+    transform: translateX(-6px);
 }
 
 /* حاوية أزرار القرارات (الأنيميشن البطيء والناعم) */
@@ -1988,6 +1996,9 @@ body[data-theme="dark"] .record-title { color: #7aaeff !important; }
 }
 .timing-btn.sabahi-mode .icon {
     transform: rotate(-360deg) scale(1);
+}
+.timing-btn.sabahi-alt-mode .icon {
+    transform: rotate(180deg) scale(1.1);
 }
 
 /* تنسيقات حاوية التمرير والأزرار السفلية (كما اتفقنا سابقاً لضمان التثبيت) */
@@ -2302,7 +2313,7 @@ body[data-theme="dark"] .record-title { color: #7aaeff !important; }
         <span class="timing-label">اختر توقيت النيابة:</span>
         <button id="timing-toggle-btn" class="timing-btn sabahi-mode" onclick="toggleNiabaTiming()">
             <span class="icon">☀️</span>
-            <span class="text">النيابة الصباحية</span>
+            <span class="text">نيابة مرور عين الصيرة</span>
             <span class="arrow"><i class="fa-solid fa-arrows-rotate"></i></span>
         </button>
     </div>
@@ -2901,7 +2912,7 @@ body[data-theme="dark"] .record-title { color: #7aaeff !important; }
             <div style="display: flex; align-items: center; justify-content: space-between; direction: rtl; margin-bottom: 2mm;">
                 <div style="text-align:center; padding-left: 110mm; padding-right: 3mm; font-weight:bold; font-size:11.5pt; line-height:1.55; flex: 1;">
                     النيابـــــة العـــــامـة<br>
-                    نيابة مرور القاهرة المسائية
+                    <span class="masai-niaba-label" id="masai-niaba-label-1">نيابة مرور القاهرة المسائية</span>
                 </div>
                 <div style="text-align: left; flex-shrink: 0; padding-left: 4mm;">
                     <img src="logo.png" alt="شعار النيابة" style="width: 75px; height: auto;">
@@ -2988,7 +2999,7 @@ body[data-theme="dark"] .record-title { color: #7aaeff !important; }
             <div style="display: flex; align-items: center; justify-content: space-between; direction: rtl; margin-bottom: 2mm;">
                 <div style="text-align:center; padding-left: 110mm; padding-right: 3mm; font-weight:bold; font-size:11.5pt; line-height:1.55; flex: 1;">
                     النيابـــــة العـــــامـة<br>
-                    نيابة مرور القاهرة المسائية
+                    <span class="masai-niaba-label" id="masai-niaba-label-2">نيابة مرور القاهرة المسائية</span>
                 </div>
                 <div style="text-align: left; flex-shrink: 0; padding-left: 8mm;">
                     <img src="logo.png" alt="شعار النيابة" style="width: 75px; height: auto;">
@@ -3069,7 +3080,7 @@ body[data-theme="dark"] .record-title { color: #7aaeff !important; }
                 <div style="display:flex; align-items:center; justify-content:space-between; direction:rtl; margin-bottom:2mm;">
                     <div style="text-align:center; padding-left:110mm; padding-right:3mm; font-weight:bold; font-size:11pt; line-height:1.5; flex:1;">
                         النيابـة العامـة<br>
-                        نيابة مرور القاهرة المسائية
+                        <span class="masai-niaba-label" id="masai-niaba-label-3">نيابة مرور القاهرة المسائية</span>
                     </div>
                     <div style="text-align:left; flex-shrink:0; padding-left:6mm;">
                         <img src="logo.png" alt="" style="width:65px; height:auto;">
@@ -3165,7 +3176,7 @@ body[data-theme="dark"] .record-title { color: #7aaeff !important; }
             <div style="display:flex; align-items:center; justify-content:space-between; direction:rtl; margin-bottom:1mm;">
                 <div style="text-align:center; padding-left:110mm; padding-right:3mm; font-weight:bold; font-size:11.5pt; line-height:1.55; flex:1;">
                     النيابـة العامـة<br>
-                    نيابة مرور القاهرة المسائية
+                    <span class="masai-niaba-label" id="masai-niaba-label-4">نيابة مرور القاهرة المسائية</span>
                 </div>
                 <div style="text-align:left; flex-shrink:0; padding-left:8mm;">
                     <img src="logo.png" alt="" style="width:75px; height:auto;">
@@ -3325,7 +3336,7 @@ body[data-theme="dark"] .record-title { color: #7aaeff !important; }
                 </div>
                 <div style="flex: 1; text-align: center; padding-left: 100mm; padding-right: 5mm;">
                     النيابـــــة العـــــامـة<br>
-                    نيابة مرور القاهرة المسائية
+                    <span class="masai-niaba-label" id="masai-niaba-label-5">نيابة مرور القاهرة المسائية</span>
                 </div>
             </div>
 
@@ -3787,13 +3798,24 @@ function niabaTimingIsAfterSixOne(now) {
 
 function niabaTimingCurrentMode() {
     const btn = document.getElementById('timing-toggle-btn');
-    return btn && btn.classList.contains('masai-mode') ? 'masai' : 'sabahi';
+    if (!btn) return 'sabahi';
+    if (btn.classList.contains('sabahi-alt-mode')) return 'sabahi_qahera';
+    if (btn.classList.contains('masai-mode')) return 'masai';
+    return 'sabahi';
+}
+
+// تحديث نص "نيابة مرور القاهرة ..." في كل نماذج الطباعة المسائية بناءً على المود الحالي
+// (المسائية أو الصباحية الجديدة نيابة مرور القاهرة الصباحية) — نفس المجموعة، الاسم بس بيختلف
+function updateMasaiNiabaLabels(mode) {
+    const label = mode === 'sabahi_qahera' ? 'نيابة مرور القاهرة الصباحية' : 'نيابة مرور القاهرة المسائية';
+    document.querySelectorAll('.masai-niaba-label').forEach(function(el) { el.textContent = label; });
 }
 
 function saveNiabaTimingState(mode, promptHandled) {
     try {
+        const validMode = (mode === 'masai' || mode === 'sabahi_qahera') ? mode : 'sabahi';
         localStorage.setItem(NIABA_TIMING_STORAGE_KEY, JSON.stringify({
-            mode: mode === 'masai' ? 'masai' : 'sabahi',
+            mode: validMode,
             date: niabaTimingDateKey(),
             promptHandled: Boolean(promptHandled)
         }));
@@ -3804,9 +3826,23 @@ function loadNiabaTimingState() {
     try {
         const raw = localStorage.getItem(NIABA_TIMING_STORAGE_KEY);
         const state = raw ? JSON.parse(raw) : null;
-        return state && (state.mode === 'masai' || state.mode === 'sabahi') ? state : null;
+        return state && (state.mode === 'masai' || state.mode === 'sabahi' || state.mode === 'sabahi_qahera') ? state : null;
     } catch (e) {
         return null;
+    }
+}
+
+// إظهار/إخفاء مجموعة أزرار مع ضمان إعادة تشغيل أنيميشن الظهور دايمًا،
+// حتى لو كانت المجموعة ظاهرة بالفعل من قبل (زي الانتقال بين المسائية والصباحية الجديدة،
+// واللي بيستخدموا نفس المجموعة #buttons-masai فمجرد toggle('active', true) ملوش تأثير عليهم)
+function showTimingGroup(groupEl, shouldShow) {
+    if (!groupEl) return;
+    if (shouldShow) {
+        groupEl.classList.remove('active');
+        void groupEl.offsetWidth; // إجبار المتصفح على إعادة الحساب قبل إضافة الكلاس تاني عشان الأنيميشن يشتغل من الأول
+        groupEl.classList.add('active');
+    } else {
+        groupEl.classList.remove('active');
     }
 }
 
@@ -3816,22 +3852,28 @@ function applyNiabaTimingMode(mode) {
     const masaiGroup = document.getElementById('buttons-masai');
     if (!btn) return;
     const isMasai = mode === 'masai';
-    btn.classList.toggle('sabahi-mode', !isMasai);
+    const isSabahiAlt = mode === 'sabahi_qahera';
+    const usesMasaiButtons = isMasai || isSabahiAlt;
+    btn.classList.toggle('sabahi-mode', !usesMasaiButtons);
     btn.classList.toggle('masai-mode', isMasai);
+    btn.classList.toggle('sabahi-alt-mode', isSabahiAlt);
     const icon = btn.querySelector('.icon');
     const text = btn.querySelector('.text');
-    if (icon) icon.textContent = isMasai ? '🌙' : '☀️';
-    if (text) text.textContent = isMasai ? 'النيابة المسائية' : 'النيابة الصباحية';
-    if (sabahiGroup) sabahiGroup.classList.toggle('active', !isMasai);
-    if (masaiGroup) masaiGroup.classList.toggle('active', isMasai);
+    if (icon) icon.textContent = isMasai ? '🌙' : (isSabahiAlt ? '🏙️' : '☀️');
+    if (text) text.textContent = isMasai ? 'النيابة المسائية' : (isSabahiAlt ? 'النيابة الصباحية' : 'نيابة مرور عين الصيرة');
+    showTimingGroup(sabahiGroup, !usesMasaiButtons);
+    showTimingGroup(masaiGroup, usesMasaiButtons);
+    updateMasaiNiabaLabels(mode);
 }
 
 function toggleNiabaTiming() {
-    const nextMode = niabaTimingCurrentMode() === 'sabahi' ? 'masai' : 'sabahi';
+    const current = niabaTimingCurrentMode();
+    // دورة: نيابة مرور عين الصيرة (الأساسية) → النيابة المسائية → النيابة الصباحية (القاهرة) → نفس الأولى ...
+    const nextMode = current === 'sabahi' ? 'masai' : (current === 'masai' ? 'sabahi_qahera' : 'sabahi');
     applyNiabaTimingMode(nextMode);
     // أي تغيير يدوي يُحفظ، ويُعتبر اختيارًا متعمدًا لهذا اليوم.
     saveNiabaTimingState(nextMode, true);
-    if (nextMode === 'masai') niabaEveningPromptOpen = false;
+    if (nextMode !== 'sabahi') niabaEveningPromptOpen = false;
 }
 
 function maybeShowNiabaEveningPrompt() {
@@ -3843,11 +3885,11 @@ function maybeShowNiabaEveningPrompt() {
 
     niabaEveningPromptOpen = true;
     showCustomConfirm(
-        'الساعة الآن هي ' + now.toLocaleTimeString('ar-EG', { hour: 'numeric', minute: '2-digit' }) + '، وأنت على وضع النيابة الصباحية.\nهل تريد تغيير وضع النيابة إلى المسائية؟',
+        'الساعة الآن هي ' + now.toLocaleTimeString('ar-EG', { hour: 'numeric', minute: '2-digit' }) + '، وأنت على وضع نيابة مرور عين الصيرة.\nهل تريد تغيير وضع النيابة إلى المسائية؟',
         {
             title: 'تنبيه وضع النيابة',
             confirmText: 'التغيير إلى النيابة المسائية',
-            cancelText: 'البقاء على النيابة الصباحية',
+            cancelText: 'البقاء على نيابة مرور عين الصيرة',
             onConfirm: function() {
                 niabaEveningPromptOpen = false;
                 applyNiabaTimingMode('masai');
@@ -3864,7 +3906,8 @@ function maybeShowNiabaEveningPrompt() {
 
 function initNiabaTimingPersistence() {
     const state = loadNiabaTimingState();
-    applyNiabaTimingMode(state && state.mode === 'masai' ? 'masai' : 'sabahi');
+    const restoredMode = state && (state.mode === 'masai' || state.mode === 'sabahi_qahera') ? state.mode : 'sabahi';
+    applyNiabaTimingMode(restoredMode);
     // فحص فوري بعد التحميل ثم متابعة الساعة دون تغيير الوضع تلقائيًا.
     setTimeout(maybeShowNiabaEveningPrompt, 250);
     if (niabaEveningPromptTimer) clearInterval(niabaEveningPromptTimer);
@@ -5444,13 +5487,20 @@ async function loadMahdarFromStorage() {
             selectDecision(d.currentDecision);
             
             // 💡 تحديث الزر بناءً على القرار المُسترجع (صباحي أم مسائي)
-            const isMasai = (d.currentDecision >= 5 && d.currentDecision <= 8);
+            const needsMasaiGroup = (d.currentDecision >= 5 && d.currentDecision <= 8);
             const btn = document.getElementById('timing-toggle-btn');
-            
-            // إذا كان المحضر مسائي والواجهة على الصباحي، أو العكس، قم بالتبديل
-            if (btn && ((isMasai && btn.classList.contains('sabahi-mode')) || 
-                (!isMasai && btn.classList.contains('masai-mode')))) {
-                toggleNiabaTiming();
+
+            // إذا كان المحضر مسائي (أو صباحية القاهرة) والواجهة على الأساسية، أو العكس، صحّح المود مباشرة
+            // (بدون استخدام دالة التدوير toggleNiabaTiming حتى لا نمر بمود غير مقصود مع 3 أوضاع)
+            if (btn) {
+                const inMasaiGroup = btn.classList.contains('masai-mode') || btn.classList.contains('sabahi-alt-mode');
+                if (needsMasaiGroup && !inMasaiGroup) {
+                    applyNiabaTimingMode('masai');
+                    saveNiabaTimingState('masai', true);
+                } else if (!needsMasaiGroup && inMasaiGroup) {
+                    applyNiabaTimingMode('sabahi');
+                    saveNiabaTimingState('sabahi', true);
+                }
             }
             
         } else {

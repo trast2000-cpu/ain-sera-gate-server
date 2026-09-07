@@ -2206,6 +2206,7 @@ box-sizing: border-box;
                     <option value="الملازم">الملازم</option>
                     <option value="النقيب">النقيب</option>
                     <option value="الرائد">الرائد</option>
+                    <option value="المقدم">المقدم</option>
                     <option value="العقيد">العقيد</option>
                     <option value="العميد">العميد</option>
                     <option value="other">أخرى</option>
@@ -2594,13 +2595,19 @@ box-sizing: border-box;
             </div>
 
             <!-- قرار العرض للتصرف -->
-            <div style="display: flex; gap: 8px; align-items: flex-start; margin-bottom: 8px; border-top: 1px dashed #ccc; padding-top: 8px;">
+            <div style="display: flex; gap: 8px; align-items: stretch; margin-bottom: 8px; border-top: 1px dashed #ccc; padding-top: 8px;">
                 <div style="flex: 0 0 auto; width: 250px; display: flex; flex-direction: column; gap: 4px;">
                     <label style="font-size: 12px; font-weight: bold;">العرض للتصرف</label>
                     <select id="disposal_decision" class="persist" onchange="updateDisposalDecisionUI(); saveData();">
                         <option value="yes" selected >العرض للتصرف</option>
                         <option value="no">بدون عرض للتصرف</option>
                     </select>
+                    <div style="flex: 1; display: flex; align-items: flex-end;">
+                        <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:#1e2b46;cursor:pointer;white-space:nowrap;" title="عند التفعيل تُطبع صفحة قرار القسم مرتين متتاليتين: نسخة لمرفقات المحضر ونسخة لحرس القسم">
+                            <input type="checkbox" id="extra_police_copy" onchange="localStorage.setItem('extra_police_copy', this.checked ? '1' : '0')">
+                            طباعة نسختين من قرار القسم
+                        </label>
+                    </div>
                 </div>
                 <div style="flex: 1; display: flex; flex-direction: column;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px;">
@@ -2884,12 +2891,13 @@ let sidebarPinned = false;
             return;
         }
         reportPrintedAwaitingSave = true;
+        // تذكير بصري فقط على الزر (بدون توست وبدون نافذة تحذير) — لمن يريد
+        // الاحتفاظ بنسخة TXT يدوية اختيارية، فالمحضر محفوظ فعلياً على السيرفر.
         const saveButton = document.querySelector('.btn-save-file');
         if (saveButton) {
             saveButton.classList.add('needs-save');
-            saveButton.title = 'تمت طباعة المحضر — اضغط لحفظه كملف TXT';
+            saveButton.title = 'تمت طباعة المحضر — اضغط لحفظه كملف TXT (اختياري، المحضر محفوظ بالفعل على السيرفر)';
         }
-        showReportSaveToast();
     }
 
     function markReportSaved(savedData) {
@@ -3034,6 +3042,10 @@ document.addEventListener('DOMContentLoaded', function() {
         panel.classList.add('pinned');
         document.getElementById('pinBtn').classList.add('pinned');
     }
+
+    // استعادة حالة مربع اختيار "طباعة قرار القسم نسختين"
+    const extraPoliceCopyChk = document.getElementById('extra_police_copy');
+    if (extraPoliceCopyChk) extraPoliceCopyChk.checked = localStorage.getItem('extra_police_copy') === '1';
 
     // استعادة حالة مربع اختيار بيانات المتهم
     const savedDefDataState = localStorage.getItem('show_defendant_data');
@@ -4302,13 +4314,22 @@ async function saveMahdarToServer() {
         }
         
         // إظهار الحقول المخفية
-        const checkOther = (id, targetId) => {
-            const el = document.getElementById(id);
-            if (el && el.value === 'other') document.getElementById(targetId).style.display = 'block';
-        };
-        checkOther('police_station', 'police_station_other');
-        checkOther('prosecution_name', 'prosecution_name_other');
-        checkOther('off_rank', 'off_rank_other_wrapper');
+    const checkOther = (id, targetId) => {
+        const el = document.getElementById(id);
+        const target = document.getElementById(targetId);
+        if (el && target) {
+            target.style.display = (el.value === 'other') ? 'block' : 'none';
+        }
+    };
+    checkOther('police_station', 'police_station_other');
+    checkOther('prosecution_name', 'prosecution_name_other');
+    checkOther('off_rank', 'off_rank_other_wrapper');
+    checkOther('v_type', 'v_other'); // تم الإضافة
+    checkOther('prosecutor', 'pros_other'); // تم الإضافة
+        if (document.getElementById('off_rank') && document.getElementById('off_rank').value === 'other') {
+            const offRankOtherInput = document.getElementById('off_rank_other');
+            if (offRankOtherInput) offRankOtherInput.style.display = 'block'; // نفس إصلاح toggleOtherRankInput، لازم للحقل نفسه لا الحاوية فقط
+        }
         checkOther('recorder_type', 'recorder_type_other');
         
         // استعادة الاستايل المختار
@@ -4534,51 +4555,45 @@ async function saveMahdarToServer() {
             showCustomAlert("تم مسح كافة البيانات بنجاح مع الإبقاء على اسئلة التحقيق الثابتة.");
         };
 
-        if (hasUnsavedPrintedReport()) {
-            openUnsavedReportModal('مسح البيانات', () => {
-                continueClear();
-                // ننتظر اكتمال تلاشي نافذة "حفظ المحضر قبل المسح" بصرياً
-                // قبل إظهار رسالة النجاح حتى لا تتداخل الرسالتان
-                setTimeout(announceCleared, 260);
-            });
-        } else {
-            // إعادة استخدام نافذة التأكيد المخصصة مع إعدادها لمسح البيانات
-            const title = document.getElementById('import-confirm-modal-title');
-            const message = document.getElementById('import-confirm-modal-message');
-            const proceedButton = document.getElementById('import-confirm-proceed-btn');
-            const overlay = document.getElementById('import-confirm-modal-overlay');
-            if (title) title.textContent = 'مسح جميع البيانات';
-            if (message) message.textContent = 'هل أنت متأكد من مسح جميع البيانات؟';
-            if (proceedButton) {
-                proceedButton.textContent = 'مسح البيانات';
-                proceedButton.classList.add('danger');
-            }
-            pendingImportConfirmAction = () => {
-                continueClear();
-                // ننتظر اختفاء نافذة التأكيد قبل عرض الرسالة المعلوماتية
-                setTimeout(announceCleared, 260);
-            };
-            if (importConfirmKeyHandler) {
-                document.removeEventListener('keydown', importConfirmKeyHandler, true);
-            }
-            importConfirmKeyHandler = function(e) {
-                const activeOverlay = document.getElementById('import-confirm-modal-overlay');
-                if (!activeOverlay || !activeOverlay.classList.contains('show')) return;
-                if (e.key === 'Escape') {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    closeImportConfirmModal();
-                } else if (e.key === 'Enter' || e.key === ' ' || e.code === 'Space') {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    showKeyboardPressFeedback(proceedButton);
-                    proceedWithImportConfirm();
-                }
-            };
-            if (overlay) overlay.classList.add('show');
-            document.addEventListener('keydown', importConfirmKeyHandler, true);
-            if (proceedButton) requestAnimationFrame(() => proceedButton.focus());
+        // إعادة استخدام نافذة التأكيد المخصصة مع إعدادها لمسح البيانات
+        // (لم نعد نعرض تحذير "احفظ كملف TXT أولاً" لأن المحضر يُحفظ تلقائياً
+        // على قاعدة بيانات السيرفر الخارجي قبل كل طباعة، ويمكن استرجاعه لاحقاً
+        // من قائمة المحاضر المحفوظة أو زر البحث والاستيراد.)
+        const title = document.getElementById('import-confirm-modal-title');
+        const message = document.getElementById('import-confirm-modal-message');
+        const proceedButton = document.getElementById('import-confirm-proceed-btn');
+        const overlay = document.getElementById('import-confirm-modal-overlay');
+        if (title) title.textContent = 'مسح جميع البيانات';
+        if (message) message.textContent = 'هل أنت متأكد من مسح جميع البيانات؟';
+        if (proceedButton) {
+            proceedButton.textContent = 'مسح البيانات';
+            proceedButton.classList.add('danger');
         }
+        pendingImportConfirmAction = () => {
+            continueClear();
+            // ننتظر اختفاء نافذة التأكيد قبل عرض الرسالة المعلوماتية
+            setTimeout(announceCleared, 260);
+        };
+        if (importConfirmKeyHandler) {
+            document.removeEventListener('keydown', importConfirmKeyHandler, true);
+        }
+        importConfirmKeyHandler = function(e) {
+            const activeOverlay = document.getElementById('import-confirm-modal-overlay');
+            if (!activeOverlay || !activeOverlay.classList.contains('show')) return;
+            if (e.key === 'Escape') {
+                e.preventDefault();
+                e.stopPropagation();
+                closeImportConfirmModal();
+            } else if (e.key === 'Enter' || e.key === ' ' || e.code === 'Space') {
+                e.preventDefault();
+                e.stopPropagation();
+                showKeyboardPressFeedback(proceedButton);
+                proceedWithImportConfirm();
+            }
+        };
+        if (overlay) overlay.classList.add('show');
+        document.addEventListener('keydown', importConfirmKeyHandler, true);
+        if (proceedButton) requestAnimationFrame(() => proceedButton.focus());
     }
 
 
@@ -4932,6 +4947,28 @@ window.onload = function() {
         return String(html).replace(pattern, '<span class="print-keep">( ' + value + ' )</span>');
     }
 
+    // حارس عام لمنع انكسار عناصر معينة بين سطرين عند الطباعة:
+    // 1) التواريخ (أرقام غربية أو عربية مفصولة بـ / أو -) مثل 10-4-2031 أو ٢٠٢٦/٩/٧
+    // 2) أي نص محاط بقوسين ( ... )
+    // 3) آخر كلمة قبل علامة استفهام في نهاية النص، حتى لا تنفرد وحدها بسطر جديد
+    // يُطبَّق هذا على النص الخام قبل أي لف بوسوم HTML أخرى لتفادي التعارض معها.
+    function guardTextForPrint(text) {
+        let result = String(text == null ? '' : text);
+        if (!result.trim()) return result;
+
+        // 1) التواريخ
+        result = result.replace(/[0-9\u0660-\u0669]{1,4}[\/\-][0-9\u0660-\u0669]{1,4}(?:[\/\-][0-9\u0660-\u0669]{1,4})?/g,
+            m => '<span class="print-keep">' + m + '</span>');
+
+        // 2) النصوص بين قوسين (بدون وسوم HTML بداخلها حتى لا نتعارض مع لفّ سابق)
+        result = result.replace(/\([^()<>]*\)/g, m => '<span class="print-keep">' + m + '</span>');
+
+        // 3) ربط آخر كلمتين معًا عندما ينتهي النص بعلامة استفهام حتى لا تنفرد الكلمة الأخيرة بسطر
+        result = result.replace(/(\S+)(\s+)(\S*[؟?]["'”»]*)\s*$/, (m, w1, sp, w2) => w1 + '\u00A0' + w2);
+
+        return result;
+    }
+
     function buildProsecutionDecision(def, vType, plate, sizeNum) {
         const releaseType = document.getElementById('release_type').value;
         const vehicleDecision = document.getElementById('vehicle_decision').value;
@@ -4946,7 +4983,7 @@ window.onload = function() {
         const bailWords = tafqeet(bailVal);
         
         const boldifyVariables = (text) => {
-            let processedText = text;
+            let processedText = guardTextForPrint(text);
             
             // 1. اسم المتهم
             if (defName) {
@@ -5047,7 +5084,7 @@ window.onload = function() {
         const bailWords = tafqeet(bailVal);
         
         const boldifyVariables = (text) => {
-            let processedText = text;
+            let processedText = guardTextForPrint(text);
             if (defName) processedText = processedText.split(defName).join(`<span class="var-text" style="font-size: ${sizeNum + 2}px; font-weight: bold;">${defName}</span>`);
             if (vType) processedText = processedText.split(vType).join(`<span class="var-text" style="font-size: ${sizeNum + 2}px; font-weight: bold;">${vType}</span>`);
             if (plate) processedText = processedText.split(plate).join(`<span class="var-text" style="font-size: ${sizeNum + 2}px; font-weight: bold;">${plate}</span>`);
@@ -5099,7 +5136,7 @@ window.onload = function() {
         
         let decisionsHtml = decisions.map(d => `<p style="margin-top:8px; line-height: 1.5;">${d.replace(/^(أولاً|ثانياً|ثالثاً|رابعاً|خامساً|سادساً|سابعاً|ثامناً|تاسعاً|عاشراً)/, '<strong style="font-weight:900;">$1</strong>')}</p>`).join('');
         
-        return `
+        const policeDecisionPageHtml = `
             <div style="margin-top: 30px; page-break-before: always;">
                 <p style="font-weight: bold; font-size: ${sizeNum + 6}px; text-align: center;">السيد مأمور قسم شرطة <span class="var-text">${policeStation}</span></p>
                 <p style="font-weight: bold; font-size: ${sizeNum + 4}px; text-align: center;">تحية طيبة وبعد،،،</p>
@@ -5107,6 +5144,12 @@ window.onload = function() {
                 ${decisionsHtml}
             </div>
         `;
+
+        // عند تفعيل خيار "طباعة قرار القسم نسختين" تُكرر نفس الصفحة على ورقة ثانية مستقلة
+        // (لأن كل نسخة تبدأ بـ page-break-before: always) — نسخة للمرفقات وأخرى لحرس القسم.
+        const extraCopyChk = document.getElementById('extra_police_copy');
+        const wantsExtraCopy = extraCopyChk && extraCopyChk.checked;
+        return wantsExtraCopy ? (policeDecisionPageHtml + policeDecisionPageHtml) : policeDecisionPageHtml;
     }
 
     function buildReportContent() {
@@ -5125,7 +5168,7 @@ window.onload = function() {
 let questionsHtml = "";
         let closingQuestionHtml = "";
         const keepPrintValues = (text) => {
-            let result = String(text || '');
+            let result = guardTextForPrint(text);
             if (vType) result = result.split(vType).join(`<span class="print-keep">${vType}</span>`);
             if (plate) result = result.split(plate).join(`<span class="print-keep">${plate}</span>`);
             return keepPlateParenthesesTogether(result, plate);
@@ -5136,14 +5179,14 @@ let questionsHtml = "";
                 const questionText = keepPrintValues(item.q.split('حياته').join('حياتك'));
                 const questionBlock = `
                     <span class="question-block" style="font-size: ${sizeNum + 1}px;">س/ ${questionText}</span>
-                    <span class="answer-block" style="font-size: ${sizeNum}px;">ج/ ${item.a}</span>
+                    <span class="answer-block" style="font-size: ${sizeNum}px;">ج/ ${keepPrintValues(item.a)}</span>
                 `;
                 const notes = Array.isArray(item.notes) ? item.notes : (item.note ? [item.note] : []);
                 let notesBlock = "";
                 notes.forEach(note => {
                     if (note && note.trim() !== "") {
                         notesBlock += `
-                        <span class="note-block" style="font-size: ${sizeNum}px; font-style: normal;">ملحوظة :ـ ${note}</span>
+                        <span class="note-block" style="font-size: ${sizeNum}px; font-style: normal;">ملحوظة :ـ ${keepPrintValues(note)}</span>
                         `;
                     }
                 });
@@ -5165,13 +5208,13 @@ let questionsHtml = "";
                 const newQuestion = keepPlateParenthesesTogether(`انت متهم بقيادة المركبة ( <span class="print-keep">${vType}</span> ) رقم(<span class="print-keep">${plate}</span>) مرتكبا مخالفة / ${violText}`, plate);
                 violationQuestionsHtml += `
                     <span class="question-block" style="font-size: ${sizeNum + 1}px;">س/ ${newQuestion}</span>
-                    <span class="answer-block" style="font-size: ${sizeNum}px;">ج/ ${item.a}</span>
+                    <span class="answer-block" style="font-size: ${sizeNum}px;">ج/ ${keepPrintValues(item.a)}</span>
                 `;
                 const notes = Array.isArray(item.notes) ? item.notes : (item.note ? [item.note] : []);
                 notes.forEach(note => {
                     if (note && note.trim() !== "") {
                         violationQuestionsHtml += `
-                        <span class="note-block" style="font-size: ${sizeNum}px; font-style: normal;">ملحوظة :ـ ${note}</span>
+                        <span class="note-block" style="font-size: ${sizeNum}px; font-style: normal;">ملحوظة :ـ ${keepPrintValues(note)}</span>
                         `;
                     }
                 });
@@ -5235,7 +5278,7 @@ let questionsHtml = "";
                   if (item.q.trim() !== '') {
                       const qBlock = `
                           <span class="question-block" style="font-size: ${sizeNum + 1}px;">س/ ${keepPrintValues(item.q)}</span>
-                          <span class="answer-block" style="font-size: ${sizeNum}px;">ج/ ${item.a}</span>
+                          <span class="answer-block" style="font-size: ${sizeNum}px;">ج/ ${keepPrintValues(item.a)}</span>
                       `;
                       const notes = Array.isArray(item.notes) ? item.notes : (item.note ? [item.note] : []);
                       let hasNote = false;
@@ -5244,7 +5287,7 @@ let questionsHtml = "";
                           if (note && note.trim() !== '') {
                               hasNote = true;
                               notesBlock += `
-                          <span class="note-block" style="font-size: ${sizeNum}px; font-style: normal;">ملحوظة :ـ ${note}</span>
+                          <span class="note-block" style="font-size: ${sizeNum}px; font-style: normal;">ملحوظة :ـ ${keepPrintValues(note)}</span>
                               `;
                           }
                       });
@@ -5270,13 +5313,13 @@ let questionsHtml = "";
                       const newQuestion = keepPlateParenthesesTogether(`أنت متهم بقيادة <span class="print-keep">${vType}</span> الرقيمة ( <span class="print-keep">${plate}</span> ) مرتكبا مخالفة / ${item.viol} على النحو المبين بالتحقيقات؟`, plate);
                       objViolQuestionsHtml += `
                           <span class="question-block" style="font-size: ${sizeNum + 1}px;">س/ ${newQuestion}</span>
-                          <span class="answer-block" style="font-size: ${sizeNum}px;">ج/ ${item.a}</span>
+                          <span class="answer-block" style="font-size: ${sizeNum}px;">ج/ ${keepPrintValues(item.a)}</span>
                       `;
                       const notes = Array.isArray(item.notes) ? item.notes : (item.note ? [item.note] : []);
                       notes.forEach(note => {
                           if (note && note.trim() !== '') {
                               objViolQuestionsHtml += `
-                          <span class="note-block" style="font-size: ${sizeNum}px; font-style: normal;">ملحوظة :ـ ${note}</span>
+                          <span class="note-block" style="font-size: ${sizeNum}px; font-style: normal;">ملحوظة :ـ ${keepPrintValues(note)}</span>
                               `;
                           }
                       });
@@ -5728,11 +5771,11 @@ function applyLoadedData(data) {
                 const el = document.getElementById(id);
                 if (el) {
                     el.value = value;
-                    if (id === 'prosecutor' && value === 'other') document.getElementById('pros_other').style.display = 'block';
-                    if (id === 'v_type' && value === 'other') document.getElementById('v_other').style.display = 'block';
-                    if (id === 'plate_mode' && value === 'manual') document.getElementById('plate_manual_container').style.display = 'flex';
-                    if (id === 'police_station' && value === 'other') document.getElementById('police_station_other').style.display = 'block';
-                    if (id === 'prosecution_name' && value === 'other') document.getElementById('prosecution_name_other').style.display = 'block';
+                    if (id === 'prosecutor') document.getElementById('pros_other').style.display = (value === 'other') ? 'block' : 'none';
+                if (id === 'v_type') document.getElementById('v_other').style.display = (value === 'other') ? 'block' : 'none';
+                if (id === 'plate_mode') document.getElementById('plate_manual_container').style.display = (value === 'manual') ? 'flex' : 'none';
+                if (id === 'police_station') document.getElementById('police_station_other').style.display = (value === 'other') ? 'block' : 'none';
+                if (id === 'prosecution_name') document.getElementById('prosecution_name_other').style.display = (value === 'other') ? 'block' : 'none';
                 }
             }
         }
@@ -5765,11 +5808,19 @@ function applyLoadedData(data) {
             }
         }
         
+        const preSwitch_vehicleDecision = document.getElementById('vehicle_decision')      ? document.getElementById('vehicle_decision').value      : null;
         const preSwitch_vehicleText   = document.getElementById('vehicle_decision_text')   ? document.getElementById('vehicle_decision_text').value   : null;
         const preSwitch_releaseText   = document.getElementById('release_decision_text')   ? document.getElementById('release_decision_text').value   : null;
         const preSwitch_forensicText  = document.getElementById('forensic_decision_text')  ? document.getElementById('forensic_decision_text').value  : null;
         const preSwitch_engineerText  = document.getElementById('engineer_decision_text')  ? document.getElementById('engineer_decision_text').value  : null;
         const preSwitch_disposalText  = document.getElementById('disposal_decision_text')  ? document.getElementById('disposal_decision_text').value  : null;
+
+        // يجب تحديث المتغير العام savedMainVehicleDecision بقيمة القرار المستوردة فعليًا؛
+        // وإلا فإن switchMode('main', ...) بالأسفل سيستبدل قرار المركبة المستورد بالقيمة
+        // الافتراضية 'hold' المخزنة في هذا المتغير منذ تحميل الصفحة (سبب مشكلة عدم حفظ القرار).
+        if (preSwitch_vehicleDecision !== null && (!data.reportMode || data.reportMode === 'main')) {
+            savedMainVehicleDecision = preSwitch_vehicleDecision;
+        }
 
         if (data.reportMode && (data.reportMode === 'main' || data.reportMode === 'bail_reduction' || data.reportMode === 'objection')) {
             if (data.reportMode === 'bail_reduction') {
@@ -5789,6 +5840,9 @@ function applyLoadedData(data) {
             switchMode(data.reportMode, { skipAnimation: true });
         }
 
+        // إعادة قيمة قرار المركبة كما جاءت من المحضر المحفوظ، لأن switchMode قد يستبدلها
+        // بقيمة افتراضية أثناء عملية التبديل الداخلية.
+        if (preSwitch_vehicleDecision !== null) document.getElementById('vehicle_decision').value = preSwitch_vehicleDecision;
         if (preSwitch_vehicleText  !== null) document.getElementById('vehicle_decision_text').value   = preSwitch_vehicleText;
         if (preSwitch_releaseText  !== null) document.getElementById('release_decision_text').value   = preSwitch_releaseText;
         if (preSwitch_forensicText !== null) document.getElementById('forensic_decision_text').value  = preSwitch_forensicText;
@@ -6136,6 +6190,7 @@ function applyLoadedData(data) {
         
         if (rankSelect.value === 'other') {
             otherWrapper.style.display = 'block';
+            otherInput.style.display = 'block'; // الحقل نفسه عليه display:none من كلاس other-input، والحاوية وحدها ما كانتش كافية لإظهاره
             otherInput.focus();
         } else {
             otherWrapper.style.display = 'none';
@@ -6446,7 +6501,7 @@ function applyLoadedData(data) {
     // دالة مساعدة لبناء HTML فقرات الديباجة
     function buildCustomPreambleHTML(mode, extraVars) {
         const paras = getCurrentPreamble(mode);
-        return paras.map(p => `<p>${replacePreambleVars(p.text, extraVars || {})}</p>`).join('\n');
+        return paras.map(p => `<p>${guardTextForPrint(replacePreambleVars(p.text, extraVars || {}))}</p>`).join('\n');
     }
 
     // إغلاق النافذة بالضغط على الخلفية
@@ -7508,12 +7563,9 @@ ${cairoFontFaceTag2}
     }
 
     function clearAllDataSilent() {
-        const continueClear = () => performClearAllDataSilent();
-        if (hasUnsavedPrintedReport()) {
-            openUnsavedReportModal('المسح', continueClear);
-        } else {
-            continueClear();
-        }
+        // لم نعد نعرض تحذير "احفظ كملف TXT أولاً" قبل المسح السريع (F9)؛
+        // المحضر محفوظ بالفعل على قاعدة بيانات السيرفر منذ آخر طباعة.
+        performClearAllDataSilent();
     }
 
     // ── فحص: هل يوجد بيانات فعلية مدخلة حالياً في النموذج؟ ──
