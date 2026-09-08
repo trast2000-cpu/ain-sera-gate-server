@@ -1,5 +1,7 @@
-// هذا الكود يجلب الآي بي الخاص بالجهاز تلقائياً ليتصل بالسيرفر
-const SERVER_URL = `http://${window.location.hostname}:3000/api/data`;
+// استخدام مسار نسبي ليعمل تلقائياً على السيرفر المحلي وعلى Vercel بأمان وبدون حظر
+const SERVER_URL = (window.location.protocol.startsWith('http')) 
+    ? '/api/data' 
+    : `http://${window.location.hostname || 'localhost'}:3000/api/data`;
 
 // هوية موحدة للمحضر تستخدمها كل الأنظمة.
 // لا نغيّر شكل الحروف العربية (مثل ة) حتى تظل المفاتيح القديمة صالحة،
@@ -46,7 +48,7 @@ async function fetchServerData() {
     try {
         let res = await fetch(SERVER_URL, { 
             method: 'GET',
-            cache: 'no-store', // منع المتصفح من استخدام النسخة القديمة
+            cache: 'no-store',
             headers: {
                 'Cache-Control': 'no-cache, no-store, must-revalidate',
                 'Pragma': 'no-cache',
@@ -64,7 +66,6 @@ async function fetchServerData() {
         return data;
     } catch(error) {
         console.error("خطأ في الاتصال بالسيرفر:", error);
-        // إرجاع هيكل سليم في حالة فشل الاتصال عشان النظام ميعطلش
         return { mahdar_index: [] };
     }
 }
