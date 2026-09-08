@@ -182,7 +182,21 @@ option[data-category="dark"] {
         .case-summary-row.case-summary-linked-row .case-summary-value { color: #581c87; }
         body[data-theme="dark"] .case-summary-row.case-summary-linked-row { background: rgba(107, 33, 168, 0.18); border-color: #7e3fb3; }
         body[data-theme="dark"] .case-summary-row.case-summary-linked-row .case-summary-label { color: #d8b4fe; }
-        body[data-theme="dark"] .case-summary-row.case-summary-linked-row .case-summary-value { color: #e9d5ff; }
+                body[data-theme="dark"] .case-summary-row.case-summary-linked-row .case-summary-value { color: #e9d5ff; }
+        /* صف المحضر الأساسي عند البحث برقم محضر الجلسة: تمييز أخضر/ذهبي هادئ */
+        .case-summary-row.case-summary-primary-row {
+            background: #ecfdf5;
+            border: 1px solid #86efac;
+            border-radius: 8px;
+            padding: 7px 9px;
+            margin-top: 4px;
+        }
+        .case-summary-row.case-summary-primary-row .case-summary-label { color: #166534; white-space: nowrap; font-size: 12px; }
+        .case-summary-row.case-summary-primary-row .case-summary-value { color: #14532d; }
+        body[data-theme="dark"] .case-summary-row.case-summary-primary-row { background: rgba(22, 101, 52, 0.2); border-color: #4ade80; }
+        body[data-theme="dark"] .case-summary-row.case-summary-primary-row .case-summary-label { color: #bbf7d0; }
+        body[data-theme="dark"] .case-summary-row.case-summary-primary-row .case-summary-value { color: #dcfce7; }
+
         body[data-theme="dark"] .case-summary-panel { background: #17243b; border-color: #2d4060; color: #e2e8f0; }
         body[data-theme="dark"] .case-summary-empty { background: rgba(15, 23, 42, 0.42); border-color: #385273; color: #94a3b8; }
         body[data-theme="dark"] .case-summary-row { border-color: #2d4060; }
@@ -2035,6 +2049,10 @@ body[data-theme="dark"] .rec-date { color: #64748b !important; }
                 <div class="case-summary-row">
                     <span class="case-summary-label">نوع المحضر</span>
                     <span id="summary-type" class="case-summary-value"><span class="case-summary-status type">—</span></span>
+                </div>
+                <div id="summary-primary-row" class="case-summary-row case-summary-primary-row" style="display:none;">
+                    <span class="case-summary-label">المحضر الاساسي : </span>
+                    <span id="summary-primary" class="case-summary-value">—</span>
                 </div>
                 <div class="case-summary-section-title">بنود الاتهام</div>
                 <ul id="summary-violations" class="case-summary-list"><li>—</li></ul>
@@ -4862,13 +4880,45 @@ if (window.isPresetRunning) return;
             if (type) type.innerHTML = '<span class="case-summary-status type">—</span>';
             const payment = document.getElementById('summary-payment');
             if (payment) payment.innerHTML = '<span class="case-summary-status unpaid">غير مسدد</span>';
-            ['summary-linked-row','summary-session-date-row','summary-linked-violation-row'].forEach(id => {
+            ['summary-primary-row','summary-linked-row','summary-session-date-row','summary-linked-violation-row'].forEach(id => {
                 const row = document.getElementById(id);
                 if (row) row.style.display = 'none';
             });
         }
 
-        function renderCaseSummary(data, linkedData) {
+        async function findPrimaryMahdarForSession(sessionData) {
+            if (!sessionData) return null;
+            const nationalId = String(sessionData.nationalId || '').trim();
+            const year = String(sessionData.year || '').trim();
+            const dept = String(sessionData.dept || sessionData.department || '').trim();
+            const incidentDate = String(sessionData.incidentDate || '').trim();
+            const sessionCaseNum = normalizePostPaymentLinkValue(sessionData.caseNum);
+            if (!nationalId || !year || !dept || !incidentDate) return null;
+
+            try {
+                const db = await fetchServerData();
+                const index = Array.isArray(db.mahdar_index) ? db.mahdar_index : [];
+                const candidates = [];
+                index.forEach(function(key) {
+                    try {
+                        const candidate = db[key];
+                        if (!candidate) return;
+                        if (normalizePostPaymentLinkValue(candidate.caseNum) === sessionCaseNum) return;
+                        if (normalizePostPaymentLinkValue(candidate.nationalId) !== normalizePostPaymentLinkValue(nationalId)) return;
+                        if (normalizePostPaymentLinkValue(candidate.year) !== normalizePostPaymentLinkValue(year)) return;
+                        if (normalizePostPaymentLinkValue(candidate.dept || candidate.department) !== normalizePostPaymentLinkValue(dept)) return;
+                        if (normalizePostPaymentLinkValue(candidate.incidentDate) !== normalizePostPaymentLinkValue(incidentDate)) return;
+                        if (typeof isSessionRecord === 'function' && isSessionRecord(candidate)) return;
+                        candidates.push(candidate);
+                    } catch (e) {}
+                });
+                return candidates.length ? candidates[candidates.length - 1] : null;
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function renderCaseSummary(data, linkedData, primaryData) {
             if (!data) { clearCaseSummary(); return; }
             const empty = document.getElementById('case-summary-empty');
             const content = document.getElementById('case-summary-content');
@@ -4891,6 +4941,17 @@ if (window.isPresetRunning) return;
                 : sessionKeywords.length > 0;
             const type = document.getElementById('summary-type');
             if (type) type.innerHTML = `<span class="case-summary-status ${isSession ? 'session' : 'type'}">${isSession ? 'جلسة' : 'غرامة'}</span>`;
+
+            const primaryRow = document.getElementById('summary-primary-row');
+            const primaryEl = document.getElementById('summary-primary');
+            if (primaryData && primaryData.caseNum && isSession) {
+                const primaryDept = primaryData.dept || primaryData.department || '—';
+                if (primaryEl) primaryEl.textContent = `${primaryData.caseNum} / ${primaryData.year || data.year || '—'} / ${primaryDept}`;
+                if (primaryRow) primaryRow.style.display = 'flex';
+            } else {
+                if (primaryRow) primaryRow.style.display = 'none';
+                if (primaryEl) primaryEl.textContent = '—';
+            }
 
             const violations = document.getElementById('summary-violations');
             const violationItems = Array.isArray(data.violations)
@@ -5138,7 +5199,8 @@ if (window.isPresetRunning) return;
 
             // بعد استيراد المحضر الأساسي مباشرة، ابحث عن المحضر المرتبط ثم اعرض توستًا واحدًا فقط.
             const linkedData = await importLinkedSessionMahdar();
-            renderCaseSummary(data, linkedData);
+            const primaryData = isSessionRecord(data) ? await findPrimaryMahdarForSession(data) : null;
+            renderCaseSummary(data, linkedData, primaryData);
             const primaryToastLine = '✔ تم تحميل بيانات المحضر (' + caseNum + ' / ' + year + ' / ' + dept + ') بنجاح';
             if (linkedData) {
                 showLookupToast([

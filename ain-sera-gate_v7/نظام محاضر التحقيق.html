@@ -8957,9 +8957,9 @@ async function loadInvArchiveToSidebar() {
   btn.className = 'inv-record-btn inv-record-parent' + (children.length ? ' has-children' : '');
   btn.innerHTML = '<div class="inv-record-title"><span>📄 ' + (primary.caseNum || '—') + ' / ' + (primary.year || '') + '</span>' +
   '<span style="display:flex;align-items:center;gap:5px;">' +
+  (children.length ? '<span class="inv-expand-arrow" title="عرض/إخفاء ' + children.length + ' نسخة تابعة (تخفيض كفالة)">' + children.length + ' تابع <b>⌄</b></span>' : '') +
   paidBadgeHtml +
   '<span class="record-type-badge ' + badgeClass + '" title="' + badgeTitle + '">' + badgeLabel + '</span>' +
-  (children.length ? '<span class="inv-expand-arrow" title="عرض/إخفاء ' + children.length + ' نسخة تابعة (تخفيض كفالة)">' + children.length + ' تابع <b>⌄</b></span>' : '') +
   '</span></div>' +
   '<div class="inv-record-sub-row"><span class="inv-rec-name">👤 ' + shortName + '</span><span class="inv-rec-date">' + dateOnly + '</span></div>';
 
