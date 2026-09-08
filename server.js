@@ -77,28 +77,7 @@ const server = http.createServer(async (req, res) => {
         return res.end();
     }
 
-    // رابط ترحيل البيانات القديمة من data.json إلى Upstash
-    if (req.url === '/api/migrate' && req.method === 'GET') {
-        try {
-            if (!fs.existsSync(DATA_FILE)) {
-                res.writeHead(404, { 'Content-Type': 'text/html; charset=utf-8' });
-                return res.end('<h3>ملف data.json غير موجود على السيرفر</h3>');
-            }
-            const fileData = fs.readFileSync(DATA_FILE, 'utf8');
-            const parsed = JSON.parse(fileData);
-            if (redis) {
-                await redis.set(REDIS_KEY, JSON.stringify(parsed));
-                res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
-                return res.end('<h2>✅ تم ضخ جميع المحاضر القديمة إلى السحابة بنجاح!</h2><p>يمكنك الآن الرجوع للصفحة الرئيسية وتحديثها.</p>');
-            } else {
-                res.writeHead(500, { 'Content-Type': 'text/html; charset=utf-8' });
-                return res.end('قاعدة بيانات Upstash غير متصلة.');
-            }
-        } catch (err) {
-            res.writeHead(500, { 'Content-Type': 'text/html; charset=utf-8' });
-            return res.end('خطأ أثناء الترحيل: ' + err.message);
-        }
-    }
+    
 
     // 1. مسار جلب البيانات
     if (req.url === '/api/data' && req.method === 'GET') {
