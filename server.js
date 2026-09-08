@@ -3,7 +3,6 @@ const fs = require('fs');
 const path = require('path');
 const { Redis } = require('@upstash/redis');
 
-// إصلاح مشكلة ظهور الحروف العربية كمربعات في شاشة CMD على ويندوز:
 if (process.platform === 'win32') {
     try {
         require('child_process').execSync('chcp 65001', { stdio: 'ignore' });
@@ -15,7 +14,6 @@ const DATA_FILE = path.join(__dirname, 'data.json');
 const PUBLIC_DIR = path.join(__dirname, 'ain-sera-gate_v7');
 const REDIS_KEY = 'ain_sera_database_records';
 
-// محاولة الاتصال بقاعدة البيانات السحابية (تعمل فقط على Vercel)
 let redis;
 try {
     if (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN) {
@@ -23,7 +21,6 @@ try {
     }
 } catch (e) {}
 
-// منع فقدان تحديث أحد النظامين إذا وصل طلبان للحفظ في نفس الوقت
 let recordWriteQueue = Promise.resolve();
 function enqueueRecordWrite(task) {
     const operation = recordWriteQueue.then(task, task);
@@ -31,7 +28,6 @@ function enqueueRecordWrite(task) {
     return operation;
 }
 
-// دالة القراءة المباشرة (تختار السحابة لو متاحة، أو الملف المحلي)
 function readDataDirectly() {
     if (redis) {
         return redis.get(REDIS_KEY).then(data => {
@@ -46,12 +42,10 @@ function readDataDirectly() {
     });
 }
 
-// قراءة البيانات من خلال الطابور (Queue)
 function safeReadData() {
     return enqueueRecordWrite(() => readDataDirectly());
 }
 
-// كتابة البيانات (في السحابة أو في الملف المحلي بأمان)
 function safeWriteData(content) {
     if (redis) {
         const parsed = typeof content === 'string' ? JSON.parse(content) : content;
@@ -69,44 +63,11 @@ function safeWriteData(content) {
     });
 }
 
-// إنشاء ملف data.json تلقائياً محلياً
 if (!redis && !fs.existsSync(DATA_FILE)) {
     fs.writeFileSync(DATA_FILE, JSON.stringify({ mahdar_index: [] }));
 }
 
-// قاموس ترجمة أسماء الأقسام للعرض في شاشة CMD
-const stationTranslation = {
-    '15 مايو': '15_May', 'الأزبكية': 'El_Azbakeya', 'الأميرية': 'El_Amireya', 'البساتين': 'El_Basatin',
-    'التبين': 'El_Tebbin', 'التجمع الأول': 'First_Settlement', 'التجمع الخامس': 'Fifth_Settlement', 'الجمالية': 'El_Gamaleya',
-    'الخليفة': 'El_Khalifa', 'الدرب الأحمر': 'El_Darb_El_Ahmar', 'الزاوية الحمراء': 'El_Zawya_El_Hamra', 'الزيتون': 'El_Zeitoun',
-    'الساحل': 'El_Sahel', 'السيدة زينب': 'Sayeda_Zeinab', 'الشرابية': 'El_Sharabeya', 'الشروق': 'El_Shorouk',
-    'الظاهر': 'El_Daher', 'القطامية': 'Katameya', 'المرج': 'El_Marg', 'المطرية': 'El_Matareya',
-    'المعادي': 'Maadi', 'المعصرة': 'El_Maasara', 'المقطم': 'El_Mokattam', 'الموسكي': 'El_Mosky',
-    'النزهة': 'El_Nozha', 'الوايلي': 'El_Waily', 'باب الشعرية': 'Bab_El_Shereya', 'بدر': 'Badr',
-    'بولاق': 'Bulaq', 'حدائق القبة': 'Hadayek_El_Kobba', 'حلوان': 'Helwan', 'دار السلام': 'Dar_El_Salam',
-    'روض الفرج': 'Rod_El_Farag', 'شبرا': 'Shoubra', 'عابدين': 'Abdeen', 'عين شمس': 'Ain_Shams',
-    'قصر النيل': 'Qasr_El_Nil', 'مدينة السلام أول': 'Madinet_El_Salam_1', 'مدينة السلام ثان': 'Madinet_El_Salam_2',
-    'مدينة نصر أول': 'Nasr_City_1', 'مدينة نصر ثان': 'Nasr_City_2', 'مدينة نصر ثالث': 'Nasr_City_3',
-    'مصر الجديدة': 'Heliopolis', 'مصر القديمة': 'Misr_El_Adima', 'منشأة ناصر': 'Manshiyat_Naser', 'عين الصيرة': 'Ain_El_Sira'
-};
-
-function getDisplaySafeKey(recordKey) {
-    let displayKey = String(recordKey || '');
-    let matched = false;
-    for (const [arabicName, englishName] of Object.entries(stationTranslation)) {
-        if (displayKey.includes(arabicName)) {
-            displayKey = displayKey.replace(arabicName, englishName);
-            matched = true;
-            break;
-        }
-    }
-    if (!matched) {
-        displayKey = displayKey.replace(/[^\x00-\x7F]/g, '').replace(/\s+/g, ' ').trim();
-    }
-    return displayKey;
-}
-
-const server = http.createServer((req, res) => {
+const server = http.createServer(async (req, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-Record-Key, X-Delete-Record');
@@ -116,7 +77,30 @@ const server = http.createServer((req, res) => {
         return res.end();
     }
 
-    // 1. مسار جلب البيانات من السيرفر
+    // رابط ترحيل البيانات القديمة من data.json إلى Upstash
+    if (req.url === '/api/migrate' && req.method === 'GET') {
+        try {
+            if (!fs.existsSync(DATA_FILE)) {
+                res.writeHead(404, { 'Content-Type': 'text/html; charset=utf-8' });
+                return res.end('<h3>ملف data.json غير موجود على السيرفر</h3>');
+            }
+            const fileData = fs.readFileSync(DATA_FILE, 'utf8');
+            const parsed = JSON.parse(fileData);
+            if (redis) {
+                await redis.set(REDIS_KEY, JSON.stringify(parsed));
+                res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+                return res.end('<h2>✅ تم ضخ جميع المحاضر القديمة إلى السحابة بنجاح!</h2><p>يمكنك الآن الرجوع للصفحة الرئيسية وتحديثها.</p>');
+            } else {
+                res.writeHead(500, { 'Content-Type': 'text/html; charset=utf-8' });
+                return res.end('قاعدة بيانات Upstash غير متصلة.');
+            }
+        } catch (err) {
+            res.writeHead(500, { 'Content-Type': 'text/html; charset=utf-8' });
+            return res.end('خطأ أثناء الترحيل: ' + err.message);
+        }
+    }
+
+    // 1. مسار جلب البيانات
     if (req.url === '/api/data' && req.method === 'GET') {
         safeReadData().then(data => {
             res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -125,10 +109,8 @@ const server = http.createServer((req, res) => {
         return;
     }
 
-    // 2. مسار حفظ البيانات في السيرفر
+    // 2. مسار حفظ البيانات
     if (req.url === '/api/data' && req.method === 'POST') {
-        const isCloud = !!redis;
-        console.log(`[INFO] Save request received... (Mode: ${isCloud ? 'Cloud/Upstash' : 'Local/File'})`);
         const recordKey = req.headers['x-record-key'] ? decodeURIComponent(req.headers['x-record-key']) : null;
         let body = '';
         req.on('data', chunk => { body += chunk.toString(); });
@@ -174,11 +156,9 @@ const server = http.createServer((req, res) => {
                     }
 
                     return safeWriteData(JSON.stringify(current, null, 4)).then(() => {
-                        console.log(`[SUCCESS] Record [${getDisplaySafeKey(recordKey)}] saved successfully!`);
                         res.writeHead(200, { 'Content-Type': 'text/plain' });
                         res.end('Saved');
                     }).catch(err => {
-                        console.log('[ERROR] Failed to save record:', err);
                         res.writeHead(500);
                         res.end('Error');
                     });
@@ -187,11 +167,9 @@ const server = http.createServer((req, res) => {
             }
 
             enqueueRecordWrite(() => safeWriteData(body)).then(() => {
-                console.log('[SUCCESS] Full Data saved successfully!');
                 res.writeHead(200, { 'Content-Type': 'text/plain' });
                 res.end('Saved');
             }).catch(err => {
-                console.log('[ERROR] Failed to save full data:', err);
                 res.writeHead(500);
                 res.end('Error');
             });
