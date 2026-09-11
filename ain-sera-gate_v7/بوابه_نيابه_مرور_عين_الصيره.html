@@ -1498,11 +1498,7 @@ select.profile-form-input option { color:#fff !important; background:#16263f !im
     <div class="modal-actions">
       <button class="btn-save-cfg" onclick="saveSettings()"><i class="fa-solid fa-floppy-disk"></i> حفظ الإعدادات</button>
     </div>
-    <div class="modal-actions-row2">
-      <button class="btn-export-cfg" onclick="exportConfig()">
-        <i class="fa-solid fa-download"></i> تصدير ملف احتياطي
-      </button>
-      
+    <div class="modal-actions-row2" style="grid-template-columns: 1fr;">
       <button class="btn-close-cfg" onclick="closeSettings()">
         <i class="fa-solid fa-xmark"></i> إغلاق
       </button>
@@ -1511,9 +1507,7 @@ select.profile-form-input option { color:#fff !important; background:#16263f !im
     <div class="cfg-feedback" id="cfg-feedback"></div>
 
     <div class="cfg-note">
-      ● الحفظ يُخزّن الإعدادات في المتصفح ويُطبّقها فوراً على جميع الأنظمة المفتوحة<br>
-      ● التصدير يُنشئ نسخه  (html)محدثة من ملف البوابة قم بألاستبدال في مجلد البوابة<br>
-       
+      ● الحفظ يُخزّن الإعدادات في قاعدة البيانات المركزية ويُطبّقها فوراً على جميع الأنظمة.
     </div>
 
     
