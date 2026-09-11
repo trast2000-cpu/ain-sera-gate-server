@@ -1,11 +1,8 @@
-// استشعار البيئة تلقائياً (محلي أو أونلاين) لمنع أخطاء CORS
-const IS_PROD = window.location.protocol.startsWith('https') || window.location.hostname !== 'localhost';
-const BASE_URL = IS_PROD ? '' : `http://${window.location.hostname || 'localhost'}:3000`;
-
-const SERVER_URL = `${BASE_URL}/api/data`;
-const PROFILES_SERVER_URL = `${BASE_URL}/api/profiles`;
-const AUTH_URL = `${BASE_URL}/api/auth`;
-const LOGOUT_URL = `${BASE_URL}/api/logout`;
+// هذا الكود يجلب الآي بي الخاص بالجهاز تلقائياً ليتصل بالسيرفر
+const SERVER_URL = `http://${window.location.hostname}:3000/api/data`;
+const PROFILES_SERVER_URL = `http://${window.location.hostname}:3000/api/profiles`;
+const AUTH_URL = `http://${window.location.hostname}:3000/api/auth`;
+const LOGOUT_URL = `http://${window.location.hostname}:3000/api/logout`;
 
 // هوية موحدة للمحضر تستخدمها كل الأنظمة.
 function normalizeMahdarPart(value) {
@@ -59,7 +56,7 @@ async function serverLogout() {
 }
 // ==============================================================
 
-// قراءة البيانات من السيرفر (مع منع الكاش وحماية البيانات)
+// قراءة البيانات من السيرفر (مع منع الكاش)
 async function fetchServerData() {
     try {
         let res = await fetch(SERVER_URL, { 
@@ -67,11 +64,12 @@ async function fetchServerData() {
             cache: 'no-store',
             headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate', 'Pragma': 'no-cache', 'Expires': '0' }
         });
-        if (!res.ok) throw new Error('Unauthorized');
+        if (!res.ok) throw new Error('Unauthorized or Server Error');
         let data = await res.json();
         if (Array.isArray(data) || Object.keys(data).length === 0) return { mahdar_index: [] };
         return data;
     } catch(error) {
+        console.error("خطأ في الاتصال بالسيرفر:", error);
         return { mahdar_index: [] };
     }
 }
@@ -93,6 +91,37 @@ async function saveToServerData(dataObject, recordKey = null) {
     }
 }
 
+// قراءة ملف البروفايلات المستقل
+async function fetchProfilesData() {
+    try {
+        const res = await fetch(PROFILES_SERVER_URL, {
+            method: 'GET',
+            cache: 'no-store',
+            headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate' }
+        });
+        const data = await res.json();
+        return data && typeof data === 'object' && !Array.isArray(data) ? data : {};
+    } catch (error) {
+        console.error('خطأ في قراءة ملف البروفايلات:', error);
+        return {};
+    }
+}
+
+// حفظ ملف البروفايلات المستقل فقط
+async function saveProfilesData(dataObject) {
+    try {
+        const res = await fetch(PROFILES_SERVER_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(dataObject, null, 4)
+        });
+        return res.ok;
+    } catch (error) {
+        console.error('خطأ في حفظ ملف البروفايلات:', error);
+        return false;
+    }
+}
+
 // حذف سجل واحد
 async function deleteFromServerData(recordKey) {
     if (!recordKey) return false;
@@ -108,35 +137,7 @@ async function deleteFromServerData(recordKey) {
         });
         return res.ok;
     } catch (error) {
-        return false;
-    }
-}
-
-// قراءة ملف البروفايلات المستقل
-async function fetchProfilesData() {
-    try {
-        const res = await fetch(PROFILES_SERVER_URL, {
-            method: 'GET',
-            cache: 'no-store',
-            headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate' }
-        });
-        const data = await res.json();
-        return data && typeof data === 'object' && !Array.isArray(data) ? data : {};
-    } catch (error) {
-        return {};
-    }
-}
-
-// حفظ ملف البروفايلات المستقل فقط
-async function saveProfilesData(dataObject) {
-    try {
-        const res = await fetch(PROFILES_SERVER_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(dataObject, null, 4)
-        });
-        return res.ok;
-    } catch (error) {
+        console.error("خطأ في حذف المحضر من السيرفر:", error);
         return false;
     }
 }

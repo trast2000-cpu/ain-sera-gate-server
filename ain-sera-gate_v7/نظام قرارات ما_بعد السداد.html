@@ -97,6 +97,7 @@ option[data-category="dark"] {
         .case-summary-body {
             height: calc(100% - 43px);
             overflow-y: auto;
+            overflow-x: hidden;
             padding: 12px 10px;
             scrollbar-width: thin;
             scrollbar-color: #7a9cbf transparent;
@@ -119,17 +120,17 @@ option[data-category="dark"] {
         .case-summary-row {
             display: flex;
             align-items: flex-start;
-            gap: 7px;
-            padding: 7px 3px;
+            gap: 4px !important;
+            padding: 3px 2px !important;
             border-bottom: 1px solid #d9e1ec;
             font-size: 12px;
-            line-height: 1.65;
+            line-height: 1.1 !important;
         }
         .case-summary-row:last-child { border-bottom: 0; }
         /* صف رقم المحضر: هو مفتاح المحضر، فنميّزه بخط سفلي ذهبي رفيع بدل الرمادي العادي */
         .case-summary-row.case-summary-key-row { border-bottom: 2px solid #c9a200; }
         .case-summary-label {
-            flex: 0 0 86px;
+            flex: 0 0 72px;
             color: #1e3a5f;
             font-weight: bold;
         }
@@ -145,19 +146,19 @@ option[data-category="dark"] {
             font-size: 15px;
         }
         .case-summary-section-title {
-            margin: 12px 0 4px;
-            padding-bottom: 4px;
+            margin: 4px 0 2px;
+            padding-bottom: 2px;
             color: #1e3a5f;
             border-bottom: 1px solid #b7c8dc;
-            font-size: 12px;
+            font-size: 11.5px;
             font-weight: bold;
         }
         .case-summary-list {
-            margin: 0;
-            padding: 0 18px 0 0;
+            margin: 2px 0;
+            padding: 0 16px 0 0;
             color: #334155;
-            font-size: 12px;
-            line-height: 1.8;
+            font-size: 11.5px;
+            line-height: 1.3;
         }
         .case-summary-status {
             display: inline-block;
@@ -1928,6 +1929,8 @@ body[data-theme="dark"] .rec-date { color: #64748b !important; }
     transform: scale(0.94) translateY(10px);
     opacity: 0;
     transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.22s ease;
+    max-height: 75vh; 
+    /* تم حذف سطر overflow من هنا لمنع الاسكرول الخارجي */
 }
 #info-alert-modal-overlay.show #info-alert-modal {
     transform: scale(1) translateY(0);
@@ -2020,6 +2023,54 @@ body[data-theme="dark"] .rec-date { color: #64748b !important; }
     padding: 1px 8px !important;
 }
 </style>
+
+<style id="archive-size-only-fix">
+/* ضبط مقاسات نافذة سجل التعديلات فقط — لا يغيّر zoom أو منطق الصفحة */
+@media screen {
+    .floating-archive-menu {
+        box-sizing: border-box;
+        width: 290px !important; 
+        min-width: 270px !important;
+        max-width: 310px !important;
+        max-height: calc((100vh / 1.275) - 90px) !important;
+        overflow: hidden;
+    }
+
+    .archive-header-panel {
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    .archive-tabs,
+    .archive-sort-strip {
+        min-width: 0;
+    }
+
+    .archive-records-list {
+        min-height: 0;
+        max-height: calc((100vh / 1.275) - 220px);
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    .record-btn {
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    .record-title,
+    .record-sub-row {
+        min-width: 0;
+    }
+
+    .record-title > span:first-child,
+    .rec-name {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}
+</style>
 </head>
 <body>
 
@@ -2064,8 +2115,9 @@ body[data-theme="dark"] .rec-date { color: #64748b !important; }
                     <span class="case-summary-label">حالة السداد</span>
                     <span id="summary-payment" class="case-summary-value"><span class="case-summary-status unpaid">غير مسدد</span></span>
                 </div>
+                
                 <div id="summary-linked-row" class="case-summary-row case-summary-linked-row" style="display:none;">
-                    <span class="case-summary-label">المحضر المرتبط</span>
+                    <span class="case-summary-label">محضر الجلسة</span>
                     <span id="summary-linked" class="case-summary-value">—</span>
                 </div>
                 <div id="summary-session-date-row" class="case-summary-row case-summary-linked-row" style="display:none;">
@@ -2073,7 +2125,7 @@ body[data-theme="dark"] .rec-date { color: #64748b !important; }
                     <span id="summary-session-date" class="case-summary-value">—</span>
                 </div>
                 <div id="summary-linked-violation-row" class="case-summary-row case-summary-linked-row" style="display:none;">
-                    <span class="case-summary-label">بند اتهام المحضر المرتبط</span>
+                    <span class="case-summary-label">بند الجلسة</span>
                     <span id="summary-linked-violation" class="case-summary-value">—</span>
                 </div>
             </div>
@@ -2476,7 +2528,7 @@ body[data-theme="dark"] .rec-date { color: #64748b !important; }
                         <label>نص قرار مهندس الفحص</label>
                         <span class="lock-label-text">( فتح التعديل )</span><input type="checkbox" class="lock-checkbox" onchange="toggleLock(this, 'eng-text')" title="فتح/قفل التعديل">
                     </div>
-                    <textarea id="eng-text" rows="3" style="width:100%; height:90px;" oninput="sync()" placeholder="عند تركه فارغا لن يظهر في الطباعه" readonly></textarea>
+                    <textarea id="eng-text" rows="3" style="width:100%; height:120px;" oninput="sync()" placeholder="عند تركه فارغا لن يظهر في الطباعه" readonly></textarea>
                 </div>
             </div>
         </div>
@@ -2578,7 +2630,7 @@ body[data-theme="dark"] .rec-date { color: #64748b !important; }
                 <label>نص الملحوظة</label>
                 <span class="lock-label-text">( فتح التعديل )</span><input type="checkbox" class="lock-checkbox" onchange="toggleLock(this, 'violations-text')" title="فتح/قفل التعديل">
             </div>
-            <textarea id="violations-text" rows="4" style="width:100%; height:150px;" oninput="sync()" placeholder="عند اختيار اخري فلن تظهر الملحوظة في الطباعه" readonly></textarea>
+            <textarea id="violations-text" rows="4" style="width:100%; height:170px;" oninput="sync()" placeholder="عند اختيار اخري فلن تظهر الملحوظة في الطباعه" readonly></textarea>
         </div>
     </div>
 </div>
@@ -2634,7 +2686,7 @@ body[data-theme="dark"] .rec-date { color: #64748b !important; }
                 <label>نص الملحوظة</label>
                 <span class="lock-label-text">( فتح التعديل )</span><input type="checkbox" class="lock-checkbox" onchange="toggleLock(this, 'fine-receipt-text')" title="فتح/قفل التعديل">
             </div>
-            <textarea id="fine-receipt-text" rows="4" style="width:100%; height:135px;" oninput="sync()" placeholder="عند اختيار بدون غرامة فلن يظهر القرار  في الطباعه" readonly></textarea>
+            <textarea id="fine-receipt-text" rows="4" style="width:100%; height:170px;" oninput="sync()" placeholder="عند اختيار بدون غرامة فلن يظهر القرار  في الطباعه" readonly></textarea>
         </div>
     </div>
 </div>
@@ -3839,44 +3891,135 @@ function renderArrestItems() {
                 const caseNum = (document.getElementById('input-caseNum') || {}).value || '';
                 const year = (document.getElementById('input-year') || {}).value || '';
                 const deptSel = document.getElementById('input-dept-select');
-                const dept = deptSel
-                    ? (deptSel.value === 'أخرى' ? ((document.getElementById('input-dept-other') || {}).value || '') : deptSel.value)
-                    : '';
-                if (!caseNum || !year || !dept) return; // لا يوجد محضر محدد لربط بيانات السداد به
+                const dept = deptSel ? (deptSel.value === 'أخرى' ? ((document.getElementById('input-dept-other') || {}).value || '') : deptSel.value) : '';
+
+                if (!caseNum || !year || !dept) return;
 
                 const fineReceiptType = (document.getElementById('fine-receipt-type') || {}).value || '';
                 const fineReceiptNo = (document.getElementById('fine-receipt-num') || {}).value || '';
-                // "القرارات الجاهزة" في القائمة الجانبية بتضبط fine-receipt-type = 'paid' تلقائيًا
-                // كجزء من نص القرار، حتى لو محدش كتب رقم قسيمة فعلي — فالمحضر يُعتبر "مسدد"
-                // فقط لو فيه رقم قسيمة مكتوب فعلاً بالإضافة لضبط النوع على "مسدد".
                 const isPaid = fineReceiptType === 'paid' && !!fineReceiptNo.trim();
                 const violationsReceiptNo = (document.getElementById('violations-receipt') || {}).value || '';
                 const violationsType = (document.getElementById('violations-type') || {}).value || '';
 
-                // لا داعي لأي كتابة لو مفيش بيانات سداد فعلية اتسجلت أصلاً
-                if (!isPaid && !fineReceiptNo && !violationsReceiptNo && !violationsType) return;
+                const vehicleStatus = (document.getElementById('vehicle-status-type') || {}).value || '';
+                const engStatus = (document.getElementById('eng-type') || {}).value || '';
+                const sessionStatus = (document.getElementById('session-status') || {}).value || '';
+                const sessionDate = (document.getElementById('session-date') || {}).value || '';
 
-                const paymentInfo = {
-                    paid: isPaid,
-                    fineReceiptType: fineReceiptType,
-                    fineReceiptNo: fineReceiptNo,
-                    fineAmount: (document.getElementById('fine-receipt-amount') || {}).value || '',
-                    fineReceiptDate: (document.getElementById('fine-receipt-date') || {}).value || '',
-                    violationsType: violationsType,
-                    violationsReceiptNo: violationsReceiptNo,
-                    violationsPayMethod: (document.getElementById('violations-pay-method') || {}).value || '',
-                    violationsAmount: (document.getElementById('violations-amount') || {}).value || '',
-                    violationsPayDate: (document.getElementById('violations-pay-date') || {}).value || '',
-                    savedAt: new Date().toLocaleString('ar-EG')
-                };
+                if (!isPaid && !fineReceiptNo && !violationsReceiptNo && !violationsType && vehicleStatus === 'none') return;
 
                 const cleanDept = normalizeMahdarPart(dept);
                 const key = getMahdarKey(caseNum, year, cleanDept, 'main');
+
                 let db = await fetchServerData();
-                db[key] = Object.assign({}, db[key] || {}, { paymentInfo: paymentInfo });
-                await saveToServerData(db, key); // مفتاح السجل يجعل السيرفر يدمج هذا المحضر فقط دون غيره
+                let mainRecord = db[key] || {};
+                let existingPaymentInfo = mainRecord.paymentInfo || {};
+                let history = existingPaymentInfo.editHistory || [];
+
+                const currentOfficer = typeof getActiveProfileNameForPrint === 'function' ? getActiveProfileNameForPrint() : '';
+                const officerName = currentOfficer || 'موظف بالنيابة';
+                const currentTime = new Date().toLocaleString('ar-EG');
+
+                // سحب القيم القديمة الحقيقية للمقارنة.
+                // المصدر الأدق هو "لقطة" الشاشة وقت تحميل هذا المحضر فعليًا (paymentFormLoadSnapshot)،
+                // لأن حقول (قرار المركبة/الفحص الفني/حالة الجلسة/تاريخ الجلسة) غالبًا ما تُملأ تلقائيًا
+                // من أصل المحضر أو من محضر الجلسة المرتبط بترميز مختلف عن ترميز حقول هذه الشاشة،
+                // فلا يصح مقارنتها مباشرة بحقول أصل المحضر (مثل vehDecSelect/engType/jalsaDate).
+                // نستخدم اللقطة إن وُجدت، وإلا نرجع لأفضل تخمين ممكن كاحتياط فقط.
+                const oldValues = paymentFormLoadSnapshot ? Object.assign({}, paymentFormLoadSnapshot) : {
+                    fineReceiptNo: existingPaymentInfo.fineReceiptNo || '',
+                    fineAmount: existingPaymentInfo.fineAmount || '',
+                    violationsReceiptNo: existingPaymentInfo.violationsReceiptNo || '',
+                    violationsAmount: existingPaymentInfo.violationsAmount || '',
+                    vehicleStatus: existingPaymentInfo.vehicleStatus || '',
+                    engStatus: existingPaymentInfo.engStatus || '',
+                    sessionStatus: existingPaymentInfo.sessionStatus || '',
+                    sessionDate: existingPaymentInfo.sessionDate || ''
+                };
+
+                // القيم الموجودة في الشاشة حالياً
+                const newPaymentInfo = {
+                    fineReceiptNo: fineReceiptNo,
+                    fineAmount: (document.getElementById('fine-receipt-amount') || {}).value || '',
+                    violationsReceiptNo: violationsReceiptNo,
+                    violationsAmount: (document.getElementById('violations-amount') || {}).value || '',
+                    vehicleStatus: vehicleStatus,
+                    engStatus: engStatus,
+                    sessionStatus: sessionStatus,
+                    sessionDate: sessionDate
+                };
+
+                // القاموس العربي لأسماء الحقول التي تظهر في الجدول
+                const fieldNamesAr = {
+                    fineReceiptNo: "قسيمة غرامة المحضر",
+                    fineAmount: "مبلغ غرامة المحضر",
+                    violationsReceiptNo: "قسيمة المخالفات",
+                    violationsAmount: "مبلغ المخالفات",
+                    vehicleStatus: "قرار المركبة",
+                    engStatus: "الفحص الفني",
+                    sessionStatus: "حالة الجلسة",
+                    sessionDate: "تاريخ الجلسة"
+                };
+
+                let changedFields = [];
+                if (history.length > 0) {
+                    for (let f in fieldNamesAr) {
+                        // مقارنة دقيقة بين القيمة القديمة الحقيقية والجديدة (تتجاهل المسافات الزائدة)
+                        if (String(oldValues[f] || '').trim() !== String(newPaymentInfo[f] || '').trim()) {
+                            changedFields.push(fieldNamesAr[f]);
+                        }
+                    }
+                }
+
+                let actionText = '';
+                if (history.length === 0) {
+                    actionText = 'إثبات السداد والقرارات لأول مرة';
+                } else if (changedFields.length > 0) {
+                    actionText = 'تعديل في: (' + changedFields.join('، ') + ')';
+                } else {
+                    actionText = 'إعادة طباعة للقرار بدون تعديل';
+                }
+
+                // إضافة السجل (نمنع التكرار العشوائي لنفس الموظف خلال ثوانٍ إذا لم يكن هناك تعديل فعلي)
+                let lastEntry = history[history.length - 1];
+                if (!lastEntry || lastEntry.name !== officerName || changedFields.length > 0 || (Date.now() - (lastEntry.timestamp || 0) > 60000)) {
+                    history.push({
+                        name: officerName,
+                        time: currentTime,
+                        timestamp: Date.now(),
+                        action: actionText
+                    });
+                }
+
+                const finalPaymentInfo = {
+                    paid: isPaid,
+                    settledBy: isPaid ? officerName : (history.length > 0 ? history[history.length-1].name : ''),
+                    editHistory: history,
+                    savedAt: currentTime,
+                    ...newPaymentInfo,
+                    fineReceiptType: fineReceiptType,
+                    fineReceiptDate: (document.getElementById('fine-receipt-date') || {}).value || '',
+                    violationsType: violationsType,
+                    violationsPayMethod: (document.getElementById('violations-pay-method') || {}).value || '',
+                    violationsPayDate: (document.getElementById('violations-pay-date') || {}).value || ''
+                };
+
+                db[key] = Object.assign({}, db[key] || {}, { paymentInfo: finalPaymentInfo });
+                await saveToServerData(db, key);
+
+                // تحديث اللقطة المرجعية لتعكس آخر حالة محفوظة فعليًا،
+                // حتى تُقاس أي عملية حفظ تالية في نفس الجلسة (بدون إعادة تحميل المحضر) بدقة.
+                paymentFormLoadSnapshot = Object.assign({}, newPaymentInfo);
+
+                // التحديث الفوري للواجهة
+                if (typeof importedPrimaryMahdarData !== 'undefined' && importedPrimaryMahdarData !== null) {
+                    importedPrimaryMahdarData.paymentInfo = finalPaymentInfo;
+                    if (typeof updateCaseSummaryPaymentState === 'function') {
+                        updateCaseSummaryPaymentState();
+                    }
+                }
                 if (typeof loadArchiveToSidebar === 'function') loadArchiveToSidebar();
-            } catch(e) { /* تعذر حفظ بيانات السداد في السيرفر */ }
+            } catch(e) { console.error('Error saving payment info:', e); }
         }
 
         /* ===================================================
@@ -4524,6 +4667,26 @@ function validateFields() {
         let linkedSessionLookupSignature = '';
         let linkedSessionLookupTimer = null;
 
+        // لقطة (Snapshot) دقيقة لقيم شاشة "قرارات ما بعد السداد" وقت تحميل المحضر فعليًا في الشاشة
+        // (بعد تطبيق القرار الجاهز، واستعادة بيانات السداد المحفوظة، واستيراد محضر الجلسة المرتبط إن وجد).
+        // هذه هي القاعدة الوحيدة الموثوقة لمعرفة "ماذا غيّر المستخدم فعليًا" في هذه الجلسة،
+        // لأن الحقول الأربعة (قرار المركبة/الفحص الفني/حالة الجلسة/تاريخ الجلسة) تُملأ غالبًا
+        // من أصل المحضر أو من محضر الجلسة المرتبط، وليس بالضرورة من آخر paymentInfo محفوظ.
+        let paymentFormLoadSnapshot = null;
+
+        function capturePaymentFormSnapshot() {
+            paymentFormLoadSnapshot = {
+                fineReceiptNo: (document.getElementById('fine-receipt-num') || {}).value || '',
+                fineAmount: (document.getElementById('fine-receipt-amount') || {}).value || '',
+                violationsReceiptNo: (document.getElementById('violations-receipt') || {}).value || '',
+                violationsAmount: (document.getElementById('violations-amount') || {}).value || '',
+                vehicleStatus: (document.getElementById('vehicle-status-type') || {}).value || '',
+                engStatus: (document.getElementById('eng-type') || {}).value || '',
+                sessionStatus: (document.getElementById('session-status') || {}).value || '',
+                sessionDate: (document.getElementById('session-date') || {}).value || ''
+            };
+        }
+
         function findImportedSessionKeywords(violations) {
             if (!Array.isArray(violations)) return [];
             const matches = [];
@@ -4880,6 +5043,47 @@ if (window.isPresetRunning) return;
             if (el) el.textContent = summaryText(value, fallback);
         }
 
+        // الدالة المسؤولة عن عرض سجل التعديلات عند الضغط على زر السداد
+        window.showEditHistory = function(historyJsonStr) {
+            try {
+                const history = JSON.parse(decodeURIComponent(historyJsonStr));
+                if (!history || history.length === 0) {
+                    showCustomAlert('لا يوجد سجل تعديلات متاح.', { title: 'سجل التعديلات' });
+                    return;
+                }
+
+                let tableHtml = `
+        <div style="max-height: 55vh; overflow-y: auto; margin-top: -30px; border: 1px solid #c5cfe0; border-radius: 6px;">
+        <table style="width:100%; border-collapse: collapse; font-size: 13px; text-align: center; direction: rtl;">
+                    <thead>
+                        <tr style="background-color: #1e3a5f; color: white;">
+                            <th style="padding: 10px; border: 1px solid #c5cfe0; width: 45%;">الإجراء الذي تم</th>
+                            <th style="padding: 10px; border: 1px solid #c5cfe0; width: 30%;">التاريخ والوقت</th>
+                            <th style="padding: 10px; border: 1px solid #c5cfe0; width: 25%;">الموظف</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                `;
+
+                history.forEach(h => {
+                    tableHtml += `
+                        <tr style="background-color: #f4f6fb; color: #1e293b;">
+                            <td style="padding: 8px; border: 1px solid #c5cfe0; text-align: right; line-height: 1.6; font-weight: bold; color: #b03a2e;">${h.action}</td>
+                            <td style="padding: 8px; border: 1px solid #c5cfe0;" dir="ltr">${h.time}</td>
+                            <td style="padding: 8px; border: 1px solid #c5cfe0; font-weight: bold; color: #1e3a5f;">${h.name}</td>
+                        </tr>
+                    `;
+                });
+
+                tableHtml += `</tbody></table>`;
+
+                showCustomAlert(tableHtml, {
+            title: 'سجل التعديلات في المحضر',
+            isHtml: true
+        });
+            } catch (e) { console.error(e); }
+        };
+
         function updateCaseSummaryPaymentState() {
             const el = document.getElementById('summary-payment');
             if (!el || !importedPrimaryMahdarData) return;
@@ -4887,8 +5091,13 @@ if (window.isPresetRunning) return;
             const fineType = (document.getElementById('fine-receipt-type') || {}).value || '';
             const fineNo = ((document.getElementById('fine-receipt-num') || {}).value || '').trim();
             const paid = !!savedPayment.paid || (fineType === 'paid' && !!fineNo);
+
+            // تحويل السجل لنص آمن لرفعه على الزر
+            const historyJson = encodeURIComponent(JSON.stringify(savedPayment.editHistory || []));
+
+            // إذا كان مسدداً، يظهر كزر قابل للضغط وعليه أيقونة ساعة صغيرة
             el.innerHTML = paid
-                ? '<span class="case-summary-status paid">مسدد</span>'
+                ? `<span class="case-summary-status paid" style="cursor:pointer; text-decoration:underline;" onclick="showEditHistory('${historyJson}')" title="اضغط لعرض سجل التعديلات">مسدد <i class="fa-solid fa-clock-rotate-left" style="margin-right:3px; font-size:10px;"></i></span>`
                 : '<span class="case-summary-status unpaid">غير مسدد</span>';
         }
 
@@ -5225,6 +5434,11 @@ if (window.isPresetRunning) return;
             // بعد استيراد المحضر الأساسي مباشرة، ابحث عن المحضر المرتبط ثم اعرض توستًا واحدًا فقط.
             const linkedData = await importLinkedSessionMahdar();
             const primaryData = isSessionRecord(data) ? await findPrimaryMahdarForSession(data) : null;
+
+            // نأخذ اللقطة الآن، بعد اكتمال كل عمليات التعبئة التلقائية للحقول (القرار الجاهز،
+            // بيانات السداد المحفوظة سابقًا، ومحضر الجلسة المرتبط إن وجد) وقبل أي تدخل يدوي من المستخدم.
+            capturePaymentFormSnapshot();
+
             renderCaseSummary(data, linkedData, primaryData);
             const primaryToastLine = '✔ تم تحميل بيانات المحضر (' + caseNum + ' / ' + year + ' / ' + dept + ') بنجاح';
             if (linkedData) {
@@ -5958,8 +6172,15 @@ async function loadArchiveToSidebar() {
         const badgeHtml = isSession
             ? '<span class="record-type-badge badge-session" title="محضر جلسة">ج</span>'
             : '<span class="record-type-badge badge-fine" title="محضر غرامة">غ</span>';
+        let paidTooltip = 'تم السداد';
+        if (d.paymentInfo && d.paymentInfo.paid) {
+            const parts = [];
+            if (d.paymentInfo.settledBy) parts.push('الموظف: ' + d.paymentInfo.settledBy);
+            if (d.paymentInfo.fineReceiptNo) parts.push('قسيمة: ' + d.paymentInfo.fineReceiptNo);
+            if (parts.length) paidTooltip = parts.join(' | ');
+        }
         const paidBadgeHtml = (d.paymentInfo && d.paymentInfo.paid)
-            ? '<span class="badge-paid" title="' + (d.paymentInfo.fineReceiptNo ? 'رقم القسيمة: ' + d.paymentInfo.fineReceiptNo : 'تم السداد') + '">✓ مسدد<span class="badge-paid-remove" title="إلغاء حالة السداد" data-key="' + key + '">✕</span></span>'
+            ? '<span class="badge-paid" title="' + paidTooltip + '">✓ مسدد<span class="badge-paid-remove" title="إلغاء حالة السداد" data-key="' + key + '">✕</span></span>'
             : '';
 
         // إدراج فاصل بصري (بدون نص) عند تغيّر تاريخ المحضر عن السابق — في وضع "حسب اليوم" فقط
@@ -7174,7 +7395,13 @@ function calculateTotalFine() {
         const headerEl = document.getElementById('info-alert-modal-header');
         const iconEl = headerEl ? headerEl.querySelector('i') : null;
         if (titleEl) titleEl.textContent = options.title || 'تنبيه';
-        if (msgEl) msgEl.textContent = message || '';
+        if (msgEl) {
+            if (options.isHtml) {
+                msgEl.innerHTML = message || '';
+            } else {
+                msgEl.textContent = message || '';
+            }
+        }
         if (subHeadingEl) {
             if (options.subHeading) {
                 subHeadingEl.textContent = options.subHeading;
