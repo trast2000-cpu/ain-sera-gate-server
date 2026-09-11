@@ -1423,7 +1423,7 @@ thead th[data-tip]:hover::before {
                     <div class="edit-date-section">تحريراً في: <span id="footerWrittenDate"></span></div>
                     <div class="bottom-section">
                         <div class="signatures">
-                            <div class="sig-box">الموظف المختص<br><span class="line"></span></div>
+                            <div class="sig-box">الموظف المختص<br><span id="fahs-specialist-name"></span><br><span id="fahs-specialist-line" class="line"></span></div>
                             <div class="sig-box">رئيس القلم<br><span class="line"></span></div>
                             <div class="sig-box">مدير النيابة<br><span class="line"></span></div>
                         </div>
@@ -2202,6 +2202,31 @@ thead th[data-tip]:hover::before {
         }
     }
 
+    function getFahsActiveProfileName() {
+        try {
+            var raw = sessionStorage.getItem('niabat_active_profile_session');
+            if (!raw) return '';
+            var profile = JSON.parse(raw);
+            return String(profile && profile.name || '').trim();
+        } catch (e) {
+            return '';
+        }
+    }
+
+    function updateFahsSpecialistForPrint() {
+        var nameEl = document.getElementById('fahs-specialist-name');
+        var lineEl = document.getElementById('fahs-specialist-line');
+        if (!nameEl || !lineEl) return;
+
+        // وجود رقم محضر يعني أن الكشف يحتوي على بيانات مستوردة أو معبأة.
+        // الكشف الفارغ يظل مخصصًا للكتابة اليدوية، لذلك لا نضع اسم البروفايل فيه.
+        var hasFilledRecord = Array.from(document.querySelectorAll('#mainTable tbody .case-num-top'))
+            .some(function(cell) { return String(cell.innerText || '').trim() !== ''; });
+        var profileName = hasFilledRecord ? getFahsActiveProfileName() : '';
+        nameEl.textContent = profileName;
+        lineEl.style.display = profileName ? 'none' : '';
+    }
+
     function handleDeptChange() {
         var s = document.getElementById("dept");
         document.getElementById("otherDept").style.display = (s.value === "other") ? "inline-block" : "none";
@@ -2323,6 +2348,7 @@ thead th[data-tip]:hover::before {
         var deptText = (deptSelect.value === "other") ? document.getElementById("otherDept").value : deptSelect.value;
         if(!date || !deptText) { showMissingPrintDataAlert(); return; }
         updatePrintValues();
+        updateFahsSpecialistForPrint();
         saveSnapshot(deptText, date);
         window.print();
     }
@@ -2689,6 +2715,7 @@ window.addEventListener('beforeprint', function(e) {
     var deptText = (deptSelect.value === "other") ? document.getElementById("otherDept").value : deptSelect.value;
     if (!date || !deptText) { showMissingPrintDataAlert(); if (e && e.preventDefault) e.preventDefault(); return; }
     updatePrintValues();
+    updateFahsSpecialistForPrint();
     saveSnapshot(deptText, date);
 });
 

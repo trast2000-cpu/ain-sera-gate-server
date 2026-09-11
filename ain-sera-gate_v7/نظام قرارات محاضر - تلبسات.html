@@ -2808,7 +2808,7 @@ body[data-theme="dark"] .record-title { color: #7aaeff !important; }
 
             <table style="width:100%; border:none; border-collapse:collapse; margin-top:0; margin-bottom:6mm; padding-left: 28mm;">
                 <tr>
-                    <td style="text-align:right; font-size:10.5pt; font-weight:bold;">الموظف المختص</td>
+                    <td style="text-align:right; font-size:10.5pt; font-weight:bold;">الموظف المختص<br><span id="p-specialist-u"></span><span id="p-specialist-line-u" style="font-size:5pt; display:block; letter-spacing:0.5px;">...................................</span></td>
                     <td style="text-align:left; font-size:10.5pt; font-weight:bold;">مديـر النيابـة</td>
                 </tr>
                 <tr>
@@ -2972,7 +2972,7 @@ body[data-theme="dark"] .record-title { color: #7aaeff !important; }
 
 <table style="width:100%; border:none; border-collapse:collapse; margin-top:0; margin-bottom:6mm; padding-left: 28mm;">
                 <tr>
-                    <td style="text-align:right; font-size:10.5pt; font-weight:bold;">الموظف المختص</td>
+                    <td style="text-align:right; font-size:10.5pt; font-weight:bold;">الموظف المختص<br><span id="pm-specialist-u"></span><span id="pm-specialist-line-u" style="font-size:5pt; display:block; letter-spacing:0.5px;">...................................</span></td>
                     <td style="text-align:left;padding-left: 10mm; font-size:10.5pt; font-weight:bold;">مديـر النيابـة</td>
                 </tr>
                 <tr>
@@ -5290,6 +5290,31 @@ function validateFields() {
 }
 
 
+function getTelbasatActiveProfileName() {
+    try {
+        const raw = sessionStorage.getItem('niabat_active_profile_session');
+        if (!raw) return '';
+        const profile = JSON.parse(raw);
+        return String(profile && profile.name || '').trim();
+    } catch (e) {
+        return '';
+    }
+}
+
+function updateTelbasatSpecialistForPrint(isBlankPrint) {
+    const name = isBlankPrint ? '' : getTelbasatActiveProfileName();
+    const pairs = [
+        ['p-specialist-u', 'p-specialist-line-u'],
+        ['pm-specialist-u', 'pm-specialist-line-u']
+    ];
+    pairs.forEach(([nameId, lineId]) => {
+        const nameEl = document.getElementById(nameId);
+        const lineEl = document.getElementById(lineId);
+        if (nameEl) nameEl.textContent = name;
+        if (lineEl) lineEl.style.display = name ? 'none' : '';
+    });
+}
+
 async function printDoc() {
     if (currentDecision === -1) {
         showCustomAlert('الرجاء اختيار القرار المناسب من القائمة الجانبية قبل الطباعة', {
@@ -5312,6 +5337,7 @@ async function printDoc() {
             : deptSelForBlankCheck.value.trim())
         : '';
     const isBlankPrint = !caseNumForBlankCheck && !deptForBlankCheck;
+    updateTelbasatSpecialistForPrint(isBlankPrint);
 
     // --- الفحص الذكي للحقول ---
     if (!isBlankPrint) {
@@ -10603,6 +10629,10 @@ function calculateTotalFine() {
                     e.preventDefault(); 
                     jalsaDateInput.value = dateStr;
                     dropdown.style.display = 'none';
+
+                    // القيمة تُكتب برمجياً من القائمة، لذلك يجب إطلاق حدث input
+                    // يدويًا حتى تشعر آلية التحقق أن الحقل امتلأ وتزيل الإطار الأحمر.
+                    jalsaDateInput.dispatchEvent(new Event('input', { bubbles: true }));
                     
                     if (typeof updateJalsaDecisionText === 'function') updateJalsaDecisionText();
                     if (typeof updateAll === 'function') updateAll();

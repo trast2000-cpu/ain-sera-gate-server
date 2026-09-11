@@ -2829,7 +2829,8 @@ body[data-theme="dark"] .rec-date { color: #64748b !important; }
                     <div style="display:flex; justify-content:space-between; align-items:flex-start; width:100%;">
                         <div style="text-align:center; min-width:130px;">
                             الموظف المختص<br>
-                            <span style="font-size:0.5em;">............................................</span>
+                            <span id="out-specialist" class="var-data"></span><br>
+                            <span id="specialist-dots" style="font-size:0.5em;">............................................</span>
                         </div>
                         <div style="text-align:center; flex:1;">
                             <div style="width:65px; height:65px; border:2px dashed #888; border-radius:50%; margin:0 auto;"></div>
@@ -4041,7 +4042,30 @@ function validateFields() {
     return errors;
 }
 
-async function printPostSettlement() {
+        function getActiveProfileNameForPrint() {
+            try {
+                const raw = sessionStorage.getItem('niabat_active_profile_session');
+                if (!raw) return '';
+                const profile = JSON.parse(raw);
+                return String(profile && profile.name || '').trim();
+            } catch (e) {
+                return '';
+            }
+        }
+
+        function updateSpecialistNameForPrint(isBlankPrint) {
+            const specialistEl = document.getElementById('out-specialist');
+            const dotsEl = document.getElementById('specialist-dots');
+            if (!specialistEl) return;
+            // القرار الفارغ سيُستكمل بالقلم، لذلك لا نضع اسم مستخدم الكمبيوتر فيه.
+            const specialistName = isBlankPrint ? '' : getActiveProfileNameForPrint();
+            specialistEl.textContent = specialistName;
+            // عند ظهور اسم الموظف لا نحتاج خط الكتابة اليدوي تحته.
+            // في القرار الفارغ، أو عند عدم وجود بروفايل، تظل النقاط ظاهرة.
+            if (dotsEl) dotsEl.style.display = specialistName ? 'none' : '';
+        }
+
+        async function printPostSettlement() {
             const selectedPreset = document.querySelector('.preset-btn.active');
             if (!selectedPreset) {
                 showCustomAlert('الرجاء اختيار القرار المناسب من القائمة الجانبية قبل الطباعة', {
@@ -4064,6 +4088,7 @@ async function printPostSettlement() {
                     : deptSelForBlankCheck.value.trim())
                 : '';
             const isBlankPrint = !caseNumForBlankCheck && !deptForBlankCheck;
+            updateSpecialistNameForPrint(isBlankPrint);
 
             // --- الفحص الذكي للحقول ---
             if (!isBlankPrint) {
