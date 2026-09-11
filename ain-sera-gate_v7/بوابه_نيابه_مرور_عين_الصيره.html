@@ -146,6 +146,19 @@ body::after {
 }
 .badge-soon   { background:rgba(201,168,76,.1); color:var(--gold2); border:1px solid rgba(201,168,76,.2); }
 
+/* حلقة نشاط خضراء نابضة حول صورة الحساب النشط حاليًا (نفس روح badge-active) */
+.profile-avatar-active { animation:pulse-avatar-active 2.5s ease-in-out infinite; border-color:rgba(74,222,128,.6) !important; }
+@keyframes pulse-avatar-active {
+  0%, 100% { box-shadow:0 0 0 0 rgba(74,222,128,0), 0 5px 18px rgba(0,0,0,.35); border-color:rgba(34,197,94,.45); }
+  50%       { box-shadow:0 0 16px 5px rgba(74,222,128,.4), 0 5px 18px rgba(0,0,0,.35); border-color:rgba(74,222,128,.9); }
+}
+
+/* حالة الحساب غير النشط: تمييز هادئ بدل التوهج الأخضر، مع إبقاء البطاقة قابلة للنقر لعرض التنبيه */
+.profile-card.profile-card-inactive { opacity:.68; filter:saturate(.55); cursor:not-allowed; border-color:rgba(248,113,113,.28); }
+.profile-card.profile-card-inactive:hover { transform:none; border-color:rgba(248,113,113,.55); box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 14px 35px rgba(0,0,0,.3); }
+.profile-card.profile-card-inactive .profile-avatar { filter:grayscale(.72); border-color:rgba(248,113,113,.5); box-shadow:0 5px 18px rgba(0,0,0,.35); }
+.profile-card.profile-card-inactive .profile-card-name { color:#cbd5e1; }
+
 .c1 { --card-accent:#4e8ef7; } .c1 .card-icon-wrap { background:rgba(78,142,247,.12); }
 .c2 { --card-accent:#c9a84c; } .c2 .card-icon-wrap { background:rgba(201,168,76,.12); }
 .c3 { --card-accent:#34d399; } .c3 .card-icon-wrap { background:rgba(52,211,153,.12); }
@@ -883,13 +896,540 @@ body::after {
   }
 }
 </style>
+<style id="profiles-stage1-layout">
+/* نظام حسابات الموظفين — المرحلة الأولى */
+#profiles-btn {
+  position: fixed; top: 25px; left: 88px; width: 48px; height: 48px; z-index: 300;
+  border-radius: 50%; border: 1.5px solid rgba(78,142,247,.45);
+  background: rgba(78,142,247,.14); color: #9fc3f5; font-size: 19px;
+  display:flex; align-items:center; justify-content:center; cursor:pointer;
+  box-shadow:0 4px 18px rgba(0,0,0,.35); transition:all .25s;
+}
+#profiles-btn:hover { transform:translateY(-2px) scale(1.08); color:#fff; border-color:#7ab4fa; background:rgba(78,142,247,.26); box-shadow:0 8px 24px rgba(78,142,247,.25); }
+#profiles-btn i { transition:transform .35s cubic-bezier(.34,1.56,.64,1), filter .25s; }
+#profiles-btn:hover i { animation:profilesIconWave .8s ease-in-out both; filter:drop-shadow(0 0 5px rgba(159,195,245,.75)); }
+@keyframes profilesIconWave {
+  0% { transform:translateY(0) scale(1); }
+  30% { transform:translateY(-3px) scale(1.08); }
+  55% { transform:translateY(1px) scale(.96); }
+  75% { transform:translateY(-2px) scale(1.04); }
+  100% { transform:translateY(0) scale(1); }
+}
+#profiles-btn.in-topbar { top:6px; left:64px; width:42px; height:42px; font-size:17px; box-shadow:0 2px 8px rgba(0,0,0,.2); }
+#logout-btn {
+  position: fixed; top: 25px; left: 146px; width: 48px; height: 48px; z-index: 300;
+  border-radius: 50%; border: 1.5px solid rgba(248,113,113,.45);
+  background: rgba(248,113,113,.14); color: #f87171; font-size: 18px;
+  display:flex; align-items:center; justify-content:center; cursor:pointer;
+  box-shadow:0 4px 18px rgba(0,0,0,.35); transition:all .25s;
+}
+#logout-btn:hover { transform:translateY(-2px) scale(1.08); color:#fff; border-color:#f87171; background:rgba(248,113,113,.28); box-shadow:0 8px 24px rgba(248,113,113,.25); }
+#logout-btn i { transition:transform .35s cubic-bezier(.34,1.56,.64,1), filter .25s; }
+#logout-btn:hover i { animation:logoutIconExit .7s ease-in-out both; filter:drop-shadow(0 0 5px rgba(248,113,113,.8)); }
+@keyframes logoutIconExit {
+  0% { transform:translateX(0) scale(1); }
+  35% { transform:translateX(-3px) scale(1.08); }
+  65% { transform:translateX(4px) scale(.96); }
+  100% { transform:translateX(0) scale(1); }
+}
+#logout-btn.in-topbar { top:6px; left:106px; width:42px; height:42px; font-size:16px; box-shadow:0 2px 8px rgba(0,0,0,.2); }
+#logout-btn.hidden-logout { display:none !important; }
+#profiles-overlay, #profile-manager-overlay {
+  position:fixed; inset:0; z-index:450; display:flex; align-items:center; justify-content:center;
+  padding:24px 16px; background:rgba(5,12,24,.82); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+  opacity:0; visibility:hidden; pointer-events:none; transition:opacity .3s ease, visibility 0s linear .3s;
+}
+#profiles-overlay.open, #profile-manager-overlay.open { opacity:1; visibility:visible; pointer-events:auto; transition:opacity .3s ease, visibility 0s linear 0s; }
+#profiles-screen { 
+  width:min(1250px,100%); max-height:92vh; overflow:auto; text-align:center; padding:12px 8px 20px; 
+  opacity: 0; 
+  transition: opacity 0.5s ease; 
+}
+#profiles-screen.ready { opacity: 1; } /* كلاس يتم إضافته برمجياً لإظهار المحتوى */
+.profile-brand { display:flex; flex-direction:column; align-items:center; gap:7px; margin-bottom:22px; }
+.profile-brand .profile-logo { width:70px; height:70px; border:2px solid var(--gold); border-radius:50%; object-fit:contain; padding:8px; background:rgba(255,255,255,.05); box-shadow:0 0 28px rgba(201,168,76,.16); }
+.profile-brand h2 { font-size:27px; color:var(--white); margin:0; }
+.profile-brand p { color:var(--muted); font-size:14px; margin:0; }
+#profiles-grid { display:flex; flex-wrap:wrap; justify-content:center; align-items:stretch; gap:22px; max-width:1250px; margin:0 auto; transition: max-width 0.3s ease; }
+#profiles-grid .profile-card { flex:0 1 215px; width:215px; }
+.profile-card { position:relative; min-height:250px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; padding:22px 14px; color:var(--white); cursor:pointer; border:1px solid rgba(255,255,255,.12); border-radius:22px; background:linear-gradient(145deg,rgba(255,255,255,.11),rgba(255,255,255,.035)); box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 14px 35px rgba(0,0,0,.3); transition:transform .25s,border-color .25s,box-shadow .25s; }
+.profile-card:hover { transform:translateY(-8px) scale(1.025); border-color:var(--profile-accent,#c9a84c); box-shadow:0 18px 42px rgba(0,0,0,.45),0 0 25px -8px var(--profile-accent,#c9a84c); }
+.profile-avatar { width:120px; height:120px; border-radius:50%; object-fit:cover; border:4px solid rgba(255,255,255,.25); box-shadow:0 5px 18px rgba(0,0,0,.35); background:#243653; }
+.profile-avatar-fallback { display:flex; align-items:center; justify-content:center; font-size:40px; font-weight:800; color:#fff; }
+.profile-card-name { font-size:22px; font-weight:800; }
+.profile-card-role { font-size:14px; color:var(--muted); }
+.profile-lock { position:absolute; top:14px; left:16px; color:#f5d76e; font-size:16px; }
+.profile-empty { grid-column:1/-1; padding:34px 18px; border:1px dashed rgba(201,168,76,.4); border-radius:18px; color:var(--muted); line-height:1.9; background:rgba(255,255,255,.035); }
+.profile-empty i { display:block; color:var(--gold2); font-size:34px; margin-bottom:8px; }
+.profile-action { margin:22px auto 0; display:inline-flex; align-items:center; gap:8px; padding:11px 20px; border-radius:12px; border:1px solid rgba(201,168,76,.4); background:rgba(201,168,76,.12); color:var(--gold2); font:700 14px Cairo,sans-serif; cursor:pointer; }
+.profile-action:hover { background:rgba(201,168,76,.22); }
+.profile-close { position:fixed; top:18px; left:22px; width:40px; height:40px; border-radius:50%; border:1px solid rgba(255,255,255,.18); background:rgba(255,255,255,.07); color:#c8d4e8; cursor:pointer; font-size:16px; }
+.profile-self-card { width:min(760px,100%); max-height:92vh; overflow:auto; border:1px solid rgba(78,142,247,.35); border-radius:20px; padding:26px; background:linear-gradient(145deg,#16263f,#0d1b2e); box-shadow:0 35px 90px rgba(0,0,0,.65); text-align:center; }
+.profile-self-layout { display:grid; grid-template-columns:minmax(210px,.8fr) minmax(300px,1.2fr); gap:26px; align-items:center; direction:rtl; }
+.profile-self-head { display:flex; flex-direction:column; align-items:center; gap:8px; margin-bottom:0; }
+.profile-self-head h3 { margin:0; color:var(--gold2); font-size:22px; }
+.profile-self-head p { margin:0; color:var(--muted); font-size:13px; }
+.profile-self-avatar { width:112px; height:112px; margin-bottom:4px; }
+.profile-self-info { display:grid; gap:9px; margin:16px 0; text-align:right; }
+.profile-self-info-row { display:flex; justify-content:space-between; gap:15px; padding:10px 12px; border-radius:10px; background:rgba(255,255,255,.045); border:1px solid rgba(255,255,255,.08); font-size:13px; }
+.profile-self-info-row span:first-child { color:var(--muted); }
+.profile-self-info-row span:last-child { color:#fff; font-weight:700; }
+.profile-self-form { display:grid; gap:10px; text-align:right; margin-top:0; }
+.profile-self-form label { color:#c8d4e8; font-size:12px; }
+.profile-self-form input { width:100%; padding:10px 12px; border-radius:10px; border:1px solid rgba(201,168,76,.28); background:rgba(255,255,255,.07); color:#fff; font:14px Cairo,sans-serif; outline:none; }
+.profile-self-form input:focus { border-color:var(--gold2); }
+.profile-self-form button { padding:11px; border:0; border-radius:11px; background:linear-gradient(135deg,#c9a84c,#a8852e); color:#0d1b2e; font:800 14px Cairo,sans-serif; cursor:pointer; }
+.profile-self-form button:hover { filter:brightness(1.08); }
+.profile-self-close { position:absolute; top:14px; left:16px; width:38px; height:38px; border-radius:50%; border:1px solid rgba(255,255,255,.18); background:rgba(255,255,255,.07); color:#c8d4e8; cursor:pointer; font-size:16px; }
+#profile-self-overlay { position:fixed; inset:0; z-index:450; display:flex; align-items:center; justify-content:center; padding:24px 16px; background:rgba(5,12,24,.82); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px); opacity:0; visibility:hidden; pointer-events:none; transition:opacity .3s ease, visibility 0s linear .3s; }
+#profile-self-overlay.open { opacity:1; visibility:visible; pointer-events:auto; transition:opacity .3s ease, visibility 0s linear 0s; }
+@media (max-width:650px) { .profile-self-card { width:calc(100vw - 24px); padding:20px 16px; } .profile-self-layout { grid-template-columns:1fr; gap:16px; } .profile-self-form { margin-top:0; } }
+#profile-manager { width:min(980px,100%); max-height:92vh; overflow:auto; border:1px solid rgba(201,168,76,.25); border-radius:18px; padding:24px; background:linear-gradient(145deg,#16263f,#0d1b2e); box-shadow:0 35px 90px rgba(0,0,0,.65); }
+.profile-manager-head { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:18px; }
+.profile-manager-head h3 { color:var(--gold2); font-size:20px; }
+.profile-manager-head-actions { display:flex; align-items:center; gap:8px; }
+.profile-manager-password-btn { display:flex; align-items:center; gap:6px; border:1px solid rgba(78,142,247,.4); border-radius:9px; padding:8px 12px; background:rgba(78,142,247,.12); color:#a9cbff; font:700 12px Cairo,sans-serif; cursor:pointer; }
+.profile-manager-password-btn:hover { background:rgba(78,142,247,.23); border-color:rgba(122,180,250,.75); }
+.profile-manager-password-btn i { transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.profile-manager-password-btn:hover i { transform: rotate(25deg) scale(1.15); }
+.profile-manager-close { border:0; background:transparent; color:var(--muted); font-size:22px; cursor:pointer; }
+.profile-manager-body { display:flex; align-items:flex-start; gap:22px; }
+.profile-manager-col-title { color:var(--gold2); font-size:14px; font-weight:800; margin:0 0 12px; display:flex; align-items:center; gap:7px; }
+.profile-manager-list-col { flex:1 1 320px; min-width:280px; border-inline-end:1px solid rgba(255,255,255,.1); padding-inline-end:20px; }
+#profile-manager-list { display:flex; flex-direction:column; gap:8px; max-height:440px; overflow-y:auto; padding-inline-end:4px; }
+.profile-manager-form-col { flex:1 1 320px; min-width:280px; }
+.profile-manager-row { display:flex; flex-direction:column; gap:9px; padding:10px; border:1px solid rgba(255,255,255,.1); border-radius:12px; background:rgba(255,255,255,.045); }
+.profile-manager-row-top { display:flex; align-items:center; gap:10px; }
+.profile-manager-row .profile-avatar { width:42px; height:42px; border-width:2px; flex-shrink:0; }
+.profile-manager-row .profile-manager-info { flex:1; text-align:right; min-width:0; }
+.profile-manager-row .profile-manager-name { font-weight:800; color:#fff; font-size:13.5px; }
+.profile-manager-row .profile-manager-meta { font-size:10.5px; color:var(--muted); margin-top:2px; line-height:1.5; }
+
+
+
+.profile-manager-actions { display:grid; grid-template-columns: repeat(4, 1fr); align-items:center; gap:8px; padding-top:9px; border-top:1px solid rgba(255,255,255,.08); direction:ltr; }
+
+/* ══ التنسيق الأساسي لأزرار التحكم ══ */
+.profile-manager-row button { width:100%; height:30px; border-radius:8px; border:1px solid rgba(255,255,255,.12); background:rgba(255,255,255,.06); color:#c8d4e8; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+.profile-manager-row button:hover { background:rgba(255,255,255,.14); }
+
+/* ألوان وحركات الأزرار عند مرور الماوس */
+.profile-manager-row .profile-delete { color:#f87171; }
+.profile-manager-row .profile-edit-btn i,
+.profile-manager-row .profile-password-btn i,
+.profile-manager-row .profile-delete i { transition:transform .22s ease, color .2s; }
+.profile-manager-row .profile-edit-btn:hover i { transform:rotate(-12deg) scale(1.15); color: #7ab4fa; }
+.profile-manager-row .profile-password-btn:hover i { transform:rotate(18deg) scale(1.15); color: #c9a84c; }
+.profile-manager-row .profile-delete:hover i { animation:profile-delete-shake .38s ease-in-out; }
+
+@keyframes profile-delete-shake {
+  0%,100% { transform:rotate(0); }
+  25% { transform:rotate(-12deg); }
+  75% { transform:rotate(12deg); }
+}
+
+/* ══ زر التنشيط (التوجل) في ثوبه الجديد ليتناسق مع الأزرار ══ */
+.profile-toggle-btn { padding:0 !important; }
+.profile-toggle-track { position:relative; display:block; width:38px; height:20px; border-radius:20px; background:#7f1d1d; border:1px solid rgba(248,113,113,.65); box-shadow:inset 0 2px 4px rgba(0,0,0,.3); transition:background .25s ease,border-color .25s ease,box-shadow .25s ease; }
+.profile-toggle-knob { position:absolute; top:2px; left:2px; width:14px; height:14px; border-radius:50%; background:#fecaca; box-shadow:0 2px 5px rgba(0,0,0,.35); transition:transform .28s cubic-bezier(.22,.8,.3,1),background .25s ease; }
+.profile-toggle-btn.is-on .profile-toggle-track { background:#166534; border-color:rgba(74,222,128,.75); box-shadow:inset 0 2px 4px rgba(0,0,0,.25),0 0 9px rgba(74,222,128,.2); }
+.profile-toggle-btn.is-on .profile-toggle-knob { transform:translateX(18px); background:#bbf7d0; }
+.profile-toggle-btn:active .profile-toggle-knob { width:17px; }
+
+/* ══ تنسيقات السحب والإفلات (Drag & Drop) ══ */
+.drag-handle { cursor: grab; color: rgba(138,154,181,.3); font-size: 18px; display: flex; align-items: center; justify-content: center; width: 24px; transition: color .2s; }
+.drag-handle:hover { color: var(--gold2); }
+.drag-handle:active { cursor: grabbing; }
+.profile-manager-row { transition: box-shadow .2s, border-color .2s; }
+.profile-manager-row.dragging { opacity: 0.4; border: 1px dashed var(--gold); background: rgba(201,168,76,.05); }
+
+
+#profile-form { display:grid; grid-template-columns:1fr 1fr; gap:10px 12px; }
+#profile-form .profile-form-full { grid-column:1/-1; }
+@media (max-width:480px) { #profile-form { grid-template-columns:1fr; } }
+.profile-form-label { display:block; color:#c8d4e8; font-size:12px; margin-bottom:5px; text-align:right; }
+.profile-form-input { width:100%; padding:10px 12px; border-radius:10px; border:1px solid rgba(201,168,76,.28); background:rgba(255,255,255,.07); color:#fff; font:14px Cairo,sans-serif; outline:none; }
+.profile-form-input:focus { border-color:var(--gold2); }
+.profile-form-input:disabled { opacity:.55; cursor:not-allowed; }
+select.profile-form-input { color:#fff !important; background-color:#16263f !important; color-scheme:dark; cursor:pointer; }
+select.profile-form-input option { color:#fff !important; background:#16263f !important; }
+.profile-form-submit { grid-column:1/-1; padding:11px; border:0; border-radius:11px; background:linear-gradient(135deg,#c9a84c,#a8852e); color:#0d1b2e; font:800 14px Cairo,sans-serif; cursor:pointer; transition:transform .2s ease,box-shadow .25s ease,filter .25s ease,background .25s ease; box-shadow:0 5px 14px rgba(201,168,76,.18); }
+.profile-form-submit:hover { transform:translateY(-2px); filter:brightness(1.08); background:linear-gradient(135deg,#e0bd5a,#b99232); box-shadow:0 9px 22px rgba(201,168,76,.34),0 0 0 3px rgba(201,168,76,.09); }
+.profile-form-submit:active { transform:translateY(0) scale(.98); box-shadow:0 3px 8px rgba(201,168,76,.22); }
+.profile-form-submit i { display:inline-block; transition:transform .25s ease; }
+.profile-form-submit:hover i { transform:translateY(-2px) rotate(-8deg) scale(1.12); animation:profile-save-bounce .55s ease-in-out; }
+@keyframes profile-save-bounce { 0%,100% { transform:translateY(-2px) rotate(-8deg) scale(1.12); } 45% { transform:translateY(-5px) rotate(4deg) scale(1.18); } }
+.profile-form-note { grid-column:1/-1; color:var(--muted); font-size:11px; text-align:center; }
+@media (max-width:850px) {
+  #profile-manager { width:min(560px,100%); }
+  .profile-manager-body { flex-direction:column; }
+  .profile-manager-list-col { border-inline-end:0; padding-inline-end:0; border-bottom:1px solid rgba(255,255,255,.1); padding-bottom:18px; margin-bottom:4px; }
+}
+@media (max-width:650px) { #profiles-grid{grid-template-columns:repeat(2,1fr);gap:14px}.profile-card{min-height:210px}.profile-avatar{width:92px;height:92px}.profile-card-name{font-size:19px}.profile-brand h2{font-size:22px}#profile-manager{padding:18px} }
+@media (max-width:420px) { .profile-manager-actions { grid-template-columns:repeat(3,1fr); row-gap:6px; } }
+
+/* ══ نوافذ مخصصة (Alert / Confirm / Prompt) بديلة لنوافذ المتصفح الافتراضية ══
+   نفس أسلوب باقي أنظمة البوابة (مثل نظام قرارات ما بعد السداد)، لكن بألوان
+   البوابة نفسها (كحلي داكن + حدود وأزرار ذهبية) بدل الألوان الفاتحة. */
+.gate-dialog-overlay {
+  position:fixed; inset:0; display:flex; align-items:center; justify-content:center;
+  background:rgba(6,12,22,.62); z-index:100000; padding:18px;
+  opacity:0; visibility:hidden; pointer-events:none;
+  transition:opacity .25s ease, visibility 0s linear .25s;
+}
+.gate-dialog-overlay.show { opacity:1; visibility:visible; pointer-events:auto; transition:opacity .25s ease, visibility 0s linear 0s; }
+.gate-dialog {
+  width:min(430px,100%); background:linear-gradient(145deg,#16263f,#0d1b2e);
+  color:var(--white); border:1px solid rgba(201,168,76,.3); border-radius:16px;
+  box-shadow:0 25px 70px rgba(0,0,0,.55); padding:22px; text-align:right; direction:rtl;
+  font-family:'Cairo',sans-serif; transform:scale(.94) translateY(10px); opacity:0;
+  transition:transform .28s cubic-bezier(.34,1.56,.64,1), opacity .22s ease;
+}
+.gate-dialog-overlay.show .gate-dialog { transform:scale(1) translateY(0); opacity:1; }
+.gate-dialog-head { display:flex; align-items:center; gap:10px; margin:0 0 12px; }
+.gate-dialog-head i { color:var(--gold2); font-size:19px; }
+.gate-dialog-head h3 { margin:0; color:var(--gold2); font-size:17px; font-weight:800; }
+.gate-dialog p { margin:0; line-height:1.85; font-size:14.5px; color:var(--white); white-space:pre-line; text-align:center; }
+.gate-dialog-input {
+  width:100%; margin-top:14px; padding:10px 12px; border-radius:10px;
+  border:1px solid rgba(201,168,76,.28); background:rgba(255,255,255,.07);
+  color:#fff; font:14px Cairo,sans-serif; outline:none;
+}
+.gate-dialog-input:focus { border-color:var(--gold2); }
+.gate-dialog-error { display:none; color:#f87171; font-size:12.5px; margin-top:8px; text-align:center; }
+.gate-dialog-actions { display:flex; gap:9px; justify-content:flex-start; flex-wrap:wrap; margin-top:20px; }
+.gate-dialog-actions button {
+  min-width:96px; border:0; border-radius:9px; padding:10px 16px;
+  font-family:inherit; font-size:14px; font-weight:800; cursor:pointer;
+  transition:background .2s;
+}
+.gate-dialog-btn-primary { background:linear-gradient(135deg,#c9a84c,#a8852e); color:#0d1b2e; }
+.gate-dialog-btn-primary:hover { background:linear-gradient(135deg,#e8c97a,#c9a84c); }
+.gate-dialog-btn-secondary { background:rgba(255,255,255,.09); color:#c8d4e8; }
+.gate-dialog-btn-secondary:hover { background:rgba(255,255,255,.16); }
+.gate-dialog-btn-danger { background:#ef4444; color:#fff; }
+.gate-dialog-btn-danger:hover { background:#dc2626; }
+
+
+/* ══ تصميم الإشعار المنبثق (Toast) ══ */
+.gate-toast {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: linear-gradient(145deg, #16263f, #0d1b2e);
+  border: 1px solid rgba(201,168,76,.35);
+  color: var(--white);
+  padding: 14px 24px;
+  border-radius: 12px;
+  box-shadow: 0 15px 35px rgba(0,0,0,.5);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: 'Cairo', sans-serif;
+  font-size: 15.5px;
+  font-weight: 700;
+  z-index: 999999;
+  opacity: 0;
+  visibility: hidden;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease, visibility 0s linear 0.4s;
+  pointer-events: none;
+}
+.gate-toast.show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+  visibility: visible;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease, visibility 0s linear 0s;
+}
+.gate-toast i {
+  color: var(--gold2);
+  font-size: 20px;
+}
+
+/* ══ /* ══ /* ══ تنسيقات الشبكة الذكية للبروفايلات (المعايير العالمية) ══ */
+/* حجم متناسق للبطاقات يجمع بين وضوح الرؤية ومنع الاسكرول */
+#profiles-grid.compact-mode .profile-card { 
+  flex: 0 1 165px; 
+  width: 165px; 
+  min-height: 195px; 
+  padding: 16px 10px; 
+  gap: 8px; 
+  border-radius: 18px;
+}
+#profiles-grid.compact-mode .profile-avatar { 
+  width: 85px; 
+  height: 85px; 
+  border-width: 2px; 
+}
+#profiles-grid.compact-mode .profile-avatar-fallback { font-size: 30px; }
+#profiles-grid.compact-mode .profile-card-name { font-size: 17px; margin-top: 4px; }
+#profiles-grid.compact-mode .profile-card-role { font-size: 12px; }
+#profiles-grid.compact-mode .profile-lock { top: 10px; left: 12px; font-size: 13px; }
+
+/* السر هنا: ضغط المساحات الرأسية في الشاشة الأم لكي تتسع للصفين بارتياح */
+#profiles-screen.compact-screen { padding-top: 5px; padding-bottom: 5px; }
+.compact-screen .profile-brand { margin-top: 10px; margin-bottom: 14px; gap: 4px; }
+.compact-screen .profile-brand .profile-logo { width: 50px; height: 50px; padding: 4px; }
+.compact-screen .profile-brand h2 { font-size: 22px; margin: 0; }
+.compact-screen .profile-brand p { font-size: 13px; margin: 0; }
+.compact-screen #profiles-grid { gap: 14px; }
+.compact-screen .profile-action { margin-top: 14px; padding: 9px 16px; font-size: 13px; }
+
+/* التحكم في عرض الحاوية لتوزيع البطاقات بشكل متوازن */
+/* 5 بطاقات في صف واحد */
+#profiles-grid.grid-5 { max-width: 1250px; } 
+/* 6 بطاقات (3 فوق و 3 تحت) */
+#profiles-grid.grid-6 { max-width: 580px; } 
+/* 7 أو 8 بطاقات (4 فوق و 3/4 تحت) */
+#profiles-grid.grid-7, #profiles-grid.grid-8 { max-width: 780px; } 
+/* 9 أو 10 بطاقات (5 فوق و 4/5 تحت) */
+#profiles-grid.grid-9, #profiles-grid.grid-10 { max-width: 980px; }
+
+
+.gate-dialog-actions button:focus-visible { outline:3px solid rgba(201,168,76,.4); outline-offset:2px; }
+
+
+
+/* ══ تصميم شارة المستخدم الحالي ══ */
+#active-user-badge {
+  position: fixed;
+  top: 25px;
+  left: 204px; /* لتكون بجوار زر الخروج مباشرة */
+  height: 48px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 14px 4px 4px; /* مسافة أقل من جهة الصورة */
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--white);
+  cursor: pointer;
+  z-index: 300;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 4px 18px rgba(0,0,0,0.15);
+}
+#active-user-badge:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(201, 168, 76, 0.5); /* إطار ذهبي عند المرور */
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+}
+#badge-user-name {
+  font-family: 'Cairo', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+/* تصغير الصورة داخل الشارة */
+#badge-user-avatar .profile-avatar {
+  width: 38px;
+  height: 38px;
+  border-width: 2px;
+  margin: 0;
+  box-shadow: none;
+}
+#badge-user-avatar .profile-avatar-fallback { font-size: 16px; }
+
+/* حالة الإخفاء */
+#active-user-badge.hidden-badge {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(-15px) scale(0.95);
+  pointer-events: none;
+}
+
+/* انتقال الشارة للشريط العلوي عند فتح الأنظمة */
+#active-user-badge.in-topbar {
+  top: 6px;
+  left: 158px;
+  height: 42px;
+  padding: 3px 12px 3px 3px;
+  background: transparent;
+  border-color: rgba(255, 255, 255, 0.05);
+  box-shadow: none;
+}
+#active-user-badge.in-topbar:hover { background: rgba(255,255,255,0.05); border-color: rgba(201,168,76,0.3); }
+#active-user-badge.in-topbar #badge-user-avatar .profile-avatar {
+  width: 34px;
+  height: 34px;
+}
+
+
+</style>
 </head>
 <body>
+
+<!-- ══ نوافذ مخصصة عامة: Alert / Confirm / Prompt ══ -->
+<div id="gate-alert-overlay" class="gate-dialog-overlay" role="dialog" aria-modal="true" aria-labelledby="gate-alert-title">
+  <div class="gate-dialog">
+    <div class="gate-dialog-head"><i class="fa-solid fa-circle-info"></i><h3 id="gate-alert-title">تنبيه</h3></div>
+    <p id="gate-alert-message"></p>
+    <div class="gate-dialog-actions">
+      <button type="button" class="gate-dialog-btn-primary" id="gate-alert-ok-btn">حسنًا</button>
+    </div>
+  </div>
+</div>
+
+<div id="gate-confirm-overlay" class="gate-dialog-overlay" role="dialog" aria-modal="true" aria-labelledby="gate-confirm-title">
+  <div class="gate-dialog">
+    <div class="gate-dialog-head"><i class="fa-solid fa-triangle-exclamation"></i><h3 id="gate-confirm-title">تأكيد العملية</h3></div>
+    <p id="gate-confirm-message"></p>
+    <div class="gate-dialog-actions">
+      <button type="button" class="gate-dialog-btn-secondary" id="gate-confirm-cancel-btn">إلغاء</button>
+      <button type="button" class="gate-dialog-btn-primary" id="gate-confirm-ok-btn">تأكيد</button>
+    </div>
+  </div>
+</div>
+
+<div id="gate-prompt-overlay" class="gate-dialog-overlay" role="dialog" aria-modal="true" aria-labelledby="gate-prompt-title">
+  <div class="gate-dialog">
+    <div class="gate-dialog-head"><i class="fa-solid fa-keyboard"></i><h3 id="gate-prompt-title">إدخال بيانات</h3></div>
+    <p id="gate-prompt-message"></p>
+    <input class="gate-dialog-input" id="gate-prompt-input" type="text" autocomplete="off">
+    <div class="gate-dialog-error" id="gate-prompt-error"></div>
+    <div class="gate-dialog-actions">
+      <button type="button" class="gate-dialog-btn-secondary" id="gate-prompt-cancel-btn">إلغاء</button>
+      <button type="button" class="gate-dialog-btn-primary" id="gate-prompt-ok-btn">تأكيد</button>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- ══ TOAST NOTIFICATION ══ -->
+<div id="gate-toast" class="gate-toast">
+  <i class="fa-solid fa-circle-check"></i>
+  <span id="gate-toast-msg"></span>
+</div>
+
 
 <!-- ══ SETTINGS GEAR BUTTON ══ -->
 <button id="settings-btn" title="إعدادات النيابة" onclick="openSettings()" class="">
   <i class="fa-solid fa-gear"></i>
 </button>
+
+<!-- ══ PROFILES BUTTON ══ -->
+<button id="profiles-btn" title="حسابات الموظفين" onclick="openProfiles()" class="">
+  <i class="fa-solid fa-users"></i>
+</button>
+
+<!-- ══ LOGOUT BUTTON (يظهر فقط إذا كان هناك حساب الموظف مسجّل دخول) ══ -->
+<button id="logout-btn" title="تسجيل خروج من الحساب الحالي" onclick="logoutProfile()" class="hidden-logout">
+  <i class="fa-solid fa-right-from-bracket"></i>
+</button>
+
+<!-- ══ ACTIVE USER BADGE (شارة المستخدم الحالي) ══ -->
+<div id="active-user-badge" class="hidden-badge" onclick="openSelfProfile()" title="إعدادات حسابي">
+  <span id="badge-user-name"></span>
+  <div id="badge-user-avatar"></div>
+</div>
+
+<!-- ══ PROFILE PICKER ══ -->
+<div id="profiles-overlay" class="open" aria-hidden="false">
+  <button class="profile-close" type="button" title="إغلاق" onclick="closeProfiles()"><i class="fa-solid fa-xmark"></i></button>
+  <div id="profiles-screen">
+    <div class="profile-brand">
+      <img src="logo.png" class="profile-logo" alt="شعار النيابة">
+      <h2>من يستخدم البوابة الان؟</h2>
+      <p>اختر حساب الموظف للمتابعة إلى أنظمة البوابة</p>
+    </div>
+    <div id="profiles-grid"></div>
+    <button class="profile-action" type="button" onclick="openProfileManager()"><i class="fa-solid fa-user-gear"></i><span>إدارة حسابات الموظفين</span></button>
+  </div>
+</div>
+
+<!-- ══ SELF PROFILE (للموظف الحالي فقط) ══ -->
+<div id="profile-self-overlay" aria-hidden="true" onclick="handleSelfProfileOverlay(event)">
+  <div class="profile-self-card" style="position:relative">
+    <button class="profile-self-close" type="button" title="إغلاق" onclick="closeSelfProfile()"><i class="fa-solid fa-xmark"></i></button>
+    <div class="profile-self-layout">
+      <div>
+        <div class="profile-self-head">
+          <div id="profile-self-avatar"></div>
+          <h3>حسابي</h3>
+          <p>يمكنك تحديث الصورة الشخصية وكلمة المرور الخاصة بك فقط</p>
+        </div>
+        <div class="profile-self-info">
+          <div class="profile-self-info-row"><span>الاسم الرسمي</span><span id="profile-self-name">—</span></div>
+          <div class="profile-self-info-row"><span>الصفة أو القسم</span><span id="profile-self-role">—</span></div>
+        </div>
+      </div>
+      <form class="profile-self-form" onsubmit="saveSelfProfile(event)">
+        <label for="profile-self-photo-input">الصورة الشخصية</label>
+<div style="display:flex; gap:10px; align-items:center;">
+  <input id="profile-self-photo-input" type="file" accept="image/png,image/jpeg,image/webp" style="flex:1;">
+  <button type="button" id="profile-self-remove-photo-btn" style="display:none; padding:10px 15px; border-radius:10px; border:1px solid rgba(248,113,113,.3); background:rgba(248,113,113,.1); color:#f87171; cursor:pointer;" onclick="markSelfPhotoForDeletion()" title="حذف الصورة الحالية"><i class="fa-solid fa-trash"></i> إزالة</button>
+</div>
+<input type="hidden" id="profile-self-delete-photo-flag" value="false">
+        <label for="profile-self-current-password">كلمة المرور الحالية</label>
+        <input id="profile-self-current-password" type="password" autocomplete="current-password">
+        <label for="profile-self-new-password">كلمة المرور الجديدة</label>
+        <input id="profile-self-new-password" type="password" minlength="4" autocomplete="new-password">
+        <label for="profile-self-confirm-password">تأكيد كلمة المرور الجديدة</label>
+        <input id="profile-self-confirm-password" type="password" minlength="4" autocomplete="new-password">
+        <button type="submit"><i class="fa-solid fa-floppy-disk"></i> حفظ التعديلات</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PROFILE MANAGER ══ -->
+<div id="profile-manager-overlay" aria-hidden="true" onclick="handleProfileManagerOverlay(event)">
+  <div id="profile-manager">
+    <div class="profile-manager-head">
+      <h3><i class="fa-solid fa-users-gear"></i> إدارة حسابات الموظفين</h3>
+      <div class="profile-manager-head-actions">
+        <button class="profile-manager-password-btn" type="button" onclick="changeAdminPassword()"><i class="fa-solid fa-key"></i> تغيير كلمة مرور المدير</button>
+        <button class="profile-manager-close" type="button" onclick="closeProfileManager()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+    </div>
+    <div class="profile-manager-body">
+      <div class="profile-manager-list-col">
+        <h4 class="profile-manager-col-title"><i class="fa-solid fa-users"></i> الموظفون الحاليون</h4>
+        <div id="profile-manager-list"></div>
+      </div>
+      <div class="profile-manager-form-col">
+        <h4 id="profile-form-title" class="profile-manager-col-title"><i class="fa-solid fa-user-plus"></i> إضافة حساب موظف جديد</h4>
+        <form id="profile-form" onsubmit="saveProfile(event)">
+          <input type="hidden" id="profile-edit-id">
+          <div>
+            <label class="profile-form-label" for="profile-name-input">اسم الموظف</label>
+            <input class="profile-form-input" id="profile-name-input" required maxlength="60" autocomplete="off">
+          </div>
+          <div>
+            <label class="profile-form-label" for="profile-role-input">الصفة أو القسم</label>
+            <input class="profile-form-input" id="profile-role-input" maxlength="60" placeholder="مثال: عضو نيابة">
+          </div>
+          <div>
+            <label class="profile-form-label" for="profile-access-role-input">دور الصلاحيات</label>
+            <select class="profile-form-input" id="profile-access-role-input">
+              <option value="employee">موظف — حسابي فقط</option>
+              <option value="account_admin">وكيل القلم — إدارة حسابات الموظفين</option>
+              <option value="super_admin">رئيس القلم — جميع الصلاحيات</option>
+            </select>
+          </div>
+          <div>
+            <label class="profile-form-label" for="profile-password-input">كلمة المرور (اختيارية)</label>
+            <input class="profile-form-input" id="profile-password-input" type="password" maxlength="60" autocomplete="new-password" placeholder="اتركه فارغًا لاستخدام 0000">
+          </div>
+          <div class="profile-form-full">
+  <label class="profile-form-label" for="profile-photo-input">الصورة الشخصية</label>
+  <div style="display:flex; gap:10px; align-items:center;">
+    <input class="profile-form-input" id="profile-photo-input" type="file" accept="image/png,image/jpeg,image/webp" style="flex:1;">
+    <button type="button" id="profile-remove-photo-btn" style="display:none; padding:10px 15px; border-radius:10px; border:1px solid rgba(248,113,113,.3); background:rgba(248,113,113,.1); color:#f87171; cursor:pointer;" onclick="markPhotoForDeletion()" title="حذف الصورة الحالية"><i class="fa-solid fa-trash"></i></button>
+  </div>
+  <input type="hidden" id="profile-delete-photo-flag" value="false">
+</div>
+          <button class="profile-form-submit" type="submit"><i class="fa-solid fa-user-plus"></i> إنشاء حساب</button>
+          <div class="profile-form-note">الدور يحدد الصلاحيات الأمنية، بينما الصفة أو القسم بيان وظيفي مستقل. منح أدوار الإدارة متاح لرئيس القلم فقط.</div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- ══ SETTINGS MODAL ══ -->
 <div id="settings-overlay" onclick="handleOverlayClick(event)" class="">
@@ -1146,7 +1686,10 @@ const loadedFrames = {};
 function openSystem(idx) {
   const launcher = document.getElementById('launcher');
   launcher.classList.add('hiding');
-  document.getElementById('settings-btn').classList.add('in-topbar'); 
+  document.getElementById('settings-btn').classList.add('in-topbar');
+  document.getElementById('profiles-btn').classList.add('in-topbar');
+  document.getElementById('logout-btn').classList.add('in-topbar');
+  document.getElementById('active-user-badge').classList.add('in-topbar');
   setTimeout(() => {
     launcher.classList.add('hidden');
     document.getElementById('topbar').classList.add('visible');
@@ -1206,7 +1749,10 @@ function _load(idx) {
 function goHome() {
   document.getElementById('topbar').classList.remove('visible');
   document.getElementById('content-area').classList.remove('visible');
-  document.getElementById('settings-btn').classList.remove('in-topbar'); 
+  document.getElementById('settings-btn').classList.remove('in-topbar');
+  document.getElementById('profiles-btn').classList.remove('in-topbar');
+  document.getElementById('logout-btn').classList.remove('in-topbar');
+  document.getElementById('active-user-badge').classList.remove('in-topbar');
   
   const launcher = document.getElementById('launcher');
   launcher.classList.remove('hidden');
@@ -1224,7 +1770,8 @@ function goHome() {
 
 window.addEventListener('DOMContentLoaded', async function() {
   const saved = sessionStorage.getItem('lastOpenedIdx');
-  if (saved !== null) {
+  // لا نستعيد آخر نظام إلا مع وجود جلسة موظف فعالة أو تفويض مدير.
+  if (saved !== null && (sessionStorage.getItem(ACTIVE_PROFILE_KEY) || isAdminSession())) {
     const idx = parseInt(saved);
     if (!isNaN(idx) && idx >= 0 && idx < SYSTEMS.length) {
       const launcher = document.getElementById('launcher');
@@ -1232,13 +1779,52 @@ window.addEventListener('DOMContentLoaded', async function() {
       launcher.classList.add('hidden');
       document.getElementById('topbar').classList.add('visible');
       document.getElementById('content-area').classList.add('visible');
-      document.getElementById('settings-btn').classList.add('in-topbar'); 
+      document.getElementById('settings-btn').classList.add('in-topbar');
+      document.getElementById('profiles-btn').classList.add('in-topbar');
+      document.getElementById('active-user-badge').classList.add('in-topbar');
+      document.getElementById('logout-btn').classList.add('in-topbar');
       _load(idx);
     }
   }
   
   let cfg = await loadConfig();
   applyConfigToPortal(cfg);
+  initializeProfiles();
+
+// --- [مراقبة فورية وتحديث ذكي في الخلفية للحسابات وشاشة الاختيار] ---
+  setInterval(async function() {
+    try {
+      const db = await fetchProfilesData();
+      const profiles = db && db[PROFILE_KEY];
+      if (Array.isArray(profiles)) {
+        
+        // 1. لو المستخدم مسجل دخول، نراقب هل تم إلغاء تفعيله؟
+        if (activeEmployeeProfile) {
+          const current = profiles.find(p => p.id === activeEmployeeProfile.id);
+          if (!current || current.active === false) {
+            // + مسح ختم السيرفر عند الإيقاف الإجباري
+            await serverLogout();
+            activeEmployeeProfile = null;
+            sessionStorage.removeItem(ACTIVE_PROFILE_KEY);
+            sessionStorage.removeItem(ADMIN_SESSION_KEY);
+            updateLogoutButtonVisibility();
+            goHome();
+            await openProfiles();
+            await gateAlert('تم إلغاء تفعيل حسابك أو حذفه بواسطة الإدارة.', { title: 'تم تسجيل الخروج', danger: true });
+          }
+        }
+        
+        // 2. لو شاشة اختيار البروفايلات مفتوحة حالياً، نحدث القائمة وتلقائياً يُلغى القفل عند التنشيط
+        const profilesOverlay = document.getElementById('profiles-overlay');
+        if (profilesOverlay && profilesOverlay.classList.contains('open')) {
+          await renderProfiles();
+        }
+      }
+    } catch (e) {}
+  }, 5000); // الفحص الشامل يتم كل 5 ثوانٍ في الخلفية بصمت تام
+  // ---------------------------------------------------
+
+
 });
 
 const CFG_KEY = 'niabat_config';
@@ -1284,6 +1870,823 @@ async function saveConfigToStorage(data) {
   localStorage.setItem(CFG_KEY, JSON.stringify(data)); // الاحتفاظ بنسخة محلية للأنظمة القديمة
 }
 
+// ══ نوافذ مخصصة عامة بديلة لنوافذ المتصفح (alert/confirm/prompt) ══
+// كل دالة بترجع Promise، فبتستخدم بـ await بنفس منطق النوافذ الأصلية تمامًا.
+function gateAlert(message, options) {
+  options = options || {};
+  return new Promise(resolve => {
+    const overlay = document.getElementById('gate-alert-overlay');
+    document.getElementById('gate-alert-title').textContent = options.title || 'تنبيه';
+    document.getElementById('gate-alert-message').textContent = message || '';
+    const okBtn = document.getElementById('gate-alert-ok-btn');
+    function cleanup() {
+      overlay.classList.remove('show');
+      document.removeEventListener('keydown', keyHandler, true);
+      okBtn.removeEventListener('click', onOk);
+      overlay.removeEventListener('click', onOverlayClick);
+    }
+    function onOk() { cleanup(); resolve(); }
+    function onOverlayClick(e) { if (e.target === overlay) onOk(); }
+    function keyHandler(e) {
+      if (e.key === 'Enter' || e.key === 'Escape' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); onOk(); }
+    }
+    okBtn.addEventListener('click', onOk);
+    overlay.addEventListener('click', onOverlayClick);
+    document.addEventListener('keydown', keyHandler, true);
+    overlay.classList.add('show');
+    requestAnimationFrame(() => okBtn.focus());
+  });
+}
+
+function gateConfirm(message, options) {
+  options = options || {};
+  return new Promise(resolve => {
+    const overlay = document.getElementById('gate-confirm-overlay');
+    document.getElementById('gate-confirm-title').textContent = options.title || 'تأكيد العملية';
+    document.getElementById('gate-confirm-message').textContent = message || '';
+    const okBtn = document.getElementById('gate-confirm-ok-btn');
+    const cancelBtn = document.getElementById('gate-confirm-cancel-btn');
+    okBtn.textContent = options.confirmText || 'تأكيد';
+    cancelBtn.textContent = options.cancelText || 'إلغاء';
+    okBtn.className = options.danger ? 'gate-dialog-btn-danger' : 'gate-dialog-btn-primary';
+    function cleanup() {
+      overlay.classList.remove('show');
+      document.removeEventListener('keydown', keyHandler, true);
+      okBtn.removeEventListener('click', onOk);
+      cancelBtn.removeEventListener('click', onCancel);
+      overlay.removeEventListener('click', onOverlayClick);
+    }
+    function onOk() { cleanup(); resolve(true); }
+    function onCancel() { cleanup(); resolve(false); }
+    function onOverlayClick(e) { if (e.target === overlay) onCancel(); }
+    function keyHandler(e) {
+      if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); onCancel(); }
+      else if (e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); onOk(); }
+    }
+    okBtn.addEventListener('click', onOk);
+    cancelBtn.addEventListener('click', onCancel);
+    overlay.addEventListener('click', onOverlayClick);
+    document.addEventListener('keydown', keyHandler, true);
+    overlay.classList.add('show');
+    requestAnimationFrame(() => cancelBtn.focus());
+  });
+}
+
+// يرجّع النص المدخل، أو null لو تم الإلغاء (بنفس سلوك window.prompt).
+function gatePrompt(message, options) {
+  options = options || {};
+  return new Promise(resolve => {
+    const overlay = document.getElementById('gate-prompt-overlay');
+    document.getElementById('gate-prompt-title').textContent = options.title || 'إدخال بيانات';
+    document.getElementById('gate-prompt-message').textContent = message || '';
+    const input = document.getElementById('gate-prompt-input');
+    const errorEl = document.getElementById('gate-prompt-error');
+    const okBtn = document.getElementById('gate-prompt-ok-btn');
+    const cancelBtn = document.getElementById('gate-prompt-cancel-btn');
+    input.type = options.type || 'text';
+    input.value = options.defaultValue || '';
+    errorEl.style.display = 'none'; errorEl.textContent = '';
+    function cleanup() {
+      overlay.classList.remove('show');
+      document.removeEventListener('keydown', keyHandler, true);
+      okBtn.removeEventListener('click', onOk);
+      cancelBtn.removeEventListener('click', onCancel);
+      overlay.removeEventListener('click', onOverlayClick);
+    }
+    function onOk() { cleanup(); resolve(input.value); }
+    function onCancel() { cleanup(); resolve(null); }
+    function onOverlayClick(e) { if (e.target === overlay) onCancel(); }
+    function keyHandler(e) {
+      if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); onCancel(); }
+      else if (e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); onOk(); }
+    }
+    okBtn.addEventListener('click', onOk);
+    cancelBtn.addEventListener('click', onCancel);
+    overlay.addEventListener('click', onOverlayClick);
+    document.addEventListener('keydown', keyHandler, true);
+    overlay.classList.add('show');
+    requestAnimationFrame(() => input.focus());
+  });
+}
+
+
+
+// دالة إظهار الإشعار المنبثق (Toast)
+function showToast(message) {
+  const toast = document.getElementById('gate-toast');
+  const msgEl = document.getElementById('gate-toast-msg');
+  if (!toast || !msgEl) return;
+  
+  msgEl.textContent = message;
+  toast.classList.add('show');
+  
+  // إذا كان هناك مؤقت شغال بالفعل، نلغيه ونبدأ من جديد
+  if (toast._timer) clearTimeout(toast._timer);
+  
+  // إخفاء الإشعار بعد 3.5 ثواني
+  toast._timer = setTimeout(() => {
+    toast.classList.remove('show');
+  }, 3500);
+}
+
+
+
+const PROFILE_KEY = 'niabat_employee_profiles_v1';
+const ACTIVE_PROFILE_KEY = 'niabat_active_profile_session'; // مقصود يفضل في sessionStorage: ده "من مسجّل دخول على هذا الجهاز الآن" فقط، وليس بيانات مشتركة
+const ADMIN_KEY = 'niabat_profiles_admin_v1';
+const ADMIN_SESSION_KEY = 'niabat_profiles_admin_session'; // كذلك: جلسة تفويض الأدمن على هذا الجهاز فقط
+const DEFAULT_EMPLOYEE_PASSWORD = '0000';
+const DEFAULT_ADMIN_PASSWORD = 'Admin@1234';
+const ACCESS_ROLES = Object.freeze({ employee:'employee', accountAdmin:'account_admin', superAdmin:'super_admin' });
+let employeeProfiles = [];
+let activeEmployeeProfile = null;
+
+
+// دالة تشفير الباسوورد في المتصفح لتطابق السيرفر (SHA-256)
+async function hashPass(text) {
+    if (!text) return '';
+    const msgUint8 = new TextEncoder().encode(text);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+
+
+// تحميل حسابات الموظفين من قاعدة البيانات المركزية (data.json عبر السيرفر)
+// بدلاً من localStorage، عشان تظهر بنفس الصورة على كل الأجهزة على الشبكة.
+async function loadEmployeeProfiles() {
+  try {
+    const db = await fetchProfilesData();
+    const parsed = db && db[PROFILE_KEY];
+    employeeProfiles = Array.isArray(parsed) ? parsed : [];
+    let migrated = false;
+    employeeProfiles.forEach(profile => {
+      if (!profile.password) { profile.password = DEFAULT_EMPLOYEE_PASSWORD; profile.mustChange = true; migrated = true; }
+      else if (typeof profile.mustChange !== 'boolean') { profile.mustChange = true; migrated = true; }
+      // حسابات الموظفين القديمة لم يكن بها هذا الحقل، فتُعتبر نشطة تلقائيًا.
+      if (typeof profile.active !== 'boolean') { profile.active = true; migrated = true; }
+      // الحسابات القديمة موظفون عاديون حتى يمنحها مدير النظام دورًا صراحةً.
+      if (!profile.accessRole || !Object.values(ACCESS_ROLES).includes(profile.accessRole)) { profile.accessRole = ACCESS_ROLES.employee; migrated = true; }
+    });
+    if (migrated) await saveEmployeeProfiles();
+  } catch (e) { employeeProfiles = []; }
+  return employeeProfiles;
+}
+
+// حفظ حسابات الموظفين في قاعدة البيانات المركزية.
+// نجيب أحدث نسخة من قاعدة البيانات كاملة، نحدّث مفتاح حسابات الموظفين فيها فقط،
+// ونرجّعها كاملة (نفس أسلوب saveConfigToStorage) عشان مفتاح حسابات الموظفين
+// (مصفوفة) ما يعديش على مسار الدمج الخاص بمفاتيح "mahdar_" في السيرفر.
+async function saveEmployeeProfiles() {
+  const db = await fetchProfilesData();
+  db[PROFILE_KEY] = employeeProfiles;
+  await saveProfilesData(db);
+}
+
+function profileInitial(name) {
+  const clean = String(name || '?').trim();
+  return clean ? clean.charAt(0) : '?';
+}
+
+function profileAvatarMarkup(profile, small = false, isActive = false) {
+  const cls = 'profile-avatar' + (isActive ? ' profile-avatar-active' : '');
+  if (profile.photo) return `<img class="${cls}" src="${profile.photo}" alt="${escapeHtml(profile.name)}">`;
+  return `<div class="${cls} profile-avatar-fallback">${escapeHtml(profileInitial(profile.name))}</div>`;
+}
+
+async function renderProfiles() {
+  const grid = document.getElementById('profiles-grid');
+  if (!grid) return;
+  const managerButton = document.querySelector('#profiles-screen .profile-action');
+  if (managerButton) managerButton.style.display = (hasAccountManagementAccess() || !activeEmployeeProfile) ? 'inline-flex' : 'none';
+  const pickerClose = document.querySelector('#profiles-overlay .profile-close');
+  if (pickerClose) pickerClose.style.display = (hasAccountManagementAccess() || activeEmployeeProfile) ? 'block' : 'none';
+  await loadEmployeeProfiles();
+
+
+// تطبيق كلاسات التقسيم المتوازن والتصغير بناءً على عدد الحسابات
+  // هندسة التوزيع والتقسيم المتوازن (المعايير العالمية)
+  const count = employeeProfiles.length;
+  grid.className = ''; // تنظيف الكلاسات القديمة
+  const screen = document.getElementById('profiles-screen');
+  if (screen) screen.classList.remove('compact-screen'); // تنظيف الشاشة
+
+  // إذا كان العدد 6 أو أكثر، ننتقل لوضع الصفين (التصغير الذكي لمنع الاسكرول)
+  if (count >= 6) {
+      grid.classList.add('compact-mode');
+      if (screen) screen.classList.add('compact-screen');
+
+      if (count === 6) grid.classList.add('grid-6'); // 3 و 3
+      else if (count === 7 || count === 8) grid.classList.add('grid-8'); // 4 و 4
+      else if (count >= 9) grid.classList.add('grid-10'); // 5 و 5
+  } else if (count === 5) {
+      // 5 بطاقات في صف واحد بالحجم الطبيعي دون تصغير
+      grid.classList.add('grid-5');
+  }
+
+
+
+  if (!employeeProfiles.length) {
+    grid.innerHTML = '<div class="profile-empty"><i class="fa-solid fa-user-plus"></i><strong>لا توجد حسابات موظفين مضافة بعد</strong><br>ابدأ بإضافة أسماء الموظفين من زر إدارة حسابات الموظفين.</div>';
+    // إظهار المحتوى حتى لو كانت الشاشة فارغة
+    document.getElementById('profiles-screen').classList.add('ready');
+    return;
+  }
+  grid.innerHTML = employeeProfiles.map((profile, index) => `
+    <button class="profile-card${profile.active === false ? ' profile-card-inactive' : ''}" type="button" style="--profile-accent:${profile.accent || ['#4e8ef7','#c9a84c','#34d399','#a78bfa','#f87171'][index % 5]}" onclick="selectEmployeeProfile('${profile.id}')">
+      ${!profile.active ? '<span class="profile-lock" title="الحساب غير نشط" style="color:#dc3545"><i class="fa-solid fa-ban"></i></span>' : ''}
+      ${profile.active !== false && profile.password ? '<span class="profile-lock" title="محمي بكلمة مرور"><i class="fa-solid fa-lock"></i></span>' : ''}
+      ${profileAvatarMarkup(profile, false, profile.active !== false)}
+      <span class="profile-card-name">${escapeHtml(profile.name)}</span>
+      <span class="profile-card-role">${escapeHtml(profile.role || 'موظف بالنيابة')} ${!profile.active ? ' · غير نشط' : ''}</span>
+    </button>`).join('');
+    
+  // إظهار المحتوى دفعة واحدة (الشعار + النص + البطاقات) بعد اكتمال الرسم
+  requestAnimationFrame(() => {
+    document.getElementById('profiles-screen').classList.add('ready');
+  });
+}
+
+async function openProfiles() {
+  if (hasAccountManagementAccess()) { await openProfileManager(); return; }
+  // للموظف العادي: نفتح شاشة اختيار الحسابات لتبديل الحساب
+  const overlay = document.getElementById('profiles-overlay');
+  if (overlay) { overlay.classList.add('open'); overlay.setAttribute('aria-hidden','false'); }
+  await renderProfiles();
+}
+
+function closeProfiles() {
+  // تظل شاشة اختيار الحساب إلزامية قبل المصادقة، ولا يمكن تجاوزها بزر X.
+  if (!activeEmployeeProfile && !hasAccountManagementAccess()) return;
+  const overlay = document.getElementById('profiles-overlay');
+  if (overlay) { overlay.classList.remove('open'); overlay.setAttribute('aria-hidden','true'); }
+}
+
+function updateLogoutButtonVisibility() {
+  const btn = document.getElementById('logout-btn');
+  if (btn) btn.classList.toggle('hidden-logout', !activeEmployeeProfile);
+
+  // تحديث شارة المستخدم الحالي
+  const badge = document.getElementById('active-user-badge');
+  if (badge) {
+    if (activeEmployeeProfile) {
+      // استخراج الاسم الأول فقط
+      const firstName = activeEmployeeProfile.name.split(' ')[0];
+      document.getElementById('badge-user-name').textContent = firstName;
+      document.getElementById('badge-user-avatar').innerHTML = profileAvatarMarkup(activeEmployeeProfile, true);
+      badge.classList.remove('hidden-badge');
+    } else {
+      badge.classList.add('hidden-badge');
+    }
+  }
+}
+
+async function logoutProfile() {
+  if (!activeEmployeeProfile) return;
+  const ok = await gateConfirm(
+    'هل تريد تسجيل الخروج من حساب الموظف «' + activeEmployeeProfile.name + '» ؟\n',
+    { title:'تسجيل خروج', confirmText:'تسجيل خروج', cancelText:'إلغاء', danger:true }
+  );
+  if (!ok) return;
+  activeEmployeeProfile = null;
+  sessionStorage.removeItem(ACTIVE_PROFILE_KEY);
+  sessionStorage.removeItem(ADMIN_SESSION_KEY);
+// + مسح ختم السيرفر
+  await serverLogout();
+  updateLogoutButtonVisibility();
+  goHome();
+  await openProfiles();
+  showToast('تم تسجيل الخروج بنجاح. اختر حسابًا للمتابعة.');
+}
+
+async function selectEmployeeProfile(id) {
+  const profile = employeeProfiles.find(item => item.id === id);
+  if (!profile) return;
+  if (profile.active === false) {
+    await gateAlert('هذا الحساب غير نشط حاليًا. يرجى مراجعة رئيس او وكيل القلم لتفعيله.', { title:'حساب الموظف غير نشط' });
+    return;
+  }
+
+  // إذا كان الموظف يختار حسابه المفتوح بالفعل، نغلق الشاشة فقط دون طلب الباسوورد
+  if (activeEmployeeProfile && activeEmployeeProfile.id === id) {
+    const overlay = document.getElementById('profiles-overlay');
+    if (overlay) { overlay.classList.remove('open'); overlay.setAttribute('aria-hidden','true'); }
+    return;
+  }
+
+  // حلقة تكرار مستمرة لطلب الباسوورد حتى ينجح أو ينسحب
+  if (profile.password) {
+    let isPasswordCorrect = false;
+    while (!isPasswordCorrect) {
+      const entered = await gatePrompt('أدخل كلمة مرور حساب الموظف ' + profile.name, { type:'password', title:'دخول حساب الموظف' });
+      
+      // إذا ضغط المستخدم على "إلغاء"، ننهي العملية تماماً
+      if (entered === null) return; 
+      
+      if (await hashPass(entered) !== profile.password) { 
+        await gateAlert('كلمة المرور غير صحيحة.'); 
+        // حذفنا أمر (return) من هنا، لكي تعود الحلقة (while) وتظهر مربع الإدخال فوراً
+      } else {
+        isPasswordCorrect = true; // الباسوورد صحيح، نخرج من الحلقة ونُكمل تسجيل الدخول
+      }
+    }
+  }
+  
+
+
+
+if (!await forceEmployeePasswordChange(profile)) return;
+  activeEmployeeProfile = profile;
+  sessionStorage.setItem(ACTIVE_PROFILE_KEY, JSON.stringify({ id: profile.id, name: profile.name, role: profile.role || '' }));
+
+  // + تنظيف أي جلسة سابقة ثم إضافة ختم السيرفر الجديد
+  await serverLogout();
+  await serverLogin(profile.id, profile.password, false);
+
+
+  updateLogoutButtonVisibility();
+  const overlay = document.getElementById('profiles-overlay');
+  if (overlay) { overlay.classList.remove('open'); overlay.setAttribute('aria-hidden','true'); }
+  document.dispatchEvent(new CustomEvent('niabatProfileSelected', { detail: profile }));
+}
+
+async function restoreActiveEmployeeProfile() {
+  await loadEmployeeProfiles();
+  try {
+    const saved = JSON.parse(sessionStorage.getItem(ACTIVE_PROFILE_KEY) || 'null');
+    if (saved && saved.id) {
+      const restored = employeeProfiles.find(item => item.id === saved.id);
+      if (restored && restored.active !== false) {
+        activeEmployeeProfile = restored;
+        if (restored.accessRole !== ACCESS_ROLES.superAdmin) sessionStorage.removeItem(ADMIN_SESSION_KEY);
+      }
+      else if (restored && restored.active === false) sessionStorage.removeItem(ACTIVE_PROFILE_KEY);
+    }
+  } catch (e) { activeEmployeeProfile = null; }
+  updateLogoutButtonVisibility();
+}
+
+function isAdminSession() {
+  return sessionStorage.getItem(ADMIN_SESSION_KEY) === '1';
+}
+
+function hasAccountManagementAccess() {
+  return isAdminSession() || [ACCESS_ROLES.accountAdmin, ACCESS_ROLES.superAdmin].includes(activeEmployeeProfile && activeEmployeeProfile.accessRole);
+}
+
+function isSuperAdminSession() {
+  return isAdminSession() || (activeEmployeeProfile && activeEmployeeProfile.accessRole === ACCESS_ROLES.superAdmin);
+}
+
+function accessRoleRank(role) {
+  return role === ACCESS_ROLES.superAdmin ? 3 : role === ACCESS_ROLES.accountAdmin ? 2 : 1;
+}
+
+function canManageProfile(target) {
+  if (!hasAccountManagementAccess() || !target) return false;
+  if (isSuperAdminSession()) return true;
+  // السماح للمدير بتعديل حسابه الشخصي دائماً بغض النظر عن المقارنة
+  if (activeEmployeeProfile && activeEmployeeProfile.id === target.id) return true;
+  return accessRoleRank(activeEmployeeProfile && activeEmployeeProfile.accessRole) > accessRoleRank(target.accessRole);
+}
+
+function canChangeAccessRole() {
+  return isSuperAdminSession();
+}
+
+async function loadAdminAccount() {
+  const db = await fetchProfilesData();
+  return (db && db[ADMIN_KEY]) || null;
+}
+
+async function saveAdminAccount(admin) {
+  const db = await fetchProfilesData();
+  db[ADMIN_KEY] = admin;
+  await saveProfilesData(db);
+}
+
+async function authorizeAdmin() {
+  if (hasAccountManagementAccess()) return true;
+  let admin = await loadAdminAccount();
+  if (!admin) {
+    admin = { username:'admin', password:DEFAULT_ADMIN_PASSWORD, mustChange:true };
+    await saveAdminAccount(admin);
+    await gateAlert('تم إنشاء حساب المدير الافتراضي. اسم المستخدم: admin\nكلمة المرور المؤقتة: Admin@1234\nسيُطلب تغييرها الآن.', { title:'حساب المدير' });
+  }
+  const username = await gatePrompt('اسم مستخدم المدير', { title:'تسجيل دخول المدير' });
+  if (username === null) return false;
+  const password = await gatePrompt('كلمة مرور المدير', { type:'password', title:'تسجيل دخول المدير' });
+  if (username !== admin.username || await hashPass(password) !== admin.password) { await gateAlert('بيانات المدير غير صحيحة.'); return false; }
+  if (admin.mustChange) {
+    const next = await gatePrompt('غيّر كلمة مرور المدير الافتراضية الآن', { type:'password', title:'تغيير كلمة المرور' });
+    if (!next || next.length < 4) { await gateAlert('يجب أن تتكون كلمة المرور الجديدة من 4 أحرف أو أرقام على الأقل.'); return false; }
+    const confirmNext = await gatePrompt('أعد كتابة كلمة مرور المدير الجديدة', { type:'password', title:'تغيير كلمة المرور' });
+    if (next !== confirmNext) { await gateAlert('كلمتا المرور غير متطابقتين.'); return false; }
+    admin.password = next; admin.mustChange = false; await saveAdminAccount(admin);
+  }
+  sessionStorage.setItem(ADMIN_SESSION_KEY, '1');
+  return true;
+}
+
+async function changeAdminPassword() {
+  if (!isSuperAdminSession()) return;
+  const admin = await loadAdminAccount();
+  if (!admin) {
+    await gateAlert('لم يتم العثور على حساب المدير.');
+    sessionStorage.removeItem(ADMIN_SESSION_KEY);
+    return;
+  }
+  const current = await gatePrompt('اكتب كلمة مرور المدير الحالية', { type:'password', title:'تغيير كلمة مرور المدير' });
+  if (current === null) return;
+  if (await hashPass(current) !== admin.password) {
+    await gateAlert('كلمة المرور الحالية غير صحيحة.');
+    return;
+  }
+  const next = await gatePrompt('اكتب كلمة مرور المدير الجديدة (4 أحرف أو أرقام على الأقل)', { type:'password', title:'كلمة المرور الجديدة' });
+  if (next === null) return;
+  if (next.length < 4) {
+    await gateAlert('يجب أن تتكون كلمة المرور الجديدة من 4 أحرف أو أرقام على الأقل.');
+    return;
+  }
+  const confirmNext = await gatePrompt('أعد كتابة كلمة المرور الجديدة', { type:'password', title:'تأكيد كلمة المرور الجديدة' });
+  if (confirmNext === null) return;
+  if (next !== confirmNext) {
+    await gateAlert('كلمتا المرور غير متطابقتين.');
+    return;
+  }
+  admin.password = next;
+  admin.mustChange = false;
+  await saveAdminAccount(admin);
+  await gateAlert('تم تغيير كلمة مرور المدير بنجاح.', { title:'تم الحفظ' });
+}
+
+async function forceEmployeePasswordChange(profile) {
+  if (!profile.mustChange) return true;
+  const next = await gatePrompt('هذه أول مرة تدخل فيها إلى حسابك. اكتب كلمة مرور جديدة بدلًا من 0000', { type:'password', title:'تعيين كلمة مرور جديدة' });
+  if (!next || next.length < 4) { await gateAlert('يجب أن تتكون كلمة المرور الجديدة من 4 أحرف أو أرقام على الأقل.'); return false; }
+  const confirmNext = await gatePrompt('أعد كتابة كلمة المرور الجديدة', { type:'password', title:'تعيين كلمة مرور جديدة' });
+  if (next !== confirmNext) { await gateAlert('كلمتا المرور غير متطابقتين.'); return false; }
+  
+  // تحديث المصفوفة لتجنب فقدان البيانات بسبب المراقبة في الخلفية
+  await loadEmployeeProfiles();
+  const target = employeeProfiles.find(item => item.id === profile.id);
+  if (target) {
+    target.password = next; 
+    target.mustChange = false; 
+  }
+  await saveEmployeeProfiles();
+  await gateAlert('تم تغيير كلمة المرور بنجاح.');
+  return true;
+}
+
+async function openSelfProfile() {
+  if (!activeEmployeeProfile) return;
+  await loadEmployeeProfiles();
+  const profile = employeeProfiles.find(item => item.id === activeEmployeeProfile.id);
+  if (!profile) return;
+  activeEmployeeProfile = profile;
+  document.getElementById('profile-self-name').textContent = profile.name || '—';
+  document.getElementById('profile-self-role').textContent = profile.role || 'موظف بالنيابة';
+  document.getElementById('profile-self-avatar').innerHTML = profileAvatarMarkup(profile, false, true).replace('profile-avatar', 'profile-avatar profile-self-avatar');
+  document.getElementById('profile-self-current-password').value = '';
+  document.getElementById('profile-self-new-password').value = '';
+  document.getElementById('profile-self-confirm-password').value = '';
+  document.getElementById('profile-self-photo-input').value = '';
+  document.getElementById('profile-self-delete-photo-flag').value = 'false';
+document.getElementById('profile-self-remove-photo-btn').style.display = profile.photo ? 'block' : 'none';
+  const overlay = document.getElementById('profile-self-overlay');
+  if (overlay) { overlay.classList.add('open'); overlay.setAttribute('aria-hidden','false'); }
+}
+
+function closeSelfProfile() {
+  const overlay = document.getElementById('profile-self-overlay');
+  if (overlay) { overlay.classList.remove('open'); overlay.setAttribute('aria-hidden','true'); }
+}
+
+function handleSelfProfileOverlay(event) {
+  if (event.target === document.getElementById('profile-self-overlay')) closeSelfProfile();
+}
+
+async function saveSelfProfile(event) {
+  event.preventDefault();
+  if (!activeEmployeeProfile) return;
+  await loadEmployeeProfiles();
+  const profile = employeeProfiles.find(item => item.id === activeEmployeeProfile.id);
+  if (!profile) return;
+  const current = document.getElementById('profile-self-current-password').value;
+  const next = document.getElementById('profile-self-new-password').value;
+  const confirmNext = document.getElementById('profile-self-confirm-password').value;
+  const file = document.getElementById('profile-self-photo-input').files[0];
+  if (next || confirmNext || current) {
+    if (await hashPass(current) !== profile.password) { await gateAlert('كلمة المرور الحالية غير صحيحة.'); return; }
+    if (!next || next.length < 4) { await gateAlert('يجب أن تتكون كلمة المرور الجديدة من 4 أحرف أو أرقام على الأقل.'); return; }
+    if (next !== confirmNext) { await gateAlert('كلمتا المرور غير متطابقتين.'); return; }
+    profile.password = next;
+    profile.mustChange = false;
+  }
+  const photo = await readProfilePhoto(file);
+  if (photo) {
+    profile.photo = photo;
+  }
+  if (!photo && !next && !confirmNext && !current) {
+    await gateAlert('اختر صورة جديدة، أو أدخل بيانات تغيير كلمة المرور.');
+    return;
+  }
+  await saveEmployeeProfiles();
+  activeEmployeeProfile = profile;
+  sessionStorage.setItem(ACTIVE_PROFILE_KEY, JSON.stringify({ id: profile.id, name: profile.name, role: profile.role || '' }));
+updateLogoutButtonVisibility();
+  closeSelfProfile();
+  await gateAlert('تم حفظ تعديلات حسابك بنجاح.', { title:'تم الحفظ' });
+}
+
+async function openProfileManager() {
+  if (!await authorizeAdmin()) return;
+  await renderProfileManager();
+  const overlay = document.getElementById('profile-manager-overlay');
+  if (overlay) { overlay.classList.add('open'); overlay.setAttribute('aria-hidden','false'); }
+}
+
+async function closeProfileManager() {
+  const overlay = document.getElementById('profile-manager-overlay');
+  if (overlay) { overlay.classList.remove('open'); overlay.setAttribute('aria-hidden','true'); }
+  await renderProfiles();
+  
+  // إرجاع النموذج لوضع "الإنشاء" وتفريغ الخانات بمجرد إغلاق النافذة
+  resetProfileForm();
+}
+
+function handleProfileManagerOverlay(event) {
+  if (event.target === document.getElementById('profile-manager-overlay')) closeProfileManager();
+}
+
+function resetProfileForm() {
+  const form = document.getElementById('profile-form');
+  if (form) form.reset();
+  const id = document.getElementById('profile-edit-id'); if (id) id.value = '';
+  
+  // إرجاع الزر لوضع إنشاء حساب
+  const submit = document.querySelector('#profile-form .profile-form-submit');
+  if (submit) submit.innerHTML = '<i class="fa-solid fa-user-plus"></i> إنشاء حساب';
+  
+  // إرجاع عنوان النموذج لوضع إضافة حساب
+  const formTitle = document.getElementById('profile-form-title');
+  if (formTitle) formTitle.innerHTML = '<i class="fa-solid fa-user-plus"></i> إضافة حساب موظف جديد';
+
+  const deleteFlag = document.getElementById('profile-delete-photo-flag');
+  if (deleteFlag) deleteFlag.value = 'false';
+  const removeBtn = document.getElementById('profile-remove-photo-btn');
+  if (removeBtn) removeBtn.style.display = 'none';
+}
+
+async function renderProfileManager() {
+  const list = document.getElementById('profile-manager-list');
+  if (!list) return;
+  const roleInput = document.getElementById('profile-access-role-input');
+  if (roleInput) roleInput.disabled = !isSuperAdminSession();
+  const adminPasswordButton = document.querySelector('.profile-manager-password-btn');
+  if (adminPasswordButton) adminPasswordButton.style.display = isSuperAdminSession() ? 'inline-flex' : 'none';
+  await loadEmployeeProfiles();
+  if (!employeeProfiles.length) {
+    list.innerHTML = '<div class="profile-empty" style="padding:18px">لم تتم إضافة أي موظف بعد.</div>';
+    return;
+  }
+  list.innerHTML = employeeProfiles.map((profile, index) => `
+    <div class="profile-manager-row" draggable="true" ondragstart="handleDragStart(event, ${index})" ondragover="handleDragOver(event)" ondrop="handleDrop(event, ${index})" ondragend="this.classList.remove('dragging')">
+      <div class="profile-manager-row-top">
+        <div class="drag-handle" title="اسحب لترتيب الحساب"><i class="fa-solid fa-grip-vertical"></i></div>
+
+
+        ${profileAvatarMarkup(profile, true)}
+        <div class="profile-manager-info"><div class="profile-manager-name">${escapeHtml(profile.name)}</div><div class="profile-manager-meta">${escapeHtml(profile.role || 'موظف بالنيابة')} · ${profile.accessRole === ACCESS_ROLES.superAdmin ? 'رئيس القلم' : profile.accessRole === ACCESS_ROLES.accountAdmin ? 'وكيل القلم' : 'موظف'} ${profile.password ? ' · محمي بكلمة مرور' : ''} · <strong style="color:${profile.active === false ? '#dc3545' : '#198754'}">${profile.active === false ? 'غير نشط' : 'نشط'}</strong></div></div>
+      </div>
+      <div class="profile-manager-actions">
+        
+        <button type="button" class="profile-edit-btn" title="تعديل" onclick="editProfile('${profile.id}')"><i class="fa-solid fa-pen"></i></button>
+        <button type="button" class="profile-password-btn" title="إعادة تعيين كلمة المرور" onclick="resetProfilePassword('${profile.id}')"><i class="fa-solid fa-key"></i></button>
+        <button type="button" class="profile-toggle-btn${profile.active === false ? '' : ' is-on'}" title="${profile.active === false ? 'تنشيط الحساب' : 'إلغاء تنشيط الحساب'}" aria-label="${profile.active === false ? 'تنشيط الحساب' : 'إلغاء تنشيط الحساب'}" onclick="toggleProfileActive('${profile.id}')"><span class="profile-toggle-track"><span class="profile-toggle-knob"></span></span></button>
+        <button type="button" class="profile-delete" title="حذف" onclick="deleteProfile('${profile.id}')"><i class="fa-solid fa-trash"></i></button>
+      </div>
+    </div>`).join('');
+}
+
+// ══ دوال السحب والإفلات (Drag & Drop) ══
+let dragStartIndex = -1;
+
+function handleDragStart(e, index) {
+  if (!isSuperAdminSession()) {
+    e.preventDefault();
+    gateAlert('ترتيب الحسابات متاح لرئيس القلم فقط.', { title: 'صلاحيات غير كافية', danger: true });
+    return;
+  }
+  dragStartIndex = index;
+  e.dataTransfer.effectAllowed = 'move';
+  // تأخير بسيط لإضافة الكلاس حتى لا تختفي البطاقة الأصلية أثناء السحب
+  setTimeout(() => e.target.classList.add('dragging'), 0);
+}
+
+function handleDragOver(e) {
+  e.preventDefault(); // إجباري للسماح بالإفلات
+  e.dataTransfer.dropEffect = 'move';
+}
+
+async function handleDrop(e, targetIndex) {
+  e.preventDefault();
+  if (dragStartIndex === -1 || dragStartIndex === targetIndex) return;
+
+  // سحب العنصر من مكانه القديم وزرعه في المكان الجديد
+  const movedItem = employeeProfiles.splice(dragStartIndex, 1)[0];
+  employeeProfiles.splice(targetIndex, 0, movedItem);
+
+  await saveEmployeeProfiles();
+  await renderProfileManager();
+  await renderProfiles();
+}
+
+function editProfile(id) {
+  const profile = employeeProfiles.find(item => item.id === id);
+  if (!profile) return;
+  if (!canManageProfile(profile)) { gateAlert('لا يمكنك تعديل حساب له صلاحية مساوية أو أعلى من صلاحيتك.'); return; }
+  document.getElementById('profile-edit-id').value = profile.id;
+  document.getElementById('profile-name-input').value = profile.name || '';
+  document.getElementById('profile-role-input').value = profile.role || '';
+  document.getElementById('profile-access-role-input').value = profile.accessRole || ACCESS_ROLES.employee;
+  document.getElementById('profile-password-input').value = '';
+  const submit = document.querySelector('#profile-form .profile-form-submit');
+  if (submit) submit.innerHTML = '<i class="fa-solid fa-pen"></i> تحديث الحساب';
+const formTitle = document.getElementById('profile-form-title');
+  if (formTitle) formTitle.innerHTML = '<i class="fa-solid fa-user-pen"></i> تعديل بيانات الموظف';
+document.getElementById('profile-delete-photo-flag').value = 'false';
+document.getElementById('profile-remove-photo-btn').style.display = profile.photo ? 'block' : 'none';
+  document.getElementById('profile-name-input').focus();
+}
+
+async function resetProfilePassword(id) {
+  const profile = employeeProfiles.find(item => item.id === id);
+  if (!profile) return;
+  if (!canManageProfile(profile)) { await gateAlert('لا يمكنك إدارة حساب له صلاحية مساوية أو أعلى من صلاحيتك.'); return; }
+  if (!await gateConfirm('إعادة كلمة مرور «' + profile.name + '» إلى 0000؟', { title:'إعادة تعيين كلمة المرور' })) return;
+  
+  // تحديث المصفوفة قبل التعديل
+  await loadEmployeeProfiles();
+  const target = employeeProfiles.find(item => item.id === id);
+  if (target) {
+    target.password = DEFAULT_EMPLOYEE_PASSWORD;
+    target.mustChange = true;
+  }
+  await saveEmployeeProfiles();
+  await renderProfileManager(); await renderProfiles();
+  await gateAlert('تمت إعادة التعيين. سيُطلب من الموظف تغييرها عند الدخول التالي.');
+}
+
+async function toggleProfileActive(id) {
+  const profile = employeeProfiles.find(item => item.id === id);
+  if (!profile) return;
+  if (!canManageProfile(profile)) { await gateAlert('لا يمكنك تنشيط أو إلغاء تنشيط حساب له صلاحية مساوية أو أعلى من صلاحيتك.'); return; }
+  const willActivate = profile.active === false;
+  const actionText = willActivate ? 'تنشيط' : 'إلغاء تنشيط';
+  if (!await gateConfirm('هل تريد ' + actionText + ' حساب الموظف «' + profile.name + '»؟', { title: actionText + ' الحساب', confirmText: actionText, cancelText:'إلغاء' })) return;
+  
+  // تحديث المصفوفة قبل التعديل
+  await loadEmployeeProfiles();
+  const target = employeeProfiles.find(item => item.id === id);
+  if (target) {
+    target.active = willActivate;
+  }
+  await saveEmployeeProfiles();
+  
+  if (!willActivate && activeEmployeeProfile && activeEmployeeProfile.id === id) {
+    activeEmployeeProfile = null;
+    sessionStorage.removeItem(ACTIVE_PROFILE_KEY);
+    sessionStorage.removeItem(ADMIN_SESSION_KEY);
+    updateLogoutButtonVisibility();
+  }
+  await renderProfileManager();
+  await renderProfiles();
+  await gateAlert(willActivate ? 'تم تنشيط الحساب ويمكن الدخول إليه الآن.' : 'تم إلغاء تنشيط الحساب ولن يُسمح بالدخول إليه حتى يتم تنشيطه.');
+}
+
+async function deleteProfile(id) {
+  const profile = employeeProfiles.find(item => item.id === id);
+  if (!profile) return;
+  if (activeEmployeeProfile && activeEmployeeProfile.id === id) { await gateAlert('لا يمكن حذف الحساب المستخدم حاليًا. سجّل الخروج منه أولًا.'); return; }
+  if (!canManageProfile(profile)) { await gateAlert('لا يمكنك حذف حساب له صلاحية مساوية أو أعلى من صلاحيتك.'); return; }
+  if (!await gateConfirm('هل تريد حذف حساب الموظف «' + profile.name + '»؟', { title:'حذف حساب الموظف', danger:true, confirmText:'حذف' })) return;
+  
+  await loadEmployeeProfiles(); // تحديث المصفوفة قبل الحذف
+  employeeProfiles = employeeProfiles.filter(item => item.id !== id);
+  await saveEmployeeProfiles();
+  
+  if (activeEmployeeProfile && activeEmployeeProfile.id === id) {
+    activeEmployeeProfile = null; sessionStorage.removeItem(ACTIVE_PROFILE_KEY);
+    updateLogoutButtonVisibility();
+  }
+  resetProfileForm(); await renderProfileManager(); await renderProfiles();
+}
+
+function readProfilePhoto(file) {
+  return new Promise(resolve => {
+    if (!file) return resolve('');
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result || ''));
+    reader.onerror = () => resolve('');
+    reader.readAsDataURL(file);
+  });
+}
+
+async function saveProfile(event) {
+  event.preventDefault();
+  
+  try {
+    if (!hasAccountManagementAccess()) { 
+      await gateAlert('هذه العملية متاحة لوكيل القلم أو رئيس القلم فقط.'); 
+      return; 
+    }
+    
+    const nameInput = document.getElementById('profile-name-input');
+    const name = nameInput ? nameInput.value.trim() : '';
+    if (!name) return;
+    
+    const idInput = document.getElementById('profile-edit-id').value;
+    const role = document.getElementById('profile-role-input').value.trim();
+    const accessRoleSelect = document.getElementById('profile-access-role-input');
+    const requestedAccessRole = accessRoleSelect ? accessRoleSelect.value : ACCESS_ROLES.employee;
+    const enteredPassword = document.getElementById('profile-password-input').value;
+    
+    const photoInput = document.getElementById('profile-photo-input');
+    const file = photoInput && photoInput.files ? photoInput.files[0] : null;
+    const photo = await readProfilePhoto(file);
+    
+    await loadEmployeeProfiles();
+    
+    if (idInput) {
+      // حالة التحديث (تعديل موظف موجود)
+      const profile = employeeProfiles.find(item => item.id === idInput);
+      if (profile) {
+        if (!canManageProfile(profile)) { 
+          await gateAlert('لا يمكنك تعديل حساب له صلاحية مساوية أو أعلى من صلاحيتك.'); 
+          return; 
+        }
+        
+        profile.name = name; 
+        profile.role = role;
+        
+        if (canChangeAccessRole()) {
+          profile.accessRole = requestedAccessRole;
+        }
+        
+        if (enteredPassword && enteredPassword.length > 0) { 
+          profile.password = enteredPassword; 
+          profile.mustChange = false; // لا تجبره على التغيير لأن المدير حدده بنفسه
+        }
+        
+        if (photo) {
+          profile.photo = photo;
+        }
+      }
+    } else {
+      // حالة إضافة موظف جديد
+      employeeProfiles.push({ 
+        id: 'profile_' + Date.now() + '_' + Math.random().toString(36).slice(2,7), 
+        name: name, 
+        role: role, 
+        accessRole: canChangeAccessRole() ? requestedAccessRole : ACCESS_ROLES.employee, 
+        password: enteredPassword || DEFAULT_EMPLOYEE_PASSWORD, 
+        // ذكاء برمجي: إذا ترك المدير الحقل فارغاً، نطلب من الموظف تغييره. وإذا كتبه المدير، نعتبره نهائياً.
+        mustChange: enteredPassword ? false : true, 
+        active: true, 
+        photo: photo || '', 
+        accent: ['#4e8ef7','#c9a84c','#34d399','#a78bfa','#f87171'][employeeProfiles.length % 5] 
+      });
+    }
+    
+    await saveEmployeeProfiles(); 
+    resetProfileForm(); 
+    await renderProfileManager(); 
+    await renderProfiles();
+    
+    await gateAlert(idInput ? 'تم حفظ تغييرات حساب الموظف بنجاح.' : 'تم إنشاء حساب الموظف بنجاح.', { title: 'تم الحفظ' });
+    
+  } catch (error) {
+    console.error("خطأ برمجي أثناء الحفظ:", error);
+    await gateAlert("عفواً، حدث خطأ منع حفظ البيانات. راجع الـ (Console) لمعرفة التفاصيل.", { title: 'خطأ غير متوقع', danger: true });
+  }
+}
+
+async function initializeProfiles() {
+  await restoreActiveEmployeeProfile();
+  await renderProfiles();
+  
+  // إذا لم يكن هناك موظف، افتح شاشة الحسابات (أو اتركها مفتوحة كما هي)
+  if (!activeEmployeeProfile) {
+    openProfiles();
+  } else {
+    // إذا كان الموظف مسجلاً بالفعل، قم بإغلاق الشاشة ليظهر النظام
+    closeProfiles();
+  }
+}
+
 function applyConfigToPortal(cfg) {
   const title = document.getElementById('portal-title');
   if (title) title.textContent = 'بوابة ' + cfg.prosecutionName;
@@ -1301,15 +2704,28 @@ function notifyFrames(cfg) {
 }
 
 async function openSettings() {
+  // --- [بوابة الحماية والصلاحيات لزر الإعدادات] ---
+  if (activeEmployeeProfile) {
+    // إذا كان هناك موظف مسجل الدخول، يجب أن يكون دوره "رئيس قلم"
+    if (activeEmployeeProfile.accessRole !== ACCESS_ROLES.superAdmin) {
+      await gateAlert('عفواً، تعديل إعدادات النيابة مخصص لرئيس القلم فقط.', { title: 'صلاحيات غير كافية', danger: true });
+      return; // نوقف تنفيذ الدالة ونمنع فتح النافذة
+    }
+  } else if (!isSuperAdminSession()) {
+    // إذا لم يكن هناك أي موظف مسجل الدخول
+    await gateAlert('يجب تسجيل الدخول بحساب يمتلك صلاحيات "مدير نظام أعلى" للوصول إلى الإعدادات.', { title: 'مطلوب تسجيل الدخول' });
+    openProfiles(); // نفتح له شاشة اختيار الحسابات ليدخل حسابه
+    return;
+  }
+  // -------------------------------------------------
+
   const cfg = await loadConfig();
   document.getElementById('cfg-prosecution-name').value = cfg.prosecutionName || '';
   document.getElementById('cfg-fiscal-year').value = cfg.fiscalYear || new Date().getFullYear();
 
-  // --- [التعديل هنا: إعادة ضبط الزرار عند فتح النافذة] ---
   const saveBtn = document.querySelector('.btn-save-cfg');
   saveBtn.classList.remove('btn-success');
   saveBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> حفظ الإعدادات';
-  // ---------------------------------------------------
 
   const list = document.getElementById('agents-list');
   list.innerHTML = '';
@@ -1482,6 +2898,72 @@ window.addEventListener('message', async function(e) {
     } catch (err) {}
   }
 });
+
+
+
+
+
+async function markSelfPhotoForDeletion() {
+  if (!await gateConfirm('هل أنت متأكد من حذف صورتك الشخصية نهائياً؟', { title: 'تأكيد الحذف', danger: true })) return;
+  
+  await loadEmployeeProfiles();
+  const profile = employeeProfiles.find(item => item.id === activeEmployeeProfile.id);
+  if (profile) {
+    profile.photo = '';
+    await saveEmployeeProfiles();
+    
+    // تحديث الجلسة
+    activeEmployeeProfile = profile;
+    sessionStorage.setItem(ACTIVE_PROFILE_KEY, JSON.stringify({ id: profile.id, name: profile.name, role: profile.role || '' }));
+    
+    // تفريغ الحقل وإخفاء الزر
+    document.getElementById('profile-self-photo-input').value = '';
+    document.getElementById('profile-self-remove-photo-btn').style.display = 'none';
+    
+    // تحديث الصورة في النافذة فوراً لتعود للحرف الأول من الاسم
+    const initial = profile.name ? profile.name.charAt(0) : '?';
+    document.getElementById('profile-self-avatar').innerHTML = `<div class="profile-avatar profile-self-avatar profile-avatar-fallback">${initial}</div>`;
+    
+    // تحديث البطاقات في الخلفية
+    await renderProfiles();
+    
+    await gateAlert('تم حذف الصورة الشخصية بنجاح.', { title: 'تم الحذف' });
+  }
+}
+
+async function markPhotoForDeletion() {
+  const idInput = document.getElementById('profile-edit-id').value;
+  
+  // إذا كان يضيف حساب جديد ولم يحفظه بعد، فقط نفرغ الحقل
+  if (!idInput) {
+    document.getElementById('profile-photo-input').value = '';
+    document.getElementById('profile-remove-photo-btn').style.display = 'none';
+    return;
+  }
+  
+  // إذا كان يعدل حساب موجود
+  if (!await gateConfirm('هل أنت متأكد من حذف الصورة الشخصية لهذا الموظف نهائياً؟', { title: 'تأكيد الحذف', danger: true })) return;
+  
+  await loadEmployeeProfiles();
+  const profile = employeeProfiles.find(item => item.id === idInput);
+  if (profile) {
+    profile.photo = '';
+    await saveEmployeeProfiles();
+    
+    // تفريغ الحقل وإخفاء الزر
+    document.getElementById('profile-photo-input').value = '';
+    document.getElementById('profile-remove-photo-btn').style.display = 'none';
+    
+    // تحديث القوائم فوراً
+    await renderProfileManager();
+    await renderProfiles();
+    
+    await gateAlert('تم حذف الصورة للموظف بنجاح.', { title: 'تم الحذف' });
+  }
+}
+
+
+
 </script>
 
 
