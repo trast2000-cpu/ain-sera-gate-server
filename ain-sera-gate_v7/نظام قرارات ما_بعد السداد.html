@@ -154,11 +154,19 @@ option[data-category="dark"] {
             font-weight: bold;
         }
         .case-summary-list {
-            margin: 2px 0;
+            margin: 4px 0;
             padding: 0 16px 0 0;
             color: #334155;
-            font-size: 11.5px;
-            line-height: 1.3;
+            font-size: 10.5px; /* تصغير حجم الخط قليلاً */
+            line-height: 1.4;
+            display: grid; /* تحويل القائمة لنظام شبكة */
+            grid-template-columns: repeat(2, 1fr); /* تقسيم لعمودين متساويين */
+            gap: 4px 12px; /* مسافة رأسية 4 بكسل ومسافة أفقية 12 بكسل بين البنود */
+        }
+        
+        .case-summary-list li {
+            word-wrap: break-word; /* السماح للنص الطويل بالنزول لسطرين */
+            align-self: start; /* محاذاة البنود من الأعلى حتى لو سطرين مقابل سطر */
         }
         .case-summary-status {
             display: inline-block;
@@ -171,6 +179,12 @@ option[data-category="dark"] {
         .case-summary-status.unpaid { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
         .case-summary-status.type { background: #dbeafe; color: #1e40af; border: 1px solid #93c5fd; }
         .case-summary-status.session { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; }
+
+
+/* حالة التسليم بضمان الجلسة (بدون سداد) */
+        .case-summary-status.delivered-session { background: #e0e7ff; color: #3730a3; border: 1px solid #c7d2fe; }
+        body[data-theme="dark"] .case-summary-status.delivered-session { background: rgba(55, 48, 163, 0.25); color: #a5b4fc; border-color: #4f46e5; }
+
         /* صف المحضر المرتبط: صندوق مستقل ببنفسجي فاتح، لأنه معلومة عن محضر آخر مختلف نوعها عن باقي الصف */
         .case-summary-row.case-summary-linked-row {
             background: #f3e8ff;
@@ -1966,7 +1980,8 @@ body[data-theme="dark"] .rec-date { color: #64748b !important; }
     border: 0;
     border-radius: 7px;
     padding: 9px 16px;
-    font-family: inherit;
+    margin: -9px -0px;
+    font-family: cairo;
     font-size: 14px;
     font-weight: bold;
     cursor: pointer;
@@ -3918,6 +3933,7 @@ function renderArrestItems() {
 
                 const currentOfficer = typeof getActiveProfileNameForPrint === 'function' ? getActiveProfileNameForPrint() : '';
                 const officerName = currentOfficer || 'موظف بالنيابة';
+                const officerId = typeof getActiveProfileIdForPrint === 'function' ? getActiveProfileIdForPrint() : '';
                 const currentTime = new Date().toLocaleString('ar-EG');
 
                 // سحب القيم القديمة الحقيقية للمقارنة.
@@ -3949,42 +3965,95 @@ function renderArrestItems() {
                     sessionDate: sessionDate
                 };
 
-                // القاموس العربي لأسماء الحقول التي تظهر في الجدول
+                // القاموس العربي لأسماء الحقول التي تظهر في الجدول مضافاً إليها اسم البطاقة
                 const fieldNamesAr = {
-                    fineReceiptNo: "قسيمة غرامة المحضر",
-                    fineAmount: "مبلغ غرامة المحضر",
-                    violationsReceiptNo: "قسيمة المخالفات",
-                    violationsAmount: "مبلغ المخالفات",
-                    vehicleStatus: "قرار المركبة",
-                    engStatus: "الفحص الفني",
-                    sessionStatus: "حالة الجلسة",
-                    sessionDate: "تاريخ الجلسة"
+                    fineReceiptNo: "بطاقة غرامة المحضر حقل رقم القسيمة",
+                    fineAmount: "بطاقة غرامة المحضر حقل المبلغ",
+                    violationsReceiptNo: "بطاقة سداد المخالفات حقل رقم القسيمة",
+                    violationsAmount: "بطاقة سداد المخالفات حقل المبلغ",
+                    vehicleStatus: "بطاقة قرار المركبة حقل نوع القرار",
+                    engStatus: "بطاقة الفحص الفني حقل قرار الفحص",
+                    sessionStatus: "بطاقة الجلسة حقل حالة الجلسة",
+                    sessionDate: "بطاقة الجلسة حقل تاريخ الجلسة"
                 };
 
-                let changedFields = [];
+                // ربط كل حقل بعنصره في الشاشة، لاستخدامه في ترجمة القيم التقنية
+                // (مثل قيم القوائم المنسدلة) إلى النص المعروض فعلياً للمستخدم في السجل
+                const fieldElementIds = {
+                    fineReceiptNo: 'fine-receipt-num',
+                    fineAmount: 'fine-receipt-amount',
+                    violationsReceiptNo: 'violations-receipt',
+                    violationsAmount: 'violations-amount',
+                    vehicleStatus: 'vehicle-status-type',
+                    engStatus: 'eng-type',
+                    sessionStatus: 'session-status',
+                    sessionDate: 'session-date'
+                };
+
+                // تحويل أي قيمة (تقنية أو نصية) إلى الشكل الذي يفهمه الموظف عند القراءة لاحقاً:
+                // لو الحقل قائمة منسدلة (select) نعرض نص الخيار المختار بدل قيمته البرمجية،
+                // ولو الحقل فارغ نوضح ذلك صراحة بدل ترك فراغ غامض في السجل
+                function displayValueForField(fieldKey, rawValue) {
+                    const elId = fieldElementIds[fieldKey];
+                    const el = elId ? document.getElementById(elId) : null;
+                    if (el && el.tagName === 'SELECT') {
+                        const opt = Array.from(el.options).find(o => o.value === rawValue);
+                        if (opt) return opt.text.trim();
+                    }
+                    const v = String(rawValue || '').trim();
+                    return v ? v : '(فارغ)';
+                }
+
+                let changedFieldDetails = [];
                 if (history.length > 0) {
                     for (let f in fieldNamesAr) {
                         // مقارنة دقيقة بين القيمة القديمة الحقيقية والجديدة (تتجاهل المسافات الزائدة)
-                        if (String(oldValues[f] || '').trim() !== String(newPaymentInfo[f] || '').trim()) {
-                            changedFields.push(fieldNamesAr[f]);
+                        const oldRaw = oldValues[f] || '';
+                        const newRaw = newPaymentInfo[f] || '';
+                        if (String(oldRaw).trim() !== String(newRaw).trim()) {
+                            changedFieldDetails.push({
+                                label: fieldNamesAr[f],
+                                oldText: displayValueForField(f, oldRaw),
+                                newText: displayValueForField(f, newRaw)
+                            });
                         }
                     }
                 }
 
                 let actionText = '';
                 if (history.length === 0) {
-                    actionText = 'إثبات السداد والقرارات لأول مرة';
-                } else if (changedFields.length > 0) {
-                    actionText = 'تعديل في: (' + changedFields.join('، ') + ')';
+                    // التعرف على القرار من خلال الزر النشط في القائمة الجانبية
+                    const activePreset = document.querySelector('.preset-btn.active');
+                    let decisionName = 'قرار';
+                    
+                    if (activePreset) {
+                        if (activePreset.id === 'preset-keep') decisionName = 'قرار استمرار تحفظ';
+                        else if (activePreset.id === 'preset-deliver') decisionName = 'قرار تسليم مركبة';
+                        else if (activePreset.id === 'preset-fine-only') decisionName = 'قرار تسليم بدون غرامة';
+                        else if (activePreset.id === 'preset-receipt') decisionName = 'سداد محضر';
+                    } else {
+                        // في حالة أن المستخدم لم يضغط على أزرار القائمة واختار يدوياً
+                        const vehStatus = (document.getElementById('vehicle-status-type') || {}).value;
+                        if (vehStatus === 'deliver') decisionName = 'قرار تسليم';
+                        else if (vehStatus === 'keep') decisionName = 'قرار تحفظ';
+                        else decisionName = 'إجراء ما بعد السداد';
+                    }
+                    
+                    actionText = 'اصدار ' + decisionName + ' لاول مره';
+                } else if (changedFieldDetails.length > 0) {
+                    actionText = 'تعديل:\n' + changedFieldDetails.map(c =>
+                        '• ' + c.label + ': من "' + c.oldText + '" إلى "' + c.newText + '"'
+                    ).join('\n');
                 } else {
                     actionText = 'إعادة طباعة للقرار بدون تعديل';
                 }
 
                 // إضافة السجل (نمنع التكرار العشوائي لنفس الموظف خلال ثوانٍ إذا لم يكن هناك تعديل فعلي)
                 let lastEntry = history[history.length - 1];
-                if (!lastEntry || lastEntry.name !== officerName || changedFields.length > 0 || (Date.now() - (lastEntry.timestamp || 0) > 60000)) {
+                if (!lastEntry || lastEntry.name !== officerName || changedFieldDetails.length > 0 || (Date.now() - (lastEntry.timestamp || 0) > 60000)) {
                     history.push({
                         name: officerName,
+                        officerId: officerId,
                         time: currentTime,
                         timestamp: Date.now(),
                         action: actionText
@@ -4191,6 +4260,19 @@ function validateFields() {
                 if (!raw) return '';
                 const profile = JSON.parse(raw);
                 return String(profile && profile.name || '').trim();
+            } catch (e) {
+                return '';
+            }
+        }
+
+        // معرّف ثابت لصاحب الجلسة الحالية (وليس مجرد اسمه المعروض)، يُحفظ مع كل سطر في سجل
+        // التعديلات حتى لا يحدث لبس لو تشابهت أسماء موظفين، أو أُعيدت تسمية حساب لاحقاً
+        function getActiveProfileIdForPrint() {
+            try {
+                const raw = sessionStorage.getItem('niabat_active_profile_session');
+                if (!raw) return '';
+                const profile = JSON.parse(raw);
+                return String(profile && profile.id || '').trim();
             } catch (e) {
                 return '';
             }
@@ -5068,7 +5150,7 @@ if (window.isPresetRunning) return;
                 history.forEach(h => {
                     tableHtml += `
                         <tr style="background-color: #f4f6fb; color: #1e293b;">
-                            <td style="padding: 8px; border: 1px solid #c5cfe0; text-align: right; line-height: 1.6; font-weight: bold; color: #b03a2e;">${h.action}</td>
+                            <td style="padding: 8px; border: 1px solid #c5cfe0; text-align: right; line-height: 1.6; font-weight: bold; color: #b03a2e; white-space: pre-line;">${h.action}</td>
                             <td style="padding: 8px; border: 1px solid #c5cfe0;" dir="ltr">${h.time}</td>
                             <td style="padding: 8px; border: 1px solid #c5cfe0; font-weight: bold; color: #1e3a5f;">${h.name}</td>
                         </tr>
@@ -5094,11 +5176,21 @@ if (window.isPresetRunning) return;
 
             // تحويل السجل لنص آمن لرفعه على الزر
             const historyJson = encodeURIComponent(JSON.stringify(savedPayment.editHistory || []));
+            const hasHistory = savedPayment.editHistory && savedPayment.editHistory.length > 0;
 
-            // إذا كان مسدداً، يظهر كزر قابل للضغط وعليه أيقونة ساعة صغيرة
-            el.innerHTML = paid
-                ? `<span class="case-summary-status paid" style="cursor:pointer; text-decoration:underline;" onclick="showEditHistory('${historyJson}')" title="اضغط لعرض سجل التعديلات">مسدد <i class="fa-solid fa-clock-rotate-left" style="margin-right:3px; font-size:10px;"></i></span>`
-                : '<span class="case-summary-status unpaid">غير مسدد</span>';
+            // التحقق من حالة "تسليم بدون غرامة"
+            const isDeliveredWithoutFine = !paid && savedPayment.vehicleStatus === 'deliver' && hasHistory;
+
+            if (paid) {
+                // شارة مسدد (خضراء)
+                el.innerHTML = `<span class="case-summary-status paid" style="cursor:pointer; text-decoration:underline;" onclick="showEditHistory('${historyJson}')" title="اضغط لعرض سجل التعديلات">مسدد <i class="fa-solid fa-clock-rotate-left" style="margin-right:3px; font-size:10px;"></i></span>`;
+            } else if (isDeliveredWithoutFine) {
+                // شارة تم اصدار قرار تسليم (زرقاء/بنفسجية)
+                el.innerHTML = `<span class="case-summary-status delivered-session" style="cursor:pointer; text-decoration:underline;" onclick="showEditHistory('${historyJson}')" title="اضغط لعرض سجل التعديلات">تم اصدار قرار تسليم <i class="fa-solid fa-clock-rotate-left" style="margin-right:3px; font-size:10px;"></i></span>`;
+            } else {
+                // شارة غير مسدد (حمراء)
+                el.innerHTML = '<span class="case-summary-status unpaid">غير مسدد</span>';
+            }
         }
 
         function clearCaseSummary() {
@@ -5109,7 +5201,7 @@ if (window.isPresetRunning) return;
             ['summary-case-key','summary-dept','summary-name','summary-plate','summary-fine',
              'summary-linked','summary-session-date','summary-linked-violation'].forEach(id => setSummaryText(id, '—'));
             const violations = document.getElementById('summary-violations');
-            if (violations) violations.innerHTML = '<li>—</li>';
+            if (violations) violations.innerHTML = '<li style="grid-column: 1 / -1;">—</li>';
             const type = document.getElementById('summary-type');
             if (type) type.innerHTML = '<span class="case-summary-status type">—</span>';
             const payment = document.getElementById('summary-payment');
@@ -5194,7 +5286,7 @@ if (window.isPresetRunning) return;
             if (violations) {
                 violations.innerHTML = violationItems.length
                     ? violationItems.map(item => `<li>${String(item).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]))}</li>`).join('')
-                    : '<li>لا توجد بنود مسجلة</li>';
+                    : '<li style="grid-column: 1 / -1;">لا توجد بنود مسجلة</li>';
             }
 
             const fineValue = data.fine || data.fineAmount || '';
@@ -6044,11 +6136,32 @@ function confirmRemovePaymentInfo(key) {
 async function removePaymentInfo(key) {
     try {
         let db = await fetchServerData();
-        // ملاحظة مهمة: الدمج في السيرفر إضافي (Object.assign) — إرسال المفتاح بقيمة null
-        // هو ما يجعله يُستبدل فعلياً على القرص؛ حذفه محلياً بـ delete لن يُحذف من السيرفر
-        // لأن Object.assign لا يحذف مفاتيح غائبة من البيانات المرسلة.
+        const existingPaymentInfo = (db[key] && db[key].paymentInfo) || {};
+        let history = existingPaymentInfo.editHistory || [];
+
+        const currentOfficer = typeof getActiveProfileNameForPrint === 'function' ? getActiveProfileNameForPrint() : '';
+        const officerName = currentOfficer || 'موظف بالنيابة';
+        const officerId = typeof getActiveProfileIdForPrint === 'function' ? getActiveProfileIdForPrint() : '';
+        const currentTime = new Date().toLocaleString('ar-EG');
+
+        // مهم: لا نمحو السجل التاريخي (editHistory) نهائياً — سجل التعديلات لازم يبقى
+        // كاملاً حتى لو أُلغيت حالة السداد لاحقاً، فنسجّل عملية الإلغاء نفسها كسطر جديد
+        // في السجل بدل ما نفقد كل الأثر السابق لهذا المحضر
+        history.push({
+            name: officerName,
+            officerId: officerId,
+            time: currentTime,
+            timestamp: Date.now(),
+            action: 'تم إلغاء حالة السداد ومسح بيانات القسيمة والمبلغ المسجلين'
+        });
+
         db[key] = db[key] || {};
-        db[key].paymentInfo = null;
+        db[key].paymentInfo = {
+            paid: false,
+            settledBy: '',
+            editHistory: history,
+            savedAt: currentTime
+        };
         await saveToServerData(db, key);
         if (typeof loadArchiveToSidebar === 'function') loadArchiveToSidebar();
 
@@ -6062,7 +6175,13 @@ async function removePaymentInfo(key) {
             : '';
         if (caseNum && year && dept) {
             const currentKey = getMahdarKey(caseNum, year, normalizeMahdarPart(dept), 'main');
-            if (currentKey === key) clearPaymentInfoFields();
+            if (currentKey === key) {
+                clearPaymentInfoFields();
+                if (typeof importedPrimaryMahdarData !== 'undefined' && importedPrimaryMahdarData !== null) {
+                    importedPrimaryMahdarData.paymentInfo = db[key].paymentInfo;
+                    if (typeof updateCaseSummaryPaymentState === 'function') updateCaseSummaryPaymentState();
+                }
+            }
         }
     } catch(e) { /* تعذر إلغاء حالة السداد في السيرفر */ }
 }

@@ -140,6 +140,12 @@ body::after {
 .card-badge { display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:500; padding:4px 11px; border-radius:20px; margin-top:auto; }
 .badge-active { background:rgba(34,197,94,.12); color:#4ade80; border:1px solid rgba(34,197,94,.2); animation:pulse-active 2.5s ease-in-out infinite; }
 
+/* نوقف نبضات "الحساب النشط" (وهي تحريك box-shadow المكلف على المعالج) طالما إحدى نوافذ
+   الإدخال/التنبيه مفتوحة (مثل شاشة كتابة كلمة المرور)، لتفادي إبطاء رسم الحروف/النقاط
+   على الأجهزة الأضعف أثناء الكتابة */
+body.gate-modal-open .badge-active,
+body.gate-modal-open .profile-avatar-active { animation-play-state: paused !important; }
+
 @keyframes pulse-active {
   0%, 100% { box-shadow:0 0 0 0 rgba(74,222,128,0); border-color:rgba(34,197,94,.2); color:#4ade80; }
   50%       { box-shadow:0 0 8px 2px rgba(74,222,128,.25); border-color:rgba(74,222,128,.55); color:#86efac; }
@@ -1382,7 +1388,7 @@ select.profile-form-input option { color:#fff !important; background:#16263f !im
     <div class="profile-manager-head">
       <h3><i class="fa-solid fa-users-gear"></i> إدارة حسابات الموظفين</h3>
       <div class="profile-manager-head-actions">
-        <button class="profile-manager-password-btn" type="button" onclick="changeAdminPassword()"><i class="fa-solid fa-key"></i> تغيير كلمة مرور المدير</button>
+        <button class="profile-manager-password-btn" type="button" onclick="changeAdminPassword()"><i class="fa-solid fa-key"></i> تغيير كلمة مرور Administrator</button>
         <button class="profile-manager-close" type="button" onclick="closeProfileManager()"><i class="fa-solid fa-xmark"></i></button>
       </div>
     </div>
@@ -1875,6 +1881,7 @@ function gateAlert(message, options) {
     const okBtn = document.getElementById('gate-alert-ok-btn');
     function cleanup() {
       overlay.classList.remove('show');
+      document.body.classList.remove('gate-modal-open');
       document.removeEventListener('keydown', keyHandler, true);
       okBtn.removeEventListener('click', onOk);
       overlay.removeEventListener('click', onOverlayClick);
@@ -1888,6 +1895,7 @@ function gateAlert(message, options) {
     overlay.addEventListener('click', onOverlayClick);
     document.addEventListener('keydown', keyHandler, true);
     overlay.classList.add('show');
+    document.body.classList.add('gate-modal-open');
     requestAnimationFrame(() => okBtn.focus());
   });
 }
@@ -1905,6 +1913,7 @@ function gateConfirm(message, options) {
     okBtn.className = options.danger ? 'gate-dialog-btn-danger' : 'gate-dialog-btn-primary';
     function cleanup() {
       overlay.classList.remove('show');
+      document.body.classList.remove('gate-modal-open');
       document.removeEventListener('keydown', keyHandler, true);
       okBtn.removeEventListener('click', onOk);
       cancelBtn.removeEventListener('click', onCancel);
@@ -1922,6 +1931,7 @@ function gateConfirm(message, options) {
     overlay.addEventListener('click', onOverlayClick);
     document.addEventListener('keydown', keyHandler, true);
     overlay.classList.add('show');
+    document.body.classList.add('gate-modal-open');
     requestAnimationFrame(() => cancelBtn.focus());
   });
 }
@@ -1942,6 +1952,7 @@ function gatePrompt(message, options) {
     errorEl.style.display = 'none'; errorEl.textContent = '';
     function cleanup() {
       overlay.classList.remove('show');
+      document.body.classList.remove('gate-modal-open');
       document.removeEventListener('keydown', keyHandler, true);
       okBtn.removeEventListener('click', onOk);
       cancelBtn.removeEventListener('click', onCancel);
@@ -1959,6 +1970,7 @@ function gatePrompt(message, options) {
     overlay.addEventListener('click', onOverlayClick);
     document.addEventListener('keydown', keyHandler, true);
     overlay.classList.add('show');
+    document.body.classList.add('gate-modal-open');
     requestAnimationFrame(() => input.focus());
   });
 }
@@ -1996,13 +2008,92 @@ let employeeProfiles = [];
 let activeEmployeeProfile = null;
 
 
+// تشفير SHA-256 بكود JavaScript خالص (بدون الاعتماد على crypto.subtle)
+// السبب: خاصية crypto.subtle متاحة فقط في "سياق آمن" (secure context) مثل
+// localhost أو https. عند فتح البوابة من جهاز آخر عبر الشبكة باستخدام
+// عنوان الـ IP على http عادي (وهو وضعنا هنا)، تكون crypto.subtle غير
+// معرّفة (undefined) في المتصفح، فيفشل تسجيل الدخول بصمت دون أي رسالة خطأ.
+// هذه الدالة تُنتج نفس نتيجة SHA-256 (Hex) لكن تعمل في كل الحالات.
+function sha256Hex(message) {
+    function rightRotate(value, amount) {
+        return (value >>> amount) | (value << (32 - amount));
+    }
+
+    const maxWord = Math.pow(2, 32);
+    let result = '';
+
+    const words = [];
+    const asciiBitLength = message.length * 8;
+
+    message += '\x80';
+    while (message.length % 64 - 56) message += '\x00';
+
+    for (let i = 0; i < message.length; i++) {
+        const j = message.charCodeAt(i);
+        if (j >> 8) return null; // نتأكد أن المدخل بايتات فقط (UTF-8 معالج مسبقاً)
+        words[i >> 2] |= j << ((3 - (i % 4)) * 8);
+    }
+    words[words.length] = (asciiBitLength / maxWord) | 0;
+    words[words.length] = asciiBitLength;
+
+    const hash = sha256Hex._h || (sha256Hex._h = [
+        0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a,
+        0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19
+    ].slice());
+    let h = hash.slice();
+
+    const k = sha256Hex._k || (sha256Hex._k = [
+        0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
+        0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
+        0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc, 0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
+        0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7, 0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967,
+        0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13, 0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85,
+        0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3, 0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
+        0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
+        0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2
+    ]);
+
+    const w = new Array(64);
+    for (let j = 0; j < words.length; ) {
+        const oldHash = h.slice();
+
+        for (let i = 0; i < 16; i++) w[i] = words[j++] | 0;
+        for (let i = 16; i < 64; i++) {
+            const w15 = w[i - 15], w2 = w[i - 2];
+            const s0 = rightRotate(w15, 7) ^ rightRotate(w15, 18) ^ (w15 >>> 3);
+            const s1 = rightRotate(w2, 17) ^ rightRotate(w2, 19) ^ (w2 >>> 10);
+            w[i] = (w[i - 16] + s0 + w[i - 7] + s1) | 0;
+        }
+
+        for (let i = 0; i < 64; i++) {
+            const s1 = rightRotate(h[4], 6) ^ rightRotate(h[4], 11) ^ rightRotate(h[4], 25);
+            const ch = (h[4] & h[5]) ^ (~h[4] & h[6]);
+            const temp1 = (h[7] + s1 + ch + k[i] + w[i]) | 0;
+            const s0 = rightRotate(h[0], 2) ^ rightRotate(h[0], 13) ^ rightRotate(h[0], 22);
+            const maj = (h[0] & h[1]) ^ (h[0] & h[2]) ^ (h[1] & h[2]);
+            const temp2 = (s0 + maj) | 0;
+
+            h = [ (temp1 + temp2) | 0, h[0], h[1], h[2], (h[3] + temp1) | 0, h[4], h[5], h[6] ];
+        }
+
+        for (let i = 0; i < 8; i++) h[i] = (h[i] + oldHash[i]) | 0;
+    }
+
+    for (let i = 0; i < 8; i++) {
+        for (let j = 3; j >= 0; j--) {
+            const b = (h[i] >> (j * 8)) & 255;
+            result += (b < 16 ? '0' : '') + b.toString(16);
+        }
+    }
+    return result;
+}
+
 // دالة تشفير الباسوورد في المتصفح لتطابق السيرفر (SHA-256)
 async function hashPass(text) {
     if (!text) return '';
-    const msgUint8 = new TextEncoder().encode(text);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    // نحوّل النص إلى UTF-8 بايت-بايت (بنفس ما كان يفعله TextEncoder سابقاً)
+    const utf8 = unescape(encodeURIComponent(text));
+    return sha256Hex(utf8);
 }
 
 
@@ -2173,7 +2264,9 @@ async function selectEmployeeProfile(id) {
   if (profile.password) {
     let isPasswordCorrect = false;
     while (!isPasswordCorrect) {
-      const entered = await gatePrompt('أدخل كلمة مرور حساب الموظف ' + profile.name, { type:'password', title:'دخول حساب الموظف' });
+      const entered = profile.mustChange
+        ? await gatePrompt('مرحبًا بك ' + profile.name + ' لأول مرة! اكتب كلمة المرور الافتراضية (' + DEFAULT_EMPLOYEE_PASSWORD + ') للمتابعة، وستُطلب منك بعدها كلمة مرور جديدة خاصة بك.', { type:'password', title:'أول تسجيل دخول' })
+        : await gatePrompt('أدخل كلمة مرور حساب الموظف ' + profile.name, { type:'password', title:'دخول حساب الموظف' });
       
       // إذا ضغط المستخدم على "إلغاء"، ننهي العملية تماماً
       if (entered === null) return; 
@@ -2188,15 +2281,17 @@ async function selectEmployeeProfile(id) {
   }
   
 
+  // + نسجّل الدخول في السيرفر (نأخذ "ختم" الجلسة) هنا فوراً بعد التأكد من صحة الباسوورد،
+  // وقبل أي محاولة لحفظ بيانات جديدة (مثل تغيير الباسوورد الافتراضي في forceEmployeePasswordChange).
+  // بدون هذا، كانت محاولة حفظ الباسوورد الجديد تُرفض من السيرفر لعدم وجود جلسة مصادق عليها بعد،
+  // فيظل الباسوورد القديم (الافتراضي) مسجلاً، ويُطلب من الموظف تغييره من جديد في كل مرة يسجّل دخوله.
+  await serverLogout();
+  await serverLogin(profile.id, profile.password, false);
 
 
 if (!await forceEmployeePasswordChange(profile)) return;
   activeEmployeeProfile = profile;
   sessionStorage.setItem(ACTIVE_PROFILE_KEY, JSON.stringify({ id: profile.id, name: profile.name, role: profile.role || '' }));
-
-  // + تنظيف أي جلسة سابقة ثم إضافة ختم السيرفر الجديد
-  await serverLogout();
-  await serverLogin(profile.id, profile.password, false);
 
 
   updateLogoutButtonVisibility();
@@ -2266,16 +2361,16 @@ async function authorizeAdmin() {
   if (!admin) {
     admin = { username:'admin', password:DEFAULT_ADMIN_PASSWORD, mustChange:true };
     await saveAdminAccount(admin);
-    await gateAlert('تم إنشاء حساب المدير الافتراضي. اسم المستخدم: admin\nكلمة المرور المؤقتة: Admin@1234\nسيُطلب تغييرها الآن.', { title:'حساب المدير' });
+    await gateAlert('تم إنشاء حساب Administrator الافتراضي. اسم المستخدم: admin\nكلمة المرور المؤقتة: Admin@1234\nسيُطلب تغييرها الآن.', { title:'حساب Administrator' });
   }
-  const username = await gatePrompt('اسم مستخدم المدير', { title:'تسجيل دخول المدير' });
+  const username = await gatePrompt('اسم مستخدم Administrator', { title:'تسجيل دخول Administrator' });
   if (username === null) return false;
-  const password = await gatePrompt('كلمة مرور المدير', { type:'password', title:'تسجيل دخول المدير' });
-  if (username !== admin.username || await hashPass(password) !== admin.password) { await gateAlert('بيانات المدير غير صحيحة.'); return false; }
+  const password = await gatePrompt('كلمة مرور Administrator', { type:'password', title:'تسجيل دخول Administrator' });
+  if (username !== admin.username || await hashPass(password) !== admin.password) { await gateAlert('بيانات Administrator غير صحيحة.'); return false; }
   if (admin.mustChange) {
-    const next = await gatePrompt('غيّر كلمة مرور المدير الافتراضية الآن', { type:'password', title:'تغيير كلمة المرور' });
+    const next = await gatePrompt('غيّر كلمة مرور Administrator الافتراضية الآن', { type:'password', title:'تغيير كلمة المرور' });
     if (!next || next.length < 4) { await gateAlert('يجب أن تتكون كلمة المرور الجديدة من 4 أحرف أو أرقام على الأقل.'); return false; }
-    const confirmNext = await gatePrompt('أعد كتابة كلمة مرور المدير الجديدة', { type:'password', title:'تغيير كلمة المرور' });
+    const confirmNext = await gatePrompt('أعد كتابة كلمة مرور Administrator الجديدة', { type:'password', title:'تغيير كلمة المرور' });
     if (next !== confirmNext) { await gateAlert('كلمتا المرور غير متطابقتين.'); return false; }
     admin.password = next; admin.mustChange = false; await saveAdminAccount(admin);
   }
@@ -2287,17 +2382,17 @@ async function changeAdminPassword() {
   if (!isSuperAdminSession()) return;
   const admin = await loadAdminAccount();
   if (!admin) {
-    await gateAlert('لم يتم العثور على حساب المدير.');
+    await gateAlert('لم يتم العثور على حساب Administrator.');
     sessionStorage.removeItem(ADMIN_SESSION_KEY);
     return;
   }
-  const current = await gatePrompt('اكتب كلمة مرور المدير الحالية', { type:'password', title:'تغيير كلمة مرور المدير' });
+  const current = await gatePrompt('اكتب كلمة مرور Administrator الحالية', { type:'password', title:'تغيير كلمة مرور Administrator' });
   if (current === null) return;
   if (await hashPass(current) !== admin.password) {
     await gateAlert('كلمة المرور الحالية غير صحيحة.');
     return;
   }
-  const next = await gatePrompt('اكتب كلمة مرور المدير الجديدة (4 أحرف أو أرقام على الأقل)', { type:'password', title:'كلمة المرور الجديدة' });
+  const next = await gatePrompt('اكتب كلمة مرور Administrator الجديدة (4 أحرف أو أرقام على الأقل)', { type:'password', title:'كلمة المرور الجديدة' });
   if (next === null) return;
   if (next.length < 4) {
     await gateAlert('يجب أن تتكون كلمة المرور الجديدة من 4 أحرف أو أرقام على الأقل.');
@@ -2312,7 +2407,7 @@ async function changeAdminPassword() {
   admin.password = next;
   admin.mustChange = false;
   await saveAdminAccount(admin);
-  await gateAlert('تم تغيير كلمة مرور المدير بنجاح.', { title:'تم الحفظ' });
+  await gateAlert('تم تغيير كلمة مرور Administrator بنجاح.', { title:'تم الحفظ' });
 }
 
 async function forceEmployeePasswordChange(profile) {
@@ -2707,7 +2802,7 @@ async function openSettings() {
     }
   } else if (!isSuperAdminSession()) {
     // إذا لم يكن هناك أي موظف مسجل الدخول
-    await gateAlert('يجب تسجيل الدخول بحساب يمتلك صلاحيات "مدير نظام أعلى" للوصول إلى الإعدادات.', { title: 'مطلوب تسجيل الدخول' });
+    await gateAlert('يجب تسجيل الدخول بحساب يمتلك صلاحيات "Super Administrator" للوصول إلى الإعدادات.', { title: 'مطلوب تسجيل الدخول' });
     openProfiles(); // نفتح له شاشة اختيار الحسابات ليدخل حسابه
     return;
   }
