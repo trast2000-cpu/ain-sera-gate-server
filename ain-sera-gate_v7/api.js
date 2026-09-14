@@ -1,8 +1,12 @@
 // هذا الكود يجلب الآي بي الخاص بالجهاز تلقائياً ليتصل بالسيرفر
-const SERVER_URL = `http://${window.location.hostname}:3000/api/data`;
-const PROFILES_SERVER_URL = `http://${window.location.hostname}:3000/api/profiles`;
-const AUTH_URL = `http://${window.location.hostname}:3000/api/auth`;
-const LOGOUT_URL = `http://${window.location.hostname}:3000/api/logout`;
+// كود ذكي: يعمل على السيرفر المحلي ببورت 3000، وعلى Vercel بنظام HTTPS بدون بورت
+const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+const BASE_URL = isLocal ? `http://${window.location.hostname}:3000` : '';
+
+const SERVER_URL = `${BASE_URL}/api/data`;
+const PROFILES_SERVER_URL = `${BASE_URL}/api/profiles`;
+const AUTH_URL = `${BASE_URL}/api/auth`;
+const LOGOUT_URL = `${BASE_URL}/api/logout`;
 
 // هوية موحدة للمحضر تستخدمها كل الأنظمة.
 function normalizeMahdarPart(value) {
