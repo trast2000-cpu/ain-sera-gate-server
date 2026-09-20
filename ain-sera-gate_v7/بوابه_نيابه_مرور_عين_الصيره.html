@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ar" dir="rtl"><head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -998,6 +998,11 @@ body::after {
 
 
 
+.profile-job-strip { display:flex; align-items:center; justify-content:flex-start; gap:12px; min-height:27px; padding:4px 8px; border:1px solid rgba(201,168,76,.18); border-radius:8px; background:linear-gradient(90deg, rgba(201,168,76,.10), rgba(255,255,255,.025)); color:#d9e3f3; direction:rtl; }
+.profile-job-title { color:#c9a84c; font-size:10.5px; font-weight:800; white-space:nowrap; }
+.profile-job-option { display:inline-flex; align-items:center; gap:4px; color:#c8d4e8; font-size:10.5px; white-space:nowrap; cursor:pointer; user-select:none; }
+.profile-job-option input { width:14px; height:14px; margin:0; accent-color:#c9a84c; cursor:pointer; }
+.profile-job-option:hover { color:#fff; }
 .profile-manager-actions { display:grid; grid-template-columns: repeat(4, 1fr); align-items:center; gap:8px; padding-top:9px; border-top:1px solid rgba(255,255,255,.08); direction:ltr; }
 
 /* ══ التنسيق الأساسي لأزرار التحكم ══ */
@@ -1055,6 +1060,7 @@ select.profile-form-input option { color:#fff !important; background:#16263f !im
   #profile-manager { width:min(560px,100%); }
   .profile-manager-body { flex-direction:column; }
   .profile-manager-list-col { border-inline-end:0; padding-inline-end:0; border-bottom:1px solid rgba(255,255,255,.1); padding-bottom:18px; margin-bottom:4px; }
+  .profile-job-strip { flex-wrap:wrap; gap:7px 10px; }
 }
 @media (max-width:650px) { #profiles-grid{grid-template-columns:repeat(2,1fr);gap:14px}.profile-card{min-height:210px}.profile-avatar{width:92px;height:92px}.profile-card-name{font-size:19px}.profile-brand h2{font-size:22px}#profile-manager{padding:18px} }
 @media (max-width:420px) { .profile-manager-actions { grid-template-columns:repeat(3,1fr); row-gap:6px; } }
@@ -1983,6 +1989,11 @@ const ADMIN_SESSION_KEY = 'niabat_profiles_admin_session'; // كذلك: جلسة
 const DEFAULT_EMPLOYEE_PASSWORD = '0000';
 const DEFAULT_ADMIN_PASSWORD = 'Admin@1234';
 const ACCESS_ROLES = Object.freeze({ employee:'employee', accountAdmin:'account_admin', superAdmin:'super_admin' });
+const PROFILE_JOBS = Object.freeze([
+  { value:'chief_clerk', label:'رئيس القلم' },
+  { value:'records_clerk', label:'موظف المحاضر' },
+  { value:'computer_clerk', label:'موظف الحاسب الالي' }
+]);
 let employeeProfiles = [];
 let activeEmployeeProfile = null;
 
@@ -2117,6 +2128,18 @@ function profileAvatarMarkup(profile, small = false, isActive = false) {
   const cls = 'profile-avatar' + (isActive ? ' profile-avatar-active' : '');
   if (profile.photo) return `<img class="${cls}" src="${profile.photo}" alt="${escapeHtml(profile.name)}">`;
   return `<div class="${cls} profile-avatar-fallback">${escapeHtml(profileInitial(profile.name))}</div>`;
+}
+
+function profileJobStrip(profile) {
+  if (!isSuperAdminSession()) return '';
+  return '<div class="profile-job-strip" aria-label="تحديد وظيفة الموظف">' +
+    '<span class="profile-job-title">الوظيفة:</span>' +
+    PROFILE_JOBS.map(function(job) {
+      const checked = profile.job === job.value ? ' checked' : '';
+      return '<label class="profile-job-option"><input type="checkbox" value="' + job.value + '"' + checked +
+        ' onchange="setProfileJob(\'' + profile.id + '\', \'' + job.value + '\', this)"><span>' + job.label + '</span></label>';
+    }).join('') +
+  '</div>';
 }
 
 async function renderProfiles() {
@@ -2529,6 +2552,7 @@ async function renderProfileManager() {
         ${profileAvatarMarkup(profile, true)}
         <div class="profile-manager-info"><div class="profile-manager-name">${escapeHtml(profile.name)}</div><div class="profile-manager-meta">${escapeHtml(profile.role || 'موظف بالنيابة')} · ${profile.accessRole === ACCESS_ROLES.superAdmin ? 'رئيس القلم' : profile.accessRole === ACCESS_ROLES.accountAdmin ? 'وكيل القلم' : 'موظف'} ${profile.password ? ' · محمي بكلمة مرور' : ''} · <strong style="color:${profile.active === false ? '#dc3545' : '#198754'}">${profile.active === false ? 'غير نشط' : 'نشط'}</strong></div></div>
       </div>
+      ${profileJobStrip(profile)}
       <div class="profile-manager-actions">
         
         <button type="button" class="profile-edit-btn" title="تعديل" onclick="editProfile('${profile.id}')"><i class="fa-solid fa-pen"></i></button>
@@ -2537,6 +2561,24 @@ async function renderProfileManager() {
         <button type="button" class="profile-delete" title="حذف" onclick="deleteProfile('${profile.id}')"><i class="fa-solid fa-trash"></i></button>
       </div>
     </div>`).join('');
+}
+
+async function setProfileJob(id, jobValue, checkbox) {
+  if (!isSuperAdminSession()) {
+    if (checkbox) checkbox.checked = !checkbox.checked;
+    await gateAlert('تحديد الوظيفة متاح لرئيس القلم فقط.', { title:'صلاحيات غير كافية', danger:true });
+    return;
+  }
+  const profile = employeeProfiles.find(function(item) { return item.id === id; });
+  if (!profile) return;
+  if (checkbox && checkbox.checked) {
+    profile.job = jobValue;
+  } else if (profile.job === jobValue) {
+    profile.job = '';
+  }
+  await saveEmployeeProfiles();
+  await renderProfileManager();
+  await renderProfiles();
 }
 
 // ══ دوال السحب والإفلات (Drag & Drop) ══
