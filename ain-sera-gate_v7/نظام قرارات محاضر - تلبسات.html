@@ -117,7 +117,7 @@ body {
 /* تعديل بسيط لزراير الطباعة عشان تنزل لتحت دايماً */
 .sidebar .btn-row {
     margin-top: auto; 
-    padding-top: 8px;
+    padding-top: 4px;
     border-top: 1px solid #4a5f7f;
     flex-shrink: 0;
 }
@@ -137,8 +137,8 @@ body {
 .preset-btn {
     display: block;
     width: 100%;
-    margin-bottom: 4px !important; /* لمينا الزراير على بعض شوية */
-    padding: 10px 0px !important; /* قللنا ارتفاع الزرار سنة بسيطة */
+    margin-bottom: 3px !important; /* لمينا الزراير على بعض شوية */
+    padding: 8.5px 0px !important; /* قللنا ارتفاع الزرار سنة بسيطة */
     background: #243f6b;
     color: #c8dff5;
     border: 1.3px solid #2d5a8e;
@@ -182,7 +182,7 @@ body {
     width: 100%;
     display: block;
     margin: 0px 0px 0px 0px;
-    padding: 8px 0px;
+    padding: 6px 0px;
     font-size: 18px;
     border: none;
     border-radius: 7px;
@@ -195,7 +195,7 @@ body {
 .sidebar .btn-clear {
     width: 100%;
     display: block;
-    margin: 6px 0px -10px 0;
+    margin: 4px 0px -5px 0;
     padding: 4px 4px;
     font-size: 13px;
     border: none;
@@ -231,8 +231,9 @@ body {
     text-align: center;
     font-size: 10px;        /* زودته سِنة عشان الوضوح */
     color: #94a3b8;         /* لون رمادي أزرق هادئ */
-    margin-top: 15px;
-    padding-top: 10px;
+    margin-top: 10px;
+    padding-top: 7px;
+    padding-bottom: 2px;
     border-top: 1.3px dashed #475569;
     cursor: default;
     display: inline-block;
@@ -2297,6 +2298,129 @@ body[data-theme="dark"] .record-title { color: #7aaeff !important; }
 }
 
 .first-decision-materials { display:inline; white-space:normal; word-break:normal; }
+
+
+
+
+
+/* ============================================================
+   تنسيقات صفحة إعلان الأمر (مستقلة تماماً)
+   ============================================================ */
+.page-e3lan {
+    background: white;
+    width: 210mm;
+    height: 297mm;
+    margin: 0 auto;
+    padding: 4mm 5mm; /* تقليل الحواف الخارجية لتوفير مساحة */
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    font-family: 'Cairo', 'Segoe UI', Arial, sans-serif;
+    page-break-before: always;
+    position: relative;
+    overflow: hidden;
+    direction: rtl;
+}
+
+.page-e3lan::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 75%;
+    height: 75%;
+    background-image: url('logo.png');
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0.08;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.page-e3lan > * { position: relative; z-index: 1; }
+
+/* إضافة الإطار (البرواز) */
+.e3lan-border {
+    border: 2pt solid #000;
+    flex: 1;
+    padding: 6mm 10mm; /* الحواف الداخلية للبرواز */
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    z-index: 2;
+    background: transparent;
+}
+
+.e3lan-header {
+    text-align: center;
+    font-size: 21pt; /* تصغير العنوان قليلاً */
+    font-weight: bold;
+    text-decoration: underline;
+    margin-bottom: 6mm; /* تقليل المسافة السفلية */
+    letter-spacing: 1px;
+}
+
+.e3lan-body {
+    font-size: 11.5pt; /* تصغير الخط العام للنص ليحتوي كل الكلام */
+    line-height: 1.6; /* تقليل ارتفاع السطر */
+    flex: 1;
+}
+
+.e3lan-line {
+    margin-bottom: 3mm; /* تقليل المسافات بين السطور */
+}
+
+.e3lan-flex {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    width: 100%;
+}
+
+.e3lan-dots {
+    flex: 1;
+    font-size: 8pt;
+    letter-spacing: 2px;
+    color: #333;
+    font-weight: normal;
+    overflow: hidden;
+    white-space: nowrap;
+    display: inline-block;
+    vertical-align: bottom;
+    padding-bottom: 1px;
+}
+
+
+
+
+/* تنسيق مربع اختيار طباعة الإعلان (مدمج مع زر الطباعة) */
+.print-e3lan-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin-bottom: 2px; /* مسافة صغيرة جداً لربطه بزر الطباعة تحته */
+    cursor: pointer;
+    color: #a8c4e0; /* لون هادئ يتماشى مع القائمة الجانبية */
+    font-size: 11px; /* تصغير حجم الخط */
+    font-weight: bold;
+    user-select: none;
+    transition: color 0.2s;
+}
+.print-e3lan-toggle:hover {
+    color: #fff; /* يضيء عند المرور عليه بالماوس */
+}
+.print-e3lan-toggle input[type="checkbox"] {
+    cursor: pointer;
+    width: 12px; /* تصغير مربع الصح */
+    height: 12px;
+    accent-color: #c9a200;
+    margin: 0;
+}
+
+
 </style>
 
 </head>
@@ -2347,6 +2471,13 @@ body[data-theme="dark"] .record-title { color: #7aaeff !important; }
 
     <!-- ===== أزرار الطباعة والمسح (ثابتة بالأسفل) ===== -->
     <div class="btn-row">
+        <!-- زر اختيار طباعة الإعلان -->
+        <!-- خيار طباعة الإعلان (يظهر فوق زر الطباعة) -->
+        <label id="e3lan-toggle-container" class="print-e3lan-toggle" style="display: none;">
+            <input type="checkbox" id="toggle-print-e3lan" onchange="updateAll()">
+            <span>طباعة الإعلان</span>
+        </label>
+
         <button class="btn-print" onclick="setTimeout(() => printDoc(), 100)">🖨️ طباعة القرار</button>
         <button class="btn-clear" id="telbasat-clear-all" onclick="clearAllFromMouse()"><i class="fa-solid fa-trash-can" style="margin-left: 5px;"></i>مسح الكل &nbsp; &nbsp;{ F9 }</button>
     </div>
@@ -2456,14 +2587,22 @@ body[data-theme="dark"] .record-title { color: #7aaeff !important; }
             </div>
             <div class="card-body" style="gap:0; padding:0;">
                 <div style="display:flex; align-items:stretch; width:100%;">
-                    <div style="display:flex; flex-direction:column; gap:8px; padding:10px; flex:0 0 auto; border-left:1px solid #e2e8f0;">
-                        <div class="field-group" style="width:100%;">
-                            <label>اسم المتهم</label>
-                            <input type="text" id="input-name" placeholder="اسم المتهم الكامل" oninput="updateAll()" style="width:290px; box-sizing:border-box;">
+                    <div style="display:flex; flex-direction:column; gap:8px; padding:10px; flex:0 0 auto; border-left:1px solid #e2e8f0; width: 350px;">
+                        <!-- الصف الأول: الاسم والرقم القومي -->
+                        <div style="display:flex; gap:8px; width:100%;">
+                            <div class="field-group" style="flex:1;">
+                                <label>اسم المتهم</label>
+                                <input type="text" id="input-name" placeholder="الاسم الكامل" oninput="updateAll()" style="width:100%; box-sizing:border-box;">
+                            </div>
+                            <div class="field-group" style="flex:1;">
+                                <label>الرقم القومي</label>
+                                <input type="text" id="f-national-id" placeholder="14 رقم" oninput="updateAll(); checkMinorFromNationalId(this)" style="width:100%; box-sizing:border-box;">
+                            </div>
                         </div>
+                        <!-- الصف الثاني: العنوان -->
                         <div class="field-group" style="width:100%;">
-                            <label>الرقم القومي</label>
-                            <input type="text" id="f-national-id" placeholder="14 رقم" oninput="updateAll(); checkMinorFromNationalId(this)" style="width:290px; box-sizing:border-box;">
+                            <label>العنوان (محل الإقامة)</label>
+                            <input type="text" id="input-address" placeholder="عنوان المتهم" oninput="updateAll()" style="width:100%; box-sizing:border-box;">
                         </div>
                     </div>
                     <div style="display:flex; flex-direction:column; flex-shrink:0; flex:1;">
@@ -2822,9 +2961,10 @@ body[data-theme="dark"] .record-title { color: #7aaeff !important; }
 
         <!-- النصف الأسفل: باسم الشعب -->
         <div class="lower-section">
-            <div style="position:relative; display:flex; align-items:baseline; margin-bottom:0;">
-                <div class="model-num" style="margin-bottom:0;">نيابة مرور عين الصيرة ( نموذج رقم ،،55،، )</div>
+            <div style="position:relative; display:flex; align-items:baseline; justify-content: space-between; margin-bottom:0;">
+                <div style="font-size: 10pt; font-weight: bold;">نيابة مرور عين الصيرة</div>
                 <div class="bisim-header" style="position:absolute; left:50%; transform:translateX(-50%); margin-bottom:0; white-space:nowrap;">باسـم الشعب</div>
+                <div class="model-num" style="margin-bottom:0; font-weight: bold;">(نموذج إعلان أمر جنائي رقم "1")</div>
             </div>
             <div class="bisim-sub">أمر جنائي</div>
 
@@ -2849,32 +2989,45 @@ body[data-theme="dark"] .record-title { color: #7aaeff !important; }
                     </tr>
                 </table>
 
-                <div class="line" style="display: flex; align-items: flex-end; gap: 5px;">
-                    بعد الاطلاع على المحضر وعلى طلب النيابة العامه المتضمن اتهام:
-                    <span class="d" id="p-name-l" style="flex: 1; border-bottom: non; padding-bottom: 1mm; min-width: 80mm;"></span>
+                <div class="line" style="margin-bottom: 1.5mm;">
+                    بعد الاطلاع على المحضر وعلى طلب النيابة العامه المتضمن اتهام :
                 </div>
 
-                <div class="line" style="text-align: center; margin: 0.5mm 0;">
-    الرقم القومي&nbsp;<span class="d" id="p-natid-l"></span>
-</div>
+                <table style="width: 100%; table-layout: fixed; border-collapse: collapse; margin-bottom: 2.5mm; text-align: center; border: 1pt solid #000;">
+                    <tr>
+                        <th style="border: 1pt solid #000; width: 33%; padding: 1.5px; font-size: 10pt;">اسم المتهم</th>
+                        <th style="border: 1pt solid #000; width: 50%; padding: 1.5px; font-size: 10pt;">محل إقامته / موطنه</th>
+                        <th style="border: 1pt solid #000; width: 17%; padding: 1.5px; font-size: 10pt;">الرقم القومي</th>
+                    </tr>
+                    <tr>
+                        <td style="border: 1pt solid #000; padding: 2px 4px; text-align: right; white-space: nowrap; overflow: hidden;">
+                            <strong style="font-size: 11pt;"></strong>&nbsp; <span class="d" id="p-name-l"></span>
+                        </td>
+                        <td style="border: 1pt solid #000; padding: 2px 4px; white-space: nowrap; overflow: hidden;" id="p-address-l"></td>
+                        <td style="border: 1pt solid #000; padding: 2px 4px; white-space: nowrap; overflow: hidden;">
+                            <span class="d" id="p-natid-l"></span>
+                        </td>
+                    </tr>
+                </table>
 
-                <div class="line">
+              <div class="line">
                     لأنه في يوم&nbsp;<span class="d" id="p-incident-date-l"><span class="date-dots">.......</span><span class="date-slash">/</span><span class="date-dots">.......</span><span class="date-slash">/</span>2026</span>&nbsp;/
                     محافظة: القاهرة&nbsp;/&nbsp;دائرة قسم&nbsp;<span class="d" id="p-da2ira-l"></span>
+                    <span style="margin-right: 20px; text-decoration: underline; font-weight: bold;">قاد مركبة مرتكباً:</span>
                 </div>
-                <div class="line">قاد مركبة مرتكباً:</div>
+
+
                 <div id="p-violations-l" class="viols-grid-l"></div>
                 <div class="line" style="font-size:9.5pt; margin-top:-2mm">
                     الأمر المعاقب عليه بالمادة 74 مكرراً / 2 ، 4 من القانون رقم 66 لسنة 1973 والمعدل بالقانونين رقمي 121
                     لسنة 2008 ، 59 لسنه 2014
                 </div>
                 <div class="line" style="font-size:9.5pt;">
-                    وبعد الاطلاع على القانون رقم 74 لسنة 2007 المعدل لقانون الإجراءات الجنائية رقم 150
-                    لسنة &nbsp;195&nbsp;
+                    وبعد الاطلاع على قانون الإجراءات الجنائية و طلبات المدعى بالحق المدني أمرنا
                 </div>
                 <div class="line">
                     بتغريم المتهم /&nbsp;
-                    <span class="d" id="p-fine-l"></span>&nbsp;جنيه والمصاريف الجنائية.
+                    <span class="d" id="p-fine-l"></span>&nbsp;جنيه والمصاريف الجنائية وبإلزامه بأن يدفع للمدعي بالحق المدني : .
                 </div>
 
                 <table style="width:100%; border:none; border-collapse:collapse;" class="line">
@@ -3404,6 +3557,122 @@ body[data-theme="dark"] .record-title { color: #7aaeff !important; }
             </div>
         </div>
     </div>
+
+
+
+<!-- TYPE: إعلان الأمر (ورقة مستقلة أسفل القرارات الصباحية) -->
+    <div id="print-e3lan" class="page-e3lan" style="display:none;">
+        <div class="e3lan-border"> <!-- بداية البرواز -->
+            <div class="e3lan-header">إعــــــلان الأمـــــــر</div>
+
+            <div class="e3lan-body">
+                <div class="e3lan-line e3lan-flex">
+                    <span>إنه في يوم :</span> <span class="e3lan-dots">......................................................................................................</span>
+                    <span>شهر :</span> <span class="e3lan-dots">.....................................................................................</span>
+                    <span>سنة :</span> <span class="e3lan-dots">.....................................................................................</span>
+                </div>
+
+                <div class="e3lan-line" style="font-weight: bold; margin-top: 4mm;">
+                    بناء على طلب النيابة العامة :
+                </div>
+
+                <div class="e3lan-line e3lan-flex">
+                    <span>أنا /</span> <span class="e3lan-dots">................................................................................................................................................................................................................................................</span>
+                    <span>الصفة :</span> <span class="e3lan-dots">.................................................................................................................................</span>
+                </div>
+
+                <div class="e3lan-line">
+                    ( راسلت / انتقلت إلى محل إقامة ).
+                </div>
+
+                <!-- المتهم -->
+                <div class="e3lan-line e3lan-flex">
+                    <span style="font-weight: bold;">المتهم:</span>
+                    <span id="e3lan-name" style="font-weight: bold; font-size: 13pt; border-bottom: 1.5px dashed #000; min-width: 50mm; text-align: center; padding: 0 10px;"></span>
+                    <span>( عبر ( هاتفه / بريده الإلكترونى / مخاطباً مع )</span>
+                    <span class="e3lan-dots">.................................................................................................................................</span>
+                </div>
+                <div class="e3lan-line e3lan-flex">
+                    <span class="e3lan-dots" style="flex: 1.5;">................................................................................................................................................................................................................................................</span>
+                    <span>( عبر ( هاتفه / بريده الإلكترونى / مخاطباً مع )</span>
+                    <span class="e3lan-dots">.................................................................................................................................</span>
+                </div>
+                <div class="e3lan-line e3lan-flex">
+                    <span class="e3lan-dots" style="flex: 1.5;">................................................................................................................................................................................................................................................</span>
+                    <span>( عبر ( هاتفه / بريده الإلكترونى / مخاطباً مع )</span>
+                    <span class="e3lan-dots">.................................................................................................................................</span>
+                </div>
+                <div class="e3lan-line e3lan-flex">
+                    <span class="e3lan-dots" style="flex: 1.5;">................................................................................................................................................................................................................................................</span>
+                    <span>( عبر ( هاتفه / بريده الإلكترونى / مخاطباً مع )</span>
+                    <span class="e3lan-dots">.................................................................................................................................</span>
+                </div>
+
+                <!-- المدعي بالحق المدني -->
+                <div class="e3lan-line e3lan-flex" style="margin-top: 3mm;">
+                    <span style="font-weight: bold;">المدعى بالحق المدنى</span>
+                    <span class="e3lan-dots">................................................................................................................................................................................................................................................</span>
+                </div>
+                <div class="e3lan-line e3lan-flex">
+                    <span>( عبر ( هاتفه المثبت ببيانات الرقم القومي المستعلم عنها من الأحوال المدنية / بريده الإلكتروني) / مخاطبا مع )</span>
+                    <span class="e3lan-dots">.................................................................................................................................</span>
+                </div>
+
+                <div class="e3lan-line e3lan-flex">
+                    <span class="e3lan-dots">................................................................................................................................................................................................................................................</span>
+                </div>
+                <div class="e3lan-line e3lan-flex">
+                    <span>( عبر ( هاتفه المثبت ببيانات الرقم القومي المستعلم عنها من الأحوال المدنية / بريده الإلكتروني) / مخاطبا مع )</span>
+                    <span class="e3lan-dots">.................................................................................................................................</span>
+                </div>
+
+                <div class="e3lan-line e3lan-flex">
+                    <span class="e3lan-dots">................................................................................................................................................................................................................................................</span>
+                </div>
+                <div class="e3lan-line e3lan-flex">
+                    <span>( عبر ( هاتفه المثبت ببيانات الرقم القومي المستعلم عنها من الأحوال المدنية / بريده الإلكتروني) / مخاطبا مع )</span>
+                    <span class="e3lan-dots">.................................................................................................................................</span>
+                </div>
+
+                <!-- متن الإعلان -->
+                <div class="e3lan-line" style="margin-top: 4mm; text-align: justify; line-height: 1.8;">
+                    واعلنتـ <span class="e3lan-dots" style="width: 15mm; flex: none;">.....................................</span> بالأمر الجنائى باطنه ونبهت عليـ <span class="e3lan-dots" style="width: 15mm; flex: none;">.....................................</span> بما قضى به الأمر بحيث إذا لم يعارض <span class="e3lan-dots" style="width: 15mm; flex: none;">.....................................</span> فيه خلال عشرة أيام من تاريخ إعلانه ، بنفســـ <span class="e3lan-dots" style="width: 15mm; flex: none;">.....................................</span> أو بواسطة وكيله الخاص بتقرير بقلم الكتاب المحكمة التى <span class="e3lan-dots" style="display:inline-block; width: 45mm; flex: none;">..........................................................................................</span> أصدرت الأمر أصبح نهائيا واجب التنفيذ .
+                </div>
+
+                <!-- الخاتمة -->
+                <div class="e3lan-line e3lan-flex" style="margin-top: 4mm;">
+                    <span>وتركت لـ / ( الوسيلة المحددة للإعلان عبر مركز الإعلان )</span>
+                    <span class="e3lan-dots">................................................................................................................................................................................................................................................</span>
+                </div>
+                <div class="e3lan-line e3lan-flex">
+                    <span class="e3lan-dots">................................................................................................................................................................................................................................................</span>
+                    <span>صورة هذا .</span>
+                </div>
+
+                <div class="e3lan-line" style="font-size: 10pt; text-align: center; margin-top: 2mm;">
+                    يضرب على كل ما بين قوسين
+                </div>
+
+                <div class="e3lan-line e3lan-flex" style="margin-top: 2mm; justify-content: flex-start; gap: 15px;">
+                    <span>ورسمه ( قرش</span> <span class="e3lan-dots" style="width: 30mm; flex: none;">........................................................................</span>
+                    <span>جنيه</span> <span class="e3lan-dots" style="width: 30mm; flex: none;">........................................................................</span>
+                    <span>)</span>
+                </div>
+
+                <!-- التوقيعات -->
+                <div style="margin-top: 6mm; display: flex; justify-content: flex-end; padding-left: 10mm;">
+                    <div style="text-align: right; font-weight: bold; line-height: 1.8; font-size: 13pt;">
+                        <div style="text-align: center; margin-bottom: 2mm;">القائم بالإعلان</div>
+                        <div class="e3lan-flex">الاسـم : <span class="e3lan-dots" style="width: 50mm; flex:none;">................................................................................................</span></div>
+                        <div class="e3lan-flex">الصفة : <span class="e3lan-dots" style="width: 50mm; flex:none;">................................................................................................</span></div>
+                    </div>
+                </div>
+
+            </div>
+        </div> <!-- نهاية البرواز -->
+    </div>
+
+
 
 </div><!-- end print-area -->
 
@@ -4331,7 +4600,9 @@ const FIELDS_CONFIG = {
     'mjt-director-name':  { dots: '…………………………………………………………' },
     'mjt-director-sig-display': { dots: '…………………………………………………………' },
     'mjt-a3lanat-dots':   { dots: '…………………………………………………………' },
+    'e3lan-name':        { dots: '.........................................................', fontSize: '14pt' }
 };
+
 
 /* ===================================================
    setText
@@ -4561,6 +4832,7 @@ function updateAll() {
     const qararDate    = get('input-date')        || '';
     const name         = get('input-name')        || '.....................................';
     const nationalId   = get('f-national-id')     || '.....................................';
+    const address      = get('input-address')     || '..............................';
     
     const car          = getPlateNumber();
     // السر هنا: فحص ذكي يكتشف لو اللوحة فاضية أو عبارة عن نقاط فقط
@@ -4602,6 +4874,21 @@ function updateAll() {
 
     /* ---- Show correct print page ---- */
     document.getElementById('print-qaid-wasf').style.display = [0,1,2].includes(currentDecision) ? '' : 'none';
+// التحكم في ظهور زر "طباعة الإعلان" (يظهر فقط مع القرارات 0 و 1 و 2)
+    const e3lanContainer = document.getElementById('e3lan-toggle-container');
+    const isSabahiDecision = [0,1,2].includes(currentDecision);
+    if (e3lanContainer) {
+        e3lanContainer.style.display = isSabahiDecision ? 'flex' : 'none';
+    }
+
+    // التحكم في ظهور ورقة الإعلان في الطباعة (تعتمد على اختيار القرار + تفعيل زر الصح)
+    const e3lanPage = document.getElementById('print-e3lan');
+    const printE3lanCheckbox = document.getElementById('toggle-print-e3lan');
+    const isE3lanChecked = printE3lanCheckbox ? printE3lanCheckbox.checked : false;
+    
+    if (e3lanPage) {
+        e3lanPage.style.display = (isSabahiDecision && isE3lanChecked) ? '' : 'none';
+    }
     document.getElementById('print-jalsa').style.display      = currentDecision === 3 ? '' : 'none';
     const masaiEl = document.getElementById('print-masai');
     if (masaiEl) masaiEl.style.display = [5,6].includes(currentDecision) ? '' : 'none';
@@ -4632,6 +4919,7 @@ function updateAll() {
     setText('p-qarar-date-u', qararDate);
     setText('p-name-u', name);
     setText('p-incident-date-u', incidentDate);
+    setText('e3lan-name', name);
 
     const carDisplay = !isCarEmpty
                    ? `<span style="font-weight: bold; font-size: 13pt;">${car}</span>${vehicleTypeSuffixHtml}`
@@ -4689,6 +4977,7 @@ function updateAll() {
     setText('p-director-sig-l', director);
     setText('p-name-l', name);
     setText('p-natid-l', nationalId);
+    setText('p-address-l', address);
     setText('p-incident-date-l', incidentDate);
     setText('p-da2ira-l', da2ira);
     setText('p-fine-l', fineAmountDisplay);
@@ -5094,6 +5383,7 @@ async function saveMahdarData() {
             deptSelect:   deptSel ? deptSel.value : '',
             name:         get('input-name'),
             nationalId:   get('f-national-id'),
+            address:      get('input-address'),
             plateType, plate,
             c1: get('c1'), c2: get('c2'), c3: get('c3'), n1: get('n1'),
             noPlateTxt:   get('input-no-plate'),
@@ -5140,6 +5430,7 @@ async function saveMahdarData() {
         existingRecord.fields.plate_digits = data.n1;
         existingRecord.fields.def_name = data.name;
         existingRecord.fields.def_id_no = data.nationalId;
+        existingRecord.fields.def_address = data.address;
         existingRecord.fields.event_date = data.incidentDate;
         existingRecord.fields.plate_mode = data.plateType === 'no-plate' ? 'بدون لوحات' : 'manual';
         if (data.plateType === 'no-plate') {
@@ -5412,18 +5703,64 @@ async function printDoc() {
     if (caseNum && year && dept) {
         const key = getMahdarKey(caseNum, year, dept, 'main');
         let db = await fetchServerData();
+        
         if (db[key]) {
-            showCustomConfirm(
-                'يوجد محضر محفوظ من قبل بنفس الرقم (' + caseNum + ' / ' + year + ' / ' + dept + ').\n\nهل تريد الحفظ فوقه ومتابعة الطباعة؟',
-                {
-                    title: 'محضر محفوظ مسبقًا',
-                    confirmText: 'الحفظ فوقه والمتابعة',
-                    cancelText: 'إلغاء',
-                    type: 'danger',
-                    onConfirm: continueDecisionPrint
-                }
-            );
-            return;
+            // --- دالة ذكية لمقارنة البيانات الحالية بالبيانات المحفوظة ---
+            const hasFormChanged = (saved) => {
+                const pType = getVal('plate-type');
+                const currentPlate = pType === 'no-plate' 
+                    ? getVal('input-no-plate') || 'بدون لوحات' 
+                    : (getVal('c1') + getVal('c2') + getVal('c3') + ' ' + getVal('n1')).replace(/\s+/g, ' ').trim();
+                
+                const currentViolations = getViolations().join('||');
+                const savedViolations = Array.isArray(saved.violations) 
+                    ? saved.violations.map(v => typeof v === 'string' ? v : v.label).join('||') 
+                    : '';
+
+                const bossSelVal = (document.getElementById('input-boss-select')||{}).value || '';
+                const currentBoss = bossSelVal === 'أخرى' ? getVal('input-boss-other').trim() : bossSelVal;
+
+                const firstDecMode = (document.getElementById('first-decision-mode')||{}).value || firstDecisionMode;
+                const manualFirstDec = document.getElementById('first-decision-preview') && firstDecisionManualOverride 
+                    ? document.getElementById('first-decision-preview').value.trim() : '';
+
+                // مقارنة الحقول لمعرفة هل تم تغيير ولو حرف واحد
+                return (
+                    (saved.name || '') !== getVal('input-name').trim() ||
+                    (saved.nationalId || '') !== getVal('f-national-id').trim() ||
+                    (saved.address || '') !== getVal('input-address').trim() ||
+                    (saved.incidentDate || '') !== getVal('f-incident-date').trim() ||
+                    (saved.plate || '') !== currentPlate ||
+                    (saved.vehicleType || '') !== (document.getElementById('vehicle-type')||{}).value ||
+                    (saved.fine || '') !== getVal('f-fine').trim() ||
+                    (saved.fineText || '') !== getVal('fine-text').trim() ||
+                    (saved.vehDecSelect || '') !== (document.getElementById('vehicle-decision-select')||{}).value ||
+                    (saved.vehDecText || '') !== getVal('vehicle-decision-text').trim() ||
+                    (saved.sabeelSelect || '') !== (document.getElementById('sabeel-select')||{}).value ||
+                    (saved.sabeelText || '') !== getVal('sabeel-text').trim() ||
+                    (saved.boss || '') !== currentBoss ||
+                    (saved.jalsaDate || '') !== getVal('f-jalsa-date').trim() ||
+                    (saved.firstDecisionMode || '') !== firstDecMode ||
+                    (saved.firstDecisionManualText || '') !== manualFirstDec ||
+                    saved.currentDecision !== currentDecision ||
+                    savedViolations !== currentViolations
+                );
+            };
+
+            // إذا كان هناك اختلاف (تعديل)، نعرض رسالة التنبيه، وإلا نطبع فوراً بصمت
+            if (hasFormChanged(db[key])) {
+                showCustomConfirm(
+                    'يوجد محضر محفوظ من قبل بنفس الرقم (' + caseNum + ' / ' + year + ' / ' + dept + ') وقد قمت بتعديل بياناته.\n\nهل تريد الحفظ فوقه ومتابعة الطباعة؟',
+                    {
+                        title: 'تعديل محضر محفوظ',
+                        confirmText: 'الحفظ فوقه والمتابعة',
+                        cancelText: 'إلغاء',
+                        type: 'danger',
+                        onConfirm: continueDecisionPrint
+                    }
+                );
+                return;
+            }
         }
     }
 
@@ -5466,6 +5803,7 @@ async function loadMahdarFromStorage() {
     const set = (id, val) => { const el = document.getElementById(id); if (el && val != null) el.value = val; };
     set('input-name',            d.name);
     set('f-national-id',         d.nationalId);
+    set('input-address',         d.address);
     set('f-incident-date',       d.incidentDate);
     set('f-fine',                d.fine);
     set('fine-text',             d.fineText);
@@ -5629,9 +5967,11 @@ function clearAllFromMouse() {
 function clearAll(suppressToast) {
     const dateEl = document.getElementById('input-date');
     const savedDate = dateEl ? dateEl.value : '';
+    const printE3lanCheckbox = document.getElementById('toggle-print-e3lan');
+    if (printE3lanCheckbox) printE3lanCheckbox.checked = false;
 
     ['input-caseNum','input-dept-other','input-boss-other','input-date',
-     'input-name','f-national-id','c1','c2','c3','n1','input-no-plate','vehicle-type-other',
+     'input-name','f-national-id','input-address','c1','c2','c3','n1','input-no-plate','vehicle-type-other',
      'f-incident-date','f-fine','vehicle-decision-text','sabeel-text','jalsa-extra-text',
      'f-jalsa-date','f-jalsa-day-other']
         .forEach(id => { const el = document.getElementById(id); if (el) el.value = (id==='input-no-plate') ? 'بدون لوحات' : ''; });
