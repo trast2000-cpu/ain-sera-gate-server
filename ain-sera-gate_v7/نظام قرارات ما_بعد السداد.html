@@ -1577,11 +1577,58 @@ body[data-theme="dark"] .custom-select-option.option-light {
     border: 1.5px solid #e6c34d;
     box-shadow: 0 0 0 1px rgba(230,195,77,0.35), 0 1px 4px rgba(30,58,95,0.4);
 }
+
+
+/* ===== شريط فلترة الحالة الجديد ===== */
+.archive-filter-strip {
+    display: flex;
+    gap: 3px;
+    flex-shrink: 0;
+    background: #dde3ef;
+    border-radius: 9px;
+    padding: 2px; /* مساحة أقل ليكون ارتفاعه أصغر */
+    margin-top: 5px; /* فاصل بينه وبين شريط الترتيب */
+}
+
+.filter-strip-btn {
+    flex: 1;
+    background: #dce6f2;
+    color: #2d5a8e;
+    border: 1px solid #6f8fb3;
+    border-radius: 6px;
+    font-family: 'Cairo', sans-serif;
+    font-size: 8.5px; /* خط أصغر قليلاً */
+    font-weight: bold;
+    padding: 1px 2px; /* حشوة أقل لتقليل الارتفاع */
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+}
+
+.filter-strip-btn:hover {
+    background: #b8c5d9;
+    color: #1e3a5f;
+}
+
+.filter-strip-btn.active {
+    background: #2d5a8e;
+    color: #ffffff;
+    border: 1.5px solid #e6c34d;
+    box-shadow: 0 0 0 1px rgba(230,195,77,0.35), 0 1px 3px rgba(30,58,95,0.4);
+}
+
 body[data-theme="dark"] .archive-header-panel { background: rgba(15, 26, 46, 0.85) !important; border-color: rgba(74, 122, 181, 0.3) !important; }
 body[data-theme="dark"] .archive-tabs, body[data-theme="dark"] .archive-sort-strip { background: rgba(0,0,0,0.2) !important; }
 body[data-theme="dark"] .sort-strip-btn { background: #24344f !important; color: #a8c4e0 !important; border-color: #4a6a94 !important; }
 body[data-theme="dark"] .sort-strip-btn:hover { background: rgba(255,255,255,0.08) !important; color: #fff !important; }
 body[data-theme="dark"] .sort-strip-btn.active { background: #2d5a8e !important; color: #ffffff !important; border-color: #e6c34d !important; }
+
+body[data-theme="dark"] .archive-filter-strip { background: rgba(0,0,0,0.2) !important; }
+body[data-theme="dark"] .filter-strip-btn { background: #24344f !important; color: #a8c4e0 !important; border-color: #4a6a94 !important; }
+body[data-theme="dark"] .filter-strip-btn:hover { background: rgba(255,255,255,0.08) !important; color: #fff !important; }
+body[data-theme="dark"] .filter-strip-btn.active { background: #2d5a8e !important; color: #ffffff !important; border-color: #e6c34d !important; }
+
+
 .tab-btn {
     flex: 1;
     background: #dce6f2;
@@ -2205,6 +2252,14 @@ body[data-theme="dark"] .rec-date { color: #64748b !important; }
                             <button class="sort-strip-btn" data-mode="desc" onclick="setArchiveSortMode('desc')">تنازلي</button>
                             <button class="sort-strip-btn active" data-mode="day" onclick="setArchiveSortMode('day')">تاريخ اليوم</button>
                         </div>
+
+<div class="archive-filter-strip" id="archive-filter-strip">
+                            <button class="filter-strip-btn" data-status="unpaid" onclick="event.stopPropagation(); setArchiveStatusFilter('unpaid')">غير مسدد</button>
+                            <button class="filter-strip-btn" data-status="paid" onclick="event.stopPropagation(); setArchiveStatusFilter('paid')">مسدد</button>
+                            <button class="filter-strip-btn" data-status="session" onclick="event.stopPropagation(); setArchiveStatusFilter('session')">جلسة</button>
+                            <button class="filter-strip-btn active" data-status="all" onclick="event.stopPropagation(); setArchiveStatusFilter('all')">الكل</button>
+                        </div>
+
                     </div>
                     <div class="archive-records-list" id="records-list">
                         <!-- سيتم ملء المحاضر هنا برمجياً -->
@@ -6202,13 +6257,35 @@ function clearPaymentInfoFields() {
     if (typeof updateViolationsText === 'function') updateViolationsText();
 }
 
-// وضع ترتيب قائمة المحاضر المحفوظة: day (تجميع حسب اليوم - الافتراضي) / asc (تصاعدي برقم المحضر) / desc (تنازلي برقم المحضر)
-let archiveSortMode = 'day';
+// 1. قراءة آخر اختيار من الذاكرة (استخدمنا اسم مفتاح مختلف post_payment لمنع التداخل مع باقي الأنظمة)
+let archiveSortMode = localStorage.getItem('post_payment_archive_sort') || 'day';
+let archiveStatusFilter = localStorage.getItem('post_payment_archive_status') || 'all';
+
+// 2. دالة مركزية لضبط شكل الأزرار
+function syncArchiveFilterUI() {
+    document.querySelectorAll('#archive-sort-strip .sort-strip-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-mode') === archiveSortMode);
+    });
+    var statusStrips = document.querySelectorAll('#archive-filter-strip .filter-strip-btn');
+    if(statusStrips.length) {
+        statusStrips.forEach(btn => {
+            btn.classList.toggle('active', btn.getAttribute('data-status') === archiveStatusFilter);
+        });
+    }
+}
+
+// 3. تحديث دوال الترتيب والحالة لتقوم بالحفظ في الذاكرة وتحديث الشكل
 function setArchiveSortMode(mode) {
     archiveSortMode = mode;
-    document.querySelectorAll('#archive-sort-strip .sort-strip-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.getAttribute('data-mode') === mode);
-    });
+    localStorage.setItem('post_payment_archive_sort', mode);
+    syncArchiveFilterUI();
+    loadArchiveToSidebar();
+}
+
+function setArchiveStatusFilter(status) {
+    archiveStatusFilter = status;
+    localStorage.setItem('post_payment_archive_status', status);
+    syncArchiveFilterUI();
     loadArchiveToSidebar();
 }
 
@@ -6226,18 +6303,32 @@ async function loadArchiveToSidebar() {
         return;
     }
 
+    // فلترة المحاضر حسب القسم والحالة المختارة
     const filteredKeys = [...index].reverse().filter(key => {
         const d = db[key];
         if (!d) return false;
-        // النظام ده بيعرض الأصول الأساسية فقط؛ أصل الحركات الاستعراضية وتخفيض
-        // الكفالة تابعان لنظام التحقيق ولا يظهران هنا كسجل مستقل.
+        
+        // استبعاد الحركات الاستعراضية وتخفيض الكفالة
         if (d.reportMode === 'objection' || d.reportMode === 'bail_reduction' ||
             /__(objection|bail_reduction)(__bail_reduction)?$/.test(key)) return false;
+        
+        // 1. فلترة القسم
         if (currentArchiveTab) {
             let dDept = (d.dept || "").replace(/ة/g, 'ه');
             let currTab = currentArchiveTab.replace(/ة/g, 'ه');
             if (!dDept.includes(currTab)) return false;
         }
+
+        // 2. فلترة الحالة (الجديدة)
+        if (archiveStatusFilter !== 'all') {
+            const isSession = isSessionRecord(d);
+            const isPaid = (d.paymentInfo && d.paymentInfo.paid);
+            
+            if (archiveStatusFilter === 'session' && !isSession) return false;
+            if (archiveStatusFilter === 'paid' && !isPaid) return false;
+            if (archiveStatusFilter === 'unpaid' && (isSession || isPaid)) return false;
+        }
+
         return true;
     });
 
@@ -6424,6 +6515,9 @@ function applyRecordToWorkspace(key, raw) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+    // تشغيل دالة ضبط شكل الأزرار فور تحميل الصفحة لتعكس الاختيارات المحفوظة
+    if (typeof syncArchiveFilterUI === 'function') syncArchiveFilterUI();
+    
     if (typeof buildArchiveTabs === 'function') {
         buildArchiveTabs();
         loadArchiveToSidebar();

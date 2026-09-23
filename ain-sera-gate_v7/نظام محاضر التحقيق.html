@@ -1739,6 +1739,11 @@ box-sizing: border-box;
     display: flex;
     gap: 5px;
 }
+.inv-archive-filter-strip {
+    display: flex;
+    gap: 5px;
+    margin-top: 5px;
+}
 .inv-sort-strip-btn {
     flex: 1;
     background: #243f6b;
@@ -1760,6 +1765,30 @@ box-sizing: border-box;
     color: #fff;
     border-color: #1d4ed8;
     box-shadow: 0 4px 12px rgba(37,99,235,0.4);
+}
+.inv-filter-strip-btn {
+    flex: 1;
+    background: #e8eef8;
+    color: #1e3a5f;
+    border: 1px solid #8aa3c4;
+    border-radius: 7px;
+    padding: 4px 2px;
+    font-family: 'Cairo', sans-serif;
+    font-size: 9px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+}
+.inv-filter-strip-btn:hover {
+    background: #d5e2f5;
+    color: #1d4ed8;
+}
+.inv-filter-strip-btn.active {
+    background: #2563eb;
+    color: #fff;
+    border-color: #1d4ed8;
+    box-shadow: 0 4px 10px rgba(37,99,235,0.3);
 }
 .inv-tab-btn {
     flex: 1;
@@ -2027,6 +2056,12 @@ box-sizing: border-box;
                         <button class="inv-sort-strip-btn" data-mode="asc" onclick="setInvArchiveSortMode('asc')">تصاعدي</button>
                         <button class="inv-sort-strip-btn" data-mode="desc" onclick="setInvArchiveSortMode('desc')">تنازلي</button>
                         <button class="inv-sort-strip-btn active" data-mode="day" onclick="setInvArchiveSortMode('day')">تاريخ اليوم</button>
+                    </div>
+                    <div class="inv-archive-filter-strip" id="inv-archive-filter-strip">
+                        <button class="inv-filter-strip-btn" data-status="unpaid" onclick="event.stopPropagation(); setInvArchiveStatusFilter('unpaid')">غير مسدد</button>
+                        <button class="inv-filter-strip-btn" data-status="paid" onclick="event.stopPropagation(); setInvArchiveStatusFilter('paid')">مسدد</button>
+                        <button class="inv-filter-strip-btn" data-status="session" onclick="event.stopPropagation(); setInvArchiveStatusFilter('session')">جلسة</button>
+                        <button class="inv-filter-strip-btn active" data-status="all" onclick="event.stopPropagation(); setInvArchiveStatusFilter('all')">الكل</button>
                     </div>
                 </div>
                 <div class="inv-records-list" id="inv-records-list">
@@ -5785,6 +5820,10 @@ function applyLoadedData(data) {
         if (data.name) setVal('def_name', data.name);
         if (data.nationalId) setVal('def_id_no', data.nationalId);
         if (data.incidentDate) setVal('event_date', data.incidentDate);
+        if (data.address) setVal('def_address', data.address);
+        if (data.phone) setVal('def_phone', data.phone);
+        if (data.age) setVal('def_age', data.age);
+        if (data.job) setVal('def_job', data.job);
         if (data.c1) setVal('plate_l1', data.c1);
         if (data.c2) setVal('plate_l2', data.c2);
         if (data.c3) setVal('plate_l3', data.c3);
@@ -8691,12 +8730,51 @@ document.addEventListener('DOMContentLoaded', () => {
 var invCurrentArchiveTab = "";
 var invRecordsLimit = 30;
 // وضع ترتيب قائمة المحاضر المحفوظة: day (تجميع حسب اليوم - الافتراضي) / asc (تصاعدي برقم المحضر) / desc (تنازلي برقم المحضر)
-var invArchiveSortMode = 'day';
+var invArchiveSortMode = localStorage.getItem('investigation_archive_sort') || 'day';
+var invArchiveStatusFilter = localStorage.getItem('investigation_archive_status') || 'all';
+
+// كلمات تصنيف المحضر كـ "جلسة" — يجب أن تتطابق مع الشارة الظاهرة في القائمة.
+var INV_SESSION_KEYWORDS = [
+    'عكس الاتجاه',
+    'عكس الاتجاة',
+    'اللوحات',
+    'مخدرة',
+    'مسكرة',
+    'الجوهرية'
+];
+
+function isInvSessionRecord(record) {
+    if (!record) return false;
+    var source = record.violations;
+    if (!source && record.fields) {
+        source = record.fields.violations || record.fields.violation || '';
+    }
+    var text = Array.isArray(source) ? source.join(' | ') : String(source || '');
+    return INV_SESSION_KEYWORDS.some(function(keyword) {
+        return text.includes(keyword);
+    });
+}
+
+function syncInvArchiveFilterUI() {
+    document.querySelectorAll('#inv-archive-sort-strip .inv-sort-strip-btn').forEach(function(btn) {
+        btn.classList.toggle('active', btn.getAttribute('data-mode') === invArchiveSortMode);
+    });
+    document.querySelectorAll('#inv-archive-filter-strip .inv-filter-strip-btn').forEach(function(btn) {
+        btn.classList.toggle('active', btn.getAttribute('data-status') === invArchiveStatusFilter);
+    });
+}
+
 function setInvArchiveSortMode(mode) {
     invArchiveSortMode = mode;
-    document.querySelectorAll('#inv-archive-sort-strip .inv-sort-strip-btn').forEach(function(btn) {
-        btn.classList.toggle('active', btn.getAttribute('data-mode') === mode);
-    });
+    localStorage.setItem('investigation_archive_sort', mode);
+    syncInvArchiveFilterUI();
+    loadInvArchiveToSidebar();
+}
+
+function setInvArchiveStatusFilter(status) {
+    invArchiveStatusFilter = status;
+    localStorage.setItem('investigation_archive_status', status);
+    syncInvArchiveFilterUI();
     loadInvArchiveToSidebar();
 }
 
@@ -8843,7 +8921,7 @@ async function loadInvArchiveToSidebar() {
         return;
     }
 
-    // فلترة حسب التبويب (القسم)
+    // فلترة حسب التبويب (القسم) وحالة المحضر
     var filteredKeys = index.slice().reverse().filter(function(key) {
         var d = db[key];
         if (!d) return false;
@@ -8852,6 +8930,16 @@ async function loadInvArchiveToSidebar() {
             var currTab = invCurrentArchiveTab.replace(/ة/g, 'ه');
             if (!dDept.includes(currTab)) return false;
         }
+
+        if (invArchiveStatusFilter !== 'all') {
+            var isSession = isInvSessionRecord(d);
+            var isPaid = !!(d.paymentInfo && d.paymentInfo.paid);
+
+            if (invArchiveStatusFilter === 'session' && !isSession) return false;
+            if (invArchiveStatusFilter === 'paid' && !isPaid) return false;
+            if (invArchiveStatusFilter === 'unpaid' && (isSession || isPaid)) return false;
+        }
+
         return true;
     });
 
@@ -8936,13 +9024,8 @@ async function loadInvArchiveToSidebar() {
   }
   invLastDateSeen = dateOnly;
 
-  // تمييز نوع المحضر (غرامة / جلسة) من الكلمات المفتاحية في بنود الاتهام — بنفس منطق باقي الأنظمة
-  var isSession = false;
-  if (primary.violations) {
-    var violText = Array.isArray(primary.violations) ? primary.violations.join(' ') : String(primary.violations);
-    var sessionKw = ['عكس الاتجاه','عكس الاتجاة','اللوحات','مخدرة','مسكرة','الجوهرية'];
-    isSession = sessionKw.some(function(kw) { return violText.includes(kw); });
-  }
+   // تمييز نوع المحضر (غرامة / جلسة) من الكلمات المفتاحية في بنود الاتهام.
+   var isSession = isInvSessionRecord(primary);
   var badgeClass = isSession ? 'badge-session' : 'badge-fine';
   var badgeTitle = isSession ? 'محضر جلسة' : 'محضر غرامة';
   var badgeLabel = isSession ? 'ج' : 'غ';
@@ -9440,6 +9523,7 @@ function showInvArchiveToast(text, success) {
 
 // ── تشغيل الأرشيف عند تحميل الصفحة ──
 document.addEventListener('DOMContentLoaded', function() {
+    syncInvArchiveFilterUI();
     buildInvArchiveTabs();
 });
 

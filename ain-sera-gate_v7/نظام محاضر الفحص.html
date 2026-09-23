@@ -731,6 +731,28 @@ thead th[data-tip] {
     content: '▼';
 }
 
+/* إطار واضح حول رأس الفرز/الفلتر النشط حالياً */
+.sortable-th[data-sort]:not([data-sort=""]) {
+    /* تم استبدال الـ border بـ box-shadow داخلي لمنع تهييس الجدول */
+    border: none !important;
+    box-shadow: 
+        inset 0 0 0 1px #22d3ee,
+        inset 0 0 0 2px rgba(207, 250, 254, 0.95),
+        0 0 0 1px rgba(8, 145, 178, 0.8),
+        0 3px 9px rgba(8, 145, 178, 0.32) !important;
+    position: relative;
+    z-index: 3;
+}
+
+[data-theme="dark"] .sortable-th[data-sort]:not([data-sort=""]) {
+    border: none !important;
+    box-shadow: 
+        inset 0 0 0 1px #67e8f9,
+        inset 0 0 0 2px rgba(207, 250, 254, 0.98),
+        0 0 0 1px rgba(34, 211, 238, 0.85),
+        0 3px 11px rgba(34, 211, 238, 0.32) !important;
+}
+
 thead th[data-tip]:hover::after {
     content: attr(data-tip);
     position: absolute;
@@ -1202,6 +1224,45 @@ thead th[data-tip]:hover::before {
     box-shadow: 0 0 0 1px rgba(230,195,77,0.35), 0 1px 4px rgba(30,58,95,0.4);
 }
 
+
+/* ===== شريط فلترة الحالة الجديد ===== */
+.archive-filter-strip {
+    display: flex;
+    gap: 3px;
+    flex-shrink: 0;
+    background: #dde3ef;
+    border-radius: 9px;
+    padding: 2px; /* مساحة أقل ليكون ارتفاعه أصغر */
+    margin-top: 5px; /* فاصل بينه وبين شريط الترتيب */
+}
+
+.filter-strip-btn {
+    flex: 1;
+    background: #dce6f2;
+    color: #2d5a8e;
+    border: 1px solid #6f8fb3;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 8.5px; /* خط أصغر قليلاً */
+    font-weight: bold;
+    padding: 1px 2px; /* حشوة أقل لتقليل الارتفاع */
+    cursor: pointer;
+    transition: 0.2s;
+    text-align: center;
+}
+
+.filter-strip-btn:hover {
+    background: #b8c5d9;
+    color: #1e3a5f;
+}
+
+.filter-strip-btn.active {
+    background: #2d5a8e;
+    color: #ffffff;
+    border: 1px solid #e6c34d;
+    box-shadow: 0 0 0 1px rgba(230,195,77,0.35), 0 1px 3px rgba(30,58,95,0.4);
+}
+
 .archive-records-list {
     flex: 1; 
     min-height: 0; 
@@ -1286,6 +1347,11 @@ thead th[data-tip]:hover::before {
 .badge-session { background: #1e3a5f; }
 
 [data-theme="dark"] .badge-session { background: #c9a200; color: #1e3a5f; }
+
+[data-theme="dark"] .archive-filter-strip { background: rgba(0,0,0,0.2); }
+[data-theme="dark"] .filter-strip-btn { background: #24344f; color: #a8c4e0; border-color: #4a6a94; }
+[data-theme="dark"] .filter-strip-btn:hover { background: rgba(255,255,255,0.08); color: #fff; }
+[data-theme="dark"] .filter-strip-btn.active { background: #2d5a8e; color: #ffffff; border-color: #e6c34d; }
 
 .badge-paid {
     display: inline-flex;
@@ -1405,9 +1471,9 @@ thead th[data-tip]:hover::before {
             <!-- زر قائمة المحاضر المحفوظة ومود الحصر في أقصى اليسار -->
             <div style="display: flex; align-items: center; justify-content: flex-end; overflow: visible; position: relative;">
                 
-                <!-- زر تشغيل مود الحصر (أصبح على اليمين) -->
+                <!-- زر تشغيل كشف الحصر (أصبح على اليمين) -->
                 <button id="inventoryModeToggle" class="add-btn no-print" onclick="toggleInventoryMode()" style="background:linear-gradient(135deg,#0f766e,#115e59);display:flex;align-items:center;gap:5px;color:#fff;padding:6px 12px;font-size:13px;border:1px solid rgba(255,255,255,0.3);margin-left:8px; margin-top: -6px;">
-                    <i class="fa-solid fa-table-list"></i> مود الحصر
+                    <i class="fa-solid fa-table-list"></i>كشف الحصر
                 </button>
 
                 <!-- زر قائمة المحاضر المحفوظة (أصبح على اليسار) -->
@@ -1423,6 +1489,14 @@ thead th[data-tip]:hover::before {
                                 <button class="sort-strip-btn" data-mode="desc" onclick="event.stopPropagation(); setFloatingArchiveSortMode('desc')">تنازلي</button>
                                 <button class="sort-strip-btn active" data-mode="day" onclick="event.stopPropagation(); setFloatingArchiveSortMode('day')">تاريخ اليوم</button>
                             </div>
+
+<div class="archive-filter-strip" id="archive-filter-strip">
+                                <button class="filter-strip-btn" data-status="unpaid" onclick="event.stopPropagation(); setFloatingArchiveStatusFilter('unpaid')">غير مسدد</button>
+                                <button class="filter-strip-btn" data-status="paid" onclick="event.stopPropagation(); setFloatingArchiveStatusFilter('paid')">مسدد</button>
+                                <button class="filter-strip-btn" data-status="session" onclick="event.stopPropagation(); setFloatingArchiveStatusFilter('session')">جلسة</button>
+                                <button class="filter-strip-btn active" data-status="all" onclick="event.stopPropagation(); setFloatingArchiveStatusFilter('all')">الكل</button>
+                            </div>
+
                         </div>
                         <div class="archive-records-list" id="floatingRecordsList"></div>
                         <button class="bulk-insert-btn" onclick="insertSelectedRecords()">✔️ إدراج المحاضر المحددة</button>
@@ -1602,10 +1676,10 @@ thead th[data-tip]:hover::before {
                     </label>
                 </div>
                 <div class="hasr-divider" aria-hidden="true"></div>
-                <button class="inventory-tool-btn bottom-action-btn inventory-print-btn hasr-print-cell" onclick="printInventory(false)">🖨️ طباعة الكشف</button>
+                <button class="inventory-tool-btn bottom-action-btn inventory-print-btn hasr-print-cell" onclick="printInventory()">🖨️ طباعة الكشف</button>
                 <div class="hasr-buttons-row">
                     <button class="inventory-tool-btn bottom-action-btn inventory-save-btn" onclick="saveInventorySheet()">💾 حفظ الكشف</button>
-                    <button class="inventory-tool-btn bottom-action-btn" onclick="openInventorySheets()">📂 فتح كشف سابق</button>
+                    <button class="inventory-tool-btn bottom-action-btn" onclick="openInventorySheets()">📂 الكشوف السابقة</button>
                     <button class="inventory-tool-btn bottom-action-btn" onclick="confirmClearAllDataByMouse()" style="background: linear-gradient(135deg, #dc3545, #c82333);">🗑️ تفريغ الجدول (F9)</button>
                 </div>
             </div>
@@ -1874,7 +1948,7 @@ thead th[data-tip]:hover::before {
         if (!toast) {
             toast = document.createElement('div');
             toast.id = 'copy-toast';
-            toast.style.cssText = 'position:fixed;bottom:28px;left:50%;transform:translateX(-50%);box-sizing:border-box;width:max-content;max-width:min(92vw,560px);background:#1e3a5f;color:#fff;padding:10px 18px;border:1px solid rgba(255,255,255,.22);border-radius:10px;font-family:inherit;font-size:12.5px;font-weight:700;line-height:1.65;text-align:center;direction:rtl;z-index:10000;box-shadow:0 8px 24px rgba(15,23,42,.24);transition:opacity .25s ease;pointer-events:none;';
+            toast.style.cssText = 'position:fixed;bottom:28px;left:50%;transform:translateX(-50%);box-sizing:border-box;width:max-content;max-width:min(92vw,560px);background:#1e3a5f;color:#fff;padding:10px 18px;border:1px solid rgba(255,255,255,.22);border-radius:10px;font-family:inherit;font-size:12.5px;font-weight:700;line-height:1.65;text-align:center;direction:rtl;z-index:100050;box-shadow:0 8px 24px rgba(15,23,42,.24);transition:opacity .25s ease;pointer-events:none;';
             document.body.appendChild(toast);
         }
         toast.innerText = message;
@@ -3050,13 +3124,36 @@ function openShortcutsModal() {
 let floatingArchiveTab = "";
 let floatingRecordsLimit = 30;
 // وضع ترتيب قائمة المحاضر المحفوظة: day (تجميع حسب اليوم - الافتراضي) / asc (تصاعدي برقم المحضر) / desc (تنازلي برقم المحضر)
-let floatingArchiveSortMode = 'day';
+// 1. قراءة آخر اختيار من الذاكرة، وإذا لم يوجد نستخدم الافتراضي
+let floatingArchiveSortMode = localStorage.getItem('niabat_archive_sort') || 'day';
+let floatingArchiveStatusFilter = localStorage.getItem('niabat_archive_status') || 'all';
+
+// 2. دالة مركزية لضبط شكل الأزرار (تلوين الزر النشط) بناءً على القيم المحفوظة
+function syncArchiveFilterUI() {
+    document.querySelectorAll('#archive-sort-strip .sort-strip-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-mode') === floatingArchiveSortMode);
+    });
+    var statusStrips = document.querySelectorAll('#archive-filter-strip .filter-strip-btn');
+    if(statusStrips.length) {
+        statusStrips.forEach(btn => {
+            btn.classList.toggle('active', btn.getAttribute('data-status') === floatingArchiveStatusFilter);
+        });
+    }
+}
+
+// 3. تحديث دوال الترتيب والحالة لتقوم بالحفظ في الذاكرة وتحديث الشكل
 function setFloatingArchiveSortMode(mode) {
     floatingArchiveSortMode = mode;
-    document.querySelectorAll('#archive-sort-strip .sort-strip-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.getAttribute('data-mode') === mode);
-    });
-    loadFloatingArchive();
+    localStorage.setItem('niabat_archive_sort', mode); // حفظ في الذاكرة
+    syncArchiveFilterUI(); // تحديث الشكل
+    loadFloatingArchive(); // تحميل البيانات
+}
+
+function setFloatingArchiveStatusFilter(status) {
+    floatingArchiveStatusFilter = status;
+    localStorage.setItem('niabat_archive_status', status); // حفظ في الذاكرة
+    syncArchiveFilterUI(); // تحديث الشكل
+    loadFloatingArchive(); // تحميل البيانات
 }
 
 // بنود تصنّف المحضر كـ "جلسة" حتى لو احتوى بنود غرامة أخرى
@@ -3192,19 +3289,32 @@ async function loadFloatingArchive() {
         return;
     }
 
-    // فلترة المحاضر حسب القسم المختار
+    // فلترة المحاضر حسب القسم والحالة المختارة
     const filteredKeys = [...index].reverse().filter(key => {
         const d = db[key];
         if (!d) return false;
-        // النظام ده بيعرض الأصول الأساسية فقط؛ أصل الحركات الاستعراضية وتخفيض
-        // الكفالة تابعان لنظام التحقيق ولا يظهران هنا كسجل مستقل.
+        
+        // استبعاد الحركات الاستعراضية وتخفيض الكفالة
         if (d.reportMode === 'objection' || d.reportMode === 'bail_reduction' ||
             /__(objection|bail_reduction)(__bail_reduction)?$/.test(key)) return false;
+        
+        // 1. فلترة القسم
         if (floatingArchiveTab) {
             let dDept = (d.dept || "").replace(/ة/g, 'ه');
             let currTab = floatingArchiveTab.replace(/ة/g, 'ه');
             if (!dDept.includes(currTab)) return false;
         }
+
+        // 2. فلترة الحالة (الجديدة)
+        if (floatingArchiveStatusFilter !== 'all') {
+            const isSession = isSessionRecord(d);
+            const isPaid = (d.paymentInfo && d.paymentInfo.paid);
+            
+            if (floatingArchiveStatusFilter === 'session' && !isSession) return false;
+            if (floatingArchiveStatusFilter === 'paid' && !isPaid) return false;
+            if (floatingArchiveStatusFilter === 'unpaid' && (isSession || isPaid)) return false;
+        }
+
         return true;
     });
 
@@ -3530,7 +3640,7 @@ async function loadFloatingArchive() {
                     ? `${duplicateRecords[0]} موجود بالفعل في الجدول.`
                     : `موجودة بالفعل في الجدول:\n${duplicateRecords.join('، ')}`;
                 if (typeof showInspectionInfoAlert === 'function') showInspectionInfoAlert(insertedCount > 0
-                    ? duplicateText + '\n✓ تم إدراج الباقي.'
+                    ? duplicateText + '\n✓ تم إدراج المحاضر الاخرى.'
                     : duplicateText, duplicateRecords.length === 1 ? 'محضر مكرر' : 'محاضر مكررة');
             } else if (insertedCount > 0) {
                 if (typeof showInsertSuccessToast === 'function') showInsertSuccessToast(insertedCount);
@@ -3843,6 +3953,9 @@ function showLookupSuccessToast(caseNum, name) {
   })();
   
 document.addEventListener("DOMContentLoaded", () => {
+    // تشغيل دالة ضبط شكل الأزرار فور تحميل الصفحة لتعكس الاختيارات المحفوظة
+    if (typeof syncArchiveFilterUI === 'function') syncArchiveFilterUI();
+    
     if (typeof buildArchiveTabs === 'function') {
         buildArchiveTabs();
         loadFloatingArchive();
@@ -4187,6 +4300,23 @@ body.hasr-readonly #hasrRedoBtn, body.hasr-readonly #hasrRedoMenuBtn { pointer-e
     box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
 }
 
+/* إطار زر تصفية العنوان عند وجود تحديد فعلي */
+.addr-ms.filter-active .addr-ms-btn {
+    border: 3px solid #22d3ee !important;
+    box-shadow:
+        inset 0 0 0 1px rgba(207, 250, 254, 0.95),
+        0 0 0 1px rgba(8, 145, 178, 0.8),
+        0 2px 8px rgba(8, 145, 178, 0.28);
+}
+
+[data-theme="dark"] .addr-ms.filter-active .addr-ms-btn {
+    border-color: #67e8f9 !important;
+    box-shadow:
+        inset 0 0 0 1px rgba(207, 250, 254, 0.98),
+        0 0 0 1px rgba(34, 211, 238, 0.85),
+        0 2px 10px rgba(34, 211, 238, 0.3);
+}
+
 .addr-ms-caret {
     font-size: 10px;
     opacity: .7;
@@ -4203,8 +4333,9 @@ body.hasr-readonly #hasrRedoBtn, body.hasr-readonly #hasrRedoMenuBtn { pointer-e
     border-radius: 8px;
     box-shadow: var(--shadow, 0 4px 10px rgba(0, 0, 0, 0.15));
     /* نفس عرض الزر بالظبط وثابت أيضاً، عشان مكان القائمة ما يتزحزحش أثناء التحديد */
-    width: min(340px, 86vw);
-    max-height: 70vh; /* قيمة احتياطية؛ يضبطها fitAddressPanel() ديناميكياً حسب المساحة المتاحة */
+    width: min(445px, 90vw);
+    max-height: min(360px, 62vh); /* حد عملي للقائمة مع تمرير داخلي ومساحة مناسبة للشاشة */
+    box-sizing: border-box;
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -4243,7 +4374,10 @@ body.hasr-readonly #hasrRedoBtn, body.hasr-readonly #hasrRedoMenuBtn { pointer-e
 [data-theme="dark"] .addr-ms-panel-actions button:hover { background: #475569; }
 
 .addr-ms-list {
+    flex: 1 1 auto;
+    min-height: 0; /* مهم داخل iframe حتى ينكمش العنصر ويعمل التمرير داخله */
     overflow-y: auto;
+    overscroll-behavior: contain;
     padding: 4px 0;
 }
 
@@ -4285,6 +4419,20 @@ body.hasr-readonly #hasrRedoBtn, body.hasr-readonly #hasrRedoMenuBtn { pointer-e
 .addr-ms-item span {
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+.addr-ms-group-title {
+    padding: 6px 10px 3px;
+    margin-top: 4px;
+    border-top: 1px solid var(--border-color, #cbd5e1);
+    color: #0f766e;
+    font-size: 11px;
+    font-weight: 800;
+    background: var(--bg-light, #f8fafc);
+}
+
+[data-theme="dark"] .addr-ms-group-title {
+    color: #5eead4;
 }
 
 .addr-ms-empty {
@@ -5046,6 +5194,7 @@ body.inventory-mode-active .hasr-bottom-row > .hasr-signers-bar { grid-column: 2
     var inventoryFilter = { search: '', place: '', address: [], province: '' };
     var addressFilterSelection = []; 
     var addressFilterActive = false; // الحالة الافتراضية: الفلتر غير مفعل (يعرض الكل)
+    var inventoryAddressSortActive = false; // تجميع صفوف الحصر حسب قسم الشرطة/المحافظة
     var inventoryDrafts = {};
     var originalFunctions = {};
 
@@ -5123,6 +5272,146 @@ body.inventory-mode-active .hasr-bottom-row > .hasr-signers-bar { grid-column: 2
             .replace(/[ؤ]/g, 'و').replace(/[ئ]/g, 'ي').replace(/[٠-٩]/g, function (d) {
                 return String('٠١٢٣٤٥٦٧٨٩'.indexOf(d));
             }).replace(/[\sـ،,:؛.()\[\]{}\/\-]+/g, '').toLowerCase();
+    }
+
+    /*
+     * أسماء أقسام القاهرة المعتمدة في التجميع.
+     * تتم المقارنة بعد normalize()، لذلك:
+     * - الهمزات المختلفة تعتبر حرفاً واحداً.
+     * - ه / ة تعتبران حرفاً واحداً.
+     * - المسافات والشرطات لا تؤثر؛ "مصر القديمة" = "مصرالقديمة".
+     */
+    var INVENTORY_CAIRO_STATIONS = [
+        '15 مايو', 'الأزبكية', 'الأميرية', 'البساتين', 'التبين', 'التجمع الأول',
+        'التجمع الخامس', 'الجمالية', 'الخليفة', 'الدرب الأحمر', 'الزاوية الحمراء',
+        'الزيتون', 'الساحل', 'السيدة زينب', 'الشرابية', 'الشروق', 'الظاهر',
+        'القطامية', 'المرج', 'المطرية', 'المعادي', 'المعصرة', 'المقطم',
+        'الموسكي', 'النزهة', 'الوايلي', 'باب الشعرية', 'بدر', 'بولاق',
+        'حدائق القبة', 'حلوان', 'دار السلام', 'روض الفرج', 'شبرا', 'عابدين',
+        'عين شمس', 'قصر النيل', 'السلام أول', 'السلام ثان',
+        'مدينة نصر أول', 'مدينة نصر ثالث', 'مدينة نصر ثان', 'مصر الجديدة',
+        'مصر القديمة', 'منشأة ناصر'
+    ].map(function (name) {
+        return { name: name, normalized: normalize(name) };
+    });
+
+    var INVENTORY_ADDRESS_PROVINCES = [
+        { name: 'الجيزة', label: 'محافظة الجيزة' },
+        { name: 'القليوبية', label: 'محافظة القليوبية' },
+        { name: 'الإسكندرية', label: 'محافظة الإسكندرية' },
+        { name: 'البحيرة', label: 'محافظة البحيرة' },
+        { name: 'مطروح', label: 'محافظة مطروح' },
+        { name: 'الدقهلية', label: 'محافظة الدقهلية' },
+        { name: 'كفر الشيخ', label: 'محافظة كفر الشيخ' },
+        { name: 'الغربية', label: 'محافظة الغربية' },
+        { name: 'المنوفية', label: 'محافظة المنوفية' },
+        { name: 'دمياط', label: 'محافظة دمياط' },
+        { name: 'بورسعيد', label: 'محافظة بورسعيد' },
+        { name: 'الإسماعيلية', label: 'محافظة الإسماعيلية' },
+        { name: 'السويس', label: 'محافظة السويس' },
+        { name: 'شمال سيناء', label: 'محافظة شمال سيناء' },
+        { name: 'جنوب سيناء', label: 'محافظة جنوب سيناء' },
+        { name: 'الشرقية', label: 'محافظة الشرقية' },
+        { name: 'الفيوم', label: 'محافظة الفيوم' },
+        { name: 'بني سويف', label: 'محافظة بني سويف' },
+        { name: 'المنيا', label: 'محافظة المنيا' },
+        { name: 'أسيوط', label: 'محافظة أسيوط' },
+        { name: 'الوادي الجديد', label: 'محافظة الوادي الجديد' },
+        { name: 'سوهاج', label: 'محافظة سوهاج' },
+        { name: 'قنا', label: 'محافظة قنا' },
+        { name: 'الأقصر', label: 'محافظة الأقصر' },
+        { name: 'أسوان', label: 'محافظة أسوان' },
+        { name: 'البحر الأحمر', label: 'محافظة البحر الأحمر' }
+    ].map(function (province) {
+        province.normalized = normalize(province.name);
+        return province;
+    });
+
+    function inventoryAddressGroupInfo(address) {
+        var normalizedAddress = normalize(address);
+        if (!normalizedAddress) return { rank: 3, key: 'empty', label: 'بدون عنوان' };
+
+        // نبحث عن أطول اسم أولاً حتى لا يسبق "مدينة السلام أول" اسمٌ أقصر.
+        var station = INVENTORY_CAIRO_STATIONS.slice().sort(function (a, b) {
+            return b.normalized.length - a.normalized.length;
+        }).find(function (item) {
+            return normalizedAddress.indexOf(item.normalized) !== -1;
+        });
+        if (station) {
+            return {
+                rank: 0,
+                key: 'station:' + station.normalized,
+                label: 'قسم شرطة ' + station.name
+            };
+        }
+
+        var province = INVENTORY_ADDRESS_PROVINCES.find(function (item) {
+            return normalizedAddress.indexOf(item.normalized) !== -1;
+        });
+        if (province) {
+            return {
+                rank: 1,
+                key: 'province:' + province.normalized,
+                label: province.label
+            };
+        }
+
+        return {
+            rank: 2,
+            key: 'address:' + normalizedAddress,
+            label: 'عنوان غير مصنف'
+        };
+    }
+
+    function inventoryCaseNumberValue(row) {
+        var value = parseInt(String(row && row.caseNum || '').replace(/\D/g, ''), 10);
+        return isNaN(value) ? Number.MAX_SAFE_INTEGER : value;
+    }
+
+    function compareInventoryAddressGroups(a, b) {
+        var aMeaningful = meaningful(a), bMeaningful = meaningful(b);
+        if (aMeaningful !== bMeaningful) return aMeaningful ? -1 : 1;
+        if (!aMeaningful && !bMeaningful) return 0;
+
+        var aInfo = inventoryAddressGroupInfo(a.address);
+        var bInfo = inventoryAddressGroupInfo(b.address);
+        if (aInfo.rank !== bInfo.rank) return aInfo.rank - bInfo.rank;
+        var groupDiff = aInfo.key.localeCompare(bInfo.key, 'ar');
+        if (groupDiff) return groupDiff;
+
+        var addressDiff = normalize(a.address).localeCompare(normalize(b.address), 'ar');
+        if (addressDiff) return addressDiff;
+        return inventoryCaseNumberValue(a) - inventoryCaseNumberValue(b);
+    }
+
+    function compareInventoryAddressValues(a, b) {
+        var aInfo = inventoryAddressGroupInfo(a);
+        var bInfo = inventoryAddressGroupInfo(b);
+        if (aInfo.rank !== bInfo.rank) return aInfo.rank - bInfo.rank;
+        var groupDiff = aInfo.key.localeCompare(bInfo.key, 'ar');
+        if (groupDiff) return groupDiff;
+        return normalize(a).localeCompare(normalize(b), 'ar');
+    }
+
+    function clearInventorySortHeaders() {
+        ['th-case-num', 'th-inventory-num', 'th-inventory-address'].forEach(function (id) {
+            var header = document.getElementById(id);
+            if (header) {
+                header.removeAttribute('data-sort');
+                header.classList.remove('sort-active');
+            }
+        });
+    }
+
+    function toggleInventoryAddressSort() {
+        if (window.currentMode !== 'inventory') return;
+        captureInventoryRows();
+        inventoryAddressSortActive = !inventoryAddressSortActive;
+        clearInventorySortHeaders();
+        var header = document.getElementById('th-inventory-address');
+        if (header && inventoryAddressSortActive) header.setAttribute('data-sort', 'grouped');
+        updateInventoryFilters();
+        renderInventoryTable(false, true);
     }
     
     function escapeHtml(value) {
@@ -5323,12 +5612,12 @@ body.inventory-mode-active .hasr-bottom-row > .hasr-signers-bar { grid-column: 2
     function columnHeaders(mode) {
         var inspection = [
             ['15px','م','رقم تسلسل الصف'], ['40px','رقم المحضر','اضغط للفرز'], ['80px','اسم المتهم','اسم المتهم كاملاً'],
-            ['100px','وصف الاتهام','وصف تهمة المتهم'], ['85px','الرقم القومي','الرقم القومي (14 رقم)'], ['60px','رقم المركبة','حروف وأرقام لوحة المركبة'],
+            ['100px','وصف الاتهام','وصف تهمة المتهم'], ['86px','الرقم القومي','الرقم القومي (14 رقم)'], ['60px','رقم المركبة','حروف وأرقام لوحة المركبة'],
             ['65px','الامر الجنائي','المبلغ المحكوم به + المصاريف'], ['70px','مواد الاتهام','مواد القانون المطبقة'], ['65px','تاريخ الأمر','تاريخ صدور الأمر'],
             ['110px','قرار النيابة الكلية','قرار النيابة الكلية بشأن القضية'], ['80px','ملاحظات','أي ملاحظات إضافية'], ['30px','تحكم','']
         ];
         var inventory = [
-            ['28px','م','رقم تسلسل صف الحصر'], ['40px','رقم المحضر','اضغط للفرز'], ['45px','رقم الحصر','رقم الحصر الشهري'],
+            ['28px','م','رقم تسلسل صف الحصر'], ['40px','رقم المحضر','اضغط للفرز'], ['45px','رقم الحصر','اضغط للفرز'],
             ['165px','بنود الاتهام','بنود الاتهام من قاموس المخالفات'], ['55px','الأمر الجنائي','إجمالي غرامات البنود'],
             ['65px','تاريخ الأمر الجنائي','تاريخ الأمر الجنائي'], ['60px','مكان الحجز','مكان الحجز أو قسم الشرطة'],
             ['110px','اسم المتهم','اسم المتهم'], ['95px','الرقم القومي','الرقم القومي'], ['140px','العنوان','العنوان'], ['35px','تحكم','أزرار التحكم']
@@ -5342,16 +5631,30 @@ body.inventory-mode-active .hasr-bottom-row > .hasr-signers-bar { grid-column: 2
         var cols = columnHeaders(mode);
         var lastIndex = cols.length - 1;
         tr.innerHTML = cols.map(function (col, i) {
-            // تفعيل ميزة الفرز (Sort) للعمود الثاني (رقم المحضر) في كلا المودين (الفحص والحصر)
-            var sortable = i === 1 ? ' id="th-case-num" class="sortable-th" onclick="toggleCaseNumSort()"' : '';
-            // عمود "تحكم" (آخر عمود) لازم ياخد نفس كلاس خلايا الصف بتاعته حتى يُخفى بشكل صحيح عند الطباعة
-            // (نفس السلوك الأصلي قبل إضافة مود الحصر، حيث كان هذا العمود ثابتاً في الـ HTML بكلاس del-col)
+            var sortable = '';
+            // تفعيل ميزة الفرز لعامود رقم المحضر (العامود الثاني)
+            if (i === 1) {
+                sortable = ' id="th-case-num" class="sortable-th" onclick="toggleCaseNumSort()"';
+            } 
+            // تفعيل ميزة الفرز لعامود رقم الحصر (العامود الثالث في مود الحصر فقط)
+            else if (mode === 'inventory' && i === 2) {
+                sortable = ' id="th-inventory-num" class="sortable-th" onclick="toggleInventoryNumSort()"';
+            }
+            // الضغط على رأس عمود العنوان يفعّل تجميع الأقسام والمحافظات
+            else if (mode === 'inventory' && i === 9) {
+                sortable = ' id="th-inventory-address" class="sortable-th" onclick="toggleInventoryAddressSort()"';
+            }
+            
             var controlClass = '';
             if (i === lastIndex) {
                 controlClass = mode === 'inventory' ? ' class="inventory-del-col no-print"' : ' class="del-col"';
             }
             return '<th style="width:' + col[0] + ';" data-tip="' + escapeHtml(col[2]) + '"' + sortable + controlClass + '>' + col[1] + '</th>';
         }).join('');
+        if (mode === 'inventory' && inventoryAddressSortActive) {
+            var addressHeader = tr.querySelector('#th-inventory-address');
+            if (addressHeader) addressHeader.setAttribute('data-sort', 'grouped');
+        }
         var footer = document.getElementById('tableFooterCell');
         if (footer) footer.colSpan = mode === 'inventory' ? 11 : 12;
     }
@@ -5430,6 +5733,10 @@ body.inventory-mode-active .hasr-bottom-row > .hasr-signers-bar { grid-column: 2
             filtered.push(newBlankRow);
         }
 
+        if (inventoryAddressSortActive) {
+            filtered.sort(compareInventoryAddressGroups);
+        }
+
         return filtered;
     }
     
@@ -5459,7 +5766,7 @@ body.inventory-mode-active .hasr-bottom-row > .hasr-signers-bar { grid-column: 2
         updateInventoryFilters();
     }
     
-    function renderInventoryTable(shouldCapture) {
+    function renderInventoryTable(shouldCapture, suppressAutosave) {
         if (shouldCapture) captureInventoryRows();
         var tbody = document.querySelector('#mainTable tbody');
         if (!tbody) return;
@@ -5471,7 +5778,12 @@ body.inventory-mode-active .hasr-bottom-row > .hasr-signers-bar { grid-column: 2
         updateInventoryFilterCount(shown.length);
         if (typeof window.autoFitAllViolationItems === 'function') window.autoFitAllViolationItems(tbody);
         if (typeof window.checkScrollable === 'function') window.checkScrollable();
-        hasrNotifyChange();
+        // إعادة ترتيب العرض/تطبيق فلتر لا يغيّر بيانات الكشف، لذلك لا يبدأ الحفظ التلقائي.
+        if (suppressAutosave) {
+            clearTimeout(hasrTimer);
+        } else {
+            hasrNotifyChange();
+        }
     }
 
     // نسخة "ناعمة" من renderInventoryTable: تُستخدم عند تغيّر الفلاتر فقط، بحيث
@@ -5679,21 +5991,34 @@ body.inventory-mode-active .hasr-bottom-row > .hasr-signers-bar { grid-column: 2
             var value = text(r.address);
             if (value && unique.indexOf(value) === -1) unique.push(value);
         });
-        unique.sort(function (a, b) { return a.localeCompare(b, 'ar'); });
+        if (inventoryAddressSortActive) {
+            unique.sort(compareInventoryAddressValues);
+        } else {
+            unique.sort(function (a, b) { return a.localeCompare(b, 'ar'); });
+        }
 
         addressFilterSelection = addressFilterSelection.filter(function (v) { return unique.indexOf(v) !== -1; });
 
-        listEl.innerHTML = unique.length
+        var listHtml = unique.length
             ? unique.map(function (addr, i) {
                 // الفلتر غير مفعل = كل العناوين محددة افتراضياً
                 var isChecked = !addressFilterActive || addressFilterSelection.indexOf(addr) !== -1;
                 var checkedAttr = isChecked ? ' checked' : '';
                 var id = 'addr-ms-item-' + i;
-                return '<label class="addr-ms-item" for="' + id + '">' +
+                var groupTitle = '';
+                if (inventoryAddressSortActive) {
+                    var currentInfo = inventoryAddressGroupInfo(addr);
+                    var previousInfo = i > 0 ? inventoryAddressGroupInfo(unique[i - 1]) : null;
+                    if (!previousInfo || previousInfo.key !== currentInfo.key) {
+                        groupTitle = '<div class="addr-ms-group-title">' + escapeHtml(currentInfo.label) + '</div>';
+                    }
+                }
+                return groupTitle + '<label class="addr-ms-item" for="' + id + '" title="' + escapeHtml(addr) + '">' +
                     '<input type="checkbox" id="' + id + '" value="' + escapeHtml(addr) + '"' + checkedAttr + ' onchange="onAddressFilterCheckboxChange(this)">' +
                     '<span>' + escapeHtml(addr) + '</span></label>';
             }).join('')
             : '<div class="addr-ms-empty">لا توجد عناوين بعد</div>';
+        listEl.innerHTML = listHtml;
 
         updateAddressFilterButtonLabel();
     }
@@ -5731,6 +6056,8 @@ body.inventory-mode-active .hasr-bottom-row > .hasr-signers-bar { grid-column: 2
 
     function updateAddressFilterButtonLabel() {
         var labelEl = document.getElementById('addressMsLabel');
+        var wrapEl = document.getElementById('addressMs');
+        if (wrapEl) wrapEl.classList.toggle('filter-active', !!addressFilterActive);
         if (!labelEl) return;
         if (!addressFilterActive) {
             labelEl.textContent = 'كل العناوين';
@@ -5763,14 +6090,38 @@ body.inventory-mode-active .hasr-bottom-row > .hasr-signers-bar { grid-column: 2
         var wrap = document.getElementById('addressMs');
         if (!panel || !wrap || panel.hidden) return;
         var r = wrap.getBoundingClientRect();
+        /*
+         * النظام يعمل داخل بوابة قد تضعه في iframe بارتفاع مختلف عن نافذة
+         * المتصفح. نستخدم أصغر ارتفاع متاح، ونراعي zoom الواجهة حتى لا
+         * تتجاوز القائمة الحد المرئي للإطار.
+         */
+        var rootHeight = document.documentElement && document.documentElement.clientHeight || 0;
+        var innerHeight = window.innerHeight || 0;
+        var viewportHeight = rootHeight && innerHeight ? Math.min(rootHeight, innerHeight) : (rootHeight || innerHeight);
+        try {
+            if (window.frameElement && window.frameElement.clientHeight) {
+                viewportHeight = Math.min(viewportHeight || window.frameElement.clientHeight, window.frameElement.clientHeight);
+            }
+        } catch (e) {}
+        var zoomScale = 1;
+        try {
+            var bodyZoom = parseFloat(window.getComputedStyle(document.body).zoom);
+            if (isFinite(bodyZoom) && bodyZoom > 0) zoomScale = bodyZoom;
+        } catch (e) {}
+        // إحداثيات getBoundingClientRect داخل الإطار هي إحداثيات مرئية؛
+        // لا نضرب ارتفاع الإطار في zoom حتى لا نسمح للقائمة بتجاوز حدّه.
+        viewportHeight = Math.max(1, viewportHeight);
         var margin = 12, gap = 4, minUseful = 180;
-        var below = window.innerHeight - r.bottom - gap - margin;
+        var below = viewportHeight - r.bottom - gap - margin;
         var above = r.top - gap - margin;
         var up = panel.classList.contains('addr-ms-up');
         if (!up && below < minUseful && above > below) up = true;
         else if (up && above < minUseful && below > above) up = false;
         panel.classList.toggle('addr-ms-up', up);
-        panel.style.maxHeight = Math.max(120, Math.floor(up ? above : below)) + 'px';
+        var available = Math.max(1, Math.floor(up ? above : below));
+        var viewportCap = Math.min(360 * zoomScale, Math.floor(viewportHeight * 0.62));
+        var visualHeight = Math.max(40, Math.min(available, viewportCap));
+        panel.style.maxHeight = Math.max(32, Math.floor(visualHeight / zoomScale)) + 'px';
     }
     window.addEventListener('resize', fitAddressPanel);
     window.addEventListener('scroll', fitAddressPanel, true);
@@ -5884,7 +6235,7 @@ body.inventory-mode-active .hasr-bottom-row > .hasr-signers-bar { grid-column: 2
         if (hasrPend && (!saved || String(hasrPend.updatedAt || '') > String(saved.updatedAt || ''))) saved = hasrPend;
         
         // الحل السحري: لا تقم بتحميل بيانات قاعدة البيانات القديمة إلا إذا طلب المستخدم صراحة 
-        // (عبر زر فتح كشف سابق). غير ذلك، افتح مسودة فارغة للبدء من جديد.
+        // (عبر زر الكشوف السابقة). غير ذلك، افتح مسودة فارغة للبدء من جديد.
         if (explicitLoadFromDB === true && saved && Array.isArray(saved.rows)) {
             inventoryRows = saved.rows.map(function (row) { return newInventoryRow(row); });
             inventoryDrafts[period] = inventoryRows.map(function (row) { return newInventoryRow(row); });
@@ -5999,55 +6350,33 @@ body.inventory-mode-active .hasr-bottom-row > .hasr-signers-bar { grid-column: 2
     }
 
     async function deleteInventoryPeriod(period) {
-
-        // الحذف يعمل على نسخة السيرفر بعد التأكد من نجاح قراءتها؛ إن تعذّرت القراءة لا يُحذف شيء (حماية من مسح القاعدة)
-
         var db = await hasrFetchDb();
-
         if (!db) {
-
             if (typeof showToast === 'function') showToast('تعذر الاتصال بالخادم؛ لم يُحذف الكشف.');
-
             return;
-
         }
 
         var synced = true;
-
         if (db.inventorySheetsByMonth && db.inventorySheetsByMonth[period]) {
-
             delete db.inventorySheetsByMonth[period];
-
             synced = await hasrPostDb(db);
-
             if (!synced) {
-
                 if (typeof showToast === 'function') showToast('تعذر حذف الكشف من الخادم؛ لم يتم الحذف.');
-
                 return;
-
             }
-
         }
 
         var store = readSheetStore();
-
         delete store[period];
-
         try { writeSheetStore(store); } catch (e) {}
-
         if (inventoryDrafts[period]) delete inventoryDrafts[period];
-
         hasrForgetPeriod(period);
 
-
-
-        var archiveOverlay = document.getElementById('inventorySheetsOverlay');
-        if (archiveOverlay) archiveOverlay.remove();
+        // التعديل: إظهار التوست أولاً، ثم تحديث البيانات داخل الشاشة المفتوحة بدون إغلاقها
         if (typeof showToast === 'function') {
             showToast(synced ? 'تم حذف الكشف من الأرشيف.' : 'تم حذف الكشف محلياً من الأرشيف');
         }
-        await openInventorySheets();
+        await openInventorySheets(); 
     }
     
     async function openInventorySheets() {
@@ -6066,67 +6395,158 @@ body.inventory-mode-active .hasr-bottom-row > .hasr-signers-bar { grid-column: 2
         }
 
         var periods = Object.keys(store).sort().reverse();
-        var overlay = document.createElement('div');
-        overlay.id = 'inventorySheetsOverlay';
-        overlay.style.cssText = 'position:fixed;inset:0;z-index:10020;background:linear-gradient(135deg,rgba(15,23,42,.72),rgba(30,64,115,.58));backdrop-filter:blur(5px);display:flex;align-items:center;justify-content:center;padding:14px;direction:rtl;opacity:0;visibility:hidden;transition:opacity .22s ease,visibility .22s ease;';
-        var modal = document.createElement('div');
-        modal.style.cssText = 'width:min(100%,500px);max-height:min(88vh,720px);overflow:auto;background:linear-gradient(180deg,#ffffff 0%,#f7faff 100%);border:1px solid rgba(255,255,255,.85);border-radius:22px;padding:22px;box-shadow:0 24px 70px rgba(15,23,42,.38),0 4px 18px rgba(30,64,115,.16);font-family:inherit;transform:translateY(-12px) scale(.97);transition:transform .22s ease;';
+        
+        // التعديل: فحص هل الشاشة مفتوحة بالفعل؟ إذا كانت مفتوحة سنستخدمها ولن ننشئ واحدة جديدة!
+        var existingOverlay = document.getElementById('inventorySheetsOverlay');
+        var overlay = existingOverlay || document.createElement('div');
+        
+       if (!existingOverlay) {
+            overlay.id = 'inventorySheetsOverlay';
+            overlay.style.cssText = 'position:fixed;inset:0;z-index:10020;background:linear-gradient(135deg,rgba(15,23,42,.72),rgba(30,64,115,.58));backdrop-filter:blur(5px);display:flex;align-items:center;justify-content:center;padding:15px;box-sizing:border-box;direction:rtl;opacity:0;visibility:hidden;transition:opacity .22s ease,visibility .22s ease;';
+        }
+
+        var modal = existingOverlay ? existingOverlay.firstElementChild : document.createElement('div');
+        if (!existingOverlay) {
+            modal.style.cssText = 'width:min(100%,500px);max-height:100%;display:flex;flex-direction:column;box-sizing:border-box;background:linear-gradient(180deg,#ffffff 0%,#f7faff 100%);border:1px solid rgba(255,255,255,.85);border-radius:22px;padding:20px;box-shadow:0 24px 70px rgba(15,23,42,.38),0 4px 18px rgba(30,64,115,.16);font-family:inherit;transform:translateY(-12px) scale(.97);transition:transform .22s ease;';
+        }
 
         function closeInventorySheetsOverlay() {
-            overlay.style.opacity = '0';
-            overlay.style.visibility = 'hidden';
-            modal.style.transform = 'translateY(-12px) scale(.97)';
-            setTimeout(function () { if (overlay.parentNode) overlay.parentNode.removeChild(overlay); }, 230);
+            var currentOverlay = document.getElementById('inventorySheetsOverlay');
+            if (!currentOverlay) return;
+            var currentModal = currentOverlay.firstElementChild;
+            currentOverlay.style.opacity = '0';
+            currentOverlay.style.visibility = 'hidden';
+            if(currentModal) currentModal.style.transform = 'translateY(-12px) scale(.97)';
+            setTimeout(function () { if (currentOverlay.parentNode) currentOverlay.parentNode.removeChild(currentOverlay); }, 230);
         }
         
-        var body = periods.length ? periods.map(function (period) {
-            var mainParts = String(period || '').split('|');
-            var datePart = mainParts[0] || '';
-            var deptPart = mainParts[1] || '';
-            
-            // استخراج اسم الشهر فقط بدون القسم
-            var parts = datePart.split('-');
-            var names = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
-            var monthStr = parts.length === 2 ? (names[Number(parts[1]) - 1] || parts[1]) + ' ' + parts[0] : datePart;
-            
-            var item = store[period], count = Array.isArray(item.rows) ? item.rows.length : 0;
-            
-            var deptHash = deptPart.split('').reduce(function (sum, ch) { return sum + ch.charCodeAt(0); }, 0);
-            var deptPalette = [
-                ['#e9f2ff','#24568f','#b8d4f5'], ['#edf9f3','#19704a','#b9e4ce'],
-                ['#fff4e5','#9a5b08','#f5d29a'], ['#f4edff','#6941a5','#d9c5fb'],
-                ['#fff0f3','#a32955','#f3bfd0'], ['#e9fafa','#116b72','#b7e2e4']
-            ][deptHash % 6];
-            var deptHtml = deptPart
-                ? '<span style="display:inline-flex;align-items:center;gap:6px;max-width:245px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;background:' + deptPalette[0] + ';color:' + deptPalette[1] + ';padding:6px 11px;border-radius:999px;font-size:12px;border:1px solid ' + deptPalette[2] + ';font-weight:800;" title="' + escapeHtml(deptPart) + '"><span style="font-size:14px;">♜</span>' + escapeHtml(deptPart) + '</span>'
-                : '<span style="display:inline-flex;align-items:center;gap:6px;background:#fff8db;color:#916b00;padding:6px 11px;border-radius:999px;font-size:12px;border:1px solid #f2d780;font-weight:800;"><span style="font-size:14px;">⚠</span>بدون قسم</span>';
+        var body = '';
+        if (periods.length === 0) {
+            body = '<p style="text-align:center;color:#64748b;font-weight:bold;padding:20px;">لا توجد كشوف شهرية محفوظة بعد.</p>';
+        } else {
+            // 1. تجميع الكشوف حسب الشهر في كائنات
+            var groupedByMonth = {};
+            var monthOrder = []; 
+            periods.forEach(function(period) {
+                var datePart = period.split('|')[0]; // استخراج التاريخ كمفتاح (مثل: 2026-03)
+                if (!groupedByMonth[datePart]) {
+                    groupedByMonth[datePart] = [];
+                    monthOrder.push(datePart);
+                }
+                groupedByMonth[datePart].push(period);
+            });
 
-            return '<div data-period="' + escapeHtml(period) + '" style="width:100%;box-sizing:border-box;margin:8px 0;padding:8px 10px;border:1px solid #d9e2ef;border-radius:14px;background:rgba(255,255,255,.94);color:#1e3a5f;font:inherit;display:flex;align-items:center;gap:10px;box-shadow:0 3px 10px rgba(30,58,95,.06);transition:all .2s ease;" onmouseover="this.style.borderColor=\'#79a5d8\';this.style.boxShadow=\'0 8px 20px rgba(30,58,95,.12)\';this.style.transform=\'translateY(-1px)\'" onmouseout="this.style.borderColor=\'#d9e2ef\';this.style.boxShadow=\'0 3px 10px rgba(30,58,95,.06)\';this.style.transform=\'none\'">' +
-                '<button type="button" data-load-period="' + escapeHtml(period) + '" style="flex:1;min-width:0;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:5px 6px;border:0;background:transparent;color:#1e3a5f;font:inherit;cursor:pointer;text-align:right;">' +
-                    '<span style="display:flex;align-items:center;gap:10px;min-width:0;white-space:nowrap;"><span style="display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:9px;background:#eaf2fb;color:#2a5b91;font-size:16px;">▤</span><strong style="font-size:15px;overflow:hidden;text-overflow:ellipsis;">كشف ' + escapeHtml(monthStr) + '</strong>' + deptHtml + '</span>' +
-                    '<span style="flex:0 0 auto;background:#f1f5f9;color:#475569;padding:6px 10px;border-radius:9px;font-size:12px;font-weight:800;border:1px solid #e2e8f0;min-width:58px;text-align:center;">' + count + ' صف</span>' +
-                '</button>' +
-                '<button type="button" data-delete-period="' + escapeHtml(period) + '" title="حذف الكشف من الأرشيف" aria-label="حذف الكشف من الأرشيف" style="flex:0 0 auto;width:36px;height:36px;border:1px solid #fecdd3;border-radius:9px;background:#fff5f6;color:#c92a45;font-size:16px;cursor:pointer;transition:.2s;" onmouseover="this.style.background=\'#ffe4e8\';this.style.transform=\'scale(1.06)\'" onmouseout="this.style.background=\'#fff5f6\';this.style.transform=\'none\'">🗑</button>' +
-            '</div>';
-        }).join('') : '<p style="text-align:center;color:#64748b;font-weight:bold;padding:20px;">لا توجد كشوف شهرية محفوظة بعد.</p>';
+            // 2. بناء الواجهة بوضع إطار مجمع حول كشوف كل شهر
+            monthOrder.forEach(function(monthKey) {
+                // إطار التجميع: إطار خفيف 1.5px بلون أزرق رمادي أنيق مع خلفية باهتة جداً وزوايا دائرية
+                body += '<div style="border: 1.5px solid #dbe4f0; border-radius: 18px; padding: 8px; margin-bottom: 14px; background: rgba(244, 247, 251, 0.6); display: flex; flex-direction: column; gap: 8px; box-shadow: inset 0 2px 5px rgba(0,0,0,0.01);">';
+
+                groupedByMonth[monthKey].forEach(function(period) {
+                    var mainParts = String(period || '').split('|');
+                    var datePart = mainParts[0] || '';
+                    var deptPart = mainParts[1] || '';
+                    
+                    var parts = datePart.split('-');
+                    var names = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+                    
+                    // التعديل: فصل اسم الشهر عن السنة لتمييز الشهر بلون خاص
+                    var monthName = parts.length === 2 ? (names[Number(parts[1]) - 1] || parts[1]) : datePart;
+                    var yearText = parts.length === 2 ? parts[0] : '';
+                    
+                    var item = store[period], count = Array.isArray(item.rows) ? item.rows.length : 0;
+                    
+                    var deptHash = deptPart.split('').reduce(function (sum, ch) { return sum + ch.charCodeAt(0); }, 0);
+                    var deptPalette = [
+                        ['#e9f2ff','#24568f','#b8d4f5'], ['#edf9f3','#19704a','#b9e4ce'],
+                        ['#fff4e5','#9a5b08','#f5d29a'], ['#f4edff','#6941a5','#d9c5fb'],
+                        ['#fff0f3','#a32955','#f3bfd0'], ['#e9fafa','#116b72','#b7e2e4']
+                    ][deptHash % 6];
+                    
+                    var deptHtml = deptPart
+                        ? '<span style="display:inline-flex;align-items:center;gap:4px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;background:' + deptPalette[0] + ';color:' + deptPalette[1] + ';padding:4px 8px;border-radius:999px;font-size:11px;border:1px solid ' + deptPalette[2] + ';font-weight:800;" title="' + escapeHtml(deptPart) + '"><span style="font-size:13px;">♜</span>' + escapeHtml(deptPart) + '</span>'
+                        : '<span style="display:inline-flex;align-items:center;gap:4px;background:#fff8db;color:#916b00;padding:4px 8px;border-radius:999px;font-size:11px;border:1px solid #f2d780;font-weight:800;"><span style="font-size:13px;">⚠</span>بدون قسم</span>';
+
+                    body += '<div data-period="' + escapeHtml(period) + '" style="width:100%;box-sizing:border-box;padding:6px 8px;border:1px solid #d9e2ef;border-radius:14px;background:rgba(255,255,255,.94);color:#1e3a5f;font:inherit;display:flex;align-items:center;gap:6px;box-shadow:0 3px 10px rgba(30,58,95,.06);transition:all .2s ease;" onmouseover="this.style.borderColor=\'#79a5d8\';this.style.boxShadow=\'0 8px 20px rgba(30,58,95,.12)\';this.style.transform=\'translateY(-1px)\'" onmouseout="this.style.borderColor=\'#d9e2ef\';this.style.boxShadow=\'0 3px 10px rgba(30,58,95,.06)\';this.style.transform=\'none\'">' +
+                        '<button type="button" data-load-period="' + escapeHtml(period) + '" style="flex:1;min-width:0;display:flex;align-items:center;justify-content:space-between;gap:6px;padding:4px 4px;border:0;background:transparent;color:#1e3a5f;font:inherit;cursor:pointer;text-align:right;">' +
+                            // التعديل: دمج الكشف والقسم في خلفية واحدة متصلة، مع تمييز اسم الشهر بلون ذهبي/برتقالي أنيق
+                            '<span style="display:flex;align-items:center;gap:8px;min-width:0;white-space:nowrap;background:#f0f4f8;border:1px solid #d1d9e6;padding:4px 6px 4px 10px;border-radius:10px;">' +
+                                '<strong style="font-size:13px; color:#1a3a6b; font-weight:700;">كشف <span style="color:#d97706; font-size:14px; font-weight:900;">' + escapeHtml(monthName) + '</span> ' + escapeHtml(yearText) + '</strong>' + 
+                                deptHtml + 
+                            '</span>' +
+                            '<span style="flex:0 0 auto;background:#f1f5f9;color:#475569;padding:4px 8px;border-radius:9px;font-size:11px;font-weight:800;border:1px solid #e2e8f0;min-width:45px;text-align:center;">' + count + ' صف</span>' +
+                        '</button>' +
+                        '<button type="button" data-delete-period="' + escapeHtml(period) + '" title="حذف الكشف من الأرشيف" aria-label="حذف الكشف من الأرشيف" style="flex:0 0 auto;width:34px;height:34px;border:1px solid #fecdd3;border-radius:9px;background:#fff5f6;color:#c92a45;font-size:15px;cursor:pointer;transition:.2s;" onmouseover="this.style.background=\'#ffe4e8\';this.style.transform=\'scale(1.06)\'" onmouseout="this.style.background=\'#fff5f6\';this.style.transform=\'none\'">🗑</button>' +
+                    '</div>';
+                });
+
+                body += '</div>'; // إغلاق الإطار الخارجي لتجميعة الشهر
+            });
+        }
         
-        modal.innerHTML = '<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 16px;padding:0 2px 14px;border-bottom:1px solid #e2e8f0;">' +
-            '<div style="display:flex;align-items:center;gap:11px;"><span style="display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:13px;background:linear-gradient(135deg,#1a3a6b,#3a75b5);color:#fff;font-size:21px;box-shadow:0 6px 14px rgba(26,58,107,.2);">▤</span><div><h3 style="margin:0;color:#193b6c;font-size:20px;line-height:1.25;">الكشوف الشهرية المحفوظة</h3><div style="margin-top:3px;color:#718096;font-size:11px;font-weight:600;">الأرشيف — اختر كشفًا للفتح أو احذفه نهائيًا</div></div></div>' +
-            '<span style="color:#6b7f9b;font-size:12px;font-weight:800;white-space:nowrap;">' + periods.length + ' كشف</span></div>' + body +
-            '<button type="button" data-close style="width:100%;margin-top:14px;padding:10px;border:1px solid #d3dbe7;border-radius:10px;background:#6b7280;color:#fff;font:inherit;font-weight:700;cursor:pointer;box-shadow:0 3px 8px rgba(71,85,105,.14);">إغلاق</button>';
-        overlay.appendChild(modal); document.body.appendChild(overlay);
-        requestAnimationFrame(function () {
-            overlay.style.opacity = '1';
-            overlay.style.visibility = 'visible';
-            modal.style.transform = 'translateY(0) scale(1)';
-        });
+        // التعديل 2: تثبيت الهيدر والفوتر، وتغليف (body) بـ div قابل للتمرير (Scroll)
+        // التعديل هنا: تثبيت الهيدر والفوتر بـ flex-shrink:0 وإضافة حاوية التمرير في المنتصف بـ min-height:0
+        modal.innerHTML = '<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 16px;padding:0 2px 14px;border-bottom:1px solid #e2e8f0;flex-shrink:0;">' +
+            '<div style="display:flex;align-items:center;gap:11px;"><span style="display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:13px;background:linear-gradient(135deg,#1a3a6b,#3a75b5);color:#fff;font-size:21px;box-shadow:0 6px 14px rgba(26,58,107,.2);">▤</span><div><h3 style="margin:0;color:#193b6c;font-size:20px;line-height:1.25;">الكشوف الشهرية المحفوظة</h3><div style="margin-top:3px;color:#718096;font-size:11px;font-weight:600;">الأرشيف — اختر كشفًا لإدراجه أو احذفه نهائيًا</div></div></div>' +
+            '<span style="color:#6b7f9b;font-size:12px;font-weight:800;white-space:nowrap;">' + periods.length + ' كشف</span></div>' + 
+            '<div style="flex:1; overflow-y:auto; padding-right:4px; padding-left:4px; min-height:0;">' + body + '</div>' +
+            '<button type="button" data-close style="width:100%;margin-top:14px;padding:10px;border:1px solid #d3dbe7;border-radius:10px;background:#6b7280;color:#fff;font:inherit;font-weight:700;cursor:pointer;box-shadow:0 3px 8px rgba(71,85,105,.14);flex-shrink:0;">إغلاق</button>';
+        
+        // إظهار الشاشة الجديدة فقط إذا لم تكن مفتوحة مسبقاً
+        if (!existingOverlay) {
+            overlay.appendChild(modal); 
+            document.body.appendChild(overlay);
+            requestAnimationFrame(function () {
+                overlay.style.opacity = '1';
+                overlay.style.visibility = 'visible';
+                modal.style.transform = 'translateY(0) scale(1)';
+            });
+        }
 
+        // 1. تفعيل زر (الكشوف السابقة) مع الحماية برسالة الاستبدال والتوست
         modal.querySelectorAll('[data-load-period]').forEach(function (button) {
             button.addEventListener('click', function () {
-                loadInventoryPeriod(button.getAttribute('data-load-period'), true);
-                closeInventorySheetsOverlay();
+                var targetPeriod = button.getAttribute('data-load-period');
+                
+                // دالة التنفيذ النهائية
+                var executeLoad = async function() {
+                    // 1. إغلاق النافذة فوراً لإنهاء الانتظار البصري للمستخدم
+                    closeInventorySheetsOverlay();
+                    
+                    // 2. استخدام مهلة قصيرة (10 ملي ثانية) للسماح للمتصفح بإخفاء النافذة فعلياً قبل أن يتجمد للحظة لبناء الجدول
+                    setTimeout(async function() {
+                        await loadInventoryPeriod(targetPeriod, true);
+                        if (typeof showToast === 'function') showToast('تم إدراج الكشف بنجاح.');
+                    }, 10);
+                };
+
+                // فحص هل الجدول الحالي يحتوي على بيانات حقيقية؟
+                var hasData = inventoryRows.some(meaningful);
+
+                // التعديل: إذا كان الكشف هو نفسه المفتوح، ولكن الجدول به بيانات فعلية -> نمنع الفتح ونكتفي بإغلاق النافذة
+                // أما إذا كان الجدول فارغاً (لأن المستخدم فرغه بـ F9)، فنسمح بإعادة تحميله طبيعياً!
+                if (hasrActivePeriod === targetPeriod && hasData) {
+                    closeInventorySheetsOverlay();
+                    if (typeof showToast === 'function') showToast('الكشف مفتوح بالفعل.');
+                    return;
+                }
+
+                if (hasData) {
+                    // إظهار رسالة تحذيرية إذا كان هناك بيانات ستُفقد من الشاشة
+                    if (typeof showInspectionConfirm === 'function') {
+                        showInspectionConfirm('الجدول الحالي يحتوي على بيانات.\nهل تريد استبدالها وإدراج الكشف المحدد؟', 'تأكيد إدراج كشف', executeLoad, { kind: 'warn', confirmText: 'إدراج و استبدال', cancelText: 'إلغاء' });
+                    } else {
+                        if (confirm('الجدول الحالي يحتوي على بيانات. هل تريد استبدالها وإدراج الكشف المحدد؟')) {
+                            executeLoad();
+                        }
+                    }
+                } else {
+                    // إذا كان الجدول فارغاً، يفتح الكشف فوراً
+                    executeLoad();
+                }
             });
         });
+
+        // 2. تفعيل زر (حذف الكشف)
         modal.querySelectorAll('[data-delete-period]').forEach(function (button) {
             button.addEventListener('click', function () {
                 var period = button.getAttribute('data-delete-period');
@@ -6135,6 +6555,7 @@ body.inventory-mode-active .hasr-bottom-row > .hasr-signers-bar { grid-column: 2
                 });
             });
         });
+
         modal.querySelector('[data-close]').addEventListener('click', closeInventorySheetsOverlay);
         overlay.addEventListener('click', function (e) { if (e.target === overlay) closeInventorySheetsOverlay(); });
     }
@@ -6309,7 +6730,8 @@ body.inventory-mode-active .hasr-bottom-row > .hasr-signers-bar { grid-column: 2
             if(typeof showInspectionInfoAlert === 'function') showInspectionInfoAlert('تعذر الوصول إلى المحاضر المحفوظة حاليًا.', 'المحاضر غير متاحة'); 
             return; 
         }
-        window.fetchServerData().then(function (db) {
+        
+        window.fetchServerData().then(async function (db) {
             var selectedDepartmentRecord = checked.map(function (checkbox) {
                 return db[checkbox.value];
             }).find(function (record) {
@@ -6317,58 +6739,83 @@ body.inventory-mode-active .hasr-bottom-row > .hasr-signers-bar { grid-column: 2
             });
             var importedDepartment = selectedDepartmentRecord
                 ? String(selectedDepartmentRecord.dept || selectedDepartmentRecord.station || '').trim()
-                : '';
+                : (typeof floatingArchiveTab !== 'undefined' ? String(floatingArchiveTab || '').trim() : '');
             
-            // 1. فحص تعارض الأقسام في الحصر
             var normImportedDept = normalize(importedDepartment);
             var currentDeptSel = document.getElementById('dept');
             var globalDept = currentDeptSel && currentDeptSel.value === 'other' ? document.getElementById('otherDept').value : (currentDeptSel ? currentDeptSel.value : '');
+            var normGlobalDept = normalize(globalDept);
+
+            // =========================================================================
+            // الميزة 1: فحص ذكي للإدراج المسبق في أي كشف من كشوف الأشهر السابقة
+            // =========================================================================
+            var localStore = typeof readSheetStore === 'function' ? readSheetStore() : {};
+            var serverStore = db.inventorySheetsByMonth || {};
+            var combinedStore = Object.assign({}, localStore, serverStore);
             
-            var conflictFound = false;
-            var conflictMsg = '';
-            
-            for (var i = 0; i < inventoryRows.length; i++) {
-                if (meaningful(inventoryRows[i])) {
-                    var normRowDept = normalize(globalDept); // لأن كشف الحصر بأكمله يتبع القسم المختار من الأعلى
-                    if (normRowDept && normImportedDept && normRowDept !== normImportedDept) {
-                        conflictFound = true;
-                        conflictMsg = 'الكشف يخص قسم ' + globalDept + '\n، والمحضر من قسم ' + importedDepartment + '.\nمسح الكشف والبدء بقسم ' + importedDepartment + '؟';
-                        break;
+            var alreadyInsertedMsgs = [];
+            var validCheckboxes = [];
+
+            checked.forEach(function(cb) {
+                var data = db[cb.value];
+                if (!data) return;
+                var targetCase = normalize(data.caseNum);
+                var targetYear = normalize(data.year || '2026');
+                var foundConflict = false;
+
+                for (var periodKey in combinedStore) {
+                    var sheet = combinedStore[periodKey];
+                    if (sheet && Array.isArray(sheet.rows)) {
+                        var isFound = sheet.rows.some(function(r) {
+                            return normalize(r.caseNum) === targetCase && normalize(r.caseYear || '2026') === targetYear;
+                        });
+                        if (isFound) {
+                            var pParts = periodKey.split('|');
+                            var pMonth = pParts[0];
+                            var pDept = pParts[1] || 'غير محدد';
+                            // تحويل صيغة التاريخ لاسم الشهر للعرض في الرسالة
+                            var mParts = pMonth.split('-');
+                            var mName = mParts.length === 2 ? ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'][Number(mParts[1]) - 1] : pMonth;
+                            
+                            alreadyInsertedMsgs.push('محضر ' + data.caseNum + ' (مدرج في كشف ' + pDept + ' - ' + mName + ')');
+                            foundConflict = true;
+                            cb.checked = false; // إزالة التحديد لعدم إدراجه
+                            break; 
+                        }
                     }
                 }
+                if (!foundConflict) {
+                    validCheckboxes.push(cb);
+                }
+            });
+
+            checked = validCheckboxes;
+
+            // إذا كانت كل المحاضر المختارة قد تم إدراجها سابقاً
+            if (checked.length === 0) {
+                var msgAll = 'عفواً، جميع المحاضر المحددة تم إدراجها مسبقاً:\n' + alreadyInsertedMsgs.slice(0, 3).join('\n') + (alreadyInsertedMsgs.length > 3 ? '\n... و ' + (alreadyInsertedMsgs.length - 3) + ' آخرين' : '');
+                if (typeof showInspectionInfoAlert === 'function') showInspectionInfoAlert(msgAll, 'محاضر مدرجة مسبقاً', 'warn');
+                return; // نوقف التنفيذ
             }
 
+            // // =========================================================================
+            // الميزة 2: تغيير القسم أوتوماتيكياً أو الحماية الصارمة للمود
+            // =========================================================================
+            
+            // دالة الإدراج الفعلية في الجدول
             var executeInventoryInsertion = function() {
-                var deptSelect = document.getElementById('dept');
-                if (deptSelect && importedDepartment) {
-                    var normalizedDepartment = normalize(importedDepartment);
-                    var matchingOption = Array.from(deptSelect.options).find(function (option) {
-                        return normalize(option.value) === normalizedDepartment || normalize(option.textContent) === normalizedDepartment;
-                    });
-                    var otherDept = document.getElementById('otherDept');
-                    if (matchingOption) {
-                        deptSelect.value = matchingOption.value;
-                        if (otherDept) {
-                            otherDept.value = '';
-                            otherDept.style.display = 'none';
-                        }
-                    } else {
-                        deptSelect.value = 'other';
-                        if (otherDept) {
-                            otherDept.value = importedDepartment;
-                            otherDept.style.display = 'inline-block';
-                        }
-                    }
-                    if (typeof updatePrintValues === 'function') updatePrintValues();
-                }
                 captureInventoryRows();
                 hasrPushUndo('إدراج محاضر من الأرشيف');
                 var existing = new Set(inventoryRows.map(function (row) { return normalize(row.caseNum); }).filter(Boolean));
                 var added = 0, duplicates = [];
+                
                 checked.forEach(function (checkbox) {
                     var data = db[checkbox.value]; if (!data) return;
                     var caseNum = text(data.caseNum), key = normalize(caseNum);
+                    
+                    // فحص التكرار داخل الجدول الحالي المفتوح
                     if (key && existing.has(key)) { duplicates.push(caseNum || 'المحضر المحدد'); return; }
+                    
                     var priorRow = findLatestInventoryHistoryForCase(db, caseNum);
                     var row = newInventoryRow({
                         caseNum: caseNum, caseYear: data.year,
@@ -6382,40 +6829,91 @@ body.inventory-mode-active .hasr-bottom-row > .hasr-signers-bar { grid-column: 2
                     
                     var emptyIndex = inventoryRows.findIndex(function(r) { return !meaningful(r); });
                     if (emptyIndex !== -1) {
-                        row._id = inventoryRows[emptyIndex]._id; // الحفاظ على المعرف الداخلي للصف
-                        inventoryRows[emptyIndex] = row; // استبدال الصف الفارغ بالبيانات الجديدة
+                        row._id = inventoryRows[emptyIndex]._id; 
+                        inventoryRows[emptyIndex] = row; 
                     } else {
-                        inventoryRows.push(row); // إضافة صف جديد في النهاية إذا كان الجدول ممتلئاً
+                        inventoryRows.push(row); 
                     }
                     
                     if (key) existing.add(key); added++; checkbox.checked = false;
                 });
+                
                 renderInventoryTable(false); 
                 if(typeof toggleFloatingArchive === 'function') toggleFloatingArchive();
-                if (duplicates.length && typeof showInspectionInfoAlert === 'function') {
+                
+                // عرض الرسائل النهائية للمستخدم بذكاء
+                if (alreadyInsertedMsgs.length > 0) {
+                    var mixedMsg = 'تم إدراج ' + added + ' محاضر جديدة بنجاح.\n\nتنبيه: تم استبعاد المحاضر التالية لسابق إدراجها:\n' + alreadyInsertedMsgs.slice(0, 3).join('\n') + (alreadyInsertedMsgs.length > 3 ? '\n... و ' + (alreadyInsertedMsgs.length - 3) + ' آخرين' : '');
+                    if (typeof showInspectionInfoAlert === 'function') showInspectionInfoAlert(mixedMsg, 'تم الإدراج مع بعض الاستبعادات', 'info');
+                } else if (duplicates.length) {
                     var duplicateMessage = duplicates.length === 1
-                        ? 'بيانات المحضر رقم (' + duplicates[0] + ') موجودة في الجدول بالفعل.'
-                        : 'بيانات المحاضر بالأرقام (' + duplicates.join('، ') + ') موجودة في الجدول بالفعل.';
+                        ? 'بيانات المحضر رقم (' + duplicates[0] + ') موجودة في الجدول الحالي بالفعل.'
+                        : 'بيانات المحاضر بالأرقام (' + duplicates.join('، ') + ') موجودة في الجدول الحالي بالفعل.';
                     if (added) duplicateMessage += '\nتم إدراج المحاضر الأخرى بنجاح.';
-                    showInspectionInfoAlert(duplicateMessage, duplicates.length === 1 ? 'محضر مكرر' : 'محاضر مكررة');
+                    if (typeof showInspectionInfoAlert === 'function') showInspectionInfoAlert(duplicateMessage, duplicates.length === 1 ? 'محضر مكرر' : 'محاضر مكررة', 'warn');
+                } else if (added && typeof showInsertSuccessToast === 'function') {
+                    showInsertSuccessToast(added);
                 }
-                else if (added && typeof showInsertSuccessToast === 'function') showInsertSuccessToast(added);
             };
 
-            if (conflictFound) {
-                if (typeof window.showInspectionConfirm === 'function') {
-                    window.showInspectionConfirm(conflictMsg, 'مسح لتغيير القسم', function() {
-                        Promise.resolve(clearInventoryData()).then(function (ok) { if (ok !== false) executeInventoryInsertion(); }); // مسح الكشف الحالي ثم الإدراج
+            // دالة مساعدة لتحديث القائمة المنسدلة للقسم أوتوماتيكياً
+            function updateDeptDropdownUI(targetDept) {
+                if (currentDeptSel && targetDept) {
+                    var normTarget = normalize(targetDept);
+                    var matchingOption = Array.from(currentDeptSel.options).find(function(opt) {
+                        return normalize(opt.value) === normTarget || normalize(opt.textContent) === normTarget;
                     });
-                } else {
-                    if (confirm(conflictMsg)) {
-                        Promise.resolve(clearInventoryData()).then(function (ok) { if (ok !== false) executeInventoryInsertion(); });
+                    var otherDept = document.getElementById('otherDept');
+                    if (matchingOption) {
+                        currentDeptSel.value = matchingOption.value;
+                        if (otherDept) { otherDept.value = ''; otherDept.style.display = 'none'; }
+                    } else {
+                        currentDeptSel.value = 'other';
+                        if (otherDept) { otherDept.value = targetDept; otherDept.style.display = 'inline-block'; }
                     }
+                    if (typeof updatePrintValues === 'function') updatePrintValues();
                 }
-                return;
             }
 
+            // التعديل الذكي: فحص حالة القسم ووجود كشف محفوظ مسبقاً دائماً قبل الإدراج
+            var currentMonth = document.getElementById('inventoryMonth') ? document.getElementById('inventoryMonth').value : todayMonth();
+            var targetDepartment = importedDepartment || globalDept; // القسم الذي سيتم الإدراج فيه
+            var newPeriodToCheck = currentMonth + '|' + targetDepartment;
+
+            // 1. هل القسم الحالي في الواجهة مختلف عن قسم المحاضر؟
+            if (normGlobalDept && normGlobalDept !== normalize(targetDepartment)) {
+                if (typeof showInspectionInfoAlert === 'function') {
+                    showInspectionInfoAlert('لا يمكن إدراج محاضر تابعة لقسم (' + targetDepartment + ')\nداخل كشف مخصص لقسم (' + globalDept + ').', 'تعارض الأقسام', 'danger');
+                }
+                return; 
+            }
+
+            // 2. فحص هل الكشف موجود مسبقاً على السيرفر ولم نقم بفتحه في هذه الجلسة؟
+            var exists = await hasrPeriodExists(newPeriodToCheck);
+            
+            if (exists && !hasrOwned[newPeriodToCheck]) {
+                // الكشف موجود مسبقاً ولم نقم بفتحه، نسأل المستخدم أولاً
+                if (typeof window.showInspectionConfirm === 'function') {
+                    window.showInspectionConfirm(
+                        'يوجد كشف محفوظ مسبقاً لقسم (' + targetDepartment + ') عن هذا الشهر.\nهل تريد إدراجه أولاً ثم إضافة المحاضر إليه؟',
+                        'كشف محفوظ مسبقاً',
+                        async function() {
+                            updateDeptDropdownUI(targetDepartment);
+                            await loadInventoryPeriod(newPeriodToCheck, true);
+                            executeInventoryInsertion();
+                        },
+                        { kind: 'info', confirmText: 'فتح وإدراج', cancelText: 'إلغاء' }
+                    );
+                }
+                return; 
+            }
+
+            // 3. الحالة الطبيعية: الكشف غير موجود أصلاً، أو موجود وقمنا بفتحه بالفعل
+            updateDeptDropdownUI(targetDepartment);
+            if (!hasrActivePeriod) hasrActivePeriod = newPeriodToCheck; 
+            hasrOwned[newPeriodToCheck] = true; // نمنح الملكية حتى يعمل الحفظ التلقائي بسلاسة
             executeInventoryInsertion();
+
         }).catch(function () { 
             if(typeof showInspectionInfoAlert === 'function') showInspectionInfoAlert('تعذر قراءة المحاضر المحفوظة.', 'المحاضر غير متاحة'); 
         });
@@ -6443,7 +6941,7 @@ body.inventory-mode-active .hasr-bottom-row > .hasr-signers-bar { grid-column: 2
             '</div>';
     }
 
-    function printInventory(grouped) {
+    function printInventory() {
         if (window.currentMode !== 'inventory') return;
         captureInventoryRows();
         var rows = displayedInventoryRows().filter(meaningful), problems = [];
@@ -6453,15 +6951,15 @@ body.inventory-mode-active .hasr-bottom-row > .hasr-signers-bar { grid-column: 2
             return; 
         }
 
-        // ================= التعديل السحري: الكشف السلبي =================
+        // ================= الكشف السلبي =================
+        // الفرز حسب العنوان يؤثر على ترتيب الجدول وقائمة الفلتر فقط،
+        // ولا يغيّر طريقة الطباعة ولا ينشئ كشوفاً متعددة.
         var groups = {};
         if (rows.length === 0) {
             // إذا كان الجدول فارغاً، نصنع مجموعة وهمية لطباعة الكشف السلبي
             groups['كشف سلبي'] = []; 
         } else {
-            groups = grouped ? rows.reduce(function (map, row) {
-                var key = row.detentionPlace || 'بدون تحديد'; (map[key] = map[key] || []).push(row); return map;
-            }, {}) : { 'النتائج المطابقة للفلاتر': rows };
+            groups = { 'النتائج المطابقة للفلاتر': rows };
         }
 
         // مقاسات الأعمدة للطباعة بالبيكسل (px) - إجمالي عرض ورقة A4 بالعرض يستوعب حوالي 1080px
@@ -6483,8 +6981,7 @@ body.inventory-mode-active .hasr-bottom-row > .hasr-signers-bar { grid-column: 2
         var inventoryChiefClerk = getHasrSignerName('chief_clerk');
         
         var html = Object.keys(groups).map(function (groupName, groupIndex) {
-            var groupTitle = grouped && rows.length ? '<div class="inventory-print-group-title">' +
-                escapeHtml('قسم الشرطة / مكان الحجز: ' + groupName) + '</div>' : '';
+            var groupTitle = '';
             var table = '<div class="inventory-print-group">' + groupTitle + '<table><thead><tr>' +
                 columns.map(function (c) { return '<th style="width:' + c.width + '; min-width:' + c.width + '; max-width:' + c.width + ';">' + escapeHtml(c.name) + '</th>'; }).join('') + '</tr></thead><tbody>';
             
@@ -6530,7 +7027,7 @@ body.inventory-mode-active .hasr-bottom-row > .hasr-signers-bar { grid-column: 2
         var coverMonth = monthNames[Number(dateParts[1]) - 1] || dateParts[1] || '';
         var coverYear = dateParts[0] || '';
         var coverDept = text(periodParts.slice(1).join('|')) || 'غير محدد';
-        var unifiedTitle = 'كشف بالمحاضر الغير مسددة عن شهر ' + coverMonth + ' لسنة ' + coverYear;
+        var unifiedTitle = 'كشف بالمحاضر الغير مسددة عن شهر ' + coverMonth + ' لسنة ' + coverYear + ' قسم شرطة ' + coverDept;
         var coverCheckbox = document.getElementById('inventoryCoverCheckbox');
         
         var coverHtml = (coverCheckbox && coverCheckbox.checked) ?
@@ -6663,93 +7160,93 @@ body.inventory-mode-active .hasr-bottom-row > .hasr-signers-bar { grid-column: 2
         var toggleBtn = document.getElementById('inventoryModeToggle');
         if (!controls || !toggleBtn || document.body.classList.contains('mode-transitioning')) return;
 
+        // 1. تحديد جميع العناصر التي تتغير بين المودين (فوق، وسط، وتحت)
         var wrapper = document.getElementById('tableWrapper');
-        var actionRow = document.querySelector('.action-btns');
-        var mainControls = document.querySelector('.controls');
-        var fadeTargets = [mainControls, controls, actionRow, title].filter(Boolean);
-        var oldActionHeight = actionRow ? actionRow.getBoundingClientRect().height : 0;
-        if (actionRow) {
-            actionRow.style.height = oldActionHeight + 'px';
-            actionRow.style.overflow = 'hidden';
+        var actionRow = document.querySelector('.action-btns'); 
+        var mainControls = document.querySelector('.controls'); 
+        var bottomRow = document.querySelector('.hasr-bottom-row'); // صف التوقيعات
+        var bottomActionsHost = document.querySelector('.bottom-actions-host'); // أزرار الطباعة
+        
+        // دمج كل هذه العناصر في مصفوفة واحدة لتطبيق الحركة عليها معاً
+        var fadeTargets = [mainControls, controls, actionRow, title, wrapper, bottomRow, bottomActionsHost].filter(Boolean);
+
+        // تثبيت ارتفاع الحاوية الرئيسية مؤقتاً لمنع شريط التمرير من الاهتزاز أثناء التبديل
+        var container = document.querySelector('.container');
+        if (container) {
+            container.style.minHeight = container.getBoundingClientRect().height + 'px';
         }
+
         document.body.classList.add('mode-transitioning');
         toggleBtn.disabled = true;
+
+        // الخطوة 1: إخفاء جميع العناصر القديمة بنعومة وبطء (Fade Out) - تم التعديل لـ 0.4 ثانية
         fadeTargets.forEach(function (el) {
-            el.style.transition = 'opacity .26s ease';
+            el.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
             el.style.opacity = '0';
+            el.style.transform = 'translateY(8px)'; // مسافة هبوط أكبر قليلاً لتناسب الحركة البطيئة
         });
-        if (wrapper) {
-            wrapper.style.transition = 'opacity .26s ease';
-            wrapper.style.opacity = '0';
-        }
 
-        var isHidden = controls.hidden;
-        controls.hidden = !isHidden;
+        // الخطوة 2: الانتظار 400 ملي ثانية حتى تختفي العناصر بهدوء، ثم تبديل الواجهة
+        setTimeout(async function () {
+            var isHidden = controls.hidden;
+            controls.hidden = !isHidden;
 
-        if (!isHidden) {
-            // == العودة إلى مود الفحص ==
-            captureInventoryRows();
-            hasrFlushAutosave(true);
-            hasrReleaseLock();
-            hasrExitReadOnly();
-            inventoryDrafts[currentPeriod()] = inventoryRows.map(function (row) { return newInventoryRow(row); });
-            var tbody = document.querySelector('#mainTable tbody');
-            if (tbody) tbody.innerHTML = '';
-            window.currentMode = 'inspection';
-            document.body.classList.remove('inventory-active');
-            document.body.classList.remove('inventory-mode-active');
-            if (mainControls) mainControls.hidden = false;
-            renderHeaders('inspection');
-            restoreInspectionState();
-            title.innerHTML = 'نظام كشوف الأوامر الجنائية';
-            toggleBtn.innerHTML = '<i class="fa-solid fa-table-list"></i> مود الحصر';
-            toggleBtn.style.background = 'linear-gradient(135deg, #0f766e, #115e59)';
-        } else {
-            // == الدخول إلى مود الحصر ==
-            rememberInspectionState();
-            var tbody2 = document.querySelector('#mainTable tbody');
-            if (tbody2) tbody2.innerHTML = '';
-            window.currentMode = 'inventory';
-            document.body.classList.add('inventory-active');
-            document.body.classList.add('inventory-mode-active');
-            if (mainControls) mainControls.hidden = true;
-            renderHeaders('inventory');
-            title.innerHTML = 'نظام كشوف الأوامر الجنائية <span style="color:#ffd54f;">(حصر شهري)</span>';
-            toggleBtn.innerHTML = '<i class="fa-solid fa-file-pen"></i> مود الفحص';
-            toggleBtn.style.background = 'linear-gradient(135deg, #dc3545, #c82333)';
-            populateMonthsDropdown();
-            await loadInventoryPeriod(currentPeriod(), false);
-            renderInventoryTable(false);
-            renderHasrSignersPanel();
-        }
+            if (!isHidden) {
+                // == العودة إلى شاشة كشف الفحص ==
+                captureInventoryRows();
+                hasrFlushAutosave(true);
+                hasrReleaseLock();
+                hasrExitReadOnly();
+                inventoryDrafts[currentPeriod()] = inventoryRows.map(function (row) { return newInventoryRow(row); });
+                var tbody = document.querySelector('#mainTable tbody');
+                if (tbody) tbody.innerHTML = '';
+                window.currentMode = 'inspection';
+                document.body.classList.remove('inventory-active', 'inventory-mode-active');
+                if (mainControls) mainControls.hidden = false;
+                renderHeaders('inspection');
+                restoreInspectionState();
+                title.innerHTML = 'نظام كشوف الأوامر الجنائية';
+                toggleBtn.innerHTML = '<i class="fa-solid fa-table-list"></i> كشف الحصر';
+                toggleBtn.style.background = 'linear-gradient(135deg, #0f766e, #115e59)';
+            } else {
+                // == الدخول إلى شاشة كشف الحصر ==
+                rememberInspectionState();
+                var tbody2 = document.querySelector('#mainTable tbody');
+                if (tbody2) tbody2.innerHTML = '';
+                window.currentMode = 'inventory';
+                document.body.classList.add('inventory-active', 'inventory-mode-active');
+                if (mainControls) mainControls.hidden = true;
+                renderHeaders('inventory');
+                title.innerHTML = 'نظام كشوف الأوامر الجنائية <span style="color:#ffd54f;">(كشف الحصر)</span>';
+                toggleBtn.innerHTML = '<i class="fa-solid fa-file-pen"></i> كشف الفحص';
+                toggleBtn.style.background = 'linear-gradient(135deg, #dc3545, #c82333)';
+                populateMonthsDropdown();
+                await loadInventoryPeriod(currentPeriod(), false);
+                renderInventoryTable(false);
+                renderHasrSignersPanel();
+            }
 
-        // تثبيت ارتفاع شريط الأدوات ثم تحريكه إلى الارتفاع الجديد؛
-        // ظهور شريط البحث هو سبب اختلاف ارتفاع الصف عند دخول مود الحصر.
-        var newActionHeight = oldActionHeight;
-        if (actionRow) {
-            actionRow.style.height = 'auto';
-            newActionHeight = actionRow.getBoundingClientRect().height;
-            actionRow.style.height = oldActionHeight + 'px';
-            void actionRow.offsetHeight;
-            actionRow.style.transition = 'height .68s cubic-bezier(.22,.61,.36,1), opacity .26s ease';
-            actionRow.style.height = newActionHeight + 'px';
-        }
+            // الخطوة 3: إظهار الشاشة الجديدة بكامل عناصرها بنعومة (Fade In)
+            requestAnimationFrame(function () {
+                fadeTargets.forEach(function (el) {
+                    el.style.opacity = '1';
+                    el.style.transform = 'translateY(0)';
+                });
 
-        // يتحرك الجدول الآن مع ارتفاع صف الأدوات فقط؛ عدم إضافة transform
-        // ثانٍ يمنع تنافس حركتين على نفس الموضع وحدوث الرعشة.
-        requestAnimationFrame(function () {
-            fadeTargets.forEach(function (el) { el.style.opacity = '1'; });
-            if (wrapper) wrapper.style.opacity = '1';
-            setTimeout(function () {
-                fadeTargets.forEach(function (el) { el.style.transition = ''; el.style.opacity = ''; });
-                // لا نعيد الارتفاع إلى auto بعد الحركة؛ ذلك يسبب إعادة تخطيط
-                // متأخرة تجعل الجدول يرتعش أو يعود خطوة للخلف. نثبت الارتفاع النهائي.
-                if (actionRow) { actionRow.style.transition = ''; actionRow.style.overflow = ''; }
-                if (wrapper) { wrapper.style.transition = ''; wrapper.style.opacity = ''; }
-                document.body.classList.remove('mode-transitioning');
-                toggleBtn.disabled = false;
-            }, 760);
-        });
+                // الخطوة 4: تنظيف خصائص الحركة بعد الانتهاء وفتح النظام للمستخدم
+                setTimeout(function () {
+                    fadeTargets.forEach(function (el) {
+                        el.style.transition = '';
+                        el.style.opacity = '';
+                        el.style.transform = '';
+                    });
+                    if (container) container.style.minHeight = ''; // تحرير ارتفاع الحاوية
+                    document.body.classList.remove('mode-transitioning');
+                    toggleBtn.disabled = false;
+                }, 420); // زمن الإظهار يتناسب مع الـ 0.4 ثانية
+            });
+
+        }, 400); // زمن الانتظار زاد لـ 400 ملي ثانية
     }
 
     // انتظار انتهاء أي إرسال جارٍ للسيرفر (حتى نتأكد أن آخر ما كُتب وصل قبل تفريغ الجدول)
@@ -6840,7 +7337,7 @@ body.inventory-mode-active .hasr-bottom-row > .hasr-signers-bar { grid-column: 2
         var map = {
             saving: ['busy', 'جارٍ الحفظ…'],
             saved:  ['ok', '✓ تم الحفظ ' + t],
-            opened: ['ok', '✓ الكشف محفوظ'],
+            opened: ['ok', '✓ تم فتح آخر نسخة محفوظة'],
             local:  ['warn', '⚠ بلا اتصال — محفوظ على الجهاز'],
             nodept: ['warn', 'اختر القسم ليبدأ الحفظ التلقائي ⚠'],
             blocked:['warn', 'غير محفوظ — كشف مكرر ⚠']
@@ -7080,7 +7577,7 @@ body.inventory-mode-active .hasr-bottom-row > .hasr-signers-bar { grid-column: 2
             periodLabel(period) + '\nيوجد كشف محفوظ لنفس الشهر والقسم.\nافتحه لإكماله؟ (ما كتبته هنا لن يُحفظ)',
             'كشف مكرر',
             function () { loadInventoryPeriod(period, true); },
-            { kind: 'warn', confirmText: 'فتح الكشف', cancelText: 'إغلاق' }
+            { kind: 'warn', confirmText: 'إدراج الكشف', cancelText: 'إغلاق' }
         );
     }
 
@@ -7337,7 +7834,7 @@ body.inventory-mode-active .hasr-bottom-row > .hasr-signers-bar { grid-column: 2
         try { since = lk && lk.since ? new Date(lk.since).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }) : ''; } catch (e) {}
         b.className = 'hasr-lock-banner no-print' + (kind === 'free' ? ' free' : '');
         btn.textContent = kind === 'idle' ? '▶ متابعة التعديل' : (kind === 'free' ? '✏️ تعديل الكشف' : '🔄 إعادة المحاولة');
-        if (kind === 'lock') t.textContent = '🔒 الكشف مفتوح لدى ' + who + (since ? ' منذ ' + since : '') + ' — للاطلاع والطباعة فقط.';
+        if (kind === 'lock') t.textContent = '🔒 الكشف مفتوح لدى ' + who + (since ? ' منذ ' + since : '') + ' — الكشف متاح للاطلاع والطباعة فقط.';
         else if (kind === 'lost') t.textContent = '🔒 فتح ' + who + ' الكشف، فتوقف حفظك. ما لم يُرسل من تعديلاتك لن يُحفظ.';
         else if (kind === 'idle') t.textContent = '⏸ أُغلق الكشف لعدم النشاط.';
         else if (kind === 'free') t.textContent = '✓ الكشف متاح الآن للتعديل.';
@@ -7470,17 +7967,18 @@ body.inventory-mode-active .hasr-bottom-row > .hasr-signers-bar { grid-column: 2
             }
             window.addRow = addInventoryRow;
             window.removeRow = removeInventoryRow;
-            window.printPage = function () { return window.currentMode === 'inventory' ? printInventory(false) : originalFunctions.printPage(); };
+            window.printPage = function () { return window.currentMode === 'inventory' ? printInventory() : originalFunctions.printPage(); };
             window.openRestoreModal = function () { return window.currentMode === 'inventory' ? openInventorySheets() : originalFunctions.openRestoreModal(); };
             window.insertSelectedRecords = function () { return window.currentMode === 'inventory' ? importInventoryRecords() : originalFunctions.insertSelectedRecords(); };
             window.toggleCaseNumSort = function () {
                 if (window.currentMode === 'inventory') {
-                    if (hasrBlocked()) return;
                     captureInventoryRows();
-                    hasrPushUndo('ترتيب حسب رقم المحضر');
+                    inventoryAddressSortActive = false;
                     var th = document.getElementById('th-case-num');
                     var currentDir = th ? th.getAttribute('data-sort') : '';
                     var nextDir = currentDir === 'asc' ? 'desc' : 'asc';
+                    clearInventorySortHeaders();
+                    updateInventoryFilters();
                     
                     var getCaseNum = function(row) {
                         var num = parseInt(String(row.caseNum).replace(/\D/g, ''), 10);
@@ -7497,11 +7995,47 @@ body.inventory-mode-active .hasr-bottom-row > .hasr-signers-bar { grid-column: 2
                         return nextDir === 'asc' ? diff : -diff;
                     });
                     
-                    renderInventoryTable(false);
+                    renderInventoryTable(false, true);
                     var newTh = document.getElementById('th-case-num');
                     if (newTh) newTh.setAttribute('data-sort', nextDir);
                 } else {
                     originalFunctions.toggleCaseNumSort && originalFunctions.toggleCaseNumSort();
+                }
+            };
+
+            window.toggleInventoryNumSort = function () {
+                if (window.currentMode === 'inventory') {
+                    captureInventoryRows();
+                    inventoryAddressSortActive = false;
+                    var th = document.getElementById('th-inventory-num');
+                    var currentDir = th ? th.getAttribute('data-sort') : '';
+                    var nextDir = currentDir === 'asc' ? 'desc' : 'asc';
+                    clearInventorySortHeaders();
+                    updateInventoryFilters();
+                    
+                    var getInventoryNum = function(row) {
+                        // تحويل الأرقام العربية إلى إنجليزية في الخلفية للفرز الدقيق
+                        var numStr = String(row.inventoryNo).replace(/[٠-٩]/g, function(d) {
+                            return "٠١٢٣٤٥٦٧٨٩".indexOf(d);
+                        }).replace(/\D/g, '');
+                        
+                        var num = parseInt(numStr, 10);
+                        return isNaN(num) ? 0 : num;
+                    };
+                    
+                    inventoryRows.sort(function(a, b) {
+                        var aValid = meaningful(a), bValid = meaningful(b);
+                        // إبقاء أي صف فارغ في نهاية الجدول دائماً
+                        if (!aValid && bValid) return 1;
+                        if (aValid && !bValid) return -1;
+                        
+                        var diff = getInventoryNum(a) - getInventoryNum(b);
+                        return nextDir === 'asc' ? diff : -diff;
+                    });
+                    
+                    renderInventoryTable(false, true);
+                    var newTh = document.getElementById('th-inventory-num');
+                    if (newTh) newTh.setAttribute('data-sort', nextDir);
                 }
             };
             window.confirmClearAllDataByMouse = function () {
@@ -7511,7 +8045,7 @@ body.inventory-mode-active .hasr-bottom-row > .hasr-signers-bar { grid-column: 2
                     return;
                 }
                 if (window.currentMode === 'inventory') {
-                    if (typeof window.showInspectionConfirm === 'function') window.showInspectionConfirm(((hasrActivePeriod || '').split('|')[1] || '').trim() ? 'سيُفرَّغ الجدول من الشاشة فقط.\nالكشف محفوظ ويمكن فتحه من «فتح كشف سابق».' : 'القسم غير محدد: هذا الكشف غير محفوظ وستُفقد بياناته.', ((hasrActivePeriod || '').split('|')[1] || '').trim() ? 'تفريغ الجدول' : 'مسح الكشف', clearInventoryData);
+                    if (typeof window.showInspectionConfirm === 'function') window.showInspectionConfirm(((hasrActivePeriod || '').split('|')[1] || '').trim() ? 'سيُفرَّغ الجدول من الشاشة فقط.\nالكشف محفوظ ويمكن فتحه من «الكشوف السابقة».' : 'القسم غير محدد: هذا الكشف غير محفوظ وستُفقد بياناته.', ((hasrActivePeriod || '').split('|')[1] || '').trim() ? 'تفريغ الجدول' : 'مسح الكشف', clearInventoryData);
                     else clearInventoryData();
                 } else if (typeof window.showInspectionConfirm === 'function') window.showInspectionConfirm('سيُمسح محتوى الجدول بالكامل. هل تريد المتابعة؟', 'مسح الجدول', window.clearAllData);
             };
@@ -7532,6 +8066,7 @@ body.inventory-mode-active .hasr-bottom-row > .hasr-signers-bar { grid-column: 2
     window.onAddressFilterCheckboxChange = onAddressFilterCheckboxChange;
     window.selectAllAddressFilters = selectAllAddressFilters;
     window.clearAddressFilterSelection = clearAddressFilterSelection;
+    window.toggleInventoryAddressSort = toggleInventoryAddressSort;
     window.printInventory = printInventory;
     window.addInventoryRow = addInventoryRow;
     window.deleteInventoryRow = deleteInventoryRow;
