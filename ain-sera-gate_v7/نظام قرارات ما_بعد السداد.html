@@ -111,7 +111,7 @@ option[data-category="dark"] {
             text-align: center;
             line-height: 1.9;
             color: #64748b;
-            font-size: 13px;
+            font-size: 16px;
             background: rgba(255,255,255,0.58);
             border: 1px dashed #b5c3d6;
             border-radius: 8px;
@@ -1715,6 +1715,7 @@ body[data-theme="dark"] .tab-btn.active { background: #2d5a8e !important; color:
 }
 .badge-fine { background: #28a745; }
 .badge-session { background: #1e3a5f; }
+.badge-archived { background: #7c3aed; }
 .badge-paid {
     display: inline-flex;
     align-items: center;
@@ -1747,6 +1748,7 @@ body[data-theme="dark"] .badge-paid { background: rgba(5,150,105,0.15) !importan
 body[data-theme="dark"] .badge-paid-remove { color: #34d399; }
 body[data-theme="dark"] .badge-paid-remove:hover { background: #34d399; color: #0b2e22; }
 body[data-theme="dark"] .badge-session { background: #c9a200 !important; color: #1e3a5f !important; }
+body[data-theme="dark"] .badge-archived { background: #a78bfa !important; color: #2e1065 !important; }
 
 .archive-date-divider {
     display: flex;
@@ -2133,18 +2135,310 @@ body[data-theme="dark"] .rec-date { color: #64748b !important; }
     }
 }
 </style>
+
+<style id="case-summary-statistics-tabs">
+.case-summary-header.case-summary-tabs { gap:5px; padding:5px 7px; min-height:43px; }
+.case-summary-tab-btn {
+    flex:1 1 0; min-width:0; display:flex; align-items:center; justify-content:center; gap:5px;
+    padding:5px 4px; border:1px solid rgba(255,255,255,.28); border-radius:6px;
+    background:rgba(255,255,255,.08); color:#dbeafe;
+    font:700 11px 'Cairo','Segoe UI',Arial,sans-serif; cursor:pointer; transition:all .18s ease;
+}
+.case-summary-tab-btn:hover { background:rgba(255,255,255,.16); color:#fff; }
+.case-summary-tab-btn.active {
+    color:#1e3a5f; background:#eef2f8; border-color:#c9a200;
+    box-shadow:inset 0 -2px 0 #c9a200, 0 1px 4px rgba(15,23,42,.18);
+}
+.case-summary-tab-pane { display:none; width:100%; height:100%; min-height:0; }
+.case-summary-tab-pane.active { display:block; }
+.case-summary-body { height:calc(100% - 43px); overflow:hidden; padding:0 !important; }
+.case-summary-pane-scroll {
+    width:100%; height:100%; overflow-y:auto; overflow-x:hidden; padding:8px 10px;
+    scrollbar-width:thin; scrollbar-color:#7a9cbf transparent;
+}
+.summary-stats-period {
+    display:grid; grid-template-columns:1fr 1fr 27px; align-items:end; gap:5px; margin:0 0 5px;
+    padding:5px 7px; border:1px solid #c5cfe0; border-radius:8px; background:rgba(255,255,255,.58);
+}
+.summary-stats-period label { display:flex; flex-direction:column; gap:3px; min-width:0; color:#1e3a5f; font-size:9px; font-weight:800; }
+.summary-stats-period input {
+    width:100%; min-width:0; padding:5px 3px; border:1px solid #b7c8dc; border-radius:5px;
+    background:#fff; color:#1e293b; font:600 9px 'Cairo','Segoe UI',Arial,sans-serif; direction:ltr;
+}
+.summary-stats-period input[type="date"]::-webkit-calendar-picker-indicator { width:16px; height:16px; cursor:pointer; opacity:.95; }
+.summary-stats-period-refresh {
+    display:flex; align-items:center; justify-content:center; width:27px; height:27px; padding:0;
+    border:1px solid #2d5a8e; border-radius:6px; background:linear-gradient(135deg,#2c4a6e,#1e3a5f);
+    color:#fff; cursor:pointer;
+}
+.summary-stats-period-refresh:hover { background:#2d5a8e; }
+.summary-stats-intro { margin:1px 0 9px; color:#64748b; font-size:11px; font-weight:700; text-align:center; }
+.summary-stats-error { min-height:0; margin:0 0 2px; color:#991b1b; font-size:10px; line-height:1.5; text-align:center; }
+.summary-stat-card {
+    position:relative; display:flex; flex-direction:column; gap:0;
+    margin:0 0 5px; padding:0; border:1px solid #c5cfe0; overflow:hidden;
+    border-right:4px solid #2d5a8e; border-radius:9px; background:linear-gradient(135deg,#fff,#f4f7fb);
+    box-shadow:0 2px 7px rgba(30,58,95,.08);
+}
+/* عنوان الكارت: التمييز في النص نفسه (لون + وزن الخط) مش في خلفية ملوّنة — نفس الأسلوب
+   المتبع عالميًا في كروت لوحات التحكم الحديثة (Stripe / Linear / Notion وغيرها): خلفية
+   محايدة هادئة، وأيقونة في دائرة لونية خفيفة، وعنوان بلون العائلة نفسه بخط بارز أكبر شوية،
+   مع خط سفلي رفيع بلون العائلة كفاصل أنيق بدل الحدّ الرمادي العادي. */
+.summary-stat-head {
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    padding:6px 10px; background:transparent;
+    border-bottom:2px solid #d5deec;
+}
+.summary-stat-card .summary-stat-head .summary-stat-label {
+    font-size:13px; font-weight:900; line-height:1.35; letter-spacing:.15px;
+}
+/* لون العنوان نفسه يطابق هوية الكارت */
+.summary-stat-paid .summary-stat-head { border-bottom-color:#16a34a; }
+.summary-stat-paid .summary-stat-head .summary-stat-label { color:#15803d; }
+.summary-stat-unpaid .summary-stat-head { border-bottom-color:#dc2626; }
+.summary-stat-unpaid .summary-stat-head .summary-stat-label { color:#b91c1c; }
+.summary-stat-sessions .summary-stat-head { border-bottom-color:#d4a800; }
+.summary-stat-sessions .summary-stat-head .summary-stat-label { color:#a16207; }
+.summary-stat-saved .summary-stat-head { border-bottom-color:#7c3aed; }
+.summary-stat-saved .summary-stat-head .summary-stat-label { color:#6d28d9; }
+.summary-stat-prev-month .summary-stat-head { border-bottom-color:#0891b2; }
+.summary-stat-prev-year .summary-stat-head { border-bottom-color:#ea580c; }
+/* عناوين هذين الكارتين أطول من غيرها، فيصغَّر حجم الخط قليلاً حتى يظل سطرًا واحدًا */
+.summary-stat-prev-month .summary-stat-head .summary-stat-label { color:#0e7490; font-size:11px; letter-spacing:0; white-space:nowrap; }
+.summary-stat-prev-year .summary-stat-head .summary-stat-label { color:#c2410c; font-size:11px; letter-spacing:0; white-space:nowrap; }
+body[data-theme="dark"] .summary-stat-paid .summary-stat-head .summary-stat-label { color:#4ade80; }
+body[data-theme="dark"] .summary-stat-unpaid .summary-stat-head .summary-stat-label { color:#f87171; }
+body[data-theme="dark"] .summary-stat-sessions .summary-stat-head .summary-stat-label { color:#e6c34d; }
+body[data-theme="dark"] .summary-stat-saved .summary-stat-head .summary-stat-label { color:#a78bfa; }
+body[data-theme="dark"] .summary-stat-prev-month .summary-stat-head .summary-stat-label { color:#22d3ee; }
+body[data-theme="dark"] .summary-stat-prev-year .summary-stat-head .summary-stat-label { color:#fb923c; }
+body[data-theme="dark"] .summary-stat-head { border-bottom-color:#354b6e; }
+.summary-stat-stations { display:flex; flex-wrap:nowrap; align-items:stretch; }
+.summary-stat-station { flex:1 1 0; min-width:0; padding:2px 3px; text-align:center; border-left:1px solid #d5deec; }
+.summary-stat-station:last-child { border-left:none; }
+.summary-stat-station-name { color:#64748b; font-size:9px; font-weight:800; line-height:1.3; word-break:break-word; }
+.summary-stat-station-count { margin-top:0; color:#1e3a5f; font-size:15px; line-height:1.3; font-weight:900; direction:ltr; }
+
+.summary-stat-total { display:flex; align-items:center; justify-content:center; gap:8px; padding:2px 8px; border-top:1px solid #d5deec; background:rgba(30,58,95,.06); }
+.summary-stat-total-name { color:#1e3a5f; font-size:10px; font-weight:800; }
+.summary-stat-total-count { color:#1e3a5f; font-size:15px; font-weight:900; direction:ltr; line-height:1.3; }
+/* ألوان مميزة لشريط الإجمالي */
+.summary-stat-paid .summary-stat-total { background:linear-gradient(135deg,#16a34a,#15803d); border-top-color:#15803d; }
+.summary-stat-unpaid .summary-stat-total { background:linear-gradient(135deg,#dc2626,#b91c1c); border-top-color:#b91c1c; }
+.summary-stat-sessions .summary-stat-total { background:linear-gradient(135deg,#d4a800,#a16207); border-top-color:#a16207; }
+.summary-stat-saved .summary-stat-total { background:linear-gradient(135deg,#7c3aed,#6d28d9); border-top-color:#6d28d9; }
+.summary-stat-prev-month .summary-stat-total { background:linear-gradient(135deg,#0891b2,#0e7490); border-top-color:#0e7490; }
+.summary-stat-prev-year .summary-stat-total { background:linear-gradient(135deg,#ea580c,#c2410c); border-top-color:#c2410c; }
+.summary-stat-card .summary-stat-total-name, .summary-stat-card .summary-stat-total-count { color:#fff; }
+.summary-stat-total-name { font-size:11px; }
+.summary-stat-total-count { font-size:16px; }
+
+body[data-theme="dark"] .summary-stat-card .summary-stat-total-name, body[data-theme="dark"] .summary-stat-card .summary-stat-total-count { color:#fff; }
+body[data-theme="dark"] .summary-stat-head, body[data-theme="dark"] .summary-stat-station { border-color:#354b6e; }
+body[data-theme="dark"] .summary-stat-station-name { color:#a9bad3; }
+body[data-theme="dark"] .summary-stat-station-count { color:#dbeafe; }
+.summary-stat-card.summary-stat-paid { border-right-color:#16a34a; }
+.summary-stat-card.summary-stat-unpaid { border-right-color:#dc2626; }
+.summary-stat-card.summary-stat-sessions { border-right-color:#c9a200; }
+.summary-stat-card.summary-stat-saved { border-right-color:#7c3aed; }
+.summary-stat-card.summary-stat-prev-month { border-right-color:#0891b2; }
+.summary-stat-card.summary-stat-prev-year { border-right-color:#ea580c; }
+.summary-stat-icon { display:flex; align-items:center; justify-content:center; width:29px; height:29px; border-radius:50%; background:#dbeafe; color:#1e3a5f; font-size:14px; }
+.summary-stat-paid .summary-stat-icon { background:#dcfce7; color:#15803d; }
+.summary-stat-unpaid .summary-stat-icon { background:#fee2e2; color:#b91c1c; }
+.summary-stat-sessions .summary-stat-icon { background:#fef3c7; color:#a16207; }
+.summary-stat-saved .summary-stat-icon { background:#f3e8ff; color:#6d28d9; }
+.summary-stat-prev-month .summary-stat-icon { background:#cffafe; color:#0e7490; }
+.summary-stat-prev-year .summary-stat-icon { background:#ffedd5; color:#c2410c; }
+.summary-stat-label { color:#1e3a5f; font-size:11px; font-weight:800; line-height:1.55; }
+.summary-stat-value { min-width:31px; color:#1e3a5f; font-size:22px; font-weight:900; text-align:center; direction:ltr; }
+.summary-stats-refresh {
+    display:flex; align-items:center; justify-content:center; gap:6px; width:100%; margin-top:3px; padding:7px 8px;
+    border:1px solid #2d5a8e; border-radius:7px; background:linear-gradient(135deg,#2c4a6e,#1e3a5f);
+    color:#fff; font:700 11px 'Cairo','Segoe UI',Arial,sans-serif; cursor:pointer;
+}
+.summary-stats-refresh:hover { background:#2d5a8e; }
+.summary-stats-print-btn {
+    display:flex; align-items:center; justify-content:center; gap:6px; width:100%; margin-top:2px; padding:7px 8px;
+    border:1px solid #15803d; border-radius:7px; background:linear-gradient(135deg,#16a34a,#15803d);
+    color:#fff; font:700 11px 'Cairo','Segoe UI',Arial,sans-serif; cursor:pointer;
+}
+.summary-stats-print-btn:hover { background:#15803d; }
+body[data-theme="dark"] .summary-stats-print-btn { border-color:#16a34a; }
+body[data-theme="dark"] .case-summary-tab-btn.active { color:#dbeafe; background:#263a5d; }
+body[data-theme="dark"] .case-summary-pane-scroll { scrollbar-color:#4a6a94 transparent; }
+body[data-theme="dark"] .summary-stats-period { background:rgba(15,23,42,.42); border-color:#385273; }
+body[data-theme="dark"] .summary-stats-period label { color:#dbeafe; }
+body[data-theme="dark"] .summary-stats-period input { background:#142039; color:#e2e8f0; border-color:#40577b; }
+body[data-theme="dark"] .summary-stats-intro { color:#a9bad3; }
+body[data-theme="dark"] .summary-stat-card { background:linear-gradient(135deg,#202f4d,#17243b); border-color:#354b6e; color:#e2e8f0; }
+body[data-theme="dark"] .summary-stat-card.summary-stat-paid { border-right-color:#22c55e; }
+body[data-theme="dark"] .summary-stat-card.summary-stat-unpaid { border-right-color:#ef4444; }
+body[data-theme="dark"] .summary-stat-card.summary-stat-sessions { border-right-color:#e6c34d; }
+body[data-theme="dark"] .summary-stat-card.summary-stat-saved { border-right-color:#a78bfa; }
+body[data-theme="dark"] .summary-stat-card.summary-stat-prev-month { border-right-color:#22d3ee; }
+body[data-theme="dark"] .summary-stat-card.summary-stat-prev-year { border-right-color:#fb923c; }
+body[data-theme="dark"] .summary-stat-prev-month .summary-stat-total { background:linear-gradient(135deg,#155e75,#164e63); border-top-color:#0e7490; }
+body[data-theme="dark"] .summary-stat-prev-year .summary-stat-total { background:linear-gradient(135deg,#9a3412,#7c2d12); border-top-color:#c2410c; }
+body[data-theme="dark"] .summary-stat-prev-month .summary-stat-icon { background:#164e63; color:#67e8f9; }
+body[data-theme="dark"] .summary-stat-prev-year .summary-stat-icon { background:#7c2d12; color:#fdba74; }
+body[data-theme="dark"] .summary-stat-label, body[data-theme="dark"] .summary-stat-value { color:#dbeafe; }
+.summary-stat-count-action {
+    cursor:pointer !important; text-decoration:underline; text-decoration-style:dotted;
+    text-underline-offset:3px; border-radius:3px; transition:filter .15s ease, background .15s ease;
+}
+.summary-stat-count-action:hover { filter:brightness(.82); }
+.summary-stat-count-action:focus-visible { outline:2px solid #2563eb; outline-offset:2px; }
+.summary-stat-total .summary-stat-count-action:hover { background:rgba(255,255,255,.16); }
+.summary-stat-total.summary-stat-financial-detail { display:block; padding:4px 6px 5px; }
+.summary-stat-financial-detail .summary-stat-total-name { display:none; }
+.summary-stat-financial-detail .summary-stat-total-count { display:block; width:100%; }
+.summary-stat-prev-month .summary-stat-grand-total { border-top-color:#0e7490; background:linear-gradient(135deg,#0891b2,#0e7490); }
+.summary-stat-prev-year .summary-stat-grand-total { border-top-color:#c2410c; background:linear-gradient(135deg,#ea580c,#c2410c); }
+body[data-theme="dark"] .summary-stat-prev-month .summary-stat-grand-total { border-top-color:#0e7490; background:linear-gradient(135deg,#155e75,#164e63); }
+body[data-theme="dark"] .summary-stat-prev-year .summary-stat-grand-total { border-top-color:#c2410c; background:linear-gradient(135deg,#9a3412,#7c2d12); }
+.summary-stats-details-overlay {
+    position:fixed; inset:0; z-index:100020; display:flex; align-items:center; justify-content:center;
+    zoom:.784314; padding:10px; background:rgba(15,23,42,.58); direction:rtl; font-family:'Cairo','Segoe UI',Arial,sans-serif;
+    opacity:0; visibility:hidden; pointer-events:none;
+    transition:opacity .25s ease, visibility 0s linear .25s;
+}
+.summary-stats-details-overlay.show {
+    opacity:1; visibility:visible; pointer-events:auto;
+    transition:opacity .25s ease, visibility 0s linear 0s;
+}
+.summary-stats-details-dialog {
+    display:flex; flex-direction:column; width:min(1120px,96vw); height:min(90dvh,calc(100dvh - 20px)); max-height:calc(100dvh - 20px); overflow:hidden;
+    border:1px solid #c7d2e2; border-radius:14px; background:#fff; color:#1e293b;
+    box-shadow:0 24px 80px rgba(15,23,42,.35);
+    transform:scale(.94) translateY(10px); opacity:0;
+    transition:transform .28s cubic-bezier(.34,1.56,.64,1), opacity .22s ease;
+}
+.summary-stats-details-overlay.show .summary-stats-details-dialog { transform:scale(1) translateY(0); opacity:1; }
+.summary-stats-details-header {
+    flex:0 0 auto; display:flex; align-items:flex-start; justify-content:space-between; gap:12px; padding:15px 18px;
+    border-bottom:1px solid #dbe4ef; background:linear-gradient(135deg,#f8fbff,#edf3fa);
+}
+.summary-stats-details-heading { min-width:0; }
+.summary-stats-details-eyebrow { color:#64748b; font-size:11px; font-weight:800; }
+.summary-stats-details-header h2 { margin:2px 0 0; color:#1e3a5f; font-size:18px; font-weight:900; }
+.summary-stats-details-period { margin-top:3px; color:#64748b; font-size:11px; font-weight:700; }
+.summary-stats-details-date-note { margin-top:3px; color:#64748b; font-size:10px; line-height:1.5; }
+.summary-stats-details-close {
+    flex:0 0 34px; width:34px; height:34px; border:1px solid #cbd5e1; border-radius:8px;
+    background:#fff; color:#475569; font-size:17px; cursor:pointer;
+}
+.summary-stats-details-close:hover { background:#fee2e2; color:#b91c1c; border-color:#fecaca; }
+.summary-stats-details-content { display:flex; flex:1 1 auto; flex-direction:column; min-height:0; overflow:hidden; padding:12px 16px 16px; }
+.summary-stats-details-count { flex:0 0 auto; margin-bottom:8px; color:#475569; font-size:12px; font-weight:800; }
+.summary-stats-details-body { flex:1 1 auto; min-height:0; overflow:auto; border:1px solid #dbe4ef; border-radius:9px; }
+.summary-stats-details-table { width:100%; min-width:760px; border-collapse:separate; border-spacing:0; font-size:12px; }
+.summary-stats-details-table th, .summary-stats-details-table td { padding:9px 10px; border-bottom:1px solid #e2e8f0; text-align:right; vertical-align:top; line-height:1.55; }
+.summary-stats-details-table th { position:sticky; top:0; z-index:1; background:#eaf1fa; color:#1e3a5f; font-weight:900; white-space:nowrap; }
+.summary-stats-details-table tbody tr:nth-child(even) { background:#f8fafc; }
+.summary-stats-details-table tbody tr:last-child td { border-bottom:0; }
+.summary-stats-details-table .details-case-number, .summary-stats-details-table .details-money { white-space:nowrap; font-weight:800; }
+.summary-stats-details-table .details-charge { min-width:180px; white-space:pre-wrap; overflow-wrap:anywhere; }
+.summary-stats-details-empty { padding:28px 14px; color:#64748b; text-align:center; font-size:14px; font-weight:800; }
+body[data-theme="dark"] .summary-stats-details-dialog { background:#17243b; color:#e2e8f0; border-color:#354b6e; }
+body[data-theme="dark"] .summary-stats-details-header { background:linear-gradient(135deg,#202f4d,#17243b); border-color:#354b6e; }
+body[data-theme="dark"] .summary-stats-details-header h2 { color:#dbeafe; }
+body[data-theme="dark"] .summary-stats-details-period, body[data-theme="dark"] .summary-stats-details-eyebrow, body[data-theme="dark"] .summary-stats-details-count { color:#a9bad3; }
+body[data-theme="dark"] .summary-stats-details-date-note { color:#a9bad3; }
+body[data-theme="dark"] .summary-stats-details-close { background:#263a5d; color:#dbeafe; border-color:#40577b; }
+body[data-theme="dark"] .summary-stats-details-body { border-color:#354b6e; }
+body[data-theme="dark"] .summary-stats-details-table th { background:#263a5d; color:#dbeafe; }
+body[data-theme="dark"] .summary-stats-details-table td { border-color:#354b6e; }
+body[data-theme="dark"] .summary-stats-details-table tbody tr:nth-child(even) { background:#1c2b46; }
+body[data-theme="dark"] .summary-stats-details-empty { color:#a9bad3; }
+@media (max-width:600px) {
+    .summary-stats-details-overlay { padding:7px; }
+    .summary-stats-details-dialog { width:100%; height:calc(100dvh - 14px); max-height:calc(100dvh - 14px); border-radius:10px; }
+    .summary-stats-details-header { padding:12px; }
+    .summary-stats-details-content { padding:9px; }
+}
+body[data-theme="dark"] .summary-stats-error { color:#fca5a5; }
+
+/* تنسيقات خانة العدد والمبلغ المنقسمة */
+.stat-fee-split { display:flex; align-items:stretch; width:100%; margin-top:3px; direction:rtl; }
+.stat-fee-part { flex:1 1 0; min-width:0; display:flex; flex-direction:column; align-items:center; line-height:1.25; }
+.stat-fee-label { font-size:8px; font-weight:700; color:#64748b; }
+.stat-fee-value { font-size:11px; font-weight:800; white-space:nowrap; direction:ltr; }
+.stat-fee-fines .stat-fee-value { color:#16a34a; }
+.stat-fee-fees .stat-fee-value { color:#2563eb; }
+.stat-fee-divider { flex:0 0 1px; align-self:stretch; margin:1px 3px; background:linear-gradient(to bottom, transparent, #b8c6dc 25%, #b8c6dc 75%, transparent); }
+body[data-theme="dark"] .stat-fee-label { color:#a9bad3; }
+body[data-theme="dark"] .stat-fee-fines .stat-fee-value { color:#4ade80; }
+body[data-theme="dark"] .stat-fee-fees .stat-fee-value { color:#60a5fa; }
+body[data-theme="dark"] .stat-fee-divider { background:linear-gradient(to bottom, transparent, #4b6288 25%, #4b6288 75%, transparent); }
+.stat-station-head { display:flex; align-items:center; justify-content:center; gap:6px; direction:rtl; }
+.stat-station-head .summary-stat-station-name { flex:0 1 auto; }
+.stat-station-head-divider { flex:0 0 auto; width:1px; height:15px; align-self:center; position:relative; background:linear-gradient(to bottom, transparent, #c3d0e4 20%, #c3d0e4 80%, transparent); }
+.stat-station-head-count { flex:0 0 auto; min-width:21px; height:21px; padding:0 6px; border-radius:999px; background:linear-gradient(135deg,#5b9bf8,#1e3a5f); color:#fff; font-size:12px; font-weight:900; line-height:21px; text-align:center; direction:ltr; letter-spacing:.2px; box-shadow:0 2px 4px rgba(30,58,95,.35), inset 0 1px 0 rgba(255,255,255,.3); }
+body[data-theme="dark"] .stat-station-head-divider { background:linear-gradient(to bottom, transparent, #4b6288 20%, #4b6288 80%, transparent); }
+body[data-theme="dark"] .stat-station-head-count { background:linear-gradient(135deg,#60a5fa,#1e3a8a); box-shadow:0 2px 4px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.2); }
+.stat-split-container { display:flex; align-items:center; width:100%; margin-top:2px; direction:rtl; }
+.stat-split-count { flex: 0 0 35%; text-align:center; border-left:1px dashed #d5deec; font-size:13px; color:#1e3a5f; font-weight:900; direction:ltr; }
+.stat-split-amount { flex: 1; text-align:center; font-size:11.5px; font-weight:bold; white-space:nowrap; direction:ltr; padding-right:3px; }
+
+/* ألوان كارت المسدد (أخضر) */
+.summary-stat-paid .stat-split-amount { color:#16a34a; }
+.summary-stat-paid .total-split-value.amount { color:#dcfce7; }
+body[data-theme="dark"] .summary-stat-paid .stat-split-amount { color:#4ade80; }
+
+/* ألوان كارت الغير مسدد (أحمر) */
+.summary-stat-unpaid .stat-split-amount { color:#dc2626; }
+.summary-stat-unpaid .total-split-value.amount { color:#fecaca; }
+body[data-theme="dark"] .summary-stat-unpaid .stat-split-amount { color:#f87171; }
+
+body[data-theme="dark"] .stat-split-count { border-color:#354b6e; color:#dbeafe; }
+
+/* تنسيقات شريط الإجمالي بالأسفل مع الفاصل البصري */
+.total-split-container { display:flex; justify-content:space-evenly; align-items:center; width:100%; direction:rtl; }
+.total-split-block { display:flex; flex-direction:column; align-items:center; justify-content:center; line-height:1.3; }
+.total-split-label { font-size:11px; color:rgba(255,255,255,0.85); font-weight:normal; }
+.total-split-value { font-size:14px; font-weight:bold; color:#ffffff; }
+.total-split-divider { width:1.5px; height:24px; background:rgba(255,255,255,0.3); border-radius:2px; }
+
+/* تفصيل الغرامات والرسوم في إجمالي بطاقة المحاضر المسددة */
+.summary-stat-total.summary-stat-paid-detail { display:block; padding:4px 6px 5px; }
+.summary-stat-paid-detail .summary-stat-total-name { display:none; }
+.summary-stat-paid-detail .summary-stat-total-count { display:block; width:100%; }
+.total-split-breakdown { gap:4px; justify-content:space-between; }
+.total-split-breakdown .total-split-block { flex:1 1 0; min-width:0; text-align:center; }
+.total-split-breakdown .total-split-label { min-height:23px; font-size:9px; line-height:1.25; white-space:normal; }
+.total-split-breakdown .total-split-value { font-size:11px; white-space:nowrap; }
+.total-split-breakdown .total-split-divider { height:29px; flex:0 0 1px; }
+.total-split-currency { font-size:8px; }
+.summary-stat-grand-total { display:flex; align-items:center; justify-content:space-between; gap:8px; padding:4px 10px; border-top:1px solid #15803d; background:linear-gradient(135deg,#15803d,#166534); color:#fff; font-weight:900; }
+.summary-stat-grand-total-name { font-size:11px; }
+.summary-stat-grand-total-value { font-size:16px; line-height:1.3; font-weight:900; white-space:nowrap; }
+.summary-stat-grand-total-currency { font-size:10px; }
+body[data-theme="dark"] .summary-stat-grand-total { border-top-color:#166534; background:linear-gradient(135deg,#14532d,#166534); }
+
+
+
+@media print { .case-summary-panel, .summary-stats-details-overlay { display:none !important; } }
+</style>
+
 </head>
 <body>
 
     <!-- ملخص المحضر: لوحة مستقلة ثابتة في المساحة اليسرى، وتظهر بعد نجاح الاستيراد -->
     <aside id="case-summary-panel" class="case-summary-panel" aria-label="ملخص المحضر">
-        <div class="case-summary-header">
-            <i class="fa-solid fa-file-circle-check"></i>
-            <span>ملخص المحضر</span>
+        <div class="case-summary-header case-summary-tabs" role="tablist" aria-label="محتوى شاشة الملخص">
+            <button type="button" id="summaryMainTab" class="case-summary-tab-btn active" role="tab" aria-selected="true" aria-controls="summaryMainPane" onclick="switchCaseSummaryTab('summary')">
+                <i class="fa-solid fa-file-circle-check"></i><span>ملخص المحضر</span>
+            </button>
+            <button type="button" id="summaryStatsTab" class="case-summary-tab-btn" role="tab" aria-selected="false" aria-controls="summaryStatsPane" onclick="switchCaseSummaryTab('statistics')">
+                <i class="fa-solid fa-chart-column"></i><span>الإحصائية</span>
+            </button>
         </div>
         <div class="case-summary-body">
+          <section id="summaryMainPane" class="case-summary-tab-pane active" role="tabpanel" aria-labelledby="summaryMainTab">
+            <div class="case-summary-pane-scroll">
             <div id="case-summary-empty" class="case-summary-empty">
-                اكتب رقم المحضر وقسم الشرطة والسنة، ثم اضغط «بحث واستيراد» لعرض الملخص هنا.
+                هنا يعرض ملخص المحضر.
             </div>
             <div id="case-summary-content" class="case-summary-content">
                 <div class="case-summary-row case-summary-key-row">
@@ -2191,8 +2485,84 @@ body[data-theme="dark"] .rec-date { color: #64748b !important; }
                     <span id="summary-linked-violation" class="case-summary-value">—</span>
                 </div>
             </div>
+            </div>
+          </section>
+          <section id="summaryStatsPane" class="case-summary-tab-pane" role="tabpanel" aria-labelledby="summaryStatsTab" aria-hidden="true">
+            <div class="case-summary-pane-scroll case-summary-stats-scroll">
+                <div class="summary-stats-period" aria-label="تحديد فترة الإحصائية">
+                    <label>من تاريخ<input type="date" id="summaryStatsFrom" aria-label="من تاريخ الإحصائية" onchange="refreshPostPaymentSummaryStats()"></label>
+                    <label>إلى تاريخ<input type="date" id="summaryStatsTo" aria-label="إلى تاريخ الإحصائية" onchange="refreshPostPaymentSummaryStats()"></label>
+                    <button type="button" class="summary-stats-period-refresh" onclick="refreshPostPaymentSummaryStats()" title="تحديث الإحصائية"><i class="fa-solid fa-rotate"></i></button>
+                </div>
+                
+                <div id="summaryStatsError" class="summary-stats-error" role="status" aria-live="polite"></div>
+                <article class="summary-stat-card summary-stat-paid">
+                    <div class="summary-stat-head">
+                        <span class="summary-stat-icon"><i class="fa-solid fa-circle-check"></i></span>
+                        <div class="summary-stat-label">عدد المحاضر المسددة</div>
+                    </div>
+                    <div id="summaryStatsPaid" class="summary-stat-stations"></div>
+                </article>
+                <article class="summary-stat-card summary-stat-unpaid">
+                    <div class="summary-stat-head">
+                        <span class="summary-stat-icon"><i class="fa-solid fa-clock"></i></span>
+                        <div class="summary-stat-label">عدد المحاضر غير المسددة</div>
+                    </div>
+                    <div id="summaryStatsUnpaid" class="summary-stat-stations"></div>
+                </article>
+                <article class="summary-stat-card summary-stat-sessions">
+                    <div class="summary-stat-head">
+                        <span class="summary-stat-icon"><i class="fa-solid fa-gavel"></i></span>
+                        <div class="summary-stat-label">عدد محاضر الجلسات</div>
+                    </div>
+                    <div id="summaryStatsSessions" class="summary-stat-stations"></div>
+                </article>
+                <article class="summary-stat-card summary-stat-saved">
+                    <div class="summary-stat-head">
+                        <span class="summary-stat-icon"><i class="fa-solid fa-box-archive"></i></span>
+                        <div class="summary-stat-label">عدد المحاضر المحفوظة</div>
+                    </div>
+                    <div id="summaryStatsSaved" class="summary-stat-stations"></div>
+                </article>
+                <article class="summary-stat-card summary-stat-prev-month">
+                    <div class="summary-stat-head">
+                        <span class="summary-stat-icon"><i class="fa-solid fa-calendar-minus"></i></span>
+                        <div class="summary-stat-label">المحاضر المسددة عن شهور سابقة</div>
+                    </div>
+                    <div id="summaryStatsPrevMonth" class="summary-stat-stations"></div>
+                </article>
+                <article class="summary-stat-card summary-stat-prev-year">
+                    <div class="summary-stat-head">
+                        <span class="summary-stat-icon"><i class="fa-solid fa-calendar-days"></i></span>
+                        <div class="summary-stat-label">المحاضر المسددة عن سنوات سابقة</div>
+                    </div>
+                    <div id="summaryStatsPrevYear" class="summary-stat-stations"></div>
+                </article>
+                <button type="button" class="summary-stats-print-btn" onclick="printSummaryStatsSheet()" title="طباعة كشف الإحصائية">
+                    <i class="fa-solid fa-print"></i> طباعة الإحصائية
+                </button>
+            </div>
+          </section>
         </div>
     </aside>
+
+    <div id="summary-stats-details-overlay" class="summary-stats-details-overlay" aria-hidden="true" onclick="if(event.target===this)closeSummaryStatsDetails()">
+        <section id="summary-stats-details-dialog" class="summary-stats-details-dialog" role="dialog" aria-modal="true" aria-labelledby="summary-stats-details-title">
+            <header class="summary-stats-details-header">
+                <div class="summary-stats-details-heading">
+                    <span class="summary-stats-details-eyebrow">تفاصيل الإحصائية</span>
+                    <h2 id="summary-stats-details-title">محاضر القسم</h2>
+                    <div id="summary-stats-details-period" class="summary-stats-details-period"></div>
+                    <div id="summary-stats-details-date-note" class="summary-stats-details-date-note"></div>
+                </div>
+                <button type="button" class="summary-stats-details-close" aria-label="إغلاق قائمة المحاضر" onclick="closeSummaryStatsDetails()"><i class="fa-solid fa-xmark"></i></button>
+            </header>
+            <div class="summary-stats-details-content">
+                <div id="summary-stats-details-count" class="summary-stats-details-count"></div>
+                <div id="summary-stats-details-body" class="summary-stats-details-body"></div>
+            </div>
+        </section>
+    </div>
 
     <div class="app-layout">
 
@@ -2546,7 +2916,7 @@ body[data-theme="dark"] .rec-date { color: #64748b !important; }
             <div class="card-header" onclick="toggleCard('card-fine')">
                 <span class="card-icon"><i class="fa-solid fa-coins"></i></span>
                 <span class="card-title">— قرار الغرامة — </span>
-                <span class="card-badge">يغرم · لا يغرم</span>
+                <span class="card-badge">يغرم · لا يغرم · محفوظ</span>
                 <span class="toggle-arrow">▾</span>
             </div>
             <div class="card-body" style="flex-wrap:nowrap; align-items:flex-start;">
@@ -2557,6 +2927,7 @@ body[data-theme="dark"] .rec-date { color: #64748b !important; }
                             <option value="none">--- اختر القرار ---</option>
                             <option value="fine">* يغرم المتهم</option>
                             <option value="no-fine">* بدون غرامة</option>
+                            <option value="save">* تم حفظ المحضر</option>
                         </select>
                     </div>
                     <div class="amount-row" id="fine-amount-row">
@@ -3622,6 +3993,13 @@ function sync() {
                 amountRow.style.display='flex';
                 if (amount) textArea.value=`نأمر بتغريم المتهم مبلغ ${amount} جنيهاً (${tafqit(amount)}) والمصاريف.`;
                 else textArea.value="نأمر بتغريم المتهم مبلغ ........................................................................................................................................................................................ جنيهاً والمصاريف.";
+            } else if (type==='save') {
+                // «تم حفظ المحضر»: نص قرار صريح يظهر في الطباعة (بخلاف «بدون غرامة» التي لا
+                // تُطبع قرارًا). ترقيم القرارات يتم تلقائيًا حسب ترتيب الحقول غير الفارغة،
+                // فلا حاجة لتعديل أي منطق ترقيم منفصل.
+                amountRow.style.display='none';
+                document.getElementById('fine-amount').value='';
+                textArea.value="نأمر بحفظ المحضر إداريًا.";
             } else { amountRow.style.display='none'; document.getElementById('fine-amount').value=''; textArea.value=""; }
             sync();
         }
@@ -3982,6 +4360,11 @@ function renderArrestItems() {
                 const key = getMahdarKey(caseNum, year, cleanDept, 'main');
 
                 let db = await fetchServerData();
+                // هل كان المحضر موجودًا أصلاً في قاعدة البيانات قبل هذا الحفظ؟ لو لا، فهذا
+                // على الأغلب محضر قديم من قبل إنشاء البوابة يتم تحرير قرار سداده هنا لأول مرة،
+                // فنعلّمه بعلامة دائمة ليُحتسب لاحقًا ضمن "المسددة عن سنوات سابقة" في الإحصائية،
+                // بغض النظر عن تاريخ تحريره الفعلي (الذي لا نملكه أصلاً لمحاضر ما قبل البوابة).
+                const recordExistedBeforeSave = !!db[key];
                 let mainRecord = db[key] || {};
                 let existingPaymentInfo = mainRecord.paymentInfo || {};
                 let history = existingPaymentInfo.editHistory || [];
@@ -4017,7 +4400,12 @@ function renderArrestItems() {
                     vehicleStatus: vehicleStatus,
                     engStatus: engStatus,
                     sessionStatus: sessionStatus,
-                    sessionDate: sessionDate
+                    sessionDate: sessionDate,
+                    // "قيمة الغرامة" كما تظهر في بطاقة "قرار الغرامة" نفسها (المبلغ المقرر من
+                    // النيابة)، بخلاف "fineAmount" أعلاه التي تُقرأ من قسيمة السداد وقد تشمل
+                    // مبالغ إضافية لا علاقة لها بغرامة المحضر (مثل رسوم الخدمة المميكنة).
+                    // نحتفظ بها لاستخدامها في حساب مبلغ الإحصائية للمحاضر القديمة (legacyPrePortal).
+                    decidedFineAmount: (document.getElementById('fine-amount') || {}).value || ''
                 };
 
                 // القاموس العربي لأسماء الحقول التي تظهر في الجدول مضافاً إليها اسم البطاقة
@@ -4115,6 +4503,14 @@ function renderArrestItems() {
                     });
                 }
 
+                // نضع علامة المحضر القديم (ما قبل البوابة) داخل paymentInfo نفسها، لأن هذا هو
+                // الجزء الوحيد من السجل المضمون حفظه دائمًا عبر واجهة الحفظ الحالية —
+                // أي علامة توضع خارج paymentInfo قد لا تُحفظ إذا كانت واجهة الحفظ تتعامل
+                // مع حقول محددة فقط بدل استبدال المحضر كاملاً.
+                const shouldFlagLegacyPrePortal = !recordExistedBeforeSave ||
+                    !!(db[key] && db[key].legacyPrePortal) ||
+                    !!(db[key] && db[key].paymentInfo && db[key].paymentInfo.legacyPrePortal);
+
                 const finalPaymentInfo = {
                     paid: isPaid,
                     settledBy: isPaid ? officerName : (history.length > 0 ? history[history.length-1].name : ''),
@@ -4125,11 +4521,58 @@ function renderArrestItems() {
                     fineReceiptDate: (document.getElementById('fine-receipt-date') || {}).value || '',
                     violationsType: violationsType,
                     violationsPayMethod: (document.getElementById('violations-pay-method') || {}).value || '',
-                    violationsPayDate: (document.getElementById('violations-pay-date') || {}).value || ''
+                    violationsPayDate: (document.getElementById('violations-pay-date') || {}).value || '',
+                    legacyPrePortal: shouldFlagLegacyPrePortal
                 };
 
                 db[key] = Object.assign({}, db[key] || {}, { paymentInfo: finalPaymentInfo });
+                if (shouldFlagLegacyPrePortal) db[key].legacyPrePortal = true; // احتياطيًا أيضًا على مستوى المحضر نفسه
+
+                // ── تسجيل محضر قديم (ما قبل البوابة) لأول مرة من هنا مباشرة ──
+                // لو المحضر ده مكانش موجودًا في القاعدة أصلاً، فهذا يعني أننا الآن ننشئه
+                // لأول مرة من داخل نظام "ما بعد السداد" (محضر حكومي قديم يتم استخراج خطاب
+                // سداد له عبر البوابة دون أن يكون قد مرّ من قبل على نظام التلبسات).
+                // نظام التلبسات يكتب هذه الحقول الأساسية وقت إنشاء أي محضر عادةً؛ بما أننا هنا
+                // ننشئ المحضر بمعزل عن التلبسات، لازم نكتبها إحنا يدويًا حتى تتعرف عليه
+                // شاشات الإحصائية (تحتاج dept لتحديد القسم، وsavedAt لتحديد الفترة الزمنية).
+                if (!recordExistedBeforeSave) {
+                    db[key].caseNum = caseNum;
+                    db[key].year = year;
+                    db[key].dept = cleanDept;
+                    db[key].deptSelect = deptSel ? deptSel.value : '';
+                    db[key].deptOther = deptSel && deptSel.value === 'أخرى' ? dept : '';
+                    db[key].baseKey = getMahdarBaseKey(caseNum, year, cleanDept);
+                    db[key].reportMode = 'main';
+                    db[key].recordType = 'main';
+                    db[key].rootMode = 'main';
+                    db[key].parentKey = null;
+                    db[key].parentMode = null;
+                    // savedAt هنا يعني "تاريخ تسجيله في قاعدة بيانات البوابة" (أي اليوم)، وليس
+                    // تاريخ تحرير المحضر الأصلي؛ وهذا هو المتوقع من منطق الإحصائية: يجعل
+                    // المحضر يظهر ضمن إحصائية الشهر الحالي، لكنه يُصنَّف داخلها كـ"مسدد عن
+                    // سنوات سابقة" بفضل علامة legacyPrePortal أعلاه.
+                    db[key].savedAt = currentTime;
+
+                }
+
+                // مزامنة بنود بطاقة "سبب الضبط" مع بيانات السداد لكل المحاضر عند الطباعة،
+                // لأن بعض السجلات القديمة/المستوردة قد تحمل قائمة مخالفات ناقصة. تحفظ القائمة
+                // مع paymentInfo لضمان وصولها للإحصائية، ثم يحسب القاموس رسم كل بند على حدة.
+                if (typeof arrestItems !== 'undefined' && Array.isArray(arrestItems)) {
+                    const arrestLabels = arrestItems
+                        .map(function(item) { return item && item.label ? String(item.label).trim() : ''; })
+                        .filter(Boolean);
+                    if (arrestLabels.length && calculatePaidViolationBreakdown(arrestLabels).fines > 0) {
+                        if (shouldFlagLegacyPrePortal) db[key].violations = arrestLabels;
+                        db[key].paymentInfo = Object.assign({}, db[key].paymentInfo || {}, {
+                            statsViolationItems: arrestLabels,
+                            ...(shouldFlagLegacyPrePortal ? { legacyViolationItems: arrestLabels } : {})
+                        });
+                    }
+                }
+
                 await saveToServerData(db, key);
+                if (typeof refreshPostPaymentSummaryStats === 'function') refreshPostPaymentSummaryStats();
 
                 // تحديث اللقطة المرجعية لتعكس آخر حالة محفوظة فعليًا،
                 // حتى تُقاس أي عملية حفظ تالية في نفس الجلسة (بدون إعادة تحميل المحضر) بدقة.
@@ -5439,6 +5882,25 @@ if (window.isPresetRunning) return;
                 return;
             }
 
+            // محضر محفوظ (قرار «حفظ المحضر» في نظام التلبسات، بلا قرار غرامة): نطلب تأكيدًا
+            // صريحًا قبل الاستيراد، حتى لا يُستكمل سداد لمحضر مُغلَق دون انتباه المستخدم.
+            if (data.fineDecisionMode === 'save') {
+                showCustomConfirm(
+                    'هذا المحضر (' + caseNum + ' / ' + year + ' / ' + dept + ') تم حفظه في نظام التلبسات. هل تريد استخراج قرارات له؟',
+                    {
+                        title: 'محضر محفوظ',
+                        confirmText: 'استمرار',
+                        cancelText: 'إلغاء',
+                        onConfirm: function() { finishLookupMahdarImport(data, caseNum, year, dept); }
+                    }
+                );
+                return;
+            }
+
+            await finishLookupMahdarImport(data, caseNum, year, dept);
+        }
+
+        async function finishLookupMahdarImport(data, caseNum, year, dept) {
             try {
 
             // توحيد سلوك زر "بحث واستيراد" مع الاستيراد من قائمة المحاضر المحفوظة:
@@ -5566,6 +6028,17 @@ if (window.isPresetRunning) return;
                 }
             }
 
+            // محضر محفوظ: نتخطى أي قرار افتراضي اختاره applyPreset (لأن كل الأقرار الجاهزة
+            // مبنية على افتراض وجود غرامة)، ونضبط بطاقة قرار الغرامة على «تم حفظ المحضر»
+            // وبطاقة ملحوظة سداد الغرامة على «بدون غرامة»، بما يعكس واقع المحضر فعليًا.
+            if (data.fineDecisionMode === 'save') {
+                const fineTypeEl = document.getElementById('fine-type');
+                if (fineTypeEl) { fineTypeEl.value = 'save'; syncCustomSelectDisplay('fine-type'); }
+                updateFineText();
+                const fineReceiptTypeEl = document.getElementById('fine-receipt-type');
+                if (fineReceiptTypeEl) { fineReceiptTypeEl.value = 'no-fine-receipt'; syncCustomSelectDisplay('fine-receipt-type'); }
+                updateFineReceiptText();
+            }
 
             // ⑦ sync نهائي
                         if (typeof sync === 'function') sync();
@@ -6062,14 +6535,7 @@ function toggleTheme() {
 var currentArchiveTab = "";
 
 function buildArchiveTabs() {
-    var stations = ['مصر القديمة', 'السيدة زينب'];
-    try {
-        var cfg = JSON.parse(localStorage.getItem('niabat_config'));
-        if (cfg && Array.isArray(cfg.stations) && cfg.stations.length > 0) {
-            stations = cfg.stations;
-        }
-    } catch(e) {}
-    stations = stations.slice(0, 5);
+    var stations = getPortalStations();
     if (!currentArchiveTab || !stations.includes(currentArchiveTab)) {
         currentArchiveTab = stations[0];
     }
@@ -6133,6 +6599,971 @@ function isSessionRecord(d) {
     if (!d || !d.violations) return false;
     const text = Array.isArray(d.violations) ? d.violations.join(' | ') : String(d.violations);
     return SESSION_KEYWORDS.some(function(kw) { return text.includes(kw); });
+}
+
+
+function switchCaseSummaryTab(tab) {
+    const isStatistics = tab === 'statistics';
+    const mainTab = document.getElementById('summaryMainTab');
+    const statsTab = document.getElementById('summaryStatsTab');
+    const mainPane = document.getElementById('summaryMainPane');
+    const statsPane = document.getElementById('summaryStatsPane');
+    if (!mainTab || !statsTab || !mainPane || !statsPane) return;
+    mainTab.classList.toggle('active', !isStatistics);
+    statsTab.classList.toggle('active', isStatistics);
+    mainTab.setAttribute('aria-selected', String(!isStatistics));
+    statsTab.setAttribute('aria-selected', String(isStatistics));
+    mainPane.classList.toggle('active', !isStatistics);
+    statsPane.classList.toggle('active', isStatistics);
+    mainPane.setAttribute('aria-hidden', String(isStatistics));
+    statsPane.setAttribute('aria-hidden', String(!isStatistics));
+    if (isStatistics) refreshPostPaymentSummaryStats();
+}
+
+function summaryStatsTodayISO(date) {
+    const d = date || new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+function initializePostPaymentSummaryStatsPeriod() {
+    const fromEl = document.getElementById('summaryStatsFrom');
+    const toEl = document.getElementById('summaryStatsTo');
+    const today = new Date();
+    if (fromEl && !fromEl.value) fromEl.value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-01`;
+    if (toEl && !toEl.value) toEl.value = summaryStatsTodayISO(today);
+}
+
+function parseSummaryStatsSavedDate(value) {
+    if (!value) return '';
+    let dateText = String(value).split(/[,،]/)[0].trim()
+        .replace(/[\u061c\u200e\u200f\u202a-\u202e\u2066-\u2069]/g, '')
+        .replace(/[٠-٩]/g, digit => String('٠١٢٣٤٥٦٧٨٩'.indexOf(digit)))
+        .replace(/[۰-۹]/g, digit => String('۰۱۲۳۴۵۶۷۸۹'.indexOf(digit)))
+        .trim();
+    let year, month, day;
+    let match = dateText.match(/^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})$/);
+    if (match) { year=Number(match[1]); month=Number(match[2]); day=Number(match[3]); }
+    else {
+        match = dateText.match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{4})$/);
+        if (!match) return '';
+        day=Number(match[1]); month=Number(match[2]); year=Number(match[3]);
+    }
+    const parsed = new Date(year, month - 1, day);
+    if (parsed.getFullYear() !== year || parsed.getMonth() !== month - 1 || parsed.getDate() !== day) return '';
+    return `${String(year).padStart(4,'0')}-${String(month).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+}
+
+// يصنف المحضر المسدد بحسب تاريخ الواقعة، وعند غيابه يستخدم سنة المحضر.
+// المحضر القديم بلا تاريخ واقعة لكن سنته هي سنة السداد يصنف ضمن الشهور السابقة؛
+// أما إن كانت سنة المحضر أقدم من سنة السداد فيصنف ضمن السنوات السابقة.
+function getPaidAgeCategoryForStats(record, savedDate) {
+    const paymentDate = parseSummaryStatsSavedDate(savedDate);
+    if (!paymentDate) return 'current';
+
+    const incidentDate = parseSummaryStatsSavedDate(record && (record.incidentDate || record.date));
+    if (incidentDate) {
+        const incidentYear = incidentDate.slice(0, 4);
+        const incidentMonth = incidentDate.slice(5, 7);
+        const paymentYear = paymentDate.slice(0, 4);
+        const paymentMonth = paymentDate.slice(5, 7);
+        if (incidentYear !== paymentYear) return 'prevYear';
+        if (incidentMonth !== paymentMonth) return 'prevMonth';
+        return 'current';
+    }
+
+    const isLegacyPrePortal = !!(record && (record.legacyPrePortal || (record.paymentInfo && record.paymentInfo.legacyPrePortal)));
+    const rawYear = String(record && record.year || '')
+        .replace(/[٠-٩]/g, d => String('٠١٢٣٤٥٦٧٨٩'.indexOf(d)))
+        .replace(/[۰-۹]/g, d => String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d)));
+    const yearMatch = rawYear.match(/(?:19|20)\d{2}/) || rawYear.match(/\d{4}/);
+    const caseYear = yearMatch ? yearMatch[0] : '';
+    const paymentYear = paymentDate.slice(0, 4);
+
+    if (caseYear && caseYear !== paymentYear) {
+        return Number(caseYear) < Number(paymentYear) ? 'prevYear' : 'current';
+    }
+    if (caseYear === paymentYear) {
+        return isLegacyPrePortal ? 'prevMonth' : 'current';
+    }
+    // للمحاضر القديمة جدًا التي لا يتوفر لها تاريخ واقعة أو سنة موثقة، نحافظ
+    // على التصنيف الاحتياطي السابق بدل إسقاطها من كروت الفترات السابقة.
+    return isLegacyPrePortal ? 'prevYear' : 'current';
+}
+
+let postPaymentSummaryStatsRequest = 0;
+function getPortalStations() {
+    var fallback = ['مصر القديمة', 'السيدة زينب'];
+    try {
+        var cfg = JSON.parse(localStorage.getItem('niabat_config'));
+        if (cfg && Array.isArray(cfg.stations)) {
+            return Array.from(new Set(cfg.stations.map(function(name) { return String(name || '').trim(); }).filter(Boolean)));
+        }
+    } catch(e) {}
+    return fallback;
+}
+function getSummaryStatsStations() {
+    return getPortalStations();
+}
+function summaryStatsNormDept(v) {
+    return String(v || '')
+        .trim()
+        .replace(/[\u064B-\u065F\u0670\u0640]/g, '') // إزالة التشكيل والتطويل
+        .replace(/[إأآا]/g, 'ا')  // توحيد أشكال الألف
+        .replace(/ى/g, 'ي')       // ألف مقصورة -> ياء
+        .replace(/ة/g, 'ه')       // تاء مربوطة -> هاء
+        .replace(/\s+/g, ' ')
+        .trim()
+        .replace(/^(?:قسم\s*شرطه|قسم)\s+/u, '') // إزالة بادئة "قسم شرطة/قسم" إن وجدت
+        .replace(/^ال/, '')       // إزالة "ال" التعريف من أول الاسم
+        .trim();
+}
+// مطابقة موحّدة بين اسم القسم في محضر ما (record.dept) وقائمة أقسام النيابة (stations)،
+// تُستخدم في كل أماكن حساب الإحصائية (المسدد/الغير مسدد/الجلسات/المحفوظة/شهور وسنوات سابقة) وورقة الطباعة معًا،
+// حتى لا يختلف سلوك المطابقة بين مكان وآخر. تجرّب أولاً تطابقًا تامًا، ثم احتواء نصيًا بأي من الاتجاهين
+// (تحسبًا لفروق طول النص المخزّن بين الاثنين، مثل بادئة إضافية في أحدهما).
+function summaryStatsFindStation(record, stations) {
+    const dDept = summaryStatsNormDept(record && (record.dept || record.department));
+    if (!dDept) return null;
+    let found = stations.find(function(st) { return summaryStatsNormDept(st) === dDept; });
+    if (found) return found;
+    found = stations.find(function(st) {
+        const normSt = summaryStatsNormDept(st);
+        return normSt && (dDept.includes(normSt) || normSt.includes(dDept));
+    });
+    return found || null;
+}
+function formatSummaryStatsMoney(value) {
+    const amount = Number(value);
+    if (!Number.isFinite(amount)) return '0';
+    return (Math.round((amount + Number.EPSILON) * 100) / 100).toLocaleString('ar-EG', { maximumFractionDigits: 2, useGrouping: false });
+}
+function summaryStatsCategoryForCard(containerId) {
+    return ({
+        summaryStatsPaid:'paid', summaryStatsUnpaid:'unpaid', summaryStatsSessions:'sessions',
+        summaryStatsSaved:'saved', summaryStatsPrevMonth:'prevMonth', summaryStatsPrevYear:'prevYear'
+    })[containerId] || '';
+}
+const SUMMARY_STATS_DETAIL_LABELS = {
+    paid:'المحاضر المسددة', unpaid:'المحاضر غير المسددة', sessions:'محاضر الجلسات', saved:'المحاضر المحفوظة',
+    prevMonth:'المحاضر المسددة عن شهور سابقة', prevYear:'المحاضر المسددة عن سنوات سابقة'
+};
+let postPaymentSummaryStatsDetails = {};
+let summaryStatsDetailsReturnFocus = null;
+function summaryStatsSetCountAction(element, category, station, enabled) {
+    if (!element) return;
+    if (!enabled || !category) {
+        element.classList.remove('summary-stat-count-action');
+        element.removeAttribute('role'); element.removeAttribute('tabindex');
+        element.removeAttribute('aria-label'); element.removeAttribute('title');
+        element.onclick = null; element.onkeydown = null;
+        return;
+    }
+    const scope = station ? 'قسم ' + station : 'جميع الأقسام';
+    const label = SUMMARY_STATS_DETAIL_LABELS[category] || 'المحاضر';
+    element.classList.add('summary-stat-count-action');
+    element.setAttribute('role', 'button'); element.setAttribute('tabindex', '0');
+    element.setAttribute('aria-label', 'عرض ' + label + ' — ' + scope);
+    element.title = 'اضغط لعرض ' + label + ' — ' + scope;
+    element.onclick = function(event) { if (event) event.stopPropagation(); openSummaryStatsDetails(category, station || ''); };
+    element.onkeydown = function(event) {
+        if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); openSummaryStatsDetails(category, station || ''); }
+    };
+}
+function summaryStatsNumber(value) {
+    const normalized = String(value == null ? '' : value)
+        .replace(/[٠-٩]/g, d => String('٠١٢٣٤٥٦٧٨٩'.indexOf(d)))
+        .replace(/[۰-۹]/g, d => String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d)))
+        .replace(/[٬,،]/g, '').replace(/[^0-9.\-]/g, '');
+    const parsed = parseFloat(normalized);
+    return Number.isFinite(parsed) ? parsed : 0;
+}
+function summaryStatsFormatDisplayDate(value) {
+    const iso = parseSummaryStatsSavedDate(value);
+    if (iso) { const p = iso.split('-'); return p[2] + '/' + p[1] + '/' + p[0]; }
+    return String(value || '').trim() || '—';
+}
+function summaryStatsEstimateIncidentMonth(caseNumValue, yearValue) {
+    const number = summaryStatsNumber(caseNumValue);
+    const yearDigits = String(yearValue || '')
+        .replace(/[٠-٩]/g, d => String('٠١٢٣٤٥٦٧٨٩'.indexOf(d)))
+        .replace(/[۰-۹]/g, d => String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d)));
+    const yearMatch = yearDigits.match(/(?:19|20)\d{2}/) || yearDigits.match(/\d{4}/);
+    if (!Number.isFinite(number) || number <= 0 || !yearMatch) return {display:'غير متاح', sortDate:''};
+    const monthIndex = Math.floor((number - 1) / 50);
+    // لا يخرج التقدير عن سنة المحضر: كل الأرقام بعد 600 تبقى في ديسمبر.
+    const month = Math.min(monthIndex, 11) + 1;
+    const year = Number(yearMatch[0]);
+    const mm = String(month).padStart(2, '0');
+    return {display:mm + '/' + year + ' (تقديري)', sortDate:String(year).padStart(4, '0') + '-' + mm + '-01'};
+}
+function summaryStatsDetailCharge(record) {
+    const sources = record ? [record.violations, record.arrestItems, record.accusation, record.charge, record.crime, record.arrestReason] : [];
+    const source = sources.find(function(value) {
+        return Array.isArray(value) ? value.length > 0 : !!String(value || '').trim();
+    });
+    if (!source) return '—';
+    const items = typeof expandPaidViolationItems === 'function' ? expandPaidViolationItems(source) : (Array.isArray(source) ? source : [source]);
+    const labels = items.map(function(item) {
+        const label = String(item && (item.label || item.text || item.code) || item || '').trim();
+        if (!label) return '';
+        const match = label.match(/(?:^|[([])\s*(\d{1,3})\s*[)\]]?\s*$/);
+        const code = String(item && typeof item === 'object' && item.code || (match && match[1]) || label);
+        const offense = typeof fineAmountsDB !== 'undefined' && fineAmountsDB ? fineAmountsDB[code] : null;
+        return offense && offense.text ? String(offense.text) : label;
+    }).filter(Boolean);
+    return labels.length ? labels.join('، ') : '—';
+}
+function summaryStatsBuildCaseDetail(key, record, category) {
+    const payment = record.paymentInfo || {};
+    const caseNum = String(record.caseNum || '').trim() || '—';
+    const year = String(record.year || '').trim();
+    const exactIncidentDate = parseSummaryStatsSavedDate(record.incidentDate || record.date);
+    const estimatedIncidentDate = exactIncidentDate ? null : summaryStatsEstimateIncidentMonth(caseNum, year);
+    const incidentDateDisplay = exactIncidentDate ? summaryStatsFormatDisplayDate(exactIncidentDate) : estimatedIncidentDate.display;
+    const incidentDateSort = exactIncidentDate || estimatedIncidentDate.sortDate;
+    let fine = 0;
+    if (category === 'paid' || category === 'prevMonth' || category === 'prevYear') {
+        fine = getPaidAmountBreakdownForStats(record).fines;
+    } else if (category !== 'sessions') {
+        fine = summaryStatsNumber(record.fine || record.fineAmount || payment.decidedFineAmount || record.decidedFineAmount);
+    }
+    const hearingDate = record.jalsaDate || record.sessionDate || payment.sessionDate || payment.jalsaDate || record.linkedSessionDate || '';
+    return {
+        key:String(key || ''), caseNum:caseNum, year:year, name:String(record.name || record.accusedName || '').trim() || '—',
+        date:incidentDateDisplay, sortDate:incidentDateSort, charge:summaryStatsDetailCharge(record),
+        fine:Number(fine) || 0, hearingDate:summaryStatsFormatDisplayDate(hearingDate),
+        station:String(record.dept || record.department || '').trim() || '—'
+    };
+}
+function summaryStatsPushDetail(details, category, station, key, record) {
+    if (!details[category]) details[category] = {};
+    if (!details[category][station]) details[category][station] = [];
+    details[category][station].push(summaryStatsBuildCaseDetail(key, record, category));
+}
+function openSummaryStatsDetails(category, station) {
+    const overlay = document.getElementById('summary-stats-details-overlay');
+    const title = document.getElementById('summary-stats-details-title');
+    const period = document.getElementById('summary-stats-details-period');
+    const dateNote = document.getElementById('summary-stats-details-date-note');
+    const count = document.getElementById('summary-stats-details-count');
+    const body = document.getElementById('summary-stats-details-body');
+    if (!overlay || !body) return;
+    const byStation = postPaymentSummaryStatsDetails[category] || {};
+    const cases = station ? (byStation[station] || []).slice() : Object.keys(byStation).flatMap(function(name) { return byStation[name] || []; });
+    cases.sort(function(a,b) { return String(b.sortDate || '').localeCompare(String(a.sortDate || '')) || String(a.caseNum).localeCompare(String(b.caseNum), 'ar', {numeric:true}); });
+    if (title) title.textContent = (SUMMARY_STATS_DETAIL_LABELS[category] || 'المحاضر') + ' — ' + (station || 'جميع الأقسام');
+    const from = (document.getElementById('summaryStatsFrom') || {}).value || '—';
+    const to = (document.getElementById('summaryStatsTo') || {}).value || '—';
+    if (period) period.textContent = 'الفترة المحددة: ' + from + ' إلى ' + to;
+    if (dateNote) dateNote.textContent = 'التاريخ المعروض هو تاريخ الواقعة إن كان مسجلًا؛ وإلا فالشهر/السنة تقديريان من رقم المحضر وسنته، ولا يُستخدم تاريخ الحفظ.';
+    if (count) count.textContent = 'عدد المحاضر: ' + cases.length.toLocaleString('ar-EG');
+    if (!cases.length) {
+        body.innerHTML = '<div class="summary-stats-details-empty">لا توجد محاضر مطابقة لهذه الإحصائية في الفترة المحددة.</div>';
+    } else {
+        const rows = cases.map(function(item) {
+            return '<tr>' +
+                '<td class="details-case-number">' + summaryStatsPrintEsc(item.caseNum + (item.year ? ' / ' + item.year : '')) + '</td>' +
+                '<td>' + summaryStatsPrintEsc(item.name) + '</td>' +
+                '<td>' + summaryStatsPrintEsc(item.date) + '</td>' +
+                '<td class="details-charge">' + summaryStatsPrintEsc(item.charge) + '</td>' +
+                '<td class="details-money">' + (item.fine > 0 ? summaryStatsPrintEsc(formatSummaryStatsMoney(item.fine) + ' ج') : '—') + '</td>' +
+                '<td>' + summaryStatsPrintEsc(item.hearingDate) + '</td>' +
+                (station ? '' : '<td>' + summaryStatsPrintEsc(item.station) + '</td>') +
+                '</tr>';
+        }).join('');
+        body.innerHTML = '<table class="summary-stats-details-table"><thead><tr>' +
+            '<th>رقم المحضر</th><th>اسم المتهم</th><th>تاريخ الواقعة</th><th>التهمة / سبب الضبط</th><th>قيمة الغرامة</th><th>تاريخ الجلسة</th>' +
+            (station ? '' : '<th>القسم</th>') + '</tr></thead><tbody>' + rows + '</tbody></table>';
+    }
+    summaryStatsDetailsReturnFocus = document.activeElement;
+    overlay.classList.add('show'); overlay.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    const close = overlay.querySelector('.summary-stats-details-close');
+    if (close) close.focus();
+}
+function closeSummaryStatsDetails() {
+    const overlay = document.getElementById('summary-stats-details-overlay');
+    if (!overlay) return;
+    overlay.classList.remove('show'); overlay.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    if (summaryStatsDetailsReturnFocus && typeof summaryStatsDetailsReturnFocus.focus === 'function') summaryStatsDetailsReturnFocus.focus();
+}
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        const overlay = document.getElementById('summary-stats-details-overlay');
+        if (overlay && overlay.classList.contains('show')) closeSummaryStatsDetails();
+    }
+});
+
+function renderSummaryStatsCard(containerId, stations, counts, amounts, fineAmounts, courtFeeAmounts) {
+    const box = document.getElementById(containerId);
+    if (!box) return;
+    box.innerHTML = '';
+    const isPaidCard = containerId === 'summaryStatsPaid';
+    const isFinancialBreakdownCard = isPaidCard || containerId === 'summaryStatsPrevMonth' || containerId === 'summaryStatsPrevYear';
+    // الكروت اللي بتاخد نفس تصميم صف "اسم القسم + بادچ العدد" وفصل الغرامات (يمين) عن
+    // المصاريف (يسار) في خانة كل قسم — كارت المسددة، وكارت المسددة عن شهور سابقة.
+    const useStationHeadSplit = containerId === 'summaryStatsPaid' || containerId === 'summaryStatsPrevMonth' || containerId === 'summaryStatsPrevYear';
+    let totalEl = box.parentNode.querySelector('.summary-stat-total');
+    if (!totalEl) {
+        totalEl = document.createElement('div');
+        totalEl.className = 'summary-stat-total';
+        totalEl.innerHTML = '<span class="summary-stat-total-name">الإجمالي</span><span class="summary-stat-total-count" style="flex:1;"></span>';
+        box.parentNode.appendChild(totalEl);
+    }
+
+    const totalCountNode = totalEl.querySelector('.summary-stat-total-count');
+    const detailCategory = summaryStatsCategoryForCard(containerId);
+    totalCountNode.style.direction = 'rtl';
+    totalCountNode.style.width = '100%';
+
+    if (isFinancialBreakdownCard) {
+        totalEl.classList.add('summary-stat-paid-detail', 'summary-stat-financial-detail');
+        totalEl.querySelector('.summary-stat-total-name').textContent = 'تفصيل المبلغ';
+        const sumByStation = function(source) {
+            return counts === null || !source ? null : stations.reduce(function(sum, st) { return sum + (Number(source[st]) || 0); }, 0);
+        };
+        const countValue = counts === null
+            ? '—'
+            : stations.reduce(function(sum, st) { return sum + (counts[st] || 0); }, 0).toLocaleString('ar-EG');
+        const fineSum = sumByStation(fineAmounts);
+        const feeSum = sumByStation(courtFeeAmounts);
+        const fineValue = fineSum === null ? '—' : formatSummaryStatsMoney(fineSum);
+        const feeValue = feeSum === null ? '—' : formatSummaryStatsMoney(feeSum);
+        const totalValue = counts === null ? '—' : formatSummaryStatsMoney(stations.reduce(function(sum, st) { return sum + (amounts && Number(amounts[st]) || 0); }, 0));
+        totalCountNode.innerHTML = `
+            <div class="total-split-container total-split-breakdown">
+                <div class="total-split-block"><span class="total-split-label">العدد الاجمالي</span><span class="total-split-value" dir="ltr">${countValue}</span></div>
+                <div class="total-split-divider"></div>
+                <div class="total-split-block"><span class="total-split-label">الـغـرامـات<br> (المبلغ)</span><span class="total-split-value" dir="ltr">${fineValue} <span class="total-split-currency">ج</span></span></div>
+                <div class="total-split-divider"></div>
+                <div class="total-split-block"><span class="total-split-label">الرسوم القضائية (المصاريف)</span><span class="total-split-value" dir="ltr">${feeValue} <span class="total-split-currency">ج</span></span></div>
+            </div>`;
+        summaryStatsSetCountAction(totalCountNode.querySelector('.total-split-block:first-child .total-split-value'), detailCategory, '', counts !== null);
+
+        let grandTotalEl = box.parentNode.querySelector('.summary-stat-grand-total');
+        if (!grandTotalEl) {
+            grandTotalEl = document.createElement('div');
+            grandTotalEl.className = 'summary-stat-grand-total';
+            grandTotalEl.innerHTML = '<span class="summary-stat-grand-total-name">المبلغ الإجمالي</span><span class="summary-stat-grand-total-value" dir="ltr"></span>';
+            box.parentNode.appendChild(grandTotalEl);
+        }
+        const grandValue = grandTotalEl.querySelector('.summary-stat-grand-total-value');
+        grandValue.innerHTML = `${totalValue} <span class="summary-stat-grand-total-currency">ج</span>`;
+    } else {
+        totalEl.classList.remove('summary-stat-paid-detail', 'summary-stat-financial-detail');
+        totalEl.querySelector('.summary-stat-total-name').textContent = 'الإجمالي';
+        const grandTotalEl = box.parentNode.querySelector('.summary-stat-grand-total');
+        if (grandTotalEl) grandTotalEl.remove();
+        if (amounts) {
+            const totalCount = counts === null ? '—' : stations.reduce(function(sum, st) { return sum + (counts[st] || 0); }, 0).toLocaleString('ar-EG');
+            const totalAmount = counts === null ? '—' : formatSummaryStatsMoney(stations.reduce(function(sum, st) { return sum + (amounts[st] || 0); }, 0));
+            totalCountNode.innerHTML = `
+                <div class="total-split-container">
+                    <div class="total-split-block"><span class="total-split-label">العدد</span><span class="total-split-value" dir="ltr">${totalCount}</span></div>
+                    <div class="total-split-divider"></div>
+                    <div class="total-split-block"><span class="total-split-label">المبلغ</span><span class="total-split-value amount" dir="ltr">${totalAmount} <span style="font-size:10px; margin-right:1px;">ج</span></span></div>
+                </div>`;
+            summaryStatsSetCountAction(totalCountNode.querySelector('.total-split-block:first-child .total-split-value'), detailCategory, '', counts !== null);
+        } else {
+            totalCountNode.textContent = counts === null ? '—' : stations.reduce(function(sum, st) { return sum + (counts[st] || 0); }, 0).toLocaleString('ar-EG');
+            totalCountNode.style.textAlign = 'center';
+            summaryStatsSetCountAction(totalCountNode, detailCategory, '', counts !== null);
+        }
+    }
+
+    stations.forEach(function(name) {
+        const cell = document.createElement('div');
+        cell.className = 'summary-stat-station';
+        const n = document.createElement('div');
+        n.className = 'summary-stat-station-name';
+        n.textContent = name;
+        const c = document.createElement('div');
+        c.className = 'summary-stat-station-count';
+        c.style.direction = 'rtl';
+        if (amounts && useStationHeadSplit) {
+            // العدد بجوار اسم القسم في نفس الصف، وتحته غرامات القسم ومصاريفه منفصلين.
+            const countVal = counts === null ? '—' : (counts[name] || 0).toLocaleString('ar-EG');
+            const amountVal = counts === null ? '—' : formatSummaryStatsMoney(amounts[name] || 0);
+            const head = document.createElement('div');
+            head.className = 'stat-station-head';
+            const div = document.createElement('div');
+            div.className = 'stat-station-head-divider';
+            const cnt = document.createElement('div');
+            cnt.className = 'stat-station-head-count';
+            cnt.title = 'العدد';
+            cnt.textContent = countVal;
+            head.appendChild(n);
+            head.appendChild(div);
+            head.appendChild(cnt);
+            summaryStatsSetCountAction(cnt, detailCategory, name, counts !== null);
+            // الغرامات (يمين) | فاصل | المصاريف (يسار) — لكل قسم على حدة
+            const fineVal = counts === null ? '—' : formatSummaryStatsMoney((fineAmounts && fineAmounts[name]) || 0);
+            const feeVal = counts === null ? '—' : formatSummaryStatsMoney((courtFeeAmounts && courtFeeAmounts[name]) || 0);
+            c.innerHTML = `<div class="stat-fee-split" title="الإجمالي: ${amountVal} ج">
+                <div class="stat-fee-part stat-fee-fines" title="الغرامات"><span class="stat-fee-label">غرامات</span><span class="stat-fee-value" dir="ltr">${fineVal}</span></div>
+                <div class="stat-fee-divider"></div>
+                <div class="stat-fee-part stat-fee-fees" title="المصاريف (الرسوم القضائية)"><span class="stat-fee-label">مصاريف</span><span class="stat-fee-value" dir="ltr">${feeVal}</span></div>
+            </div>`;
+            cell.appendChild(head);
+            cell.appendChild(c);
+            box.appendChild(cell);
+            return;
+        }
+        if (amounts) {
+            const countVal = counts === null ? '—' : (counts[name] || 0).toLocaleString('ar-EG');
+            const amountVal = counts === null ? '—' : formatSummaryStatsMoney(amounts[name] || 0);
+            c.innerHTML = `<div class="stat-split-container"><div class="stat-split-count" title="العدد">${countVal}</div><div class="stat-split-amount" title="المبلغ الإجمالي للغرامات والرسوم">${amountVal} <span style="font-size:9px;">ج</span></div></div>`;
+        } else {
+            c.textContent = counts === null ? '—' : (counts[name] || 0).toLocaleString('ar-EG');
+        }
+        cell.appendChild(n);
+        cell.appendChild(c);
+        const stationCountAction = amounts ? c.querySelector('.stat-split-count') : c;
+        summaryStatsSetCountAction(stationCountAction, detailCategory, name, counts !== null);
+        box.appendChild(cell);
+    });
+}
+function normalizeSummaryFineViolation(value) {
+    return String(value || '')
+        .normalize('NFKC')
+        .replace(/[٠-٩]/g, function(d) { return String('٠١٢٣٤٥٦٧٨٩'.indexOf(d)); })
+        .replace(/[ً-ٰٟـ]/g, '')
+        .replace(/[أإآٱ]/g, 'ا')
+        .replace(/ى/g, 'ي')
+        .replace(/ة/g, 'ه')
+        .replace(/[^\p{L}\p{N}]+/gu, ' ')
+        .trim();
+}
+
+function expandPaidViolationItems(violations) {
+    if (Array.isArray(violations)) return violations.flat(Infinity);
+    if (violations && typeof violations === 'object') {
+        if (violations.label || violations.text || violations.code) return [violations];
+        return Object.values(violations).flat(Infinity);
+    }
+    const raw = String(violations || '').trim();
+    if (!raw) return [];
+    // بعض الأرشيفات قد تحفظ القائمة كنص JSON بدل مصفوفة مباشرة.
+    if (raw[0] === '[' || raw[0] === '{') {
+        try {
+            const parsed = JSON.parse(raw);
+            if (parsed !== raw) return expandPaidViolationItems(parsed);
+        } catch (e) {}
+    }
+    // ادعم النصوص متعددة الأسطر/المفصولة، مع الحفاظ على كل بند كعنصر مستقل.
+    return raw.replace(/<br\s*\/?\s*>/gi, '\n')
+        .replace(/<\/li>\s*<li[^>]*>/gi, '\n')
+        .replace(/^\s*<li[^>]*>|<\/li>\s*$/gi, '')
+        .split(/(?:\r?\n|[,،;؛|•])+/)
+        .map(function(item) { return item.replace(/^\s*\d+\s*[-.)、:：]\s*/, '').trim(); })
+        .filter(Boolean);
+}
+
+// إجمالي المسدد: تُحسب جميع البنود في المحضر، ويضاف الرسم القضائي إلى كل بند على حدة.
+// قيمة 50 جنيهًا أو أقل: 1.5 جنيه رسوم؛ وما فوق 50 جنيهًا: 5 جنيهات رسوم.
+function calculatePaidViolationBreakdown(violations) {
+    if (typeof fineAmountsDB === 'undefined' || !fineAmountsDB) return { fines: 0, courtFees: 0, total: 0 };
+    const entries = Object.keys(fineAmountsDB).map(function(code) {
+        return { code: String(code), amount: Number(fineAmountsDB[code] && fineAmountsDB[code].amount) || 0,
+                 text: fineAmountsDB[code] && fineAmountsDB[code].text || '' };
+    });
+    const items = expandPaidViolationItems(violations);
+    let fines = 0;
+    let courtFees = 0;
+    items.forEach(function(item) {
+        const label = String(item && (item.label || item.text || item.code) || item || '').trim();
+        if (!label) return;
+        const explicitCode = item && typeof item === 'object' ? String(item.code || '') : '';
+        const suffixCode = label.match(/(?:^|[([])\s*(\d{1,3})\s*[)\]]?\s*$/);
+        const code = explicitCode || (suffixCode ? suffixCode[1] : label);
+        let offense = fineAmountsDB[code];
+        const normalized = normalizeSummaryFineViolation(label);
+        if (!offense) {
+            offense = entries.find(function(entry) {
+                return normalizeSummaryFineViolation(entry.text) === normalized;
+            });
+        }
+        if (!offense) return;
+        const amount = Number(offense.amount) || 0;
+        if (amount <= 0) return;
+        fines += amount;
+        courtFees += amount > 50 ? 5 : 1.5;
+    });
+    fines = Math.round(fines * 100) / 100;
+    courtFees = Math.round(courtFees * 100) / 100;
+    return { fines: fines, courtFees: courtFees, total: Math.round((fines + courtFees) * 100) / 100 };
+}
+
+function calculatePaidViolationTotal(violations) {
+    return calculatePaidViolationBreakdown(violations).total;
+}
+
+// حساب مبلغ المحضر المسدد للإحصائية.
+// المسار الأساسي (لكل المحاضر، القديمة والعادية على حدٍ سواء): calculatePaidViolationBreakdown
+// تقرأ record.violations (بنود المخالفات الرسمية)، وتطابق كل بند بقاموس الغرامات fineAmountsDB،
+// وتضيف الرسم القضائي المناسب لكل بند على حدة (فوق 50ج → +5ج، 50ج أو أقل → +1.5ج) ثم تجمعها.
+// للمحاضر القديمة (legacyPrePortal) التي تُسجَّل من هنا مباشرة، نغذي نفس الحقل (violations) من
+// بنود "سبب الضبط" المُختارة (arrestItems) وقت الحفظ، فتُحسب بنفس الطريقة تمامًا دون أي استثناء.
+// مسار احتياطي فقط (fallback): لو المحضر قديم (legacyPrePortal) ولم تُحتسب أي بنود مخالفات مطابقة
+// (مثلاً لم يُسجَّل أي بند في "سبب الضبط" أو لم يتطابق نصه مع القاموس)، نستخدم "قيمة الغرامة"
+// المقررة في بطاقة "قرار الغرامة" نفسها (decidedFineAmount) — وليس مبلغ قسيمة السداد الفعلي
+// (fineAmount)، لأن قسيمة السداد قد تشمل مبالغ إضافية لا علاقة لها بغرامة المحضر (مثل رسوم
+// الخدمة المميكنة) — ونطبّق عليها نفس قاعدة الرسم القضائي باعتبارها "بندًا" واحدًا.
+function getPaidAmountBreakdownForStats(record) {
+    const isLegacyPrePortal = !!(record && (record.legacyPrePortal || (record.paymentInfo && record.paymentInfo.legacyPrePortal)));
+    const pi = (record && record.paymentInfo) || {};
+    // قائمة البنود التي حُفظت من بطاقة سبب الضبط عند تسجيل/سداد المحضر هي
+    // المرجع الأحدث؛ احسب رسمًا لكل بند منها بدل رسم واحد على إجمالي الغرامة.
+    const storedItemsBreakdown = [pi.statsViolationItems, pi.legacyViolationItems, pi.arrestItems, pi.violations]
+        .map(calculatePaidViolationBreakdown)
+        .find(function(result) { return result.total > 0; });
+    if (storedItemsBreakdown) return storedItemsBreakdown;
+
+    const breakdown = calculatePaidViolationBreakdown(record && record.violations);
+    if (breakdown.total > 0) return breakdown;
+    if (!isLegacyPrePortal) return breakdown;
+
+    const decidedFine = Math.round((parseFloat(pi.decidedFineAmount) || 0) * 100) / 100;
+    if (decidedFine <= 0) return { fines: 0, courtFees: 0, total: 0 };
+
+    const courtFee = decidedFine > 50 ? 5 : 1.5;
+    return {
+        fines: decidedFine,
+        courtFees: courtFee,
+        total: Math.round((decidedFine + courtFee) * 100) / 100
+    };
+}
+async function refreshPostPaymentSummaryStats() {
+    const errorEl = document.getElementById('summaryStatsError');
+    const fromEl = document.getElementById('summaryStatsFrom');
+    const toEl = document.getElementById('summaryStatsTo');
+    if (!document.getElementById('summaryStatsPaid') || !fromEl || !toEl) return;
+    const stations = getSummaryStatsStations();
+    const requestId = ++postPaymentSummaryStatsRequest;
+    const fromDate = fromEl.value;
+    const toDate = toEl.value;
+    if (errorEl) errorEl.textContent = '';
+    if (!fromDate || !toDate || fromDate > toDate) {
+        postPaymentSummaryStatsDetails = {};
+        if (errorEl) errorEl.textContent = 'يرجى تحديد فترة صحيحة من تاريخ وإلى تاريخ.';
+        ['summaryStatsPaid','summaryStatsUnpaid','summaryStatsSessions','summaryStatsSaved','summaryStatsPrevMonth','summaryStatsPrevYear'].forEach(function(id){ renderSummaryStatsCard(id, stations, null); });
+        return;
+    }
+    try {
+        const db = await fetchServerData();
+        if (requestId !== postPaymentSummaryStatsRequest) return;
+        const index = Array.isArray(db.mahdar_index) ? db.mahdar_index : [];
+        const seen = new Set();
+        const paid = {}, unpaid = {}, sessions = {}, saved = {};
+        const prevMonth = {}, prevYear = {};
+        const details = {paid:{}, unpaid:{}, sessions:{}, saved:{}, prevMonth:{}, prevYear:{}};
+        stations.forEach(function(stationName) {
+            Object.keys(details).forEach(function(category) { details[category][stationName] = []; });
+        });
+        const paidAmounts = {};
+        const prevMonthAmounts = {}, prevYearAmounts = {};
+        const paidFineAmounts = {};
+        const paidCourtFeeAmounts = {};
+        const prevMonthFineAmounts = {}, prevMonthCourtFeeAmounts = {};
+        const prevYearFineAmounts = {}, prevYearCourtFeeAmounts = {};
+        const unpaidAmounts = {}; // كائن جديد لحفظ المبالغ الغير مسددة
+        
+        index.forEach(function(key) {
+            if (seen.has(key)) return;
+            seen.add(key);
+            const record = db[key];
+            if (!record || typeof record !== 'object') return;
+            if (record.reportMode === 'objection' || record.reportMode === 'bail_reduction' ||
+                /__(objection|bail_reduction)(__bail_reduction)?$/.test(String(key))) return;
+            const savedDate = parseSummaryStatsSavedDate(record.savedAt);
+            if (!savedDate || savedDate < fromDate || savedDate > toDate) return;
+            const station = summaryStatsFindStation(record, stations);
+            if (!station) return;
+            const isSession = typeof isSessionRecord === 'function' && isSessionRecord(record);
+            const isPaid = !!(record.paymentInfo && record.paymentInfo.paid);
+            const isArchived = record.fineDecisionMode === 'save';
+
+            // محضر تم حفظه (قرار «حفظ المحضر» في نظام التلبسات) يدخل في عداد المحفوظة فقط،
+            // ولا يدخل ضمن المسدد أو غير المسدد أو الجلسات.
+            if (isArchived) {
+                saved[station] = (saved[station] || 0) + 1;
+                summaryStatsPushDetail(details, 'saved', station, key, record);
+                return;
+            }
+
+            // محضر الجلسة يدخل في عداد الجلسات فقط، ولا يدخل ضمن المسدد أو غير المسدد.
+            if (isSession) {
+                sessions[station] = (sessions[station] || 0) + 1;
+                summaryStatsPushDetail(details, 'sessions', station, key, record);
+                return;
+            }
+
+            if (isPaid) {
+                // لا نجمع مبالغ حقول الإيصالات؛ نستخدم قاموس الغرامات الحالي ونضيف الرسم لكل بند
+                // (إلا في حالة محضر قديم بلا بنود مخالفات رسمية، فنرجع لمبلغ القسيمة الفعلي).
+                const breakdown = getPaidAmountBreakdownForStats(record);
+                const ageCategory = getPaidAgeCategoryForStats(record, savedDate);
+                // كل محضر مسدد يُحسب في كارت واحد بس، بنفس منطق ورقة الطباعة تمامًا: لو كان
+                // "شهر سابق" أو "سنة سابقة" يُحسب في كارته المخصصة فقط، وإلا يُحسب في كارت
+                // "المسددة" العادي — تفاديًا لازدواج نفس المحضر في أكتر من كارت.
+                if (ageCategory === 'prevMonth') {
+                    prevMonth[station] = (prevMonth[station] || 0) + 1;
+                    summaryStatsPushDetail(details, 'prevMonth', station, key, record);
+                    prevMonthAmounts[station] = (prevMonthAmounts[station] || 0) + breakdown.total;
+                    prevMonthFineAmounts[station] = (prevMonthFineAmounts[station] || 0) + breakdown.fines;
+                    prevMonthCourtFeeAmounts[station] = (prevMonthCourtFeeAmounts[station] || 0) + breakdown.courtFees;
+                } else if (ageCategory === 'prevYear') {
+                    prevYear[station] = (prevYear[station] || 0) + 1;
+                    summaryStatsPushDetail(details, 'prevYear', station, key, record);
+                    prevYearAmounts[station] = (prevYearAmounts[station] || 0) + breakdown.total;
+                    prevYearFineAmounts[station] = (prevYearFineAmounts[station] || 0) + breakdown.fines;
+                    prevYearCourtFeeAmounts[station] = (prevYearCourtFeeAmounts[station] || 0) + breakdown.courtFees;
+                } else {
+                    paid[station] = (paid[station] || 0) + 1;
+                    summaryStatsPushDetail(details, 'paid', station, key, record);
+                    paidFineAmounts[station] = (paidFineAmounts[station] || 0) + breakdown.fines;
+                    paidCourtFeeAmounts[station] = (paidCourtFeeAmounts[station] || 0) + breakdown.courtFees;
+                    paidAmounts[station] = (paidAmounts[station] || 0) + breakdown.total;
+                }
+            } else {
+                unpaid[station] = (unpaid[station] || 0) + 1;
+                summaryStatsPushDetail(details, 'unpaid', station, key, record);
+                // المبالغ غير المسددة تبقى على الغرامة المقررة في المحضر كما كانت.
+                let amt = parseFloat(record.fine) || parseFloat(record.fineAmount) || 0;
+                unpaidAmounts[station] = (unpaidAmounts[station] || 0) + amt;
+            }
+        });
+        
+        // الاحتفاظ بتفاصيل المحاضر المطابقة نفسها التي كوّنت الأعداد الظاهرة في الكروت.
+        postPaymentSummaryStatsDetails = details;
+        // تمرير المبالغ لكلا الكارتين (المسدد والغير مسدد)
+        renderSummaryStatsCard('summaryStatsPaid', stations, paid, paidAmounts, paidFineAmounts, paidCourtFeeAmounts);
+        renderSummaryStatsCard('summaryStatsUnpaid', stations, unpaid, unpaidAmounts);
+        renderSummaryStatsCard('summaryStatsSessions', stations, sessions);
+        renderSummaryStatsCard('summaryStatsSaved', stations, saved);
+        renderSummaryStatsCard('summaryStatsPrevMonth', stations, prevMonth, prevMonthAmounts, prevMonthFineAmounts, prevMonthCourtFeeAmounts);
+        renderSummaryStatsCard('summaryStatsPrevYear', stations, prevYear, prevYearAmounts, prevYearFineAmounts, prevYearCourtFeeAmounts);
+    } catch (error) {
+        if (requestId !== postPaymentSummaryStatsRequest) return;
+        postPaymentSummaryStatsDetails = {};
+        if (errorEl) errorEl.textContent = 'تعذر تحميل الإحصائية من سجل المحاضر. حاول تحديثها.';
+    }
+}
+
+// ===================== كشف طباعة الإحصائية (مستقل تمامًا عن نظام طباعة القرارات) =====================
+const SUMMARY_STATS_ARABIC_MONTHS = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+
+function summaryStatsPrintTitle(fromDate, toDate) {
+    const from = new Date(fromDate + 'T00:00:00');
+    const to = new Date(toDate + 'T00:00:00');
+    if (from.getFullYear() === to.getFullYear() && from.getMonth() === to.getMonth()) {
+        return `بيان إحصائي لقضايا جنح المرور الواردة خلال شهر ${SUMMARY_STATS_ARABIC_MONTHS[to.getMonth()]} لعام ${to.getFullYear()}`;
+    }
+    const fmt = (d) => `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
+    return `بيان إحصائي لقضايا جنح المرور الواردة خلال الفترة من ${fmt(from)} إلى ${fmt(to)}`;
+}
+
+function summaryStatsPrintEsc(v) {
+    return String(v == null ? '' : v).replace(/[&<>"']/g, function(c) {
+        return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c];
+    });
+}
+
+async function printSummaryStatsSheet() {
+    const fromEl = document.getElementById('summaryStatsFrom');
+    const toEl = document.getElementById('summaryStatsTo');
+    const fromDate = fromEl && fromEl.value;
+    const toDate = toEl && toEl.value;
+    if (!fromDate || !toDate || fromDate > toDate) {
+        if (typeof showCustomAlert === 'function') {
+            showCustomAlert('يرجى تحديد فترة صحيحة (من تاريخ وإلى تاريخ) قبل طباعة الكشف.', { title: 'فترة غير محددة', type: 'error' });
+        } else {
+            alert('يرجى تحديد فترة صحيحة (من تاريخ وإلى تاريخ) قبل طباعة الكشف.');
+        }
+        return;
+    }
+
+    const stations = getSummaryStatsStations();
+
+    let db;
+    try {
+        db = await fetchServerData();
+    } catch (e) {
+        if (typeof showCustomAlert === 'function') {
+            showCustomAlert('تعذر تحميل بيانات المحاضر لإعداد كشف الطباعة.', { title: 'خطأ في التحميل', type: 'error' });
+        } else {
+            alert('تعذر تحميل بيانات المحاضر لإعداد كشف الطباعة.');
+        }
+        return;
+    }
+
+    const index = Array.isArray(db.mahdar_index) ? db.mahdar_index : [];
+    const seen = new Set();
+    const perStation = {};
+    stations.forEach(function(st) {
+        perStation[st] = {
+            incoming: 0, paidCount: 0, paidAmount: 0, unpaidCount: 0, unpaidAmount: 0, sessionsCount: 0,
+            savedCount: 0,
+            prevMonthCount: 0, prevMonthAmount: 0, prevYearCount: 0, prevYearAmount: 0
+        };
+    });
+
+    index.forEach(function(key) {
+        if (seen.has(key)) return;
+        seen.add(key);
+        const record = db[key];
+        if (!record || typeof record !== 'object') return;
+        if (record.reportMode === 'objection' || record.reportMode === 'bail_reduction' ||
+            /__(objection|bail_reduction)(__bail_reduction)?$/.test(String(key))) return;
+        const savedDate = parseSummaryStatsSavedDate(record.savedAt);
+        if (!savedDate || savedDate < fromDate || savedDate > toDate) return;
+        const station = summaryStatsFindStation(record, stations);
+        if (!station) return;
+        const row = perStation[station];
+        const isSession = typeof isSessionRecord === 'function' && isSessionRecord(record);
+        const isPaid = !!(record.paymentInfo && record.paymentInfo.paid);
+        const isArchived = record.fineDecisionMode === 'save';
+
+        if (isArchived) {
+            // المحاضر المحفوظة التي وردت في نطاق التاريخ تبقى ضمن إجمالي الوارد.
+            row.incoming += 1;
+            row.savedCount += 1;
+            return;
+        }
+        if (isSession) {
+            row.incoming += 1;
+            row.sessionsCount += 1;
+            return;
+        }
+        if (isPaid) {
+            const amount = getPaidAmountBreakdownForStats(record).total;
+            const ageCategory = getPaidAgeCategoryForStats(record, savedDate);
+            if (ageCategory === 'prevYear') {
+                row.prevYearCount += 1; row.prevYearAmount += amount;
+                // لا تدخل القضايا المسددة عن سنوات سابقة في الوارد لهذا الشهر.
+            } else if (ageCategory === 'prevMonth') {
+                row.prevMonthCount += 1; row.prevMonthAmount += amount;
+                // لا تدخل القضايا المسددة عن شهور سابقة في الوارد لهذا الشهر.
+            } else {
+                row.incoming += 1;
+                row.paidCount += 1; row.paidAmount += amount;
+            }
+        } else {
+            row.incoming += 1;
+            row.unpaidCount += 1;
+            row.unpaidAmount += (parseFloat(record.fine) || parseFloat(record.fineAmount) || 0);
+        }
+    });
+
+    const totals = {
+        incoming:0, paidCount:0, paidAmount:0, unpaidCount:0, unpaidAmount:0, sessionsCount:0,
+        savedCount:0,
+        prevMonthCount:0, prevMonthAmount:0, prevYearCount:0, prevYearAmount:0
+    };
+    stations.forEach(function(st) {
+        const r = perStation[st];
+        totals.incoming += r.incoming; totals.paidCount += r.paidCount; totals.paidAmount += r.paidAmount;
+        totals.unpaidCount += r.unpaidCount; totals.unpaidAmount += r.unpaidAmount; totals.sessionsCount += r.sessionsCount;
+        totals.savedCount += r.savedCount;
+        totals.prevMonthCount += r.prevMonthCount; totals.prevMonthAmount += r.prevMonthAmount;
+        totals.prevYearCount += r.prevYearCount; totals.prevYearAmount += r.prevYearAmount;
+    });
+
+    const money = function(v) { return formatSummaryStatsMoney(v); };
+    const num = function(v) { return Number(v || 0).toLocaleString('ar-EG'); };
+
+    const bodyRows = stations.map(function(st) {
+        const r = perStation[st];
+        return `<tr>
+            <td class="col-dept">${summaryStatsPrintEsc(st)}</td>
+            <td>${num(r.incoming)}</td>
+            <td>${num(r.paidCount)}</td>
+            <td>${money(r.paidAmount)}</td>
+            <td>${num(r.unpaidCount)}</td>
+            <td>${money(r.unpaidAmount)}</td>
+            <td>${num(r.savedCount)}</td>
+            <td>—</td>
+            <td>${num(r.sessionsCount)}</td>
+            <td>${num(r.prevMonthCount)}</td>
+            <td>${money(r.prevMonthAmount)}</td>
+            <td>${num(r.prevYearCount)}</td>
+            <td>${money(r.prevYearAmount)}</td>
+        </tr>`;
+    }).join('');
+
+    const totalRow = `<tr class="total-row">
+        <td class="col-dept">الإجمالي</td>
+        <td>${num(totals.incoming)}</td>
+        <td>${num(totals.paidCount)}</td>
+        <td>${money(totals.paidAmount)}</td>
+        <td>${num(totals.unpaidCount)}</td>
+        <td>${money(totals.unpaidAmount)}</td>
+        <td>${num(totals.savedCount)}</td>
+        <td>—</td>
+        <td>${num(totals.sessionsCount)}</td>
+        <td>${num(totals.prevMonthCount)}</td>
+        <td>${money(totals.prevMonthAmount)}</td>
+        <td>${num(totals.prevYearCount)}</td>
+        <td>${money(totals.prevYearAmount)}</td>
+    </tr>`;
+
+    const prosecutionInfoEl = document.querySelector('.prosecution-info');
+    const prosecutionInfoHTML = prosecutionInfoEl ? prosecutionInfoEl.innerHTML : 'النيابة العامة<br>نيابة مرور القاهرة<br>نيابة مرور عين الصيرة';
+    const logoImgEl = document.querySelector('.logo-box img');
+    const logoSrc = logoImgEl ? logoImgEl.src : 'logo.png';
+
+    const titleLine = summaryStatsPrintTitle(fromDate, toDate);
+
+    const html = `<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>كشف الإحصائية</title>
+<style>
+    * { box-sizing: border-box; }
+    body { margin:0; padding:0; font-family:'Cairo','Segoe UI',Arial,sans-serif; background:#f1f5f9; }
+    .sheet { width:297mm; min-height:210mm; margin:6mm auto; padding:8mm; background:#fff; position:relative; }
+    .sheet-border-outer { border:1.5pt solid #1e40af; padding:3pt; height:100%; }
+    
+.sheet-border-inner { 
+        border:3.5pt solid #1e40af; 
+        padding:6mm; 
+        height:100%; 
+        display: flex; 
+        flex-direction: column; 
+    }
+
+
+    .watermark { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:60%; opacity:.08; pointer-events:none; z-index:0; }
+    .sheet-border-inner, .sheet-header, .sheet-title, .sheet-table, .sheet-footer { position:relative; z-index:1; }
+    .sheet-header { display:flex; justify-content:space-between; align-items:flex-start; }
+    .prosecution-info { text-align:center; font-size:14px; line-height:1.35; }
+    .logo-box { width:60px; }
+    .logo-box img { width:100%; display:block; }
+    .sheet-title { text-align:center; margin-top:auto; }
+    .sheet-title .kashf { font-size:18px; font-weight:900; text-decoration:underline; margin-bottom:2mm; display:block; }
+    .sheet-title .bayan { font-size:14px; font-weight:700; }
+    
+
+table.sheet-table { 
+        width:100%; 
+        border-collapse:collapse; 
+        margin-top: auto; /* لدفع الجدول للأسفل ليتوسط المسافة */
+        margin-bottom: auto; /* لدفع التوقيعات للأسفل */
+        font-size:9px; 
+    }
+
+    table.sheet-table th, table.sheet-table td { border:0.8pt solid #1e293b; padding:2.2mm 1mm; text-align:center; vertical-align:middle; }
+    table.sheet-table thead th { background:#dbeafe; font-weight:800; font-size:9px; line-height:1.3; }
+    table.sheet-table td.col-dept { font-weight:800; }
+    table.sheet-table tr.total-row { font-weight:900; background:#f1f5f9; }
+    table.sheet-table tr.total-row td { border-top:1.5pt solid #1e40af; }
+    
+.sheet-footer { display:flex; justify-content:space-between; margin-bottom:20mm; font-size:13px; font-weight:700; }
+
+    .sheet-footer .boss { font-weight:900; }
+    .sheet-footer .chief { text-decoration:underline; }
+    .sheet-note { margin-top:4mm; font-size:9px; color:#64748b; margin-bottom:auto; }
+    
+
+
+@media print {
+        @page { size:A4 landscape; margin:6mm; }
+        html, body {
+            width:auto !important; height:auto !important; min-height:0 !important;
+            margin:0 !important; padding:0 !important; overflow:visible !important; background:#fff;
+        }
+        .sheet {
+            display:block !important; position:relative !important; width:auto !important;
+            height:auto !important; min-height:0 !important; max-height:none !important;
+            margin:0 !important; padding:0 !important; overflow:visible !important;
+            page-break-inside:auto !important; break-inside:auto !important;
+            page-break-after:auto !important; break-after:auto !important;
+        }
+        .sheet-border-outer, .sheet-border-inner {
+            height:auto !important; min-height:0 !important; max-height:none !important;
+        }
+        /* وضع العلامة المائية كعنصر ثابت لا يضيف ارتفاعًا إلى تدفق الصفحة ولا ينشئ ورقة زائدة. */
+        .watermark {
+            position:fixed !important; top:50% !important; left:50% !important;
+            right:auto !important; bottom:auto !important; transform:translate(-50%,-50%) !important;
+            width:60% !important; max-width:60% !important; max-height:110mm !important;
+            object-fit:contain !important; opacity:.08 !important;
+        }
+        table.sheet-table { page-break-inside:auto; break-inside:auto; }
+        table.sheet-table tr, .sheet-footer { page-break-inside:avoid; break-inside:avoid; }
+    }
+
+
+
+</style>
+</head>
+<body>
+<div class="sheet">
+    <img class="watermark" src="${summaryStatsPrintEsc(logoSrc)}" alt="">
+    <div class="sheet-border-outer"><div class="sheet-border-inner">
+        <div class="sheet-header">
+            <div class="prosecution-info">${prosecutionInfoHTML}</div>
+            <div class="logo-box"><img src="${summaryStatsPrintEsc(logoSrc)}" alt="شعار النيابة"></div>
+        </div>
+        <div class="sheet-title">
+            <span class="kashf">كشف</span>
+            <span class="bayan">${summaryStatsPrintEsc(titleLine)}</span>
+        </div>
+        <table class="sheet-table">
+            <thead>
+                <tr>
+                    <th rowspan="2">القسم</th>
+                    <th rowspan="2">إجمالي الوارد خلال الشهر</th>
+                    <th colspan="2">إجمالي القضايا المسددة خلال الشهر</th>
+                    <th colspan="2">إجمالي القضايا الغير مسددة خلال الشهر</th>
+                    <th rowspan="2">إجمالي القضايا المحفوظة خلال الشهر</th>
+                    <th rowspan="2">إجمالي القضايا الباقية دون إصدار أمر جنائي</th>
+                    <th rowspan="2">إجمالي القضايا التي قدمت للمحاكمة أو أعترض على الأمر الجنائي فيها</th>
+                    <th colspan="2">إجمالي القضايا المسددة عن شهور سابقة</th>
+                    <th colspan="2">إجمالي القضايا المسددة عن سنوات سابقة</th>
+                </tr>
+                <tr>
+                    <th>العدد</th><th>المبلغ</th>
+                    <th>العدد</th><th>المبلغ</th>
+                    <th>العدد</th><th>المبلغ</th>
+                    <th>العدد</th><th>المبلغ</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${bodyRows}
+                ${totalRow}
+            </tbody>
+        </table>
+        
+        <div class="sheet-footer">
+            <div class="staff">الموظف المختص</div>
+            <div class="chief">رئيس القلم</div>
+            <div class="boss">مدير النيابة</div>
+        </div>
+    </div></div>
+</div>
+<script>
+    window.onload = function() {
+        setTimeout(function() { window.print(); }, 250);
+    };
+<\/script>
+</body>
+</html>`;
+
+    const printWin = window.open('', '_blank');
+    if (!printWin) {
+        if (typeof showCustomAlert === 'function') {
+            showCustomAlert('تعذر فتح نافذة الطباعة. يرجى السماح بالنوافذ المنبثقة لهذا الموقع.', { title: 'تم حظر النافذة', type: 'error' });
+        } else {
+            alert('تعذر فتح نافذة الطباعة. يرجى السماح بالنوافذ المنبثقة لهذا الموقع.');
+        }
+        return;
+    }
+    printWin.document.open();
+    printWin.document.write(html);
+    printWin.document.close();
 }
 
 function toggleArchiveMenu() {
@@ -6219,6 +7650,7 @@ async function removePaymentInfo(key) {
         };
         await saveToServerData(db, key);
         if (typeof loadArchiveToSidebar === 'function') loadArchiveToSidebar();
+        if (typeof refreshPostPaymentSummaryStats === 'function') refreshPostPaymentSummaryStats();
 
         // لو نفس المحضر ده هو المحمّل حالياً في مساحة العمل، امسح حقول الدفع الظاهرة على
         // الشاشة فورًا كمان، بدل ما تفضل ظاهرة لحد ما يُعاد استيراد المحضر من جديد
@@ -6379,9 +7811,12 @@ async function loadArchiveToSidebar() {
         const shortName = d.name ? d.name.split(' ').slice(0, 3).join(' ') : 'بدون اسم';
         const dateOnly = d.savedAt ? d.savedAt.split(/[,،]/)[0].trim() : '';
         const isSession = isSessionRecord(d);
-        const badgeHtml = isSession
-            ? '<span class="record-type-badge badge-session" title="محضر جلسة">ج</span>'
-            : '<span class="record-type-badge badge-fine" title="محضر غرامة">غ</span>';
+        const isArchivedRecord = d.fineDecisionMode === 'save';
+        const badgeHtml = isArchivedRecord
+            ? '<span class="record-type-badge badge-archived" title="محضر محفوظ">م</span>'
+            : (isSession
+                ? '<span class="record-type-badge badge-session" title="محضر جلسة">ج</span>'
+                : '<span class="record-type-badge badge-fine" title="محضر غرامة">غ</span>');
         let paidTooltip = 'تم السداد';
         if (d.paymentInfo && d.paymentInfo.paid) {
             const parts = [];
@@ -6515,6 +7950,8 @@ function applyRecordToWorkspace(key, raw) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+    initializePostPaymentSummaryStatsPeriod();
+    refreshPostPaymentSummaryStats();
     // تشغيل دالة ضبط شكل الأزرار فور تحميل الصفحة لتعكس الاختيارات المحفوظة
     if (typeof syncArchiveFilterUI === 'function') syncArchiveFilterUI();
     
@@ -6532,10 +7969,10 @@ document.addEventListener("DOMContentLoaded", () => {
     var K='niabat_config';
     function load(){try{return JSON.parse(localStorage.getItem(K));}catch(e){return null;}}
     function rebuildSelect(sel, items, addOther) {
-      if (!sel || !items || !items.length) return;
+      if (!sel || !Array.isArray(items)) return;
       var cur = sel.value;
       sel.innerHTML = '<option value="">--- اختر ---</option>';
-      items.forEach(function(n) {
+      items.map(function(n) { return String(n || '').trim(); }).filter(Boolean).forEach(function(n) {
         var o = document.createElement('option');
         o.value = n; o.textContent = n; sel.appendChild(o);
       });
@@ -6557,10 +7994,15 @@ document.addEventListener("DOMContentLoaded", () => {
          بيتعامل مع محاضر قديمة من سنين مختلفة (عكس نظام التلبسات اللي بيشتغل على محاضر اليوم فقط). */
 
       if (typeof buildArchiveTabs === 'function') { buildArchiveTabs(); }
+      if (typeof refreshPostPaymentSummaryStats === 'function') refreshPostPaymentSummaryStats();
     }
-    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function() { apply(load()); });
-    else apply(load());
-    window.addEventListener('storage', function(e) { if (e.key === K) apply(load()); });
+    function refreshFromPortal() { apply(load()); }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', refreshFromPortal);
+    else refreshFromPortal();
+    window.addEventListener('storage', function(e) { if (e.key === K) refreshFromPortal(); });
+    window.addEventListener('focus', refreshFromPortal);
+    window.addEventListener('niabat_config_updated', refreshFromPortal);
+    document.addEventListener('visibilitychange', function() { if (!document.hidden) refreshFromPortal(); });
   })();
 </script>
 

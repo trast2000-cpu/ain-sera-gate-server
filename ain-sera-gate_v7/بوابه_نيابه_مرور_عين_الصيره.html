@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+﻿﻿<!DOCTYPE html>
 <html lang="ar" dir="rtl"><head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -751,6 +751,62 @@ body::after {
 .agent-row .cfg-input { font-size: 15px !important; }
 
 
+
+/* ══ تصميم التلميحات الأنيقة للأزرار (Tooltips) ══ */
+.has-tooltip {
+  position: relative;
+}
+.has-tooltip::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 130%; /* الظهور أعلى الزر */
+  left: 50%;
+  transform: translateX(-50%) translateY(10px);
+  background: linear-gradient(145deg, #16263f, #0d1b2e);
+  color: #e8c97a;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-weight: 700;
+  font-family: 'Cairo', sans-serif;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none; /* لمنع إعاقة النقر */
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  border: 1px solid rgba(201,168,76,.4);
+  box-shadow: 0 10px 25px rgba(0,0,0,.6);
+  z-index: 1000;
+}
+/* السهم الصغير أسفل التلميح */
+.has-tooltip::before {
+  content: '';
+  position: absolute;
+  bottom: 130%;
+  left: 50%;
+  transform: translateX(-50%) translateY(16px);
+  border-width: 6px;
+  border-style: solid;
+  border-color: rgba(201,168,76,.4) transparent transparent transparent;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  z-index: 1001;
+}
+/* إظهار التلميح عند مرور الماوس */
+.has-tooltip:hover::after {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+.has-tooltip:hover::before {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(6px);
+}
+
+
+
 /* حالة النجاح لزر الحفظ الجديد */
 .btn-save-cfg.btn-success {
   background: linear-gradient(135deg, #10b981, #059669) !important;
@@ -1491,21 +1547,39 @@ select.profile-form-input option { color:#fff !important; background:#16263f !im
     </div>
 
 
-    <!-- أزرار الإجراءات -->
-    <div class="modal-actions">
-      <button class="btn-save-cfg" onclick="saveSettings()"><i class="fa-solid fa-floppy-disk"></i> حفظ الإعدادات</button>
+    <!-- ══ أزرار التحكم والإجراءات ══ -->
+    <div style="margin-top: 14px; padding-top: 10px; display: flex; flex-direction: column; gap: 14px;">
+
+      <!-- الصف الأول: الإجراءات الأساسية واليومية -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+        <button class="btn-save-cfg has-tooltip" data-tooltip="يُخزّن الإعدادات مركزياً لتُطبق فوراً على جميع الأنظمة" onclick="saveSettings()" style="grid-column: auto; margin: 0; font-size: 14.5px !important;"><i class="fa-solid fa-floppy-disk"></i> حفظ الإعدادات</button>
+        <button class="btn-close-cfg" onclick="closeSettings()" style="margin: 0; font-size: 14.5px !important;"><i class="fa-solid fa-xmark"></i> إغلاق</button>
+      </div>
+
+      <!-- فاصل بصري لفصل الخيارات المتقدمة (منطقة الخطر) -->
+      <div style="border-top: 1px dashed rgba(248,113,113,.3); padding-top: 14px;">
+        
+        <!-- الصف الثاني: الإجراءات المتقدمة (الاسترجاع والتصفير) -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <button type="button" class="has-tooltip" data-tooltip="استعادة كافة البيانات والمحاضر من ملف نسخة احتياطية" onclick="triggerRestoreBackup()" style="background:rgba(52,211,153,.08); border:1.5px solid rgba(52,211,153,.35); color:#34d399; border-radius:11px; padding:10px; font-family:'Cairo',sans-serif; font-size:13.5px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px; transition: 0.2s;">
+            <i class="fa-solid fa-cloud-arrow-up"></i> استرجاع نسخة سابقة
+          </button>
+          <input type="file" id="restore-backup-file-input" accept=".json" style="display:none;" onchange="handleRestoreBackupFile(event)">
+
+          <button type="button" class="has-tooltip" data-tooltip="مسح جميع البيانات بحذر شديد للبدء من الصفر" onclick="resetPortalToFactory()" style="background:rgba(248,113,113,.08); border:1.5px solid rgba(248,113,113,.35); color:#f87171; border-radius:11px; padding:10px; font-family:'Cairo',sans-serif; font-size:13.5px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px; transition: 0.2s;">
+            <i class="fa-solid fa-triangle-exclamation"></i> تصفير شامل للبوابة
+          </button>
+        </div>
+        
+      </div>
+
     </div>
-    <div class="modal-actions-row2" style="grid-template-columns: 1fr;">
-      <button class="btn-close-cfg" onclick="closeSettings()">
-        <i class="fa-solid fa-xmark"></i> إغلاق
-      </button>
-    </div>
+
+
 
     <div class="cfg-feedback" id="cfg-feedback"></div>
 
-    <div class="cfg-note">
-      ● الحفظ يُخزّن الإعدادات في قاعدة البيانات المركزية ويُطبّقها فوراً على جميع الأنظمة.
-    </div>
+
 
     
   </div>
@@ -2361,22 +2435,44 @@ async function saveAdminAccount(admin) {
 async function authorizeAdmin() {
   if (hasAccountManagementAccess()) return true;
   let admin = await loadAdminAccount();
-  if (!admin) {
-    admin = { username:'admin', password:DEFAULT_ADMIN_PASSWORD, mustChange:true };
+  
+  // إذا لم يكن هناك حساب أدمن مسجل بعد (أول تشغيل)
+  if (!admin || !admin.password) {
+    const defaultHashed = await hashPass(DEFAULT_ADMIN_PASSWORD);
+    admin = { username: 'admin', password: defaultHashed, mustChange: true };
     await saveAdminAccount(admin);
-    await gateAlert('تم إنشاء حساب Administrator الافتراضي. اسم المستخدم: admin\nكلمة المرور المؤقتة: Admin@1234\nسيُطلب تغييرها الآن.', { title:'حساب Administrator' });
+    await gateAlert('تم تهيئة حساب Administrator لأول مرة:\n• اسم المستخدم: admin\n• كلمة المرور المؤقتة: Admin@1234\n\nيرجى تسجيل الدخول بها لتغييرها.', { title: 'تهيئة النظام' });
   }
-  const username = await gatePrompt('اسم مستخدم Administrator', { title:'تسجيل دخول Administrator' });
+
+  const username = await gatePrompt('اسم مستخدم Administrator', { title: 'تسجيل دخول Administrator', defaultValue: 'admin' });
   if (username === null) return false;
-  const password = await gatePrompt('كلمة مرور Administrator', { type:'password', title:'تسجيل دخول Administrator' });
-  if (username !== admin.username || await hashPass(password) !== admin.password) { await gateAlert('بيانات Administrator غير صحيحة.'); return false; }
-  if (admin.mustChange) {
-    const next = await gatePrompt('غيّر كلمة مرور Administrator الافتراضية الآن', { type:'password', title:'تغيير كلمة المرور' });
-    if (!next || next.length < 4) { await gateAlert('يجب أن تتكون كلمة المرور الجديدة من 4 أحرف أو أرقام على الأقل.'); return false; }
-    const confirmNext = await gatePrompt('أعد كتابة كلمة مرور Administrator الجديدة', { type:'password', title:'تغيير كلمة المرور' });
-    if (next !== confirmNext) { await gateAlert('كلمتا المرور غير متطابقتين.'); return false; }
-    admin.password = next; admin.mustChange = false; await saveAdminAccount(admin);
+  const password = await gatePrompt('كلمة مرور Administrator', { type: 'password', title: 'تسجيل دخول Administrator' });
+  if (password === null) return false;
+
+  const enteredHash = await hashPass(password);
+  if (username !== admin.username || enteredHash !== admin.password) {
+    await gateAlert('بيانات Administrator غير صحيحة.');
+    return false;
   }
+
+  // تسجيل الدخول في السيرفر للحصول على تصريح الحفظ (Token)
+  await serverLogout();
+  await serverLogin('admin', admin.password, true);
+
+  // إجبار الأدمن على تعيين باسوورد جديد خاص به
+  if (admin.mustChange) {
+    const next = await gatePrompt('هذه أول مرة تقوم بتسجيل دخولك,\n اكتب كلمة مرور جديدة خاصة بك (4 خانات فأكثر):', { type: 'password', title: 'تعيين كلمة مرور جديدة' });
+    if (!next || next.length < 4) { await gateAlert('يجب ألا تقل كلمة المرور عن 4 خانات.'); return false; }
+    const confirmNext = await gatePrompt('أعد كتابة كلمة المرور للتأكيد:', { type: 'password', title: 'تأكيد كلمة المرور' });
+    if (next !== confirmNext) { await gateAlert('كلمتا المرور غير متطابقتين.'); return false; }
+    
+    admin.password = await hashPass(next);
+    admin.mustChange = false;
+    await saveAdminAccount(admin);
+    await serverLogin('admin', admin.password, true);
+    await gateAlert('تم تعيين كلمة المرور الجديدة وتفعيل صلاحيات الإدارة بنجاح.', { title: 'تم الحفظ' });
+  }
+
   sessionStorage.setItem(ADMIN_SESSION_KEY, '1');
   return true;
 }
@@ -2840,12 +2936,14 @@ async function openSettings() {
 
   const list = document.getElementById('agents-list');
   list.innerHTML = '';
-  const agents = (cfg.agents && cfg.agents.length > 0) ? cfg.agents : ['', '', ''];
+  // تعديل: جعل عدد خانات وكلاء النيابة الفارغة 2 فقط عند التصفير
+  const agents = (cfg.agents && cfg.agents.length > 0) ? cfg.agents : ['', ''];
   agents.forEach(function(name) { addAgentRow(name); });
 
   const stList = document.getElementById('stations-list');
   stList.innerHTML = '';
-  const stations = (cfg.stations && cfg.stations.length > 0) ? cfg.stations : ['مصر القديمة', 'السيدة زينب'];
+  // تعديل: تفريغ أسماء أقسام الشرطة لتكون خانتين فارغتين عند التصفير
+  const stations = (cfg.stations && cfg.stations.length > 0) ? cfg.stations : ['', ''];
   stations.forEach(function(name) { addStationRow(name); });
 
   hideFeedback();
@@ -3071,6 +3169,186 @@ async function markPhotoForDeletion() {
     
     await gateAlert('تم حذف الصورة للموظف بنجاح.', { title: 'تم الحذف' });
   }
+}
+
+
+
+
+async function resetPortalToFactory() {
+  if (!isSuperAdminSession()) {
+    await gateAlert('عملية تصفير البوابة مخصصة لرئيس القلم أو مدير النظام فقط.', { title: 'صلاحيات غير كافية', danger: true });
+    return;
+  }
+
+  const confirm1 = await gateConfirm(
+    'تنبيه أمني: سيؤدي هذا الإجراء إلى:\n- حذف كافة المحاضر والبيانات المسجلة نهائياً.\n- مسح جميع حسابات وصلاحيات الموظفين.\n- استعادة الإعدادات الافتراضية بالكامل.\n\nهل أنت متأكد من المتابعة؟',
+    { title: 'استعادة الاعدادات الافتراضية', confirmText: 'تأكيد', cancelText: 'تراجع', danger: true }
+  );
+  if (!confirm1) return;
+
+  // طلب كلمة المرور بدلاً من كلمة "تصفير"
+  const passConfirm = await gatePrompt('لإتمام عملية الاستعادة،\n يرجى إدخال كلمة المرور الخاصة بك لتأكيد هويتك:', { type: 'password', title: 'تأكيد الحذف النهائي' });
+  if (passConfirm === null) return; // إذا ضغط المستخدم "إلغاء"
+
+  // تشفير الكلمة المدخلة ومقارنتها
+  const enteredHash = await hashPass(passConfirm);
+  let isPasswordValid = false;
+
+  // التحقق: هل المستخدم الحالي هو (رئيس قلم) أم (الأدمن الافتراضي)؟
+  if (activeEmployeeProfile && activeEmployeeProfile.accessRole === 'super_admin') {
+    if (enteredHash === activeEmployeeProfile.password) isPasswordValid = true;
+  } else if (sessionStorage.getItem('niabat_profiles_admin_session') === '1') {
+    const adminAcc = await loadAdminAccount();
+    if (adminAcc && enteredHash === adminAcc.password) isPasswordValid = true;
+  }
+
+  // إذا كانت كلمة المرور خاطئة نوقف العملية فوراً
+  if (!isPasswordValid) {
+    await gateAlert('كلمة المرور غير صحيحة. تم إيقاف عملية الاستعادة للحماية.', { title: 'إجراء مرفوض', danger: true });
+    return;
+  }
+
+  // 1. أخذ نسخة احتياطية تلقائية وتنزيلها للمستخدم لحمايته من أي خطأ
+  try {
+    const currentData = await fetchServerData();
+    const currentProfiles = await fetchProfilesData();
+    const backupBundle = {
+      backupDate: new Date().toLocaleString('ar-EG'),
+      data: currentData,
+      profiles: currentProfiles
+    };
+    const blob = new Blob([JSON.stringify(backupBundle, null, 2)], { type: 'application/json;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    const d = new Date();
+const dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}_الساعة_${String(d.getHours()).padStart(2, '0')}-${String(d.getMinutes()).padStart(2, '0')}`;
+a.download = `نسخة_احتياطية_قبل_التصفير_${dateStr}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  } catch (e) {
+    console.error("فشل أخذ النسخة الاحتياطية", e);
+  }
+
+  // 2. تصفير بيانات data.json
+  const defaultHashed = await hashPass(DEFAULT_ADMIN_PASSWORD);
+  const cleanData = {
+    mahdar_index: [],
+    niabat_config: {
+      prosecutionName: "نيابة مرور جديدة",
+      fiscalYear: new Date().getFullYear(),
+      agents: [],
+      stations: []
+    },
+    petitionHistory: []
+  };
+
+  // 3. تصفير بيانات profiles.json (إرجاع الأدمن الافتراضي فقط ومسح كل الموظفين)
+  const cleanProfiles = {
+    niabat_employee_profiles_v1: [],
+    niabat_profiles_admin_v1: {
+      username: "admin",
+      password: defaultHashed,
+      mustChange: true
+    }
+  };
+
+  // 4. حفظ البيانات المصفّرة في السيرفر ومسح الذاكرة المحلية
+  await saveToServerData(cleanData);
+  await saveProfilesData(cleanProfiles);
+
+  localStorage.clear();
+  sessionStorage.clear();
+  await serverLogout();
+
+  await gateAlert('تم تصفير البوابة بنجاح وتم تحميل نسخة احتياطية تلقائياً .\nسيتم إعادة تحميل الصفحة للبدء بإضافة بيانات النيابة الجديدة.', { title: 'تم التصفير بنجاح' });
+  window.location.reload();
+}
+
+
+
+
+// فتح نافذة اختيار الملف من جهاز الكمبيوتر
+function triggerRestoreBackup() {
+  const fileInput = document.getElementById('restore-backup-file-input');
+  if (fileInput) {
+    fileInput.value = ''; // تفريغ لاختيار الملف الجديد
+    fileInput.click();
+  }
+}
+
+// قراءة ملف النسخة الاحتياطية وإعادة البيانات للسيرفر
+async function handleRestoreBackupFile(event) {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+
+  if (!isSuperAdminSession()) {
+    await gateAlert('عملية استرجاع النسخة الاحتياطية مخصصة لرئيس القلم أو مدير النظام فقط.', { title: 'صلاحيات غير كافية', danger: true });
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = async function(e) {
+    try {
+      const content = e.target.result;
+      const bundle = JSON.parse(content);
+
+      let restoredData = null;
+      let restoredProfiles = null;
+      let backupDate = bundle.backupDate || 'غير محدد';
+      let mahdarCount = 0;
+      let profilesCount = 0;
+
+      // التحقق من نوع الملف: هل هو حزمة شاملة أم ملف داتا منفصل؟
+      if (bundle.data && bundle.profiles) {
+        restoredData = bundle.data;
+        restoredProfiles = bundle.profiles;
+        mahdarCount = (restoredData.mahdar_index && restoredData.mahdar_index.length) || 0;
+        profilesCount = (restoredProfiles.niabat_employee_profiles_v1 && restoredProfiles.niabat_employee_profiles_v1.length) || 0;
+      } else if (bundle.mahdar_index || bundle.niabat_config) {
+        restoredData = bundle;
+        mahdarCount = (restoredData.mahdar_index && restoredData.mahdar_index.length) || 0;
+      } else {
+        await gateAlert('الملف المختار غير صالح ولا يحتوي على بيانات النسخة الاحتياطية المعتمدة.', { title: 'ملف غير صالح', danger: true });
+        return;
+      }
+
+      // رسالة تأكيد ذكية توضح تفاصيل النسخة قبل استرجاعها
+      const ok = await gateConfirm(
+        `تم فحص ملف النسخة الاحتياطية بنجاح:\n` +
+        `• تاريخ النسخة: ${backupDate}\n` +
+        `• عدد المحاضر والقرارات: ${mahdarCount}\n` +
+        (restoredProfiles ? `• عدد حسابات الموظفين: ${profilesCount}\n\n` : `\n`) +
+        `تحذير: عند تنفيذ الاستعادة ,\n ستستبدل اي بيانات محاضر او حسابات موظفين موجوده.\nهل تريد المتابعة والتأكيد ؟`,
+        { title: 'تأكيد استعادة النسخة الاحتياطية', confirmText: 'نعم، الاستعاده الآن', cancelText: 'إلغاء', danger: true }
+      );
+
+      if (!ok) return;
+
+      // إرسال البيانات المسترجعة للسيرفر وكتابتها في data.json و profiles.json
+      if (restoredData) {
+        await saveToServerData(restoredData);
+      }
+      if (restoredProfiles) {
+        await saveProfilesData(restoredProfiles);
+      }
+
+      // مسح الجلسات المؤقتة لإعادة تسجيل الدخول بالبيانات المسترجعة
+      sessionStorage.clear();
+      await serverLogout();
+
+      await gateAlert('تم استرجاع النسخة الاحتياطية بنجاح ،\nوكافة المحاضر و حسابات الموظفين عادت للعمل.\nسيتم إعادة تحميل الصفحة الآن.', { title: 'تم الاسترجاع بنجاح' });
+      window.location.reload();
+
+    } catch (err) {
+      console.error('خطأ أثناء قراءة الملف:', err);
+      await gateAlert('حدث خطأ أثناء قراءة الملف. تأكد من أن الملف سليم بصيغة JSON.', { title: 'خطأ في القراءة', danger: true });
+    }
+  };
+
+  reader.readAsText(file, 'utf-8');
 }
 
 

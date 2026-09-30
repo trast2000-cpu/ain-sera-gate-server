@@ -67,7 +67,7 @@ body {
 /* تكبير الواجهة على الشاشة فقط — لا يؤثر على الطباعة */
 @media screen {
     body {
-        zoom: 1.3;
+        zoom: 1.200;
     }
     .sidebar {
         height: calc((100vh / 1.3) - 20px);
@@ -95,7 +95,7 @@ body {
     padding: 10px 8px;
     position: fixed;
     top: 20px;
-    right: 5px
+    right: 5px;
     height: calc(100vh - 58px);
     overflow: hidden; 
     z-index: 1000;
@@ -1843,7 +1843,9 @@ body[data-theme="dark"] .record-dots-btn:hover, body[data-theme="dark"] .record-
 }
 .badge-fine { background: #28a745; }
 .badge-session { background: #1e3a5f; }
+.badge-archived { background: #7c3aed; }
 body[data-theme="dark"] .badge-session { background: #c9a200 !important; color: #1e3a5f !important; }
+body[data-theme="dark"] .badge-archived { background: #a78bfa !important; color: #2e1065 !important; }
 .badge-paid {
     display: inline-flex;
     align-items: center;
@@ -2469,6 +2471,159 @@ body[data-theme="dark"] .record-title { color: #7aaeff !important; }
 }
 
 
+
+/* ===== لوحة إحصائية المركبات — على نمط ملخص ما بعد السداد ===== */
+.vehicle-stats-panel {
+    position:fixed; top:10px; left:10px; bottom:10px; width:275px; padding:0;
+    direction:rtl; background:#eef2f8; border:1.5px solid #c5cfe0; border-radius:10px;
+    box-shadow:0 3px 16px rgba(30,58,95,.16); overflow:hidden; z-index:900; color:#1e293b;
+    font-family:'Cairo','Segoe UI',Arial,sans-serif;
+}
+.vehicle-stats-header {
+    display:flex; align-items:center; gap:7px; min-height:43px; padding:7px 12px;
+    color:#fff; background:linear-gradient(135deg,#2c4a6e,#1e3a5f);
+    border-bottom:2px solid #c9a200; font-size:15px; font-weight:bold;
+}
+.vehicle-stats-header i { color:#f5d76e; }
+.vehicle-stats-body {
+    height:calc(100% - 43px); overflow-y:auto; overflow-x:hidden; padding:10px 8px;
+    scrollbar-width:thin; scrollbar-color:#7a9cbf transparent;
+}
+.vehicle-stats-period {
+    display:grid; grid-template-columns:1fr 1fr; gap:6px; padding:8px;
+    background:rgba(255,255,255,.58); border:1px solid #c8d3e3; border-radius:8px;
+}
+.vehicle-stats-period label {
+    display:flex; flex-direction:column; gap:3px; color:#1e3a5f; font-size:11px; font-weight:700;
+}
+.vehicle-stats-period input {
+    width:100%; min-width:0; padding:5px 4px; border:1px solid #b7c8dc; border-radius:6px;
+    background:#fff; color:#1e293b; font:600 11px 'Cairo','Segoe UI',Arial,sans-serif; direction:ltr;
+}
+.vehicle-stats-period input[type="date"]::-webkit-calendar-picker-indicator { width:16px; height:16px; cursor:pointer; opacity:.95; }
+.vehicle-stats-update {
+    grid-column:1 / -1; display:flex; align-items:center; justify-content:center; gap:6px;
+    padding:6px 8px; border:1px solid #2d5a8e; border-radius:7px;
+    background:linear-gradient(135deg,#2c4a6e,#1e3a5f); color:#fff;
+    font:700 11px 'Cairo','Segoe UI',Arial,sans-serif; cursor:pointer;
+}
+.vehicle-stats-update:hover { background:#2d5a8e; }
+.vehicle-stats-error { min-height:0; margin:5px 2px 0; color:#991b1b; font-size:10px; font-weight:700; line-height:1.5; }
+.vehicle-stats-table-wrap { margin-top:8px; overflow-x:hidden; overflow-y:auto; border:1.5px solid #c5cfe0; border-radius:8px; background:#fff; }
+.vehicle-stats-table { width:100%; min-width:100%; table-layout:fixed; border-collapse:collapse; text-align:center; font-size:10.5px; }
+.vehicle-stats-table th { min-width:58px; padding:5px 3px; color:#fff; background:#1e3a5f; border:1px solid #16304f; font-size:10px; }
+.vehicle-stats-table td { min-width:58px; padding:6px 3px; border:1px solid #d9e1ec; line-height:1.35; overflow-wrap:anywhere; }
+.vehicle-stats-table .stats-type-cell { width:88px; min-width:88px; color:#fff; background:#1e3a5f; text-align:center; font-weight:800; position:sticky; right:0; z-index:1; }
+.vehicle-stats-table .stats-dept-head { min-width:0; white-space:normal; line-height:1.25; }
+.vehicle-stats-table .stats-dept-col { min-width:0; }
+.vehicle-stats-table .stats-count-cell { color:#1e3a5f; font-weight:800; font-size:12px; }
+.vehicle-stats-table .stats-dept-col.dept-color-0 { background:#e3edf7 !important; }
+.vehicle-stats-table .stats-dept-col.dept-color-1 { background:#e9f1f8 !important; }
+.vehicle-stats-table .stats-dept-col.dept-color-2 { background:#e1f0f0 !important; }
+.vehicle-stats-table .stats-dept-col.dept-color-3 { background:#e8edf5 !important; }
+.vehicle-stats-table .stats-dept-col.dept-color-4 { background:#e2eef2 !important; }
+.vehicle-stats-table .stats-dept-col.dept-color-5 { background:#edf0f5 !important; }
+.vehicle-stats-table .stats-dept-head.dept-color-0 { background:#3d668d !important; color:#fff !important; }
+.vehicle-stats-table .stats-dept-head.dept-color-1 { background:#4b7395 !important; color:#fff !important; }
+.vehicle-stats-table .stats-dept-head.dept-color-2 { background:#3d777b !important; color:#fff !important; }
+.vehicle-stats-table .stats-dept-head.dept-color-3 { background:#586f8e !important; color:#fff !important; }
+.vehicle-stats-table .stats-dept-head.dept-color-4 { background:#477c8b !important; color:#fff !important; }
+.vehicle-stats-table .stats-dept-head.dept-color-5 { background:#64768d !important; color:#fff !important; }
+.vehicle-stats-table .stats-car-divider td { height:6px; padding:0; background:#1e3a5f !important; border:0; }
+.vehicle-stats-table .stats-total-row td { color:#1e3a5f; background:#c9a200; font-weight:800; font-size:13px; }
+.vehicle-stats-table .stats-grand-label { width:88px; min-width:88px; color:#fff!important; background:#2c4a6e!important; position:sticky; right:0; z-index:1; }
+.vehicle-stats-table .stats-grand-total { color:#1e3a5f; background:#c9a200; font-weight:800; font-size:16px; }
+.vehicle-stats-table tr:nth-child(even) td:not(.stats-type-cell):not(.stats-section-row td):not(.stats-total-row td):not(.stats-grand-label):not(.stats-grand-total) { background:#f7f9fc; }
+.vehicle-stats-loading { padding:18px 5px!important; color:#64748b; font-weight:700; text-align:center!important; }
+.vehicle-stats-note { margin:8px 2px 0; color:#64748b; font-size:9px; line-height:1.7; }
+body[data-theme="dark"] .vehicle-stats-panel { background:#17243b; border-color:#2d4060; color:#e2e8f0; }
+body[data-theme="dark"] .vehicle-stats-period, body[data-theme="dark"] .vehicle-stats-table-wrap { background:rgba(15,23,42,.42); border-color:#385273; }
+body[data-theme="dark"] .vehicle-stats-period label, body[data-theme="dark"] .vehicle-stats-table th,
+body[data-theme="dark"] .vehicle-stats-table .stats-group-cell, body[data-theme="dark"] .vehicle-stats-table .stats-count-cell,
+body[data-theme="dark"] .vehicle-stats-table .stats-overall-cell, body[data-theme="dark"] .vehicle-stats-table .stats-overall-cell strong { color:#dbeafe; }
+body[data-theme="dark"] .vehicle-stats-period input { background:#142039; color:#e2e8f0; border-color:#40577b; }
+body[data-theme="dark"] .vehicle-stats-table th, body[data-theme="dark"] .vehicle-stats-table .stats-group-cell { background:#263a5d; }
+body[data-theme="dark"] .vehicle-stats-table .stats-overall-cell { background:#1a2744; }
+body[data-theme="dark"] .vehicle-stats-table td { border-color:#354b6e; }
+body[data-theme="dark"] .vehicle-stats-table tr:nth-child(even) td:not(.stats-group-cell):not(.stats-overall-cell) { background:#1b2a47; }
+body[data-theme="dark"] .vehicle-stats-note { color:#a9bad3; }
+@media screen and (min-width:951px) {
+    /* احجز للوحة اليسرى مساحة مستقلة كما في شاشة ملخص المحضر المرجعية. */
+    .app-layout { margin:0 0 8px 295px !important; width:calc(100% - 295px) !important; max-width:none !important; }
+}
+@media screen and (max-width:950px) {
+    /* على الشاشات الأضيق تبقى الإحصائية مرئية كلوحة أعلى مساحة العمل بدل تغطية النموذج. */
+    .vehicle-stats-panel { position:relative; inset:auto; width:calc(100% - 20px); height:340px; margin:10px auto; }
+    .vehicle-stats-body { height:calc(100% - 43px); }
+}
+@media print { .vehicle-stats-panel { display:none !important; } }
+/* نافذة ملخص المحاضر عند الضغط على رقم الإحصائية — موحدة مع نظام ما بعد السداد */
+.vehicle-stats-details-overlay {
+    position:fixed; inset:0; z-index:100020; display:flex; align-items:center; justify-content:center;
+    zoom:.833333; padding:10px; background:rgba(15,23,42,.58); direction:rtl; font-family:'Cairo','Segoe UI',Arial,sans-serif;
+    opacity:0; visibility:hidden; pointer-events:none; transition:opacity .25s ease, visibility 0s linear .25s;
+}
+.vehicle-stats-details-overlay.show { opacity:1; visibility:visible; pointer-events:auto; transition:opacity .25s ease, visibility 0s linear 0s; }
+.vehicle-stats-details-dialog {
+    display:flex; flex-direction:column; width:min(1120px,96vw); height:min(90dvh,calc(100dvh - 20px)); max-height:calc(100dvh - 20px); overflow:hidden;
+    border:1px solid #c7d2e2; border-radius:14px; background:#fff; color:#1e293b;
+    box-shadow:0 24px 80px rgba(15,23,42,.35); transform:scale(.94) translateY(10px); opacity:0;
+    transition:transform .28s cubic-bezier(.34,1.56,.64,1), opacity .22s ease;
+}
+.vehicle-stats-details-overlay.show .vehicle-stats-details-dialog { transform:scale(1) translateY(0); opacity:1; }
+.vehicle-stats-details-header { flex:0 0 auto; display:flex; align-items:flex-start; justify-content:space-between; gap:12px; padding:15px 18px; border-bottom:1px solid #dbe4ef; background:linear-gradient(135deg,#f8fbff,#edf3fa); }
+.vehicle-stats-details-heading { min-width:0; }
+.vehicle-stats-details-eyebrow { color:#64748b; font-size:11px; font-weight:800; }
+.vehicle-stats-details-header h2 { margin:2px 0 0; color:#1e3a5f; font-size:18px; font-weight:900; }
+.vehicle-stats-details-period { margin-top:3px; color:#64748b; font-size:11px; font-weight:700; }
+.vehicle-stats-details-date-note { margin-top:3px; color:#64748b; font-size:10px; line-height:1.5; }
+.vehicle-stats-details-close { flex:0 0 34px; width:34px; height:34px; border:1px solid #cbd5e1; border-radius:8px; background:#fff; color:#475569; font-size:17px; cursor:pointer; }
+.vehicle-stats-details-close:hover { background:#fee2e2; color:#b91c1c; border-color:#fecaca; }
+.vehicle-stats-details-content { display:flex; flex:1 1 auto; flex-direction:column; min-height:0; overflow:hidden; padding:12px 16px 16px; }
+.vehicle-stats-details-count { flex:0 0 auto; margin-bottom:8px; color:#475569; font-size:12px; font-weight:800; }
+.vehicle-stats-details-body { flex:1 1 auto; min-height:0; overflow:auto; border:1px solid #dbe4ef; border-radius:9px; }
+.vehicle-stats-details-table { width:100%; min-width:860px; border-collapse:separate; border-spacing:0; font-size:12px; }
+.vehicle-stats-details-table th, .vehicle-stats-details-table td { padding:9px 10px; border-bottom:1px solid #e2e8f0; text-align:right; vertical-align:top; line-height:1.55; }
+.vehicle-stats-details-table th { position:sticky; top:0; z-index:1; background:#eaf1fa; color:#1e3a5f; font-weight:900; white-space:nowrap; }
+.vehicle-stats-details-table tbody tr:nth-child(even) { background:#f8fafc; }
+.vehicle-stats-details-table tbody tr:last-child td { border-bottom:0; }
+.vehicle-stats-details-table .details-case-number { white-space:nowrap; font-weight:800; }
+.vehicle-stats-details-table .details-vehicle-type { min-width:105px; color:#1e3a5f; font-weight:800; }
+.vehicle-stats-details-table .details-charge { min-width:180px; white-space:pre-wrap; overflow-wrap:anywhere; }
+.vehicle-stats-details-empty { padding:28px 14px; color:#64748b; text-align:center; font-size:14px; font-weight:800; }
+.vehicle-stats-count-action { cursor:pointer; text-decoration:underline; text-decoration-style:dotted; text-underline-offset:3px; }
+.vehicle-stats-count-action:hover { color:#0f4c81; background:rgba(59,130,246,.14); }
+body[data-theme="dark"] .vehicle-stats-details-dialog { background:#17243b; color:#e2e8f0; border-color:#354b6e; }
+body[data-theme="dark"] .vehicle-stats-details-header { background:linear-gradient(135deg,#202f4d,#17243b); border-color:#354b6e; }
+body[data-theme="dark"] .vehicle-stats-details-header h2 { color:#dbeafe; }
+body[data-theme="dark"] .vehicle-stats-details-period, body[data-theme="dark"] .vehicle-stats-details-eyebrow, body[data-theme="dark"] .vehicle-stats-details-count, body[data-theme="dark"] .vehicle-stats-details-date-note { color:#a9bad3; }
+body[data-theme="dark"] .vehicle-stats-details-close { background:#263a5d; color:#dbeafe; border-color:#40577b; }
+body[data-theme="dark"] .vehicle-stats-details-body { border-color:#354b6e; }
+body[data-theme="dark"] .vehicle-stats-details-table th { background:#263a5d; color:#dbeafe; }
+body[data-theme="dark"] .vehicle-stats-details-table td { border-color:#354b6e; }
+body[data-theme="dark"] .vehicle-stats-details-table tbody tr:nth-child(even) { background:#1c2b46; }
+body[data-theme="dark"] .vehicle-stats-details-empty { color:#a9bad3; }
+@media (max-width:600px) {
+    .vehicle-stats-details-overlay { padding:7px; }
+    .vehicle-stats-details-dialog { width:100%; height:calc(100dvh - 14px); max-height:calc(100dvh - 14px); border-radius:10px; }
+    .vehicle-stats-details-header { padding:12px; }
+    .vehicle-stats-details-content { padding:9px; }
+}
+
+
+/* ===== تجميد بطاقة الغرامة عند اختيار «حفظ المحضر» ===== */
+#card-fine.fine-card-frozen #f-fine,
+#card-fine.fine-card-frozen #fine-text {
+    background: #eef1f5 !important;
+    color: #94a3b8 !important;
+    cursor: not-allowed;
+}
+body[data-theme="dark"] #card-fine.fine-card-frozen #f-fine,
+body[data-theme="dark"] #card-fine.fine-card-frozen #fine-text {
+    background: #1a2332 !important;
+    color: #64748b !important;
+}
+
 </style>
 
 </head>
@@ -2533,6 +2688,44 @@ body[data-theme="dark"] .record-title { color: #7aaeff !important; }
 </div>
 
 
+
+<!-- لوحة الإحصائية الدائمة في موضع ملخص المحضر — خارج مساحة الطباعة -->
+<aside id="vehicleStatsPanel" class="vehicle-stats-panel no-print" aria-label="إحصائية المركبات المتحفظ عليها">
+    <header class="vehicle-stats-header"><i class="fa-solid fa-chart-column"></i><span>إحصائية المركبات المتحفظ عليها</span></header>
+    <div class="vehicle-stats-body">
+        <div class="vehicle-stats-period">
+            <label>من تاريخ<input type="date" id="vehicleStatsFrom" aria-label="من تاريخ" onchange="refreshVehicleStats()"></label>
+            <label>إلى تاريخ<input type="date" id="vehicleStatsTo" aria-label="إلى تاريخ" onchange="refreshVehicleStats()"></label>
+            <button type="button" class="vehicle-stats-update" onclick="refreshVehicleStats()"><i class="fa-solid fa-rotate"></i>تحديث الإحصائية</button>
+        </div>
+        <div id="vehicleStatsError" class="vehicle-stats-error" role="status" aria-live="polite"></div>
+        <div class="vehicle-stats-table-wrap">
+            <table class="vehicle-stats-table">
+                <thead id="vehicleStatsHead"><tr><th>نوع المركبة</th><th>جارٍ التحميل…</th></tr></thead>
+                <tbody id="vehicleStatsRows"><tr><td class="vehicle-stats-loading" colspan="2">جارٍ تحميل الإحصائية…</td></tr></tbody>
+            </table>
+        </div>
+        <p class="vehicle-stats-note">تعتمد الإحصائية على تاريخ الواقعة أولًا، ثم تاريخ التحرير عند عدم توفره، ثم تاريخ الحفظ في قاعدة البيانات للمحاضر القديمة.</p>
+    </div>
+</aside>
+
+<div id="vehicle-stats-details-overlay" class="vehicle-stats-details-overlay" aria-hidden="true" onclick="if(event.target===this)closeVehicleStatsDetails()">
+    <section id="vehicle-stats-details-dialog" class="vehicle-stats-details-dialog" role="dialog" aria-modal="true" aria-labelledby="vehicle-stats-details-title">
+        <header class="vehicle-stats-details-header">
+            <div class="vehicle-stats-details-heading">
+                <span class="vehicle-stats-details-eyebrow">تفاصيل إحصائية المركبات</span>
+                <h2 id="vehicle-stats-details-title">محاضر المركبات</h2>
+                <div id="vehicle-stats-details-period" class="vehicle-stats-details-period"></div>
+                <div id="vehicle-stats-details-date-note" class="vehicle-stats-details-date-note"></div>
+            </div>
+            <button type="button" class="vehicle-stats-details-close" aria-label="إغلاق قائمة المحاضر" onclick="closeVehicleStatsDetails()"><i class="fa-solid fa-xmark"></i></button>
+        </header>
+        <div class="vehicle-stats-details-content">
+            <div id="vehicle-stats-details-count" class="vehicle-stats-details-count"></div>
+            <div id="vehicle-stats-details-body" class="vehicle-stats-details-body"></div>
+        </div>
+    </section>
+</div>
 
 <!-- ====== SCREEN AREA ====== -->
 
@@ -2684,6 +2877,8 @@ body[data-theme="dark"] .record-title { color: #7aaeff !important; }
                                 <label>رقم اللوحة</label>
                                 <input type="text" id="input-no-plate" class="no-plate-input" value="بدون لوحات" oninput="updateAll();">
                             </div>
+
+
                         </div>
                         <div style="display:flex; align-items:flex-start; gap:8px; padding:10px; flex:1; flex-wrap:nowrap; min-width:0; overflow-x:auto;">
                             <div class="field-group" style="flex:0 0 120px; min-width:120px;">
@@ -2698,21 +2893,38 @@ body[data-theme="dark"] .record-title { color: #7aaeff !important; }
                                 <label>نوع المركبة</label>
                                 <div style="display:flex; align-items:flex-end; gap:5px; flex-wrap:nowrap; min-width:0;">
                                     <select id="vehicle-type" onchange="toggleOther('vehicle-type','vehicle-type-other-wrapper'); updateAll();" style="width:125px; min-width:125px;">
-                                        <option value="">-- اختر --</option>
-                                        <option value="دراجة نارية">دراجة نارية</option>
-                                        <option value="توك توك">توك توك</option>
-                                        <option value="تروسيكل">تروسيكل</option>
-                                        <option value="ملاكي">ملاكي</option>
-                                        <option value="اجرة">اجرة</option>
-                                        <option value="نقل">نقل</option>
-                                        <option value="رحلات">رحلات</option>
-                                        <option value="اتوبيس خاص">اتوبيس خاص</option>
-                                        <option value="أخرى">اخري</option>
+                    <option value="">-- اختر --</option>
+                     <option value="دراجة نارية">دراجة نارية</option>
+                     <option value="توك توك">توك توك</option>
+                     <option value="تروسيكل">تروسيكل</option>
+                     <option value="ملاكي">ملاكي</option>
+                     <option value="اجرة">اجرة</option>
+                     <option value="نقل">نقل</option>
+                     <option value="رحلات">رحلات</option>
+                     <option value="اتوبيس خاص">اتوبيس خاص</option>
+                     <option value="اتوبيس عام">اتوبيس عام</option>
+                     <option value="أخرى">اخري</option>
                                     </select>
                                     <div id="vehicle-type-other-wrapper" data-open-display="flex" style="display:none; align-items:flex-end; gap:4px; white-space:nowrap; min-width:0;">
                                         <label style="margin-bottom:4px;">النوع</label>
                                         <input type="text" id="vehicle-type-other" placeholder="اكتب النوع" oninput="updateAll();" style="width:110px; min-width:0; box-sizing:border-box;">
                                     </div>
+
+
+
+<!-- زر تحديد هل المركبة متحفظ عليها أم لا -->
+<div class="field-group" style="margin-right: 10px; flex-shrink: 0;">
+     <label style="font-size: 12.5px; cursor: pointer; color: #1e3a5f; display: flex; align-items: center; gap: 5px; font-weight: bold; background: #e5edf8; padding: 4px 6px; border-radius: 6px; border: 1.5px solid #c5cfe0; user-select: none; transition: background 0.2s; line-height: 1.2;" onmouseover="this.style.background='#d5e3f4'" onmouseout="this.style.background='#e5edf8'">
+         <input type="checkbox" id="is-impounded-checkbox" checked style="width: 14px; height: 14px; margin: 0; cursor: pointer; accent-color: #28a745; flex-shrink: 0;">
+         <span style="display: flex; flex-direction: column; text-align: center;">
+             <span>الـمـركـبـــــة</span>
+             <span>مُتحفظ عليها</span>
+         </span>
+     </label>
+</div>
+
+
+
                                 </div>
                             </div>
                         </div>
@@ -2841,10 +3053,21 @@ body[data-theme="dark"] .record-title { color: #7aaeff !important; }
             <div class="card-body" style="flex-wrap:nowrap; align-items:flex-start;">
                 <div class="decision-controls" style="width:270px; gap:6px;">
                     <div class="field-group">
+                        <label>القرار</label>
+                        <select id="fine-decision-mode" onchange="toggleFineDecisionMode()" style="width:100%;">
+                            <option value="fine" selected>غرامة</option>
+                            <option value="save">حفظ المحضر</option>
+                        </select>
+                    </div>
+                    <div class="field-group" id="fine-amount-wrapper">
                         <label>مبلغ الغرامة (أرقام)</label>
                         <input type="number" id="f-fine" placeholder="بالجنيه" style="width:100%"
                                oninput="onFineInput()" onchange="updateAll()">
                         <div class="amount-words" id="fine-words" style="font-size:12px; color:#2c5f2e; font-style:italic; margin-top:3px; min-height:18px;"></div>
+                    </div>
+                    <div class="field-group" id="save-reason-wrapper" style="display:none;">
+                        <label>سبب الحفظ</label>
+                        <input type="text" id="save-reason" placeholder="مثال: عدم الجريمة" style="width:100%" oninput="updateAll()">
                     </div>
                 </div>
                 <div class="field-group" style="flex-grow:1;">
@@ -3081,7 +3304,7 @@ body[data-theme="dark"] .record-title { color: #7aaeff !important; }
                 <div class="line" style="font-size:9.5pt;">
                     وبعد الاطلاع على قانون الإجراءات الجنائية و طلبات المدعى بالحق المدني أمرنا
                 </div>
-                <div class="line">
+                <div class="line" id="p-fine-line-l">
                     بتغريم المتهم /&nbsp;
                     <span class="d" id="p-fine-l"></span>&nbsp;جنيه والمصاريف الجنائية وبإلزامه بأن يدفع للمدعي بالحق المدني : .
                 </div>
@@ -4926,6 +5149,14 @@ function updateAll() {
         ? get('f-fine') + (fineWords ? ' ( ' + fineWords + ' )' : '')
         : '';
 
+    const fineModeVal = (document.getElementById('fine-decision-mode') || {}).value || 'fine';
+    const isFineSaveMode = fineModeVal === 'save';
+    if (isFineSaveMode) {
+        const fineTextElForSave = document.getElementById('fine-text');
+        if (fineTextElForSave && typeof getSaveReasonText === 'function') fineTextElForSave.value = getSaveReasonText();
+    }
+    if (typeof syncFineDecisionPrintLines === 'function') syncFineDecisionPrintLines(isFineSaveMode);
+
     const viols = getViolations();
 
     /* ---- Show correct print page ---- */
@@ -5441,6 +5672,7 @@ async function saveMahdarData() {
             nationalId:   get('f-national-id'),
             address:      get('input-address'),
             plateType, plate,
+            reportDate: get('input-date').trim(),
             c1: get('c1'), c2: get('c2'), c3: get('c3'), n1: get('n1'),
             noPlateTxt:   get('input-no-plate'),
             vehicleType:  (document.getElementById('vehicle-type') || {}).value || '',
@@ -5449,6 +5681,8 @@ async function saveMahdarData() {
             incidentDate: get('f-incident-date'),
             fine:         get('f-fine'),
             fineText:     get('fine-text'),
+            fineDecisionMode: (document.getElementById('fine-decision-mode') || {}).value || 'fine',
+            saveReason:   get('save-reason'),
             vehDecSelect: vehDecSel ? vehDecSel.value : '',
             vehDecText:   get('vehicle-decision-text'),
             sabeelSelect: sabeelSel ? sabeelSel.value : '',
@@ -5466,6 +5700,7 @@ async function saveMahdarData() {
             jalsaDay:     (document.getElementById('f-jalsa-day-select') || {}).value || '',
             jalsaDayOther: get('f-jalsa-day-other'),
             currentDecision: currentDecision,
+            isImpounded: document.getElementById('is-impounded-checkbox') ? document.getElementById('is-impounded-checkbox').checked : true,
              savedAt:      new Date().toLocaleString('ar-EG'),
              reportMode:   'main',
              recordType:   'main',
@@ -5508,8 +5743,14 @@ async function saveMahdarData() {
         }
         db.mahdar_index = index;
         
+        // إصلاح الأقسام القديمة التي تلفت بعض حروفها قبل إعادة الحفظ.
+        repairStoredDepartmentFields(db);
+        // منع إعادة حفظ محارف الاستبدال الناتجة عن تلف ترميز قديم في قاعدة البيانات.
+        // لا نغيّر النص العربي الصحيح؛ ننظف فقط U+FFFD الذي يظهر عادةً على هيئة علامة استفهام.
+        cleanCorruptedStoredText(db);
         await saveToServerData(db, key);
         if (typeof loadArchiveToSidebar === 'function') await loadArchiveToSidebar();
+        if (typeof refreshVehicleStats === 'function') refreshVehicleStats();
     }
 
 
@@ -5623,7 +5864,8 @@ function validateFields() {
     }
 
     if (!get('sabeel-select')) addErr('sabeel-select', 'قرار إخلاء السبيل غير محدد');
-    if (!get('f-fine')) addErr('f-fine', 'مبلغ الغرامة غير مكتوب');
+    const fineModeForValidation = (document.getElementById('fine-decision-mode') || {}).value || 'fine';
+    if (fineModeForValidation !== 'save' && !get('f-fine')) addErr('f-fine', 'مبلغ الغرامة غير مكتوب');
     if (!get('vehicle-decision-select')) addErr('vehicle-decision-select', 'قرار المركبة غير محدد');
 
     if (!get('f-jalsa-day-select')) {
@@ -5790,6 +6032,8 @@ async function printDoc() {
                     (saved.vehicleType || '') !== (document.getElementById('vehicle-type')||{}).value ||
                     (saved.fine || '') !== getVal('f-fine').trim() ||
                     (saved.fineText || '') !== getVal('fine-text').trim() ||
+                    (saved.fineDecisionMode || 'fine') !== ((document.getElementById('fine-decision-mode')||{}).value || 'fine') ||
+                    (saved.saveReason || '') !== getVal('save-reason').trim() ||
                     (saved.vehDecSelect || '') !== (document.getElementById('vehicle-decision-select')||{}).value ||
                     (saved.vehDecText || '') !== getVal('vehicle-decision-text').trim() ||
                     (saved.sabeelSelect || '') !== (document.getElementById('sabeel-select')||{}).value ||
@@ -5857,12 +6101,16 @@ async function loadMahdarFromStorage() {
 
         // حقول نصية
     const set = (id, val) => { const el = document.getElementById(id); if (el && val != null) el.value = val; };
+    if (d.reportDate) set('input-date', d.reportDate);
     set('input-name',            d.name);
     set('f-national-id',         d.nationalId);
     set('input-address',         d.address);
     set('f-incident-date',       d.incidentDate);
     set('f-fine',                d.fine);
     set('fine-text',             d.fineText);
+    set('fine-decision-mode',    d.fineDecisionMode || 'fine');
+    set('save-reason',           d.saveReason);
+    if (typeof applyFineDecisionModeUI === 'function') applyFineDecisionModeUI(d.fineDecisionMode || 'fine');
     set('vehicle-decision-text', d.vehDecText);
     set('sabeel-text',           d.sabeelText);
     set('input-boss-other',      d.bossOther);
@@ -6024,6 +6272,10 @@ function clearAll(suppressToast) {
     const dateEl = document.getElementById('input-date');
     const savedDate = dateEl ? dateEl.value : '';
     const printE3lanCheckbox = document.getElementById('toggle-print-e3lan');
+
+    const impoundedCb = document.getElementById('is-impounded-checkbox');
+    if (impoundedCb) impoundedCb.checked = true;
+
     if (printE3lanCheckbox) printE3lanCheckbox.checked = false;
 
     ['input-caseNum','input-dept-other','input-boss-other','input-date',
@@ -6046,6 +6298,11 @@ function clearAll(suppressToast) {
     togglePlateInput();
 
     clearViolItems();
+    const fineDecisionModeEl = document.getElementById('fine-decision-mode');
+    if (fineDecisionModeEl) fineDecisionModeEl.value = 'fine';
+    if (typeof applyFineDecisionModeUI === 'function') applyFineDecisionModeUI('fine');
+    const saveReasonClearEl = document.getElementById('save-reason');
+    if (saveReasonClearEl) saveReasonClearEl.value = '';
     const fineTextEl = document.getElementById('fine-text');
     if (fineTextEl) fineTextEl.value = '';
     const badgeFine = document.getElementById('badge-fine');
@@ -6720,9 +6977,12 @@ async function loadArchiveToSidebar() {
         const shortName = d.name ? d.name.split(" ").slice(0, 3).join(" ") : "بدون اسم";
         const dateOnly = d.savedAt ? d.savedAt.split(/[,،]/)[0].trim() : "";
         const isSession = isSessionRecord(d);
-        const badgeHtml = isSession
-            ? '<span class="record-type-badge badge-session" title="محضر جلسة">ج</span>'
-            : '<span class="record-type-badge badge-fine" title="محضر غرامة">غ</span>';
+        const isArchivedRecord = d.fineDecisionMode === 'save';
+        const badgeHtml = isArchivedRecord
+            ? '<span class="record-type-badge badge-archived" title="محضر محفوظ">م</span>'
+            : (isSession
+                ? '<span class="record-type-badge badge-session" title="محضر جلسة">ج</span>'
+                : '<span class="record-type-badge badge-fine" title="محضر غرامة">غ</span>');
         const paidBadgeHtml = (d.paymentInfo && d.paymentInfo.paid)
             ? '<span class="badge-paid" title="' + (d.paymentInfo.fineReceiptNo ? 'رقم القسيمة: ' + d.paymentInfo.fineReceiptNo : 'تم السداد') + '">✓ مسدد</span>'
             : '';
@@ -7024,6 +7284,11 @@ function applyRecordToWorkspace(key, raw) {
         set("input-caseNum", d.caseNum);
         set("input-year", d.year);
 
+        const impCb = document.getElementById('is-impounded-checkbox');
+        if (impCb) impCb.checked = d.hasOwnProperty('isImpounded') ? d.isImpounded : true;
+
+        if (d.reportDate) set("input-date", d.reportDate);
+
                 const deptSel = document.getElementById("input-dept-select");
         if (deptSel) {
             const savedDept = String(d.dept || '').trim();
@@ -7056,7 +7321,358 @@ function applyRecordToWorkspace(key, raw) {
     } catch(e) {}
 }
 
+
+// ===== إحصائية المركبات: قراءة مباشرة من أرشيف محاضر التلبسات =====
+function vehicleStatsNormalizeDigits(value) {
+    return String(value == null ? '' : value)
+        .replace(/[٠-٩]/g, ch => String(ch.charCodeAt(0) - 0x0660))
+        .replace(/[۰-۹]/g, ch => String(ch.charCodeAt(0) - 0x06f0));
+}
+
+function vehicleStatsParseDate(value) {
+    const clean = vehicleStatsNormalizeDigits(value).replace(/[\u200e\u200f\u061c]/g, '')
+        .trim().split(/[،,]/)[0].trim().replace(/[.]/g, '/');
+    if (!clean) return '';
+    let year, month, day, match;
+    if ((match = clean.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})$/))) {
+        year = Number(match[1]); month = Number(match[2]); day = Number(match[3]);
+    } else if ((match = clean.match(/^(\d{1,2})[-/](\d{1,2})[-/](\d{4})$/))) {
+        day = Number(match[1]); month = Number(match[2]); year = Number(match[3]);
+    } else return '';
+    const check = new Date(Date.UTC(year, month - 1, day));
+    if (check.getUTCFullYear() !== year || check.getUTCMonth() !== month - 1 || check.getUTCDate() !== day) return '';
+    return `${String(year).padStart(4, '0')}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+}
+
+function vehicleStatsTodayISO(date) {
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+}
+
+function initializeVehicleStatsPanel() {
+    const from = document.getElementById('vehicleStatsFrom');
+    const to = document.getElementById('vehicleStatsTo');
+    const today = new Date();
+    if (from && !from.value) from.value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-01`;
+    if (to && !to.value) to.value = vehicleStatsTodayISO(today);
+    refreshVehicleStats();
+}
+
+function vehicleStatsCanonicalType(value) {
+    return String(value || '').trim().replace(/\s+/g, ' ')
+        .replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي');
+}
+
+function vehicleStatsDepartment(d) {
+    return String(d.dept || d.department || d.deptOther || d.deptSelect || '').trim() || 'غير محدد';
+}
+
+function vehicleStatsDepartmentKey(value) {
+    return String(value || '').trim().replace(/[\u200e\u200f\u061c]/g, '')
+        .replace(/ـ/g, '').replace(/\s+/g, ' ')
+        .replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي');
+}
+
+function vehicleStatsConfiguredDepartments() {
+    const select = document.getElementById('input-dept-select');
+    if (!select) return [];
+    const unique = [], seen = new Set();
+    Array.from(select.options).forEach(option => {
+        const name = String(option.value || option.textContent || '').trim();
+        const key = vehicleStatsDepartmentKey(name);
+        if (!name || name === 'أخرى' || /^---/.test(name) || seen.has(key)) return;
+        seen.add(key); unique.push(name);
+    });
+    return unique;
+}
+
+function vehicleStatsDepartmentSimilarity(a, b) {
+    const left = vehicleStatsDepartmentKey(a), right = vehicleStatsDepartmentKey(b);
+    if (!left || !right) return 0;
+    if (left === right) return 1;
+    const matrix = Array.from({length: left.length + 1}, (_, i) => {
+        const row = Array(right.length + 1).fill(0); row[0] = i; return row;
+    });
+    for (let j = 0; j <= right.length; j++) matrix[0][j] = j;
+    for (let i = 1; i <= left.length; i++) {
+        for (let j = 1; j <= right.length; j++) {
+            matrix[i][j] = Math.min(
+                matrix[i - 1][j] + 1,
+                matrix[i][j - 1] + 1,
+                matrix[i - 1][j - 1] + (left[i - 1] === right[j - 1] ? 0 : 1)
+            );
+        }
+    }
+    return 1 - matrix[left.length][right.length] / Math.max(left.length, right.length);
+}
+
+function vehicleStatsResolveDepartment(rawValue, configuredDepartments) {
+    const raw = String(rawValue || '').trim();
+    if (!raw) return '';
+    if (!configuredDepartments.length) return raw;
+    const exact = configuredDepartments.find(name => vehicleStatsDepartmentKey(name) === vehicleStatsDepartmentKey(raw));
+    if (exact) return exact;
+    let best = '', bestScore = 0;
+    configuredDepartments.forEach(name => {
+        const score = vehicleStatsDepartmentSimilarity(raw, name);
+        if (score > bestScore) { bestScore = score; best = name; }
+    });
+    // يسمح فقط بالتلف البسيط الناتج عن محارف Unicode التالفة، ولا يحول قسمًا مختلفًا إلى قسم آخر.
+    return bestScore >= 0.72 ? best : '';
+}
+
+function vehicleStatsDepartmentLabel(value) {
+    const words = String(value || '').trim().split(/\s+/).filter(Boolean);
+    if (words.length < 2) return escapeVehicleHtml(words.join(' '));
+    const splitAt = Math.ceil(words.length / 2);
+    return `${escapeVehicleHtml(words.slice(0, splitAt).join(' '))}<br>${escapeVehicleHtml(words.slice(splitAt).join(' '))}`;
+}
+
+function cleanCorruptedStoredText(value) {
+    if (typeof value === 'string') return value.replace(/\uFFFD/g, '');
+    if (Array.isArray(value)) return value.map(cleanCorruptedStoredText);
+    if (value && typeof value === 'object') {
+        Object.keys(value).forEach(key => { value[key] = cleanCorruptedStoredText(value[key]); });
+    }
+    return value;
+}
+
+function repairStoredDepartmentFields(db) {
+    const configured = vehicleStatsConfiguredDepartments();
+    if (!configured.length || !db || typeof db !== 'object') return;
+    Object.keys(db).forEach(key => {
+        const record = db[key];
+        if (!record || typeof record !== 'object' || Array.isArray(record)) return;
+        const raw = record.dept || record.department || record.deptOther || record.deptSelect;
+        const fixed = vehicleStatsResolveDepartment(raw, configured);
+        if (!fixed) return;
+        if ('dept' in record) record.dept = fixed;
+        if ('department' in record) record.department = fixed;
+        if ('deptSelect' in record && record.deptSelect !== 'أخرى') record.deptSelect = fixed;
+        if (record.fields && typeof record.fields === 'object' && 'department' in record.fields) record.fields.department = fixed;
+    });
+}
+
+let vehicleStatsDetails = {};
+let vehicleStatsDetailsReturnFocus = null;
+
+function vehicleStatsDetailCharge(record) {
+    const source = [record && record.violations, record && record.arrestItems, record && record.accusation, record && record.charge, record && record.crime, record && record.arrestReason]
+        .find(value => Array.isArray(value) ? value.length : String(value || '').trim());
+    if (!source) return '—';
+    const items = Array.isArray(source) ? source : [source];
+    const labels = items.map(item => String(item && (item.label || item.text || item.code) || item || '').trim()).filter(Boolean);
+    return labels.length ? labels.join('، ') : '—';
+}
+
+function vehicleStatsDetailDate(value) {
+    const iso = vehicleStatsParseDate(value);
+    if (!iso) return String(value || '').trim() || '—';
+    const parts = iso.split('-');
+    return `${parts[2]}/${parts[1]}/${parts[0]}`;
+}
+
+function vehicleStatsBuildDetail(record, type, dept) {
+    return {
+        caseNum: String(record.caseNum || '—').trim() || '—',
+        year: String(record.year || '').trim(),
+        name: String(record.name || record.accusedName || '—').trim() || '—',
+        dept: dept || '—', type: type || '—',
+        date: vehicleStatsDetailDate(record.incidentDate || record.reportDate),
+        charge: vehicleStatsDetailCharge(record)
+    };
+}
+
+function openVehicleStatsDetails(type, dept) {
+    const overlay = document.getElementById('vehicle-stats-details-overlay');
+    const title = document.getElementById('vehicle-stats-details-title');
+    const period = document.getElementById('vehicle-stats-details-period');
+    const dateNote = document.getElementById('vehicle-stats-details-date-note');
+    const count = document.getElementById('vehicle-stats-details-count');
+    const body = document.getElementById('vehicle-stats-details-body');
+    if (!overlay || !body) return;
+    const key = `${type}|||${dept}`;
+    const cases = (vehicleStatsDetails[key] || []).slice();
+    cases.sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')) || String(a.caseNum).localeCompare(String(b.caseNum), 'ar', {numeric:true}));
+    const typeTitle = type === '__all__' ? 'كل أنواع المركبات' : type;
+    const deptTitle = dept === '__all__' ? 'جميع الأقسام' : `قسم ${dept}`;
+    if (title) title.textContent = `محاضر ${typeTitle} — ${deptTitle}`;
+    const from = (document.getElementById('vehicleStatsFrom') || {}).value || '—';
+    const to = (document.getElementById('vehicleStatsTo') || {}).value || '—';
+    if (period) period.textContent = `الفترة المحددة: ${from} إلى ${to}`;
+    if (dateNote) dateNote.textContent = 'البيانات المعروضة هي المحاضر التي كوّنت العدد الظاهر في الإحصائية بعد تطبيق الفترة الزمنية ومنع التكرار.';
+    if (count) count.textContent = `عدد المحاضر: ${cases.length.toLocaleString('ar-EG')}`;
+    if (!cases.length) {
+        body.innerHTML = '<div class="vehicle-stats-details-empty">لا توجد محاضر مطابقة لهذه الإحصائية في الفترة المحددة.</div>';
+    } else {
+        const rows = cases.map(item => `<tr>
+            <td class="details-case-number">${escapeHtml(item.caseNum + (item.year ? ' / ' + item.year : ''))}</td>
+            <td>${escapeHtml(item.name)}</td><td>${escapeHtml(item.dept)}</td><td class="details-vehicle-type">${escapeHtml(item.type)}</td>
+            <td>${escapeHtml(item.date)}</td><td class="details-charge">${escapeHtml(item.charge)}</td>
+        </tr>`).join('');
+        body.innerHTML = `<table class="vehicle-stats-details-table"><thead><tr><th>رقم المحضر</th><th>اسم المتهم</th><th>القسم</th><th>نوع المركبة</th><th>تاريخ الواقعة</th><th>التهمة / سبب الضبط</th></tr></thead><tbody>${rows}</tbody></table>`;
+    }
+    vehicleStatsDetailsReturnFocus = document.activeElement;
+    overlay.classList.add('show'); overlay.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    const close = overlay.querySelector('.vehicle-stats-details-close');
+    if (close) close.focus();
+}
+
+function closeVehicleStatsDetails() {
+    const overlay = document.getElementById('vehicle-stats-details-overlay');
+    if (!overlay) return;
+    overlay.classList.remove('show'); overlay.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    if (vehicleStatsDetailsReturnFocus && typeof vehicleStatsDetailsReturnFocus.focus === 'function') vehicleStatsDetailsReturnFocus.focus();
+}
+
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        const overlay = document.getElementById('vehicle-stats-details-overlay');
+        if (overlay && overlay.classList.contains('show')) closeVehicleStatsDetails();
+    }
+});
+
+function refreshVehicleStats() {
+    const rows = document.getElementById('vehicleStatsRows');
+    const head = document.getElementById('vehicleStatsHead');
+    const error = document.getElementById('vehicleStatsError');
+    const fromEl = document.getElementById('vehicleStatsFrom');
+    const toEl = document.getElementById('vehicleStatsTo');
+    if (!rows || !head || !fromEl || !toEl) return;
+    const fromDate = vehicleStatsParseDate(fromEl.value);
+    const toDate = vehicleStatsParseDate(toEl.value);
+    if (!fromDate || !toDate || fromDate > toDate) {
+        if (error) error.textContent = 'يرجى اختيار فترة صحيحة؛ تاريخ البداية يجب ألا يتجاوز تاريخ النهاية.';
+        head.innerHTML = '<tr><th>نوع المركبة</th><th>القسم</th></tr>';
+        rows.innerHTML = '<tr><td class="vehicle-stats-loading" colspan="2">تحقق من الفترة الزمنية المحددة</td></tr>';
+        vehicleStatsDetails = {};
+        return;
+    }
+    if (error) error.textContent = '';
+    rows.innerHTML = '<tr><td class="vehicle-stats-loading" colspan="2">جارٍ تحميل السجلات…</td></tr>';
+    Promise.resolve().then(() => fetchServerData()).then(function(db) {
+        db = db || {};
+        const index = Array.isArray(db.mahdar_index) ? db.mahdar_index : Object.keys(db).filter(key => key !== 'mahdar_index');
+        const configuredDepartments = vehicleStatsConfiguredDepartments();
+        const configuredByKey = new Map(configuredDepartments.map(name => [vehicleStatsDepartmentKey(name), name]));
+        const seen = new Set(), trackedIncidents = [], details = {};
+        const departments = new Set(), counts = new Map();
+        const typeOrder = ['دراجة نارية', 'توك توك', 'تروسيكل', 'السيارات'];
+        let allCount = 0;
+        index.forEach(function(key) {
+            if (seen.has(key)) return;
+            seen.add(key);
+            const d = db[key];
+            if (!d || typeof d !== 'object') return;
+            if (d.reportMode === 'objection' || d.reportMode === 'bail_reduction' || /__(objection|bail_reduction)(__bail_reduction)?$/.test(String(key))) return;
+            if (d.hasOwnProperty('isImpounded') && d.isImpounded === false) return;
+            if (d.legacyPrePortal || (d.paymentInfo && d.paymentInfo.legacyPrePortal)) return;
+            const vehicleType = String(d.vehicleTypeText || d.vehicleTypeOther || d.vehicleType || '').trim();
+            if (!vehicleType) return;
+            // أولوية الفلترة: تاريخ الواقعة، ثم تاريخ التحرير، ثم تاريخ الحفظ في قاعدة البيانات.
+            const recordDate = vehicleStatsParseDate(d.incidentDate)
+                || vehicleStatsParseDate(d.reportDate || d.inputDate || d.qararDate)
+                || vehicleStatsParseDate(d.savedAt);
+            if (!recordDate || recordDate < fromDate || recordDate > toDate) return;
+            const incDateStr = vehicleStatsParseDate(d.incidentDate) || recordDate;
+            const parts = incDateStr.split('-');
+            const incidentDateMs = parts.length === 3 ? new Date(parts[0], parts[1] - 1, parts[2]).getTime() : 0;
+            let identifier = String(d.nationalId || '').replace(/\D/g, '');
+            if (!identifier || identifier.length < 14) {
+                identifier = String(d.plate || '').trim();
+                if (!identifier || identifier.includes('..')) identifier = String(d.name || '').trim();
+            }
+            if (identifier && !identifier.includes('...') && trackedIncidents.some(t => t.id === identifier && Math.abs(t.dateMs - incidentDateMs) / 86400000 <= 10)) return;
+            trackedIncidents.push({ id: identifier, dateMs: incidentDateMs });
+            const rawDept = vehicleStatsDepartment(d);
+            const dept = vehicleStatsResolveDepartment(
+                configuredByKey.get(vehicleStatsDepartmentKey(rawDept)) || rawDept,
+                configuredDepartments
+            );
+            if (!dept) return;
+            const typeKey = vehicleStatsCanonicalType(vehicleType);
+            const isTricycle = /تروسيكل/.test(typeKey);
+            const isTukTuk = /توكتوك|توك توك/.test(typeKey);
+            const normalizedType = isTricycle ? 'تروسيكل' : isTukTuk ? 'توك توك' : /دراج/.test(typeKey) ? 'دراجة نارية' : 'السيارات';
+            departments.add(dept);
+            if (!counts.has(normalizedType)) counts.set(normalizedType, new Map());
+            const byDept = counts.get(normalizedType);
+            byDept.set(dept, (byDept.get(dept) || 0) + 1);
+            const detailKey = `${normalizedType}|||${dept}`;
+            if (!details[detailKey]) details[detailKey] = [];
+            const detail = vehicleStatsBuildDetail(d, normalizedType, dept);
+            details[detailKey].push(detail);
+            const departmentTotalKey = `__all__|||${dept}`;
+            const grandTotalKey = '__all__|||__all__';
+            if (!details[departmentTotalKey]) details[departmentTotalKey] = [];
+            if (!details[grandTotalKey]) details[grandTotalKey] = [];
+            details[departmentTotalKey].push(detail);
+            details[grandTotalKey].push(detail);
+            allCount++;
+        });
+        vehicleStatsDetails = details;
+        const deptList = [];
+        const deptKeys = new Set();
+        configuredDepartments.concat(Array.from(departments)).forEach(dept => {
+            const key = vehicleStatsDepartmentKey(dept);
+            if (!key || deptKeys.has(key)) return;
+            deptKeys.add(key); deptList.push(dept);
+        });
+        head.innerHTML = `<tr><th class="stats-type-cell">نوع المركبة</th>${deptList.map((d, index) => `<th class="stats-dept-head stats-dept-col dept-color-${index % 6}">${vehicleStatsDepartmentLabel(d)}</th>`).join('') || '<th>لا توجد أقسام</th>'}</tr>`;
+        rows.innerHTML = '';
+        const appendTypes = (types, addDivider) => {
+            if (addDivider) {
+                const divider = document.createElement('tr'); divider.className = 'stats-car-divider';
+                divider.innerHTML = `<td colspan="${Math.max(1, deptList.length + 1)}" aria-hidden="true"></td>`; rows.appendChild(divider);
+            }
+            types.forEach(type => {
+                const tr = document.createElement('tr');
+                const typeCell = document.createElement('td'); typeCell.className = 'stats-type-cell'; typeCell.textContent = type; tr.appendChild(typeCell);
+                const byDept = counts.get(type) || new Map();
+                deptList.forEach((dept, index) => {
+                    const td = document.createElement('td'); td.className = `stats-count-cell stats-dept-col dept-color-${index % 6}`;
+                    const value = byDept.get(dept) || 0; td.textContent = value.toLocaleString('ar-EG');
+                    if (value > 0) {
+                        td.classList.add('vehicle-stats-count-action'); td.setAttribute('role', 'button'); td.setAttribute('tabindex', '0');
+                        td.title = `اضغط لعرض محاضر ${type} — قسم ${dept}`;
+                        td.onclick = event => { event.stopPropagation(); openVehicleStatsDetails(type, dept); };
+                        td.onkeydown = event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); openVehicleStatsDetails(type, dept); } };
+                    }
+                    tr.appendChild(td);
+                });
+                if (!deptList.length) { const td = document.createElement('td'); td.className = 'stats-count-cell'; td.textContent = '0'; tr.appendChild(td); }
+                rows.appendChild(tr);
+            });
+        };
+        appendTypes(typeOrder.slice(0, 3), false); appendTypes(['السيارات'], true);
+        const totalRow = document.createElement('tr'); totalRow.className = 'stats-total-row';
+        totalRow.innerHTML = `<td class="stats-grand-label">الإجمالي العام</td>${deptList.map((dept, index) => { let total = 0; counts.forEach(byDept => total += byDept.get(dept) || 0); return `<td class="stats-dept-col dept-color-${index % 6} ${total ? 'vehicle-stats-count-action' : ''}" data-total-dept="${escapeHtml(dept)}" role="${total ? 'button' : ''}" tabindex="${total ? '0' : '-1'}" title="${total ? `اضغط لعرض كل محاضر قسم ${escapeHtml(dept)}` : ''}">${total.toLocaleString('ar-EG')}</td>`; }).join('') || '<td>0</td>'}`;
+        Array.from(totalRow.querySelectorAll('[data-total-dept]')).forEach(cell => {
+            const dept = cell.getAttribute('data-total-dept');
+            if (!dept || cell.textContent.trim() === '0') return;
+            cell.onclick = event => { event.stopPropagation(); openVehicleStatsDetails('__all__', dept); };
+            cell.onkeydown = event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); openVehicleStatsDetails('__all__', dept); } };
+        });
+        rows.appendChild(totalRow);
+        const grand = document.createElement('tr');
+        grand.innerHTML = `<td class="stats-grand-label">إجمالي المركبات</td><td class="stats-grand-total ${allCount ? 'vehicle-stats-count-action' : ''}" colspan="${Math.max(1, deptList.length)}" role="${allCount ? 'button' : ''}" tabindex="${allCount ? '0' : '-1'}" title="${allCount ? 'اضغط لعرض جميع المحاضر' : ''}">${allCount.toLocaleString('ar-EG')} مركبة</td>`;
+        const grandCell = grand.querySelector('.stats-grand-total');
+        if (grandCell && allCount) {
+            grandCell.onclick = event => { event.stopPropagation(); openVehicleStatsDetails('__all__', '__all__'); };
+            grandCell.onkeydown = event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); openVehicleStatsDetails('__all__', '__all__'); } };
+        }
+        rows.appendChild(grand);
+    }).catch(function() {
+        vehicleStatsDetails = {};
+        head.innerHTML = '<tr><th>نوع المركبة</th><th>القسم</th></tr>';
+        rows.innerHTML = '<tr><td class="vehicle-stats-loading" colspan="2">تعذر تحميل بيانات الإحصائية من الأرشيف.</td></tr>';
+        if (error) error.textContent = 'حدث خطأ أثناء قراءة سجل المحاضر. حاول مرة أخرى.';
+    });
+}
+
 document.addEventListener("DOMContentLoaded", () => {
+    initializeVehicleStatsPanel();
     // تشغيل دالة ضبط شكل الأزرار فور تحميل الصفحة لتعكس الاختيارات المحفوظة
     if (typeof syncArchiveFilterUI === 'function') syncArchiveFilterUI();
     
@@ -7118,6 +7734,8 @@ document.addEventListener("DOMContentLoaded", () => {
       /* قسم الشرطة */
       rebuildSelect(document.getElementById('input-dept-select'), cfg.stations, true);
       if (typeof refreshSecondaryStationList === 'function') refreshSecondaryStationList();
+      /* إعادة رسم الإحصائية بنفس ترتيب الأقسام الجديد فور تحديث لوحة التحكم */
+      if (typeof refreshVehicleStats === 'function') refreshVehicleStats();
       /* اسم النيابة */
       if (cfg.prosecutionName) replaceNiabatName(cfg.prosecutionName);
       
@@ -10848,6 +11466,12 @@ let lastAutoFineTotal = 0;
 // 💡 دالة الحساب التلقائي للغرامة (بمقارنة عمياء تتجاهل المسافات + احترام التعديل اليدوي)
 // ==========================================
 function calculateTotalFine() {
+    const fineModeSelForCalc = document.getElementById('fine-decision-mode');
+    if (fineModeSelForCalc && fineModeSelForCalc.value === 'save') {
+        const badgeFineSave = document.getElementById('badge-fine');
+        if (badgeFineSave) badgeFineSave.textContent = 'حفظ المحضر';
+        return; // لا يتم حساب أي غرامة تلقائية طالما القرار «حفظ المحضر»
+    }
     let total = 0;
     
     violItems.forEach(item => {
@@ -10897,6 +11521,73 @@ function calculateTotalFine() {
             fineTextEl.value = '';
         }
     }
+}
+
+/* ===================================================
+   قرار الغرامة: غرامة / حفظ المحضر
+=================================================== */
+function applyFineDecisionModeUI(mode) {
+    const isSave = mode === 'save';
+    const fineInput = document.getElementById('f-fine');
+    const fineTextEl = document.getElementById('fine-text');
+    const cardFine = document.getElementById('card-fine');
+    const fineAmountWrapper = document.getElementById('fine-amount-wrapper');
+    const saveReasonWrapper = document.getElementById('save-reason-wrapper');
+    if (fineInput) fineInput.disabled = isSave;
+    if (fineTextEl) fineTextEl.disabled = isSave;
+    if (cardFine) cardFine.classList.toggle('fine-card-frozen', isSave);
+    if (fineAmountWrapper) fineAmountWrapper.style.display = isSave ? 'none' : '';
+    if (saveReasonWrapper) saveReasonWrapper.style.display = isSave ? '' : 'none';
+}
+
+function toggleFineDecisionMode() {
+    const modeSel = document.getElementById('fine-decision-mode');
+    const mode = modeSel ? modeSel.value : 'fine';
+    if (mode === 'save') {
+        const fineInput = document.getElementById('f-fine');
+        const fineWordsEl = document.getElementById('fine-words');
+        const badgeFine = document.getElementById('badge-fine');
+        if (fineInput) fineInput.value = '';
+        if (fineWordsEl) fineWordsEl.textContent = '';
+        if (badgeFine) badgeFine.textContent = 'حفظ المحضر';
+    } else {
+        const saveReasonEl = document.getElementById('save-reason');
+        if (saveReasonEl) saveReasonEl.value = '';
+    }
+    applyFineDecisionModeUI(mode);
+    updateAll();
+}
+
+function getSaveReasonText() {
+    const reason = ((document.getElementById('save-reason') || {}).value || '').trim();
+    return reason ? ('تم حفظ المحضر ل' + reason) : 'تم حفظ المحضر';
+}
+
+/* الأسطر المطبوعة الخاصة بقرار الغرامة (4 نسخ: صيغة كاملة/مختصرة × نهارية/مسائية).
+   عند اختيار «حفظ المحضر» يتم استبدال الجملة بعد رقم البند (ثالثاً/ثانياً) بنص الحفظ،
+   مع الإبقاء على رقم البند نفسه حتى لا ينكسر تسلسل الترقيم مع باقي القرارات (ثانياً، رابعاً...).
+   وإعادتها لأصلها بالكامل عند العودة لـ«غرامة». */
+var FINE_LINE_IDS = ['p-fine-line-u', 'p-fine-line-l', 'pm-fine-line-u', 'pm-fine-line-l'];
+var FINE_LINE_ORIGINAL_HTML = {};
+FINE_LINE_IDS.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) FINE_LINE_ORIGINAL_HTML[id] = el.innerHTML;
+});
+
+function syncFineDecisionPrintLines(isSaveMode) {
+    FINE_LINE_IDS.forEach(function(id) {
+        var el = document.getElementById(id);
+        if (!el) return;
+        if (isSaveMode) {
+            var original = FINE_LINE_ORIGINAL_HTML[id] || '';
+            var labelMatch = original.match(/^(\s*<span[^>]*>[^<]*<\/span>)\s*:/);
+            var labelHtml = labelMatch ? labelMatch[1] : '';
+            el.innerHTML = (labelHtml ? labelHtml + ': ' : '') +
+                '<span style="font-weight:bold; font-size:12pt; color:#1e3a5f;">' + getSaveReasonText() + '</span>';
+        } else if (FINE_LINE_ORIGINAL_HTML[id] !== undefined && el.innerHTML !== FINE_LINE_ORIGINAL_HTML[id]) {
+            el.innerHTML = FINE_LINE_ORIGINAL_HTML[id];
+        }
+    });
 }
 
 

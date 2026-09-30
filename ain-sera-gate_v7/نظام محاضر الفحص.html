@@ -1345,8 +1345,10 @@ thead th[data-tip]:hover::before {
 
 .badge-fine { background: #28a745; }
 .badge-session { background: #1e3a5f; }
+.badge-archived { background: #7c3aed; }
 
 [data-theme="dark"] .badge-session { background: #c9a200; color: #1e3a5f; }
+[data-theme="dark"] .badge-archived { background: #a78bfa; color: #2e1065; }
 
 [data-theme="dark"] .archive-filter-strip { background: rgba(0,0,0,0.2); }
 [data-theme="dark"] .filter-strip-btn { background: #24344f; color: #a8c4e0; border-color: #4a6a94; }
@@ -3057,6 +3059,38 @@ document.addEventListener('keydown', function(e) {
     targetRow.classList.add('active-row');
 });
 
+
+
+// تفعيل زر Enter و Tab للاستيراد في خلية رقم المحضر فقط (للمودين معاً)
+document.getElementById('mainTable').addEventListener('keydown', function(e) {
+    if (e.target.classList.contains('case-num-top')) {
+        if (e.key === 'Enter' || e.key === 'Tab') {
+            e.preventDefault(); // منع السطر الجديد (للـ Enter) أو التنقل الافتراضي البطيء (للـ Tab)
+            e.target.blur();    // تشغيل دالة الاستيراد أوتوماتيكياً
+            
+            // نقل المؤشر مباشرة لخلية "اسم المتهم" (متجاوزاً خلية السنة)
+            var tr = e.target.closest('tr');
+            if (tr && tr.cells[2]) {
+                var nextCell = tr.cells[2].querySelector('[contenteditable]');
+                if (nextCell) {
+                    // مهلة قصيرة جداً لضمان بدء الاستيراد قبل نقل المؤشر
+                    setTimeout(function() {
+                        nextCell.focus();
+                        // وضع المؤشر في نهاية النص (لو كان هناك اسم مستورد)
+                        var range = document.createRange();
+                        var sel = window.getSelection();
+                        range.selectNodeContents(nextCell);
+                        range.collapse(false);
+                        sel.removeAllRanges();
+                        sel.addRange(range);
+                    }, 50);
+                }
+            }
+        }
+    }
+});
+
+
 document.getElementById('mainTable').addEventListener('click', function(e) {
     if (e.target.closest('.violation-search-input') || e.target.closest('.violation-search-suggestions')) return;
     if (e.target.closest('.inspection-inline-list')) return;
@@ -3366,9 +3400,12 @@ async function loadFloatingArchive() {
         const shortName = d.name ? d.name.split(' ').slice(0, 3).join(' ') : 'بدون اسم';
         const dateOnly = d.savedAt ? d.savedAt.split(/[,،]/)[0].trim() : '';
         const isSession = isSessionRecord(d);
-        const badgeHtml = isSession
-            ? '<span class="record-type-badge badge-session" title="محضر جلسة">ج</span>'
-            : '<span class="record-type-badge badge-fine" title="محضر غرامة">غ</span>';
+        const isArchivedRecord = d.fineDecisionMode === 'save';
+        const badgeHtml = isArchivedRecord
+            ? '<span class="record-type-badge badge-archived" title="محضر محفوظ">م</span>'
+            : (isSession
+                ? '<span class="record-type-badge badge-session" title="محضر جلسة">ج</span>'
+                : '<span class="record-type-badge badge-fine" title="محضر غرامة">غ</span>');
         const paidBadgeHtml = (d.paymentInfo && d.paymentInfo.paid)
             ? '<span class="badge-paid" title="' + (d.paymentInfo.fineReceiptNo ? 'رقم القسيمة: ' + d.paymentInfo.fineReceiptNo : 'تم السداد') + '">✓ مسدد</span>'
             : '';
@@ -6608,12 +6645,44 @@ body.inventory-mode-active .hasr-bottom-row > .hasr-signers-bar { grid-column: 2
     
     function moveInventoryRow(button, direction) {
         if (hasrBlocked()) return;
+
+        // --- فحص الفلاتر النشطة قبل السماح بالتحريك ---
+        var thCase = document.getElementById('th-case-num');
+        var thInv = document.getElementById('th-inventory-num');
+        var thAddr = document.getElementById('th-inventory-address');
+
+        if (thCase && thCase.getAttribute('data-sort')) {
+            if (typeof window.showInspectionInfoAlert === 'function') {
+                window.showInspectionInfoAlert('فلتر "رقم المحضر" نشط حالياً.\nيجب إلغاء تنشيط الفلتر أولاً (بالضغط عليه حتى يختفي الإطار) لكي تعمل أزرار التنقل.', 'فلتر نشط', 'info');
+            }
+            return;
+        }
+        if (thInv && thInv.getAttribute('data-sort')) {
+            if (typeof window.showInspectionInfoAlert === 'function') {
+                window.showInspectionInfoAlert('فلتر "رقم الحصر" نشط حالياً.\nيجب إلغاء تنشيط الفلتر أولاً (بالضغط عليه حتى يختفي الإطار) لكي تعمل أزرار التنقل.', 'فلتر نشط', 'info');
+            }
+            return;
+        }
+        if (thAddr && thAddr.getAttribute('data-sort') === 'grouped') {
+            if (typeof window.showInspectionInfoAlert === 'function') {
+                window.showInspectionInfoAlert('فلتر تجميع "العنوان" نشط حالياً.\nيجب إلغاء تنشيط الفلتر أولاً (بالضغط عليه حتى يختفي الإطار) لكي تعمل أزرار التنقل.', 'فلتر نشط', 'info');
+            }
+            return;
+        }
+        // --- نهاية فحص الفلاتر ---
+
         var tr = button.closest('tr'), id = tr && tr.getAttribute('data-inventory-row-id');
+        if (!id) return;
+        
         captureInventoryRows();
+        
         var index = inventoryRows.findIndex(function (row) { return row._id === id; }), target = index + direction;
         if (index < 0 || target < 0 || target >= inventoryRows.length) return;
+        
         hasrPushUndo('تحريك صف');
-        var moved = inventoryRows.splice(index, 1)[0]; inventoryRows.splice(target, 0, moved);
+        var moved = inventoryRows.splice(index, 1)[0]; 
+        inventoryRows.splice(target, 0, moved);
+        
         renderInventoryTable(false);
     }
     
@@ -6658,14 +6727,49 @@ body.inventory-mode-active .hasr-bottom-row > .hasr-signers-bar { grid-column: 2
 
     async function lookupInventoryFromTalbsat(caseNumEl) {
         if (window.currentMode !== 'inventory' || !caseNumEl) return;
-        var caseNum = text(caseNumEl.innerText);
+        var caseNumText = text(caseNumEl.innerText);
+        var caseNum = caseNumText.replace(/\D/g, ''); // استخراج الأرقام فقط
         if (!caseNum || typeof window.fetchServerData !== 'function') return;
+
+        // --- إضافة فحص التكرار اليدوي الذكي ---
+        var tbody = document.querySelector('#mainTable tbody');
+        var duplicateFound = false;
+        var allCaseCells = tbody.querySelectorAll('.case-num-top');
+        allCaseCells.forEach(function(cell) {
+            if (cell !== caseNumEl) {
+                var cellVal = text(cell.innerText).replace(/\D/g, '');
+                if (cellVal === caseNum && cellVal !== '') {
+                    duplicateFound = true;
+                }
+            }
+        });
+
+        if (duplicateFound) {
+            if (typeof window.showInspectionInfoAlert === 'function') {
+                window.showInspectionInfoAlert('المحضر رقم (' + caseNumText + ') مكتوب بالفعل في صف آخر في هذا الكشف!', 'محضر مكرر', 'danger');
+            }
+            caseNumEl.innerText = ''; // تفريغ الخلية فوراً لمنع التكرار
+            caseNumEl.focus();
+            return;
+        }
+        // --- نهاية فحص التكرار ---
+
         var rowElement = caseNumEl.closest('tr[data-inventory-row-id]');
-        var row = rowElement && rowById(rowElement.getAttribute('data-inventory-row-id'));
-        if (!row) return;
-        var year = text(row.caseYear || '2026');
-        var dept = text(row.detentionPlace || (document.getElementById('dept') && document.getElementById('dept').value));
+        var rowObj = rowElement && rowById(rowElement.getAttribute('data-inventory-row-id'));
+        if (!rowObj || !rowElement) return;
+
+        var year = text(rowObj.caseYear || '2026');
+        
+        // [إصلاح الخلل الأول]: قراءة قسم الشرطة من القائمة الرئيسية بدلاً من خانة مكان الحجز
+        var deptSel = document.getElementById('dept');
+        var dept = '';
+        if (deptSel) {
+            dept = deptSel.value === 'other'
+                ? (document.getElementById('otherDept').value || '').trim()
+                : deptSel.value.trim();
+        }
         if (!dept) return;
+
         try {
             var db = await window.fetchServerData();
             var key = typeof window.getMahdarKey === 'function'
@@ -6673,23 +6777,69 @@ body.inventory-mode-active .hasr-bottom-row > .hasr-signers-bar { grid-column: 2
                 : null;
             var data = key && db ? db[key] : null;
             if (!data) return;
+            
             var priorRow = findLatestInventoryHistoryForCase(db, caseNum);
             hasrPushUndo('استرجاع بيانات محضر');
-            row.caseNum = text(data.caseNum || caseNum);
-            row.caseYear = text(data.year || year);
-            row.name = text(data.name);
-            row.nationalId = text(data.nationalId);
-            row.address = text((priorRow && priorRow.address) || data.address || data.residence);
-            row.inventoryNo = text(priorRow ? priorRow.inventoryNo : row.inventoryNo);
-            row.detentionPlace = text(data.detentionPlace || data.dept || data.station || dept);
-            row.orderDate = text(data.orderDate || data.orderDateText || data.date || data.issueDate || (data.savedAt ? data.savedAt.split(/[,،]/)[0].trim() : ''));
-            row.violations = Array.isArray(data.violations) ? data.violations.map(text).filter(Boolean) : [];
-            row.manualFine = false;
-            row.fine = text(data.fine);
-            recalculateInventoryRow(row);
-            renderInventoryTable(false);
+            
+            // تحديث كائن البيانات في الذاكرة
+            rowObj.caseNum = text(data.caseNum || caseNum);
+            rowObj.caseYear = text(data.year || year);
+            rowObj.name = text(data.name);
+            rowObj.nationalId = text(data.nationalId);
+            rowObj.address = text((priorRow && priorRow.address) || data.address || data.residence);
+            rowObj.inventoryNo = text(priorRow ? priorRow.inventoryNo : rowObj.inventoryNo);
+            rowObj.detentionPlace = text(data.detentionPlace || data.dept || data.station || dept);
+            rowObj.orderDate = text(data.orderDate || data.orderDateText || data.date || data.issueDate || (data.savedAt ? data.savedAt.split(/[,،]/)[0].trim() : ''));
+            rowObj.violations = Array.isArray(data.violations) ? data.violations.map(text).filter(Boolean) : [];
+            rowObj.manualFine = false;
+            rowObj.fine = text(data.fine);
+            recalculateInventoryRow(rowObj);
+
+            // [إصلاح الخلل الثاني]: تحديث خلايا الجدول مباشرة (DOM) لمنع إعادة رسم الجدول وضياع تركيز المؤشر
+            function fillCell(td, txt) {
+                if (!td || txt === undefined || txt === null) return;
+                var span = td.querySelector('span[contenteditable]');
+                if (span) { span.innerText = txt; return; }
+                var ol = td.querySelector('ol[contenteditable]');
+                if (ol) {
+                    ol.innerHTML = '';
+                    var lines = Array.isArray(txt) ? txt : [txt];
+                    lines.forEach(function(line) {
+                        if (line && line.trim()) {
+                            var li = document.createElement('li');
+                            li.innerText = line.trim();
+                            ol.appendChild(li);
+                        }
+                    });
+                    if (!ol.children.length) ol.innerHTML = '<li></li>';
+                    return;
+                }
+                if (td.isContentEditable) td.innerText = txt;
+            }
+
+            var cells = rowElement.cells;
+            if (rowObj.inventoryNo) fillCell(cells[2], rowObj.inventoryNo);
+            if (rowObj.violations && rowObj.violations.length > 0) fillCell(cells[3], rowObj.violations);
+            
+            var amountSpan = cells[4] ? cells[4].querySelector('.inventory-order-amount') : null;
+            if (amountSpan) amountSpan.innerText = rowObj.fine;
+            
+            if (rowObj.orderDate) fillCell(cells[5], rowObj.orderDate);
+            
+            var detSelect = cells[6] ? cells[6].querySelector('select') : null;
+            if (detSelect) detSelect.value = (rowObj.detentionPlace === 'غير محجوزة') ? 'غير محجوزة' : 'حجز القسم';
+            
+            if (rowObj.name) fillCell(cells[7], rowObj.name);
+            if (rowObj.nationalId) fillCell(cells[8], rowObj.nationalId);
+            if (rowObj.address) fillCell(cells[9], rowObj.address);
+
+            // تمييز بصري خفيف باللون الأخضر لتأكيد الاستيراد الناجح
+            rowElement.style.transition = 'background 0.4s';
+            rowElement.style.background = '#e6f9ec';
+            setTimeout(function() { rowElement.style.background = ''; }, 600);
+
             if (typeof window.showLookupSuccessToast === 'function') {
-                window.showLookupSuccessToast(caseNum, row.name);
+                window.showLookupSuccessToast(caseNum, rowObj.name);
             }
         } catch (error) {
             console.warn('تعذر استرجاع بيانات المحضر داخل مود الحصر', error);
@@ -7976,28 +8126,38 @@ body.inventory-mode-active .hasr-bottom-row > .hasr-signers-bar { grid-column: 2
                     inventoryAddressSortActive = false;
                     var th = document.getElementById('th-case-num');
                     var currentDir = th ? th.getAttribute('data-sort') : '';
-                    var nextDir = currentDir === 'asc' ? 'desc' : 'asc';
+                    
+                    // --- نظام الـ 3 ضغطات ---
+                    var nextDir = '';
+                    if (currentDir === 'asc') nextDir = 'desc';        // الضغطة الثانية (تنازلي)
+                    else if (currentDir === 'desc') nextDir = '';      // الضغطة الثالثة (إلغاء الفلتر)
+                    else nextDir = 'asc';                              // الضغطة الأولى (تصاعدي)
+
                     clearInventorySortHeaders();
                     updateInventoryFilters();
                     
-                    var getCaseNum = function(row) {
-                        var num = parseInt(String(row.caseNum).replace(/\D/g, ''), 10);
-                        return isNaN(num) ? 0 : num;
-                    };
-                    
-                    inventoryRows.sort(function(a, b) {
-                        var aValid = meaningful(a), bValid = meaningful(b);
-                        // إبقاء أي صف فارغ في نهاية الجدول دائماً
-                        if (!aValid && bValid) return 1;
-                        if (aValid && !bValid) return -1;
+                    // نقوم بالترتيب فقط إذا كان الفلتر نشطاً
+                    if (nextDir !== '') {
+                        var getCaseNum = function(row) {
+                            var num = parseInt(String(row.caseNum).replace(/\D/g, ''), 10);
+                            return isNaN(num) ? 0 : num;
+                        };
                         
-                        var diff = getCaseNum(a) - getCaseNum(b);
-                        return nextDir === 'asc' ? diff : -diff;
-                    });
+                        inventoryRows.sort(function(a, b) {
+                            var aValid = meaningful(a), bValid = meaningful(b);
+                            if (!aValid && bValid) return 1;
+                            if (aValid && !bValid) return -1;
+                            
+                            var diff = getCaseNum(a) - getCaseNum(b);
+                            return nextDir === 'asc' ? diff : -diff;
+                        });
+                    }
                     
                     renderInventoryTable(false, true);
                     var newTh = document.getElementById('th-case-num');
-                    if (newTh) newTh.setAttribute('data-sort', nextDir);
+                    if (newTh && nextDir !== '') {
+                        newTh.setAttribute('data-sort', nextDir);
+                    }
                 } else {
                     originalFunctions.toggleCaseNumSort && originalFunctions.toggleCaseNumSort();
                 }
@@ -8009,33 +8169,42 @@ body.inventory-mode-active .hasr-bottom-row > .hasr-signers-bar { grid-column: 2
                     inventoryAddressSortActive = false;
                     var th = document.getElementById('th-inventory-num');
                     var currentDir = th ? th.getAttribute('data-sort') : '';
-                    var nextDir = currentDir === 'asc' ? 'desc' : 'asc';
+                    
+                    // --- نظام الـ 3 ضغطات ---
+                    var nextDir = '';
+                    if (currentDir === 'asc') nextDir = 'desc';
+                    else if (currentDir === 'desc') nextDir = ''; 
+                    else nextDir = 'asc';
+
                     clearInventorySortHeaders();
                     updateInventoryFilters();
                     
-                    var getInventoryNum = function(row) {
-                        // تحويل الأرقام العربية إلى إنجليزية في الخلفية للفرز الدقيق
-                        var numStr = String(row.inventoryNo).replace(/[٠-٩]/g, function(d) {
-                            return "٠١٢٣٤٥٦٧٨٩".indexOf(d);
-                        }).replace(/\D/g, '');
+                    // نقوم بالترتيب فقط إذا كان الفلتر نشطاً
+                    if (nextDir !== '') {
+                        var getInventoryNum = function(row) {
+                            var numStr = String(row.inventoryNo).replace(/[٠-٩]/g, function(d) {
+                                return "٠١٢٣٤٥٦٧٨٩".indexOf(d);
+                            }).replace(/\D/g, '');
+                            
+                            var num = parseInt(numStr, 10);
+                            return isNaN(num) ? 0 : num;
+                        };
                         
-                        var num = parseInt(numStr, 10);
-                        return isNaN(num) ? 0 : num;
-                    };
-                    
-                    inventoryRows.sort(function(a, b) {
-                        var aValid = meaningful(a), bValid = meaningful(b);
-                        // إبقاء أي صف فارغ في نهاية الجدول دائماً
-                        if (!aValid && bValid) return 1;
-                        if (aValid && !bValid) return -1;
-                        
-                        var diff = getInventoryNum(a) - getInventoryNum(b);
-                        return nextDir === 'asc' ? diff : -diff;
-                    });
+                        inventoryRows.sort(function(a, b) {
+                            var aValid = meaningful(a), bValid = meaningful(b);
+                            if (!aValid && bValid) return 1;
+                            if (aValid && !bValid) return -1;
+                            
+                            var diff = getInventoryNum(a) - getInventoryNum(b);
+                            return nextDir === 'asc' ? diff : -diff;
+                        });
+                    }
                     
                     renderInventoryTable(false, true);
                     var newTh = document.getElementById('th-inventory-num');
-                    if (newTh) newTh.setAttribute('data-sort', nextDir);
+                    if (newTh && nextDir !== '') {
+                        newTh.setAttribute('data-sort', nextDir);
+                    }
                 }
             };
             window.confirmClearAllDataByMouse = function () {
