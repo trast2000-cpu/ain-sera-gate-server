@@ -95,7 +95,7 @@ body {
     padding: 10px 8px;
     position: fixed;
     top: 20px;
-    right: 5px;
+    right: 5px
     height: calc(100vh - 58px);
     overflow: hidden; 
     z-index: 1000;
@@ -2572,10 +2572,14 @@ body[data-theme="dark"] .vehicle-stats-note { color:#a9bad3; }
 }
 .vehicle-stats-details-overlay.show .vehicle-stats-details-dialog { transform:scale(1) translateY(0); opacity:1; }
 .vehicle-stats-details-header { flex:0 0 auto; display:flex; align-items:flex-start; justify-content:space-between; gap:12px; padding:15px 18px; border-bottom:1px solid #dbe4ef; background:linear-gradient(135deg,#f8fbff,#edf3fa); }
-.vehicle-stats-details-heading { min-width:0; }
+.vehicle-stats-details-heading { 
+    flex: 1; 
+    text-align: center; 
+    min-width: 0; 
+}
 .vehicle-stats-details-eyebrow { color:#64748b; font-size:11px; font-weight:800; }
 .vehicle-stats-details-header h2 { margin:2px 0 0; color:#1e3a5f; font-size:18px; font-weight:900; }
-.vehicle-stats-details-period { margin-top:3px; color:#64748b; font-size:11px; font-weight:700; }
+.vehicle-stats-details-period { margin-top:8px; color:#000; font-size:14pt; font-weight:bold; }
 .vehicle-stats-details-date-note { margin-top:3px; color:#64748b; font-size:10px; line-height:1.5; }
 .vehicle-stats-details-close { flex:0 0 34px; width:34px; height:34px; border:1px solid #cbd5e1; border-radius:8px; background:#fff; color:#475569; font-size:17px; cursor:pointer; }
 .vehicle-stats-details-close:hover { background:#fee2e2; color:#b91c1c; border-color:#fecaca; }
@@ -2623,6 +2627,124 @@ body[data-theme="dark"] #card-fine.fine-card-frozen #fine-text {
     background: #1a2332 !important;
     color: #64748b !important;
 }
+
+
+
+/* --- تنسيق زر الطباعة الجديد --- */
+.vehicle-stats-details-print {
+    flex: 0 0 34px; width: 34px; height: 34px; 
+    border: 1px solid #cbd5e1; border-radius: 8px; 
+    background: #fff; color: #1e3a5f; 
+    font-size: 15px; cursor: pointer; transition: all 0.2s;
+}
+.vehicle-stats-details-print:hover {
+    background: #eaf1fa; border-color: #4a7ab5; color: #0f4c81;
+}
+body[data-theme="dark"] .vehicle-stats-details-print {
+    background: #263a5d; color: #dbeafe; border-color: #40577b;
+}
+body[data-theme="dark"] .vehicle-stats-details-print:hover {
+    background: #385273; border-color: #7aaeff;
+}
+
+/* --- تنسيقات طباعة كشف الإحصائية --- */
+@media print {
+    /* تفعيل وضع طباعة الكشف وإخفاء باقي النظام وقرارات الطباعة العادية */
+    body.print-stats-mode .print-area,
+    body.print-stats-mode .app-layout,
+    body.print-stats-mode .vehicle-stats-panel,
+    body.print-stats-mode .sidebar {
+        display: none !important;
+    }
+
+    /* تهيئة شاشة التفاصيل لتأخذ حجم الورقة بالكامل */
+    body.print-stats-mode .vehicle-stats-details-overlay {
+        position: static !important;
+        display: block !important;
+        background: white !important;
+        padding: 0 !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        zoom: 1 !important;
+    }
+
+    body.print-stats-mode .vehicle-stats-details-dialog {
+        position: static !important;
+        transform: none !important;
+        box-shadow: none !important;
+        border: none !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        height: auto !important;
+        max-height: none !important;
+        overflow: visible !important;
+        background: white !important;
+    }
+
+    /* تنسيق رأس الكشف (العناوين) */
+    body.print-stats-mode .vehicle-stats-details-header {
+        background: white !important;
+        border-bottom: 2px solid #000 !important;
+        padding: 0 0 10px 0 !important;
+        margin-bottom: 15px !important;
+        text-align: center !important;
+        justify-content: center !important;
+    }
+    
+    body.print-stats-mode .vehicle-stats-details-heading {
+        text-align: center !important;
+        width: 100% !important;
+    }
+
+    body.print-stats-mode .vehicle-stats-details-header h2 {
+        color: #000 !important;
+        font-size: 16pt !important;
+    }
+
+    /* تجهيز الجدول للطباعة */
+    body.print-stats-mode .vehicle-stats-details-body {
+        border: none !important;
+        overflow: visible !important;
+        height: auto !important;
+    }
+
+    body.print-stats-mode .vehicle-stats-details-table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+    }
+
+    body.print-stats-mode .vehicle-stats-details-table th,
+    body.print-stats-mode .vehicle-stats-details-table td {
+        border: 1px solid #000 !important; /* إضافة حدود واضحة للكشف */
+        color: #000 !important;
+        padding: 6px !important;
+        font-size: 11.5pt !important;
+        text-align: center !important;
+        background: white !important;
+    }
+
+    body.print-stats-mode .vehicle-stats-details-table th {
+        background-color: #e2e8f0 !important; /* لون رمادي خفيف لعناوين الجدول */
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+        font-weight: bold !important;
+    }
+
+    /* السماح للجدول بالانقسام على عدة صفحات بشكل سليم */
+    body.print-stats-mode .vehicle-stats-details-table tr {
+        page-break-inside: avoid !important;
+    }
+    
+    body.print-stats-mode .vehicle-stats-details-count {
+        color: #000 !important;
+        font-size: 12pt !important;
+        margin-bottom: 10px !important;
+    }
+}
+
+
+
+
 
 </style>
 
@@ -2713,12 +2835,19 @@ body[data-theme="dark"] #card-fine.fine-card-frozen #fine-text {
     <section id="vehicle-stats-details-dialog" class="vehicle-stats-details-dialog" role="dialog" aria-modal="true" aria-labelledby="vehicle-stats-details-title">
         <header class="vehicle-stats-details-header">
             <div class="vehicle-stats-details-heading">
-                <span class="vehicle-stats-details-eyebrow">تفاصيل إحصائية المركبات</span>
+                
                 <h2 id="vehicle-stats-details-title">محاضر المركبات</h2>
                 <div id="vehicle-stats-details-period" class="vehicle-stats-details-period"></div>
                 <div id="vehicle-stats-details-date-note" class="vehicle-stats-details-date-note"></div>
             </div>
-            <button type="button" class="vehicle-stats-details-close" aria-label="إغلاق قائمة المحاضر" onclick="closeVehicleStatsDetails()"><i class="fa-solid fa-xmark"></i></button>
+            <div style="display: flex; gap: 8px;" class="no-print">
+    <button type="button" class="vehicle-stats-details-print" aria-label="طباعة الكشف" onclick="printVehicleStatsDetails()" title="طباعة الكشف">
+        <i class="fa-solid fa-print"></i>
+    </button>
+    <button type="button" class="vehicle-stats-details-close" aria-label="إغلاق قائمة المحاضر" onclick="closeVehicleStatsDetails()">
+        <i class="fa-solid fa-xmark"></i>
+    </button>
+</div>
         </header>
         <div class="vehicle-stats-details-content">
             <div id="vehicle-stats-details-count" class="vehicle-stats-details-count"></div>
@@ -2750,7 +2879,7 @@ body[data-theme="dark"] #card-fine.fine-card-frozen #fine-text {
                         <div class="archive-sort-strip" id="archive-sort-strip">
                             <button class="sort-strip-btn" data-mode="asc" onclick="setArchiveSortMode('asc')">تصاعدي</button>
                             <button class="sort-strip-btn" data-mode="desc" onclick="setArchiveSortMode('desc')">تنازلي</button>
-                            <button class="sort-strip-btn active" data-mode="day" onclick="setArchiveSortMode('day')">تاريخ اليوم</button>
+                            <button class="sort-strip-btn active" data-mode="day" onclick="setArchiveSortMode('day')">تاريخ الواقعة</button>
                         </div>
 
 <div class="archive-filter-strip" id="archive-filter-strip">
@@ -5743,11 +5872,6 @@ async function saveMahdarData() {
         }
         db.mahdar_index = index;
         
-        // إصلاح الأقسام القديمة التي تلفت بعض حروفها قبل إعادة الحفظ.
-        repairStoredDepartmentFields(db);
-        // منع إعادة حفظ محارف الاستبدال الناتجة عن تلف ترميز قديم في قاعدة البيانات.
-        // لا نغيّر النص العربي الصحيح؛ ننظف فقط U+FFFD الذي يظهر عادةً على هيئة علامة استفهام.
-        cleanCorruptedStoredText(db);
         await saveToServerData(db, key);
         if (typeof loadArchiveToSidebar === 'function') await loadArchiveToSidebar();
         if (typeof refreshVehicleStats === 'function') refreshVehicleStats();
@@ -6859,6 +6983,42 @@ function switchArchiveTab(stationName) {
 let archiveSortMode = localStorage.getItem('telbasat_archive_sort') || 'day';
 let archiveStatusFilter = localStorage.getItem('telbasat_archive_status') || 'all';
 
+// تاريخ العرض والتجميع في الأرشيف: تاريخ الواقعة أولاً، ثم تاريخ التحرير،
+// ثم تاريخ الحفظ كحل احتياطي للمحاضر القديمة التي لا تحتوي على أي منهما.
+function archiveParseDateKey(value) {
+    const normalized = String(value == null ? '' : value)
+        .replace(/[٠-٩]/g, ch => String(ch.charCodeAt(0) - 0x0660))
+        .replace(/[۰-۹]/g, ch => String(ch.charCodeAt(0) - 0x06f0))
+        .replace(/[\u200e\u200f\u061c]/g, '')
+        .trim().split(/[,،]/)[0].trim().replace(/[.]/g, '/');
+    let match = normalized.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})$/);
+    let year, month, day;
+    if (match) {
+        year = Number(match[1]); month = Number(match[2]); day = Number(match[3]);
+    } else {
+        match = normalized.match(/^(\d{1,2})[-/](\d{1,2})[-/](\d{4})$/);
+        if (!match) return '';
+        day = Number(match[1]); month = Number(match[2]); year = Number(match[3]);
+    }
+    const check = new Date(Date.UTC(year, month - 1, day));
+    if (check.getUTCFullYear() !== year || check.getUTCMonth() !== month - 1 || check.getUTCDate() !== day) return '';
+    return `${String(year).padStart(4, '0')}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+}
+
+function archiveRecordDateKey(record) {
+    return archiveParseDateKey(record && record.incidentDate)
+        || archiveParseDateKey(record && record.reportDate)
+        || archiveParseDateKey(record && record.savedAt)
+        || '';
+}
+
+function archiveRecordDateLabel(record) {
+    const key = archiveRecordDateKey(record);
+    if (!key) return '';
+    const parts = key.split('-');
+    return `${parts[2]}/${parts[1]}/${parts[0]}`;
+}
+
 // 2. دالة مركزية لضبط شكل الأزرار (تلوين الزر النشط) بناءً على القيم المحفوظة
 function syncArchiveFilterUI() {
     document.querySelectorAll('#archive-sort-strip .sort-strip-btn').forEach(btn => {
@@ -6894,6 +7054,9 @@ async function loadArchiveToSidebar() {
 
     let db = await fetchServerData();
     let index = db.mahdar_index || [];
+    // حماية إضافية: لو نفس مفتاح المحضر تكرر أكثر من مرة في الفهرس لأي سبب
+    // (مثل تعديل يدوي لملف البيانات)، نعرضه مرة واحدة فقط بدل تكراره في القائمة.
+    index = index.filter((key, pos) => index.indexOf(key) === pos);
 
     container.innerHTML = "";
 
@@ -6947,21 +7110,24 @@ async function loadArchiveToSidebar() {
         withCaseNum.sort((a, b) => archiveSortMode === 'asc' ? a.caseNum - b.caseNum : b.caseNum - a.caseNum);
         sortedKeys = withCaseNum.map(g => g.key);
     } else {
-        // الوضع الافتراضي: تجميع حسب يوم الحفظ، وترتيب تصاعدي برقم المحضر داخل كل يوم
+        // الوضع الافتراضي: تجميع حسب تاريخ الواقعة، ثم التحرير،
+        // مع استخدام تاريخ الحفظ فقط للمحاضر القديمة التي تفتقد التاريخين.
         const groupsMap = {};
         const groupsOrder = [];
         filteredKeys.forEach(key => {
             const d = db[key];
             if (!d) return;
-            const dateOnly = d.savedAt ? d.savedAt.split(/[,،]/)[0].trim() : "";
-            if (!groupsMap[dateOnly]) {
-                groupsMap[dateOnly] = [];
-                groupsOrder.push(dateOnly);
+            const dateKey = archiveRecordDateKey(d);
+            if (!groupsMap[dateKey]) {
+                groupsMap[dateKey] = [];
+                groupsOrder.push(dateKey);
             }
             const caseNumVal = parseInt(String(d.caseNum || "").replace(/\D/g, ""), 10);
-            groupsMap[dateOnly].push({ key: key, caseNum: isNaN(caseNumVal) ? 0 : caseNumVal });
+            groupsMap[dateKey].push({ key: key, caseNum: isNaN(caseNumVal) ? 0 : caseNumVal });
         });
 
+        // الأحدث حسب تاريخ الواقعة أولاً.
+        groupsOrder.sort((a, b) => String(b).localeCompare(String(a)));
         groupsOrder.forEach(dateOnly => {
             const group = groupsMap[dateOnly];
             group.sort((a, b) => a.caseNum - b.caseNum);
@@ -6975,7 +7141,8 @@ async function loadArchiveToSidebar() {
         const d = db[key];
         if (!d) return;
         const shortName = d.name ? d.name.split(" ").slice(0, 3).join(" ") : "بدون اسم";
-        const dateOnly = d.savedAt ? d.savedAt.split(/[,،]/)[0].trim() : "";
+        const dateKey = archiveRecordDateKey(d);
+        const dateOnly = archiveRecordDateLabel(d);
         const isSession = isSessionRecord(d);
         const isArchivedRecord = d.fineDecisionMode === 'save';
         const badgeHtml = isArchivedRecord
@@ -6987,13 +7154,13 @@ async function loadArchiveToSidebar() {
             ? '<span class="badge-paid" title="' + (d.paymentInfo.fineReceiptNo ? 'رقم القسيمة: ' + d.paymentInfo.fineReceiptNo : 'تم السداد') + '">✓ مسدد</span>'
             : '';
 
-        if (archiveSortMode === 'day' && lastDateSeen !== null && dateOnly !== lastDateSeen) {
+        if (archiveSortMode === 'day' && lastDateSeen !== null && dateKey !== lastDateSeen) {
             const divider = document.createElement("div");
             divider.className = "archive-date-divider";
             divider.innerHTML = '<span class="divider-dot"></span>';
             container.appendChild(divider);
         }
-        lastDateSeen = dateOnly;
+        lastDateSeen = dateKey;
 
         const row = document.createElement("div");
         row.className = "record-row";
@@ -7362,62 +7529,60 @@ function vehicleStatsCanonicalType(value) {
         .replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي');
 }
 
-function vehicleStatsDepartment(d) {
-    return String(d.dept || d.department || d.deptOther || d.deptSelect || '').trim() || 'غير محدد';
+function vehicleStatsNormDept(v) {
+    return String(v || '')
+        .trim()
+        .replace(/[\u064B-\u065F\u0670\u0640]/g, '') // إزالة التشكيل والتطويل
+        .replace(/[إأآا]/g, 'ا')  // توحيد أشكال الألف
+        .replace(/ى/g, 'ي')       // ألف مقصورة -> ياء
+        .replace(/ة/g, 'ه')       // تاء مربوطة -> هاء
+        .replace(/\s+/g, ' ')
+        .trim()
+        .replace(/^(?:قسم\s*شرطه|قسم)\s+/u, '') // إزالة بادئة "قسم شرطة/قسم" إن وجدت
+        .replace(/^ال/, '')       // إزالة "ال" التعريف من أول الاسم
+        .trim();
 }
 
-function vehicleStatsDepartmentKey(value) {
-    return String(value || '').trim().replace(/[\u200e\u200f\u061c]/g, '')
-        .replace(/ـ/g, '').replace(/\s+/g, ' ')
-        .replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي');
+// يحوّل نص القسم الخام المخزّن في المحضر إلى نفس اسم القسم كما هو مكتوب في إعدادات النيابة،
+// بدل استخدام النص الخام كما هو — لمنع ظهور نفس القسم أكثر من مرة كعمود منفصل في الجدول
+// بسبب فروق نصية بسيطة (بادئة "قسم شرطة"، همزة، تاء مربوطة/هاء، مسافات).
+function vehicleStatsResolveDepartment(rawDept, configuredDepartments) {
+    const raw = String(rawDept || '').trim();
+    if (!raw) return 'غير محدد';
+    const normRaw = vehicleStatsNormDept(raw);
+    if (!normRaw || !configuredDepartments || !configuredDepartments.length) return raw;
+    let match = configuredDepartments.find(function(st) { return vehicleStatsNormDept(st) === normRaw; });
+    if (match) return match;
+    match = configuredDepartments.find(function(st) {
+        const normSt = vehicleStatsNormDept(st);
+        return normSt && (normRaw.includes(normSt) || normSt.includes(normRaw));
+    });
+    return match || raw;
+}
+
+function vehicleStatsDepartment(d, configuredDepartments) {
+    const raw = String(d.dept || d.department || d.deptOther || d.deptSelect || '').trim();
+    if (!raw) return 'غير محدد';
+    return vehicleStatsResolveDepartment(raw, configuredDepartments || vehicleStatsConfiguredDepartments());
 }
 
 function vehicleStatsConfiguredDepartments() {
     const select = document.getElementById('input-dept-select');
     if (!select) return [];
-    const unique = [], seen = new Set();
-    Array.from(select.options).forEach(option => {
-        const name = String(option.value || option.textContent || '').trim();
-        const key = vehicleStatsDepartmentKey(name);
-        if (!name || name === 'أخرى' || /^---/.test(name) || seen.has(key)) return;
-        seen.add(key); unique.push(name);
+    const raw = Array.from(select.options)
+        .map(option => String(option.value || option.textContent || '').trim())
+        .filter(name => name && name !== 'أخرى' && !/^---/.test(name));
+    // إزالة أي تكرار لنفس القسم بأشكال نصية مختلفة داخل قائمة الإعدادات نفسها
+    // (بادئة "قسم شرطة"، همزة، تاء مربوطة/هاء...)، مع الإبقاء على أول نص يظهر به فقط.
+    const seenNorm = new Set();
+    const deduped = [];
+    raw.forEach(function(name) {
+        const norm = vehicleStatsNormDept(name);
+        if (seenNorm.has(norm)) return;
+        seenNorm.add(norm);
+        deduped.push(name);
     });
-    return unique;
-}
-
-function vehicleStatsDepartmentSimilarity(a, b) {
-    const left = vehicleStatsDepartmentKey(a), right = vehicleStatsDepartmentKey(b);
-    if (!left || !right) return 0;
-    if (left === right) return 1;
-    const matrix = Array.from({length: left.length + 1}, (_, i) => {
-        const row = Array(right.length + 1).fill(0); row[0] = i; return row;
-    });
-    for (let j = 0; j <= right.length; j++) matrix[0][j] = j;
-    for (let i = 1; i <= left.length; i++) {
-        for (let j = 1; j <= right.length; j++) {
-            matrix[i][j] = Math.min(
-                matrix[i - 1][j] + 1,
-                matrix[i][j - 1] + 1,
-                matrix[i - 1][j - 1] + (left[i - 1] === right[j - 1] ? 0 : 1)
-            );
-        }
-    }
-    return 1 - matrix[left.length][right.length] / Math.max(left.length, right.length);
-}
-
-function vehicleStatsResolveDepartment(rawValue, configuredDepartments) {
-    const raw = String(rawValue || '').trim();
-    if (!raw) return '';
-    if (!configuredDepartments.length) return raw;
-    const exact = configuredDepartments.find(name => vehicleStatsDepartmentKey(name) === vehicleStatsDepartmentKey(raw));
-    if (exact) return exact;
-    let best = '', bestScore = 0;
-    configuredDepartments.forEach(name => {
-        const score = vehicleStatsDepartmentSimilarity(raw, name);
-        if (score > bestScore) { bestScore = score; best = name; }
-    });
-    // يسمح فقط بالتلف البسيط الناتج عن محارف Unicode التالفة، ولا يحول قسمًا مختلفًا إلى قسم آخر.
-    return bestScore >= 0.72 ? best : '';
+    return deduped;
 }
 
 function vehicleStatsDepartmentLabel(value) {
@@ -7425,31 +7590,6 @@ function vehicleStatsDepartmentLabel(value) {
     if (words.length < 2) return escapeVehicleHtml(words.join(' '));
     const splitAt = Math.ceil(words.length / 2);
     return `${escapeVehicleHtml(words.slice(0, splitAt).join(' '))}<br>${escapeVehicleHtml(words.slice(splitAt).join(' '))}`;
-}
-
-function cleanCorruptedStoredText(value) {
-    if (typeof value === 'string') return value.replace(/\uFFFD/g, '');
-    if (Array.isArray(value)) return value.map(cleanCorruptedStoredText);
-    if (value && typeof value === 'object') {
-        Object.keys(value).forEach(key => { value[key] = cleanCorruptedStoredText(value[key]); });
-    }
-    return value;
-}
-
-function repairStoredDepartmentFields(db) {
-    const configured = vehicleStatsConfiguredDepartments();
-    if (!configured.length || !db || typeof db !== 'object') return;
-    Object.keys(db).forEach(key => {
-        const record = db[key];
-        if (!record || typeof record !== 'object' || Array.isArray(record)) return;
-        const raw = record.dept || record.department || record.deptOther || record.deptSelect;
-        const fixed = vehicleStatsResolveDepartment(raw, configured);
-        if (!fixed) return;
-        if ('dept' in record) record.dept = fixed;
-        if ('department' in record) record.department = fixed;
-        if ('deptSelect' in record && record.deptSelect !== 'أخرى') record.deptSelect = fixed;
-        if (record.fields && typeof record.fields === 'object' && 'department' in record.fields) record.fields.department = fixed;
-    });
 }
 
 let vehicleStatsDetails = {};
@@ -7490,17 +7630,49 @@ function openVehicleStatsDetails(type, dept) {
     const count = document.getElementById('vehicle-stats-details-count');
     const body = document.getElementById('vehicle-stats-details-body');
     if (!overlay || !body) return;
+    
     const key = `${type}|||${dept}`;
     const cases = (vehicleStatsDetails[key] || []).slice();
     cases.sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')) || String(a.caseNum).localeCompare(String(b.caseNum), 'ar', {numeric:true}));
-    const typeTitle = type === '__all__' ? 'كل أنواع المركبات' : type;
-    const deptTitle = dept === '__all__' ? 'جميع الأقسام' : `قسم ${dept}`;
-    if (title) title.textContent = `محاضر ${typeTitle} — ${deptTitle}`;
-    const from = (document.getElementById('vehicleStatsFrom') || {}).value || '—';
-    const to = (document.getElementById('vehicleStatsTo') || {}).value || '—';
-    if (period) period.textContent = `الفترة المحددة: ${from} إلى ${to}`;
-    if (dateNote) dateNote.textContent = 'البيانات المعروضة هي المحاضر التي كوّنت العدد الظاهر في الإحصائية بعد تطبيق الفترة الزمنية ومنع التكرار.';
+
+    // دالة التاريخ: استخدام علامة (-) وبدون أي وسوم إجبارية ليقرأها المتصفح بالترتيب العربي الصحيح
+    function formatArDate(dateStr) {
+        if (!dateStr) return '—';
+        const parts = dateStr.split('-');
+        if (parts.length === 3) {
+            const year = parts[0];
+            const month = parts[1];
+            const day = parts[2];
+            // الترتيب هنا سيقوم المتصفح بضبطه تلقائياً في الجملة العربية ليظهر اليوم بجوار كلمة "من"
+            return `${day} - ${month} - ${year}`;
+        }
+        return dateStr;
+    }
+
+    // ضبط اسم المركبة ليصبح جمعاً متناسقاً
+    let printType = type;
+    if (type === 'دراجة نارية') printType = 'الدراجات النارية';
+    else if (type === 'توك توك') printType = 'التكاتك';
+    else if (type === 'تروسيكل') printType = 'التروسيكلات';
+    else if (type === '__all__') printType = 'جميع المركبات';
+
+    // ضبط عنوان الكشف
+    const deptTitle = dept === '__all__' ? 'جميع الأقسام' : `قسم شرطة ${dept}`;
+    if (title) title.textContent = `كشف بـ ${printType} المضبوطة على ذمة قضايا جنح مرور ${deptTitle}`;
+    
+    // إدراج التواريخ المعالجة
+    const fromRaw = (document.getElementById('vehicleStatsFrom') || {}).value;
+    const toRaw = (document.getElementById('vehicleStatsTo') || {}).value;
+    const from = formatArDate(fromRaw);
+    const to = formatArDate(toRaw);
+
+    if (period) {
+        period.innerHTML = `الفترة المحددة: من ${from} إلى ${to}`;
+    }
+    if (dateNote) dateNote.textContent = ''; // إزالة الشرح التفصيلي
+
     if (count) count.textContent = `عدد المحاضر: ${cases.length.toLocaleString('ar-EG')}`;
+    
     if (!cases.length) {
         body.innerHTML = '<div class="vehicle-stats-details-empty">لا توجد محاضر مطابقة لهذه الإحصائية في الفترة المحددة.</div>';
     } else {
@@ -7511,6 +7683,7 @@ function openVehicleStatsDetails(type, dept) {
         </tr>`).join('');
         body.innerHTML = `<table class="vehicle-stats-details-table"><thead><tr><th>رقم المحضر</th><th>اسم المتهم</th><th>القسم</th><th>نوع المركبة</th><th>تاريخ الواقعة</th><th>التهمة / سبب الضبط</th></tr></thead><tbody>${rows}</tbody></table>`;
     }
+    
     vehicleStatsDetailsReturnFocus = document.activeElement;
     overlay.classList.add('show'); overlay.setAttribute('aria-hidden', 'false');
     document.body.style.overflow = 'hidden';
@@ -7554,11 +7727,10 @@ function refreshVehicleStats() {
     Promise.resolve().then(() => fetchServerData()).then(function(db) {
         db = db || {};
         const index = Array.isArray(db.mahdar_index) ? db.mahdar_index : Object.keys(db).filter(key => key !== 'mahdar_index');
-        const configuredDepartments = vehicleStatsConfiguredDepartments();
-        const configuredByKey = new Map(configuredDepartments.map(name => [vehicleStatsDepartmentKey(name), name]));
         const seen = new Set(), trackedIncidents = [], details = {};
         const departments = new Set(), counts = new Map();
         const typeOrder = ['دراجة نارية', 'توك توك', 'تروسيكل', 'السيارات'];
+        const configuredDepartmentsForResolve = vehicleStatsConfiguredDepartments();
         let allCount = 0;
         index.forEach(function(key) {
             if (seen.has(key)) return;
@@ -7585,12 +7757,7 @@ function refreshVehicleStats() {
             }
             if (identifier && !identifier.includes('...') && trackedIncidents.some(t => t.id === identifier && Math.abs(t.dateMs - incidentDateMs) / 86400000 <= 10)) return;
             trackedIncidents.push({ id: identifier, dateMs: incidentDateMs });
-            const rawDept = vehicleStatsDepartment(d);
-            const dept = vehicleStatsResolveDepartment(
-                configuredByKey.get(vehicleStatsDepartmentKey(rawDept)) || rawDept,
-                configuredDepartments
-            );
-            if (!dept) return;
+            const dept = vehicleStatsDepartment(d, configuredDepartmentsForResolve);
             const typeKey = vehicleStatsCanonicalType(vehicleType);
             const isTricycle = /تروسيكل/.test(typeKey);
             const isTukTuk = /توكتوك|توك توك/.test(typeKey);
@@ -7612,13 +7779,8 @@ function refreshVehicleStats() {
             allCount++;
         });
         vehicleStatsDetails = details;
-        const deptList = [];
-        const deptKeys = new Set();
-        configuredDepartments.concat(Array.from(departments)).forEach(dept => {
-            const key = vehicleStatsDepartmentKey(dept);
-            if (!key || deptKeys.has(key)) return;
-            deptKeys.add(key); deptList.push(dept);
-        });
+        const configuredDepartments = configuredDepartmentsForResolve;
+        const deptList = configuredDepartments.concat(Array.from(departments).filter(dept => !configuredDepartments.includes(dept)));
         head.innerHTML = `<tr><th class="stats-type-cell">نوع المركبة</th>${deptList.map((d, index) => `<th class="stats-dept-head stats-dept-col dept-color-${index % 6}">${vehicleStatsDepartmentLabel(d)}</th>`).join('') || '<th>لا توجد أقسام</th>'}</tr>`;
         rows.innerHTML = '';
         const appendTypes = (types, addDivider) => {
@@ -11991,6 +12153,35 @@ function syncFineDecisionPrintLines(isSaveMode) {
             closeImportConfirmModal();
         }
     }, true);
+
+
+
+
+// دالة لطباعة كشف تفاصيل الإحصائية
+// دالة لطباعة كشف تفاصيل الإحصائية (بالعرض Landscape)
+function printVehicleStatsDetails() {
+    document.body.classList.add('print-stats-mode');
+    
+    // إضافة ستايل مؤقت لجعل الورقة بالعرض (Landscape)
+    const style = document.createElement('style');
+    style.id = 'landscape-print-style';
+    style.innerHTML = '@media print { @page { size: A4 landscape !important; margin: 10mm !important; } }';
+    document.head.appendChild(style);
+    
+    setTimeout(() => {
+        window.print();
+        
+        setTimeout(() => {
+            document.body.classList.remove('print-stats-mode');
+            // إزالة الستايل المؤقت لتعود باقي القرارات للطباعة بالطول
+            const tempStyle = document.getElementById('landscape-print-style');
+            if (tempStyle) tempStyle.remove();
+        }, 500);
+    }, 150);
+}
+
+
+
 </script>
 
 <div id="confirm-action-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="confirm-action-modal-title">

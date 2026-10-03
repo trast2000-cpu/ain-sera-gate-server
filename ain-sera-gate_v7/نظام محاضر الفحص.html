@@ -227,6 +227,59 @@ body {
     margin-bottom: 4px;
 }
 
+/* حقل عنوان الكشف على الشاشة: يعرض السطرين بنفس قواعد تنسيق عنوان الطباعة */
+.inspection-title-editor {
+    direction: rtl;
+    text-align: center;
+    width: min(620px, calc(100% - 170px));
+    max-width: 620px;
+    padding: 1px 10px 3px;
+    border: 1px dashed #8da6c5;
+    border-radius: 8px;
+    background: rgba(255,255,255,.72);
+    box-shadow: 0 2px 7px rgba(26,58,107,.07);
+    box-sizing: border-box;
+}
+.inspection-title-editor .title,
+.inspection-title-editor .print-values {
+    width: 100%;
+    box-sizing: border-box;
+    outline: none;
+    cursor: text;
+    overflow-wrap: anywhere;
+}
+.inspection-title-editor .title { margin: 2px 0 0; }
+.inspection-title-editor .print-values { margin: 0 0 1px; }
+.inspection-title-editor [contenteditable="true"]:focus {
+    background: rgba(219,234,254,.35);
+    border-radius: 3px;
+}
+.action-btns:not(.hasr-bottom-row) { position: relative; }
+@media screen and (min-width: 901px) {
+    .action-btns:not(.hasr-bottom-row) { min-height: 64px; }
+    .action-btns:not(.hasr-bottom-row) > #inspectionTitleEditor {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 2;
+    }
+    .action-btns:not(.hasr-bottom-row) > .add-btn { position: relative; z-index: 4; }
+}
+@media screen and (max-width: 900px) {
+    .action-btns:not(.hasr-bottom-row) > #inspectionTitleEditor {
+        position: static;
+        transform: none;
+        flex: 1 1 100%;
+        width: min(100%, 620px);
+        max-width: 100%;
+        margin: 3px auto;
+        order: 3;
+    }
+}
+body.inventory-mode-active #inspectionTitleEditor { display: none !important; }
+
+
 /* ===== شريط التحكم ===== */
 .controls {
     background: var(--bg-white);
@@ -1489,7 +1542,7 @@ thead th[data-tip]:hover::before {
                             <div class="archive-sort-strip" id="archive-sort-strip">
                                 <button class="sort-strip-btn" data-mode="asc" onclick="event.stopPropagation(); setFloatingArchiveSortMode('asc')">تصاعدي</button>
                                 <button class="sort-strip-btn" data-mode="desc" onclick="event.stopPropagation(); setFloatingArchiveSortMode('desc')">تنازلي</button>
-                                <button class="sort-strip-btn active" data-mode="day" onclick="event.stopPropagation(); setFloatingArchiveSortMode('day')">تاريخ اليوم</button>
+                                <button class="sort-strip-btn active" data-mode="day" onclick="event.stopPropagation(); setFloatingArchiveSortMode('day')">تاريخ الواقعة</button>
                             </div>
 
 <div class="archive-filter-strip" id="archive-filter-strip">
@@ -1520,7 +1573,7 @@ thead th[data-tip]:hover::before {
     <img src="logo.png" class="logo" alt="">
 </div>
 
-    <div class="title screen-hidden">كشف بالأوامر الجنائية</div>
+    <div id="printTitle" class="title screen-hidden">كشف بالأوامر الجنائية</div>
     <div id="printValues" class="print-values screen-hidden"></div>
 
     <div class="controls">
@@ -1587,6 +1640,11 @@ thead th[data-tip]:hover::before {
     <div class="action-btns">
         <button class="add-btn" onclick="addRow()">+ إضافة صف ( + )</button>
 
+        <div id="inspectionTitleEditor" class="inspection-title-editor no-print" role="group" aria-label="عنوان الكشف — يظهر بنفس التنسيق عند الطباعة">
+            <div id="inspectionTitleLine1" class="title" contenteditable="true" role="textbox" aria-label="السطر الأول من عنوان الكشف" spellcheck="false">كشف بالأوامر الجنائية</div>
+            <div id="inspectionTitleLine2" class="print-values" contenteditable="true" role="textbox" aria-label="السطر الثاني من عنوان الكشف" spellcheck="false"></div>
+        </div>
+
         <div id="inventoryControls" class="inventory-controls no-print" hidden>
             <div class="inventory-filter-row">
                 <label for="inventoryAddressFilterBtn">تصفية بالعنوان:</label>
@@ -1622,8 +1680,8 @@ thead th[data-tip]:hover::before {
                 <th style="width: 65px;" data-tip="المبلغ المحكوم به + المصاريف">الامر الجنائي</th>
                 <th style="width: 70px;" data-tip="مواد القانون المطبقة">مواد الاتهام</th>
                 <th style="width: 65px;" data-tip="تاريخ صدور الأمر">تاريخ الأمر</th>
-                <th style="width: 110px;" data-tip="قرار النيابة الكلية بشأن القضية">قرار النيابة الكلية</th>
-                <th style="width: 80px;" data-tip="أي ملاحظات إضافية">ملاحظات</th>
+                <th style="width: 110px;" data-tip="قرار النيابة الكلية بشأن القضية" contenteditable="true">قرار النيابة الكلية</th>
+<th style="width: 80px;" data-tip="أي ملاحظات إضافية" contenteditable="true">ملاحظات</th>
                 <th style="width: 30px;" class="del-col">تحكم</th>
             </tr>
         </thead>
@@ -1721,6 +1779,7 @@ thead th[data-tip]:hover::before {
         
         document.getElementById('dateInput').value = formattedDate;
         document.getElementById('writtenAtDate').value = formattedDate;
+        initInspectionReportTitle();
         
         document.getElementById('dateInput').addEventListener('input', function() {
             updatePrintValues();
@@ -2428,18 +2487,69 @@ thead th[data-tip]:hover::before {
         }
     }
 
+    var inspectionTitleLine2Manual = false;
+    function getInspectionTitleLineText(id) {
+        var el = document.getElementById(id);
+        if (!el) return '';
+        return String(el.innerText || el.textContent || '').replace(/[\r\n]+/g, ' ').trim();
+    }
+
+    // العنوان قابل للتعديل أثناء الجلسة فقط، ولا يُحفظ في localStorage؛
+    // عند إعادة تحميل الصفحة يعود دائمًا إلى العنوان الأصلي.
+    function persistInspectionTitle() {}
+
+    function initInspectionReportTitle() {
+        var line1 = document.getElementById('inspectionTitleLine1');
+        var line2 = document.getElementById('inspectionTitleLine2');
+        if (!line1 || !line2) return;
+        line1.textContent = 'كشف بالأوامر الجنائية';
+        line2.textContent = '';
+        inspectionTitleLine2Manual = false;
+        [line1, line2].forEach(function(el) {
+            el.addEventListener('keydown', function(event) {
+                if (event.key === 'Enter') event.preventDefault();
+            });
+        });
+        line1.addEventListener('input', function() {
+            persistInspectionTitle();
+            updatePrintValues();
+        });
+        line2.addEventListener('input', function() {
+            inspectionTitleLine2Manual = true;
+            persistInspectionTitle();
+            updatePrintValues();
+        });
+        updatePrintValues();
+    }
+
+    function setInspectionReportTitle(line1Text, line2Text, line2Manual) {
+        var line1 = document.getElementById('inspectionTitleLine1');
+        var line2 = document.getElementById('inspectionTitleLine2');
+        if (line1 && line1Text != null) line1.textContent = String(line1Text);
+        if (line2 && line2Text != null) line2.textContent = String(line2Text);
+        inspectionTitleLine2Manual = !!line2Manual;
+        persistInspectionTitle();
+    }
+
     function updatePrintValues() {
-        var date = document.getElementById("dateInput").value;
-        var deptSelect = document.getElementById("dept");
-        var deptText = (deptSelect.value === "other") ? document.getElementById("otherDept").value : deptSelect.value;
-        var el = document.getElementById("printValues");
-        if(date && deptText) {
-            el.innerText = "الصادر بتاريخ (" + date + ") لقسم شرطة (" + deptText + ")";
-        } else if(date) {
-            el.innerText = "الصادر بتاريخ (" + date + ")";
-        } else {
-            el.innerText = "";
-        }
+        var dateEl = document.getElementById('dateInput');
+        var date = dateEl ? dateEl.value : '';
+        var deptSelect = document.getElementById('dept');
+        var otherDept = document.getElementById('otherDept');
+        var deptText = deptSelect ? (deptSelect.value === 'other' ? (otherDept ? otherDept.value : '') : deptSelect.value) : '';
+        var generatedLine2 = '';
+        if (date && deptText) generatedLine2 = 'الصادر بتاريخ (' + date + ') لقسم شرطة (' + deptText + ')';
+        else if (date) generatedLine2 = 'الصادر بتاريخ (' + date + ')';
+
+        var editorLine2 = document.getElementById('inspectionTitleLine2');
+        if (editorLine2 && !inspectionTitleLine2Manual) editorLine2.textContent = generatedLine2;
+        var titleText = getInspectionTitleLineText('inspectionTitleLine1');
+        var line2Text = inspectionTitleLine2Manual ? getInspectionTitleLineText('inspectionTitleLine2') : generatedLine2;
+        var printTitle = document.getElementById('printTitle');
+        var printValues = document.getElementById('printValues');
+        if (printTitle) printTitle.textContent = titleText;
+        if (printValues) printValues.textContent = line2Text;
+        persistInspectionTitle();
     }
 
     function getFahsActiveProfileName() {
@@ -2699,11 +2809,27 @@ thead th[data-tip]:hover::before {
         });
     }
 
+    function isEmptyInspectionTableForNegativePrint() {
+        return !hasInspectionTableData();
+    }
+
+    function prepareNegativeInspectionRow() {
+        var tbody = document.querySelector('#mainTable tbody');
+        if (!tbody) return null;
+        var row = tbody.insertRow(0);
+        row.className = 'inspection-negative-row';
+        row.dataset.inspectionNegativeRow = '1';
+        row.innerHTML = '<td colspan="11">لا يوجد محاضر</td>';
+        return row;
+    }
+
+    function restoreNegativeInspectionRow(row) {
+        // نحذف الصف المؤقت فقط ونبقي كل الصفوف الفارغة الأصلية كما كانت.
+        if (row && row.parentNode) row.parentNode.removeChild(row);
+    }
+
     function printPage() {
-        if (!hasInspectionTableData()) {
-            showInspectionInfoAlert('لا توجد بيانات للطباعة.', 'لا توجد بيانات');
-            return;
-        }
+        var negativePrint = isEmptyInspectionTableForNegativePrint();
         var date = document.getElementById("dateInput").value;
         var deptSelect = document.getElementById("dept");
         var deptText = (deptSelect.value === "other") ? document.getElementById("otherDept").value : deptSelect.value;
@@ -2711,12 +2837,18 @@ thead th[data-tip]:hover::before {
         // 1. فحص الهيدر (التاريخ والقسم)
         if(!date || !deptText) { showMissingPrintDataAlert(); return; }
 
-        // 2. فحص صفوف الجدول (التأكد من اكتمال البيانات الأساسية)
+        // 2. الكشف السلبي: يسمح بالطباعة عند وجود صف فارغ، ويحوّله مؤقتًا إلى صف واحد مدمج.
+        var negativeRow = null;
+        if (negativePrint) {
+            negativeRow = prepareNegativeInspectionRow();
+        }
+
+        // 3. فحص صفوف الجدول (التأكد من اكتمال البيانات الأساسية) — لا ينطبق على الكشف السلبي.
         var tbody = document.querySelector('#mainTable tbody');
         var problems = [];
         var missingElements = [];
         
-        Array.from(tbody.rows).forEach(function(row, index) {
+        if (!negativePrint) Array.from(tbody.rows).forEach(function(row, index) {
             // نتجاهل الصفوف الفارغة تماماً التي يتركها المستخدم كاحتياطي
             var hasAnyData = Array.from(row.querySelectorAll('[contenteditable], ol')).some(function(el) { return (el.innerText || '').trim() !== ''; });
             if (!hasAnyData) return;
@@ -2743,6 +2875,7 @@ thead th[data-tip]:hover::before {
         });
 
         if (problems.length > 0) {
+            if (negativeRow) restoreNegativeInspectionRow(negativeRow);
             showInspectionInfoAlert('يرجى استكمال الحقول التالية قبل الطباعة:\n' + problems.slice(0, 8).join('\n'), 'بيانات ناقصة', 'warn', function() {
                 focusAndMarkMissingFields(missingElements);
             });
@@ -2751,10 +2884,12 @@ thead th[data-tip]:hover::before {
 
         updatePrintValues();
         updateFahsSpecialistForPrint();
-        saveSnapshot(deptText, date);
+        if (!negativePrint) saveSnapshot(deptText, date);
         document.body.classList.add('inspection-printing');
+        if (negativePrint) document.body.classList.add('inspection-negative-print');
         var cleanupInspectionPrint = function () {
-            document.body.classList.remove('inspection-printing');
+            document.body.classList.remove('inspection-printing', 'inspection-negative-print');
+            if (negativeRow) restoreNegativeInspectionRow(negativeRow);
             window.removeEventListener('afterprint', cleanupInspectionPrint);
         };
         window.addEventListener('afterprint', cleanupInspectionPrint);
@@ -3162,6 +3297,35 @@ let floatingRecordsLimit = 30;
 let floatingArchiveSortMode = localStorage.getItem('niabat_archive_sort') || 'day';
 let floatingArchiveStatusFilter = localStorage.getItem('niabat_archive_status') || 'all';
 
+// مفتاح تاريخ الأرشيف: الواقعة أولاً، ثم التحرير، ثم الحفظ للمحاضر القديمة فقط.
+function fahsArchiveDateKey(value) {
+    const s = String(value == null ? '' : value).replace(/[٠-٩]/g, c => String(c.charCodeAt(0) - 0x0660))
+        .replace(/[۰-۹]/g, c => String(c.charCodeAt(0) - 0x06f0)).replace(/[\u200e\u200f\u061c]/g, '')
+        .trim().split(/[,،]/)[0].trim().replace(/[.]/g, '/');
+    let m = s.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})$/);
+    let y, mo, d;
+    if (m) { y = +m[1]; mo = +m[2]; d = +m[3]; }
+    else { m = s.match(/^(\d{1,2})[-/](\d{1,2})[-/](\d{4})$/); if (!m) return ''; d = +m[1]; mo = +m[2]; y = +m[3]; }
+    const check = new Date(Date.UTC(y, mo - 1, d));
+    if (check.getUTCFullYear() !== y || check.getUTCMonth() !== mo - 1 || check.getUTCDate() !== d) return '';
+    return `${String(y).padStart(4,'0')}-${String(mo).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+}
+function fahsArchiveDateParts(record) {
+    const incident = fahsArchiveDateKey(record && (record.incidentDate || (record.fields && record.fields.event_date)));
+    const report = fahsArchiveDateKey(record && (record.reportDate || record.inputDate || record.qararDate || record.orderDate || record.issueDate));
+    const saved = fahsArchiveDateKey(record && record.savedAt);
+    return { incident: incident, report: report, saved: saved };
+}
+function fahsArchiveGroupKey(record) {
+    const p = fahsArchiveDateParts(record);
+    return `${p.incident || p.report || p.saved}|${p.report || p.saved}`;
+}
+function fahsArchiveDisplayDate(record) {
+    const p = fahsArchiveDateParts(record), key = p.incident || p.report || p.saved;
+    if (!key) return '';
+    return `${key.slice(8,10)}/${key.slice(5,7)}/${key.slice(0,4)}`;
+}
+
 // 2. دالة مركزية لضبط شكل الأزرار (تلوين الزر النشط) بناءً على القيم المحفوظة
 function syncArchiveFilterUI() {
     document.querySelectorAll('#archive-sort-strip .sort-strip-btn').forEach(btn => {
@@ -3375,14 +3539,15 @@ async function loadFloatingArchive() {
         filteredKeys.forEach(key => {
             const d = db[key];
             if (!d) return;
-            const dateOnly = d.savedAt ? d.savedAt.split(/[,،]/)[0].trim() : '';
-            if (!groupsMap[dateOnly]) {
-                groupsMap[dateOnly] = [];
-                groupsOrder.push(dateOnly);
+            const groupKey = fahsArchiveGroupKey(d);
+            if (!groupsMap[groupKey]) {
+                groupsMap[groupKey] = [];
+                groupsOrder.push(groupKey);
             }
             const caseNumVal = parseInt(String(d.caseNum || '').replace(/\D/g, ''), 10);
-            groupsMap[dateOnly].push({ key: key, caseNum: isNaN(caseNumVal) ? 0 : caseNumVal });
+            groupsMap[groupKey].push({ key: key, caseNum: isNaN(caseNumVal) ? 0 : caseNumVal });
         });
+        groupsOrder.sort((a, b) => a < b ? 1 : (a > b ? -1 : 0));
 
         groupsOrder.forEach(dateOnly => {
             const group = groupsMap[dateOnly];
@@ -3398,7 +3563,7 @@ async function loadFloatingArchive() {
         const d = db[key];
         if (!d) return;
         const shortName = d.name ? d.name.split(' ').slice(0, 3).join(' ') : 'بدون اسم';
-        const dateOnly = d.savedAt ? d.savedAt.split(/[,،]/)[0].trim() : '';
+        const dateOnly = fahsArchiveDisplayDate(d);
         const isSession = isSessionRecord(d);
         const isArchivedRecord = d.fineDecisionMode === 'save';
         const badgeHtml = isArchivedRecord
@@ -3449,6 +3614,26 @@ async function loadFloatingArchive() {
         };
         container.appendChild(loadMoreBtn);
     }
+}
+
+// يقرأ تاريخ الجلسة من الحقول المعتمدة في سجل المحضر وبيانات ما بعد السداد.
+function getRecordSessionDateForImport(record) {
+    if (!record || typeof record !== 'object') return '';
+    var payment = record.paymentInfo && typeof record.paymentInfo === 'object' ? record.paymentInfo : {};
+    var candidates = [record.jalsaDate, record.sessionDate, payment.sessionDate, payment.jalsaDate, record.linkedSessionDate];
+    for (var i = 0; i < candidates.length; i++) {
+        if (candidates[i] !== undefined && candidates[i] !== null) {
+            var value = String(candidates[i]).trim();
+            if (value) return value;
+        }
+    }
+    return '';
+}
+
+// توحيد (ة/ه) يجعل كلا الشكلين «جلسة» و«جلسه» صالحًا كرأس للعمود.
+function isSessionDateImportHeader(headerText) {
+    var normalized = String(headerText || '').replace(/[\u0640\s]+/g, '').replace(/[ةه]/g, 'ه');
+    return normalized.indexOf('جلسه') !== -1;
 }
 
 // الميزة الذهبية: إدراج المحاضر المحددة للجدول آلياً (مع الحماية من تداخل الأقسام)
@@ -3659,6 +3844,19 @@ async function loadFloatingArchive() {
                         var amountSpan = cells[6] ? cells[6].querySelector('.amount-span') : null;
                         if (amountSpan) amountSpan.innerText = data.fine;
                     }
+
+// إضافة ذكية: استيراد العنوان عند الإدراج المجمع
+                    var headers = document.querySelectorAll('#mainTable thead th');
+                    var sessionDateForImport = getRecordSessionDateForImport(data);
+                    for (var j = 0; j < headers.length; j++) {
+                        var customHeaderText = headers[j].innerText || headers[j].textContent || '';
+                        if (isSessionDateImportHeader(customHeaderText)) {
+                            if (sessionDateForImport) fillCell(cells[j], sessionDateForImport);
+                        } else if (customHeaderText.includes('عنوان')) {
+                            fillCell(cells[j], data.address || data.residence || '');
+                        }
+                    }
+
 
                     targetRow.dataset.sourceRecordKey = key;
                     targetRow.dataset.sourceDepartment = incomingDepartment;
@@ -3874,6 +4072,18 @@ async function lookupFromTalbsat(caseNumEl) {
     if (data.fine) {
         var amountSpan = cells[6] ? cells[6].querySelector('.amount-span') : null;
         if (amountSpan) amountSpan.innerText = data.fine;
+    }
+
+// إضافة ذكية: فحص عناوين الجدول واستيراد العنوان إذا تم طلب ذلك
+    var headers = document.querySelectorAll('#mainTable thead th');
+    var sessionDateForImport = getRecordSessionDateForImport(data);
+    for (var i = 0; i < headers.length; i++) {
+        var customHeaderText = headers[i].innerText || headers[i].textContent || '';
+        if (isSessionDateImportHeader(customHeaderText)) {
+            if (sessionDateForImport) fillCell(cells[i], sessionDateForImport);
+        } else if (customHeaderText.includes('عنوان')) {
+            fillCell(cells[i], data.address || data.residence || '');
+        }
     }
 
     showLookupSuccessToast(caseNum, data.name || '');
@@ -5196,6 +5406,19 @@ body.inventory-mode-active .hasr-bottom-row > .hasr-signers-bar { grid-column: 2
         display: none !important;
     }
     /* نفس ملاحظة تصفير عمود "تحكم": نتجنب display:none هنا لنفس السبب (تعارض مع colspan الفوتر) */
+    body.inspection-negative-print #mainTable tbody tr.inspection-negative-row td {
+        height: 100px !important;
+        min-height: 100px !important;
+        padding: 24px !important;
+        text-align: center !important;
+        vertical-align: middle !important;
+        font-size: 24px !important;
+        font-weight: bold !important;
+        color: #1a3a6b !important;
+        border: 1px solid #000 !important;
+    }
+    body.inspection-negative-print #mainTable tbody tr:not(.inspection-negative-row) { display: none !important; }
+
     body.inspection-printing #mainTable .del-col {
         width: 0 !important;
         max-width: 0 !important;
@@ -5686,7 +5909,7 @@ body.inventory-mode-active .hasr-bottom-row > .hasr-signers-bar { grid-column: 2
             if (i === lastIndex) {
                 controlClass = mode === 'inventory' ? ' class="inventory-del-col no-print"' : ' class="del-col"';
             }
-            return '<th style="width:' + col[0] + ';" data-tip="' + escapeHtml(col[2]) + '"' + sortable + controlClass + '>' + col[1] + '</th>';
+            return '<th style="width:' + col[0] + ';" data-tip="' + escapeHtml(col[2]) + '"' + sortable + controlClass + ' contenteditable="true">' + col[1] + '</th>';
         }).join('');
         if (mode === 'inventory' && inventoryAddressSortActive) {
             var addressHeader = tr.querySelector('#th-inventory-address');
@@ -6665,7 +6888,7 @@ body.inventory-mode-active .hasr-bottom-row > .hasr-signers-bar { grid-column: 2
         }
         if (thAddr && thAddr.getAttribute('data-sort') === 'grouped') {
             if (typeof window.showInspectionInfoAlert === 'function') {
-                window.showInspectionInfoAlert('فلتر تجميع "العنوان" نشط حالياً.\nيجب إلغاء تنشيط الفلتر أولاً (بالضغط عليه حتى يختفي الإطار) لكي تعمل أزرار التنقل.', 'فلتر نشط', 'info');
+                window.showInspectionInfoAlert('فلتر تجميع "عنوان" نشط حالياً.\nيجب إلغاء تنشيط الفلتر أولاً (بالضغط عليه حتى يختفي الإطار) لكي تعمل أزرار التنقل.', 'فلتر نشط', 'info');
             }
             return;
         }

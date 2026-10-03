@@ -2620,7 +2620,7 @@ body[data-theme="dark"] .summary-stat-grand-total { border-top-color:#166534; ba
                         <div class="archive-sort-strip" id="archive-sort-strip">
                             <button class="sort-strip-btn" data-mode="asc" onclick="setArchiveSortMode('asc')">تصاعدي</button>
                             <button class="sort-strip-btn" data-mode="desc" onclick="setArchiveSortMode('desc')">تنازلي</button>
-                            <button class="sort-strip-btn active" data-mode="day" onclick="setArchiveSortMode('day')">تاريخ اليوم</button>
+                            <button class="sort-strip-btn active" data-mode="day" onclick="setArchiveSortMode('day')">تاريخ الواقعة</button>
                         </div>
 
 <div class="archive-filter-strip" id="archive-filter-strip">
@@ -6653,6 +6653,15 @@ function parseSummaryStatsSavedDate(value) {
     return `${String(year).padStart(4,'0')}-${String(month).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
 }
 
+// تاريخ دخول المحضر في إحصائيات الوارد/غير المسدد:
+// تاريخ الواقعة أولاً، ثم تاريخ التحرير، ولا نرجع إلى تاريخ الحفظ
+// إلا للمحاضر القديمة التي لا يتوفر بها أي من التاريخين.
+function getSummaryStatsRecordPeriodDate(record) {
+    return parseSummaryStatsSavedDate(record && (record.incidentDate || record.date))
+        || parseSummaryStatsSavedDate(record && (record.reportDate || record.inputDate || record.qararDate))
+        || parseSummaryStatsSavedDate(record && record.savedAt);
+}
+
 // يصنف المحضر المسدد بحسب تاريخ الواقعة، وعند غيابه يستخدم سنة المحضر.
 // المحضر القديم بلا تاريخ واقعة لكن سنته هي سنة السداد يصنف ضمن الشهور السابقة؛
 // أما إن كانت سنة المحضر أقدم من سنة السداد فيصنف ضمن السنوات السابقة.
@@ -7176,13 +7185,16 @@ async function refreshPostPaymentSummaryStats() {
             if (!record || typeof record !== 'object') return;
             if (record.reportMode === 'objection' || record.reportMode === 'bail_reduction' ||
                 /__(objection|bail_reduction)(__bail_reduction)?$/.test(String(key))) return;
-            const savedDate = parseSummaryStatsSavedDate(record.savedAt);
-            if (!savedDate || savedDate < fromDate || savedDate > toDate) return;
             const station = summaryStatsFindStation(record, stations);
             if (!station) return;
             const isSession = typeof isSessionRecord === 'function' && isSessionRecord(record);
             const isPaid = !!(record.paymentInfo && record.paymentInfo.paid);
             const isArchived = record.fineDecisionMode === 'save';
+            const savedDate = parseSummaryStatsSavedDate(record.savedAt);
+            // غير المسدد/المحفوظ/الجلسات تتبع تاريخ الواقعة ثم التحرير.
+            // المسدد يتبع تاريخ تسجيل السداد/الحفظ حتى يظهر في شهر السداد الصحيح.
+            const periodDate = isPaid ? savedDate : getSummaryStatsRecordPeriodDate(record);
+            if (!periodDate || periodDate < fromDate || periodDate > toDate) return;
 
             // محضر تم حفظه (قرار «حفظ المحضر» في نظام التلبسات) يدخل في عداد المحفوظة فقط،
             // ولا يدخل ضمن المسدد أو غير المسدد أو الجلسات.
@@ -7316,14 +7328,15 @@ async function printSummaryStatsSheet() {
         if (!record || typeof record !== 'object') return;
         if (record.reportMode === 'objection' || record.reportMode === 'bail_reduction' ||
             /__(objection|bail_reduction)(__bail_reduction)?$/.test(String(key))) return;
-        const savedDate = parseSummaryStatsSavedDate(record.savedAt);
-        if (!savedDate || savedDate < fromDate || savedDate > toDate) return;
         const station = summaryStatsFindStation(record, stations);
         if (!station) return;
         const row = perStation[station];
         const isSession = typeof isSessionRecord === 'function' && isSessionRecord(record);
         const isPaid = !!(record.paymentInfo && record.paymentInfo.paid);
         const isArchived = record.fineDecisionMode === 'save';
+        const savedDate = parseSummaryStatsSavedDate(record.savedAt);
+        const periodDate = isPaid ? savedDate : getSummaryStatsRecordPeriodDate(record);
+        if (!periodDate || periodDate < fromDate || periodDate > toDate) return;
 
         if (isArchived) {
             // المحاضر المحفوظة التي وردت في نطاق التاريخ تبقى ضمن إجمالي الوارد.
@@ -7693,6 +7706,43 @@ function clearPaymentInfoFields() {
 let archiveSortMode = localStorage.getItem('post_payment_archive_sort') || 'day';
 let archiveStatusFilter = localStorage.getItem('post_payment_archive_status') || 'all';
 
+// تاريخ المجموعة الظاهر في أرشيف المحاضر: الواقعة أولاً، ثم التحرير،
+// ثم تاريخ الحفظ كحل احتياطي للمحاضر القديمة فقط.
+function archiveParseDateKey(value) {
+    const normalized = String(value == null ? '' : value)
+        .replace(/[٠-٩]/g, ch => String(ch.charCodeAt(0) - 0x0660))
+        .replace(/[۰-۹]/g, ch => String(ch.charCodeAt(0) - 0x06f0))
+        .replace(/[\u200e\u200f\u061c]/g, '')
+        .trim().split(/[,،]/)[0].trim().replace(/[.]/g, '/');
+    let match = normalized.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})$/);
+    let year, month, day;
+    if (match) {
+        year = Number(match[1]); month = Number(match[2]); day = Number(match[3]);
+    } else {
+        match = normalized.match(/^(\d{1,2})[-/](\d{1,2})[-/](\d{4})$/);
+        if (!match) return '';
+        day = Number(match[1]); month = Number(match[2]); year = Number(match[3]);
+    }
+    const check = new Date(Date.UTC(year, month - 1, day));
+    if (check.getUTCFullYear() !== year || check.getUTCMonth() !== month - 1 || check.getUTCDate() !== day) return '';
+    return `${String(year).padStart(4, '0')}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+}
+
+function archiveRecordDateKey(record) {
+    return archiveParseDateKey(record && (record.incidentDate || record.date))
+        || archiveParseDateKey(record && record.fields && record.fields.event_date)
+        || archiveParseDateKey(record && (record.reportDate || record.inputDate || record.qararDate))
+        || archiveParseDateKey(record && record.savedAt)
+        || '';
+}
+
+function archiveRecordDateLabel(record) {
+    const key = archiveRecordDateKey(record);
+    if (!key) return '';
+    const parts = key.split('-');
+    return `${parts[2]}/${parts[1]}/${parts[0]}`;
+}
+
 // 2. دالة مركزية لضبط شكل الأزرار
 function syncArchiveFilterUI() {
     document.querySelectorAll('#archive-sort-strip .sort-strip-btn').forEach(btn => {
@@ -7780,22 +7830,23 @@ async function loadArchiveToSidebar() {
         withCaseNum.sort((a, b) => archiveSortMode === 'asc' ? a.caseNum - b.caseNum : b.caseNum - a.caseNum);
         sortedKeys = withCaseNum.map(g => g.key);
     } else {
-        // الوضع الافتراضي: تجميع حسب يوم الحفظ مع الحفاظ على ترتيب الأيام الحالي (الأحدث فوق)،
-        // وفرز محاضر كل يوم على حدة تصاعدياً حسب رقم المحضر (من الأصغر للأكبر)
+        // الوضع الافتراضي: تجميع حسب تاريخ الواقعة (الأحدث فوق)،
+        // وفرز محاضر كل تاريخ على حدة تصاعدياً حسب رقم المحضر.
         const groupsOrder = [];
         const groupsMap = {};
         filteredKeys.forEach(key => {
             const d = db[key];
             if (!d) return;
-            const dateOnly = d.savedAt ? d.savedAt.split(/[,،]/)[0].trim() : '';
-            if (!groupsMap[dateOnly]) {
-                groupsMap[dateOnly] = [];
-                groupsOrder.push(dateOnly);
+            const dateKey = archiveRecordDateKey(d);
+            if (!groupsMap[dateKey]) {
+                groupsMap[dateKey] = [];
+                groupsOrder.push(dateKey);
             }
             const caseNumVal = parseInt(String(d.caseNum || '').replace(/\D/g, ''), 10);
-            groupsMap[dateOnly].push({ key: key, caseNum: isNaN(caseNumVal) ? 0 : caseNumVal });
+            groupsMap[dateKey].push({ key: key, caseNum: isNaN(caseNumVal) ? 0 : caseNumVal });
         });
 
+        groupsOrder.sort((a, b) => String(b).localeCompare(String(a)));
         groupsOrder.forEach(dateOnly => {
             const group = groupsMap[dateOnly];
             group.sort((a, b) => a.caseNum - b.caseNum);
@@ -7809,7 +7860,8 @@ async function loadArchiveToSidebar() {
         const d = db[key];
         if (!d) return;
         const shortName = d.name ? d.name.split(' ').slice(0, 3).join(' ') : 'بدون اسم';
-        const dateOnly = d.savedAt ? d.savedAt.split(/[,،]/)[0].trim() : '';
+        const dateKey = archiveRecordDateKey(d);
+        const dateOnly = archiveRecordDateLabel(d);
         const isSession = isSessionRecord(d);
         const isArchivedRecord = d.fineDecisionMode === 'save';
         const badgeHtml = isArchivedRecord
@@ -7829,13 +7881,13 @@ async function loadArchiveToSidebar() {
             : '';
 
         // إدراج فاصل بصري (بدون نص) عند تغيّر تاريخ المحضر عن السابق — في وضع "حسب اليوم" فقط
-        if (archiveSortMode === 'day' && lastDateSeen !== null && dateOnly !== lastDateSeen) {
+        if (archiveSortMode === 'day' && lastDateSeen !== null && dateKey !== lastDateSeen) {
             const divider = document.createElement('div');
             divider.className = 'archive-date-divider';
             divider.innerHTML = '<span class="divider-dot"></span>';
             container.appendChild(divider);
         }
-        lastDateSeen = dateOnly;
+        lastDateSeen = dateKey;
 
         const btn = document.createElement('button');
         btn.className = 'record-btn';

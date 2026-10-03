@@ -2055,7 +2055,7 @@ box-sizing: border-box;
                     <div class="inv-archive-sort-strip" id="inv-archive-sort-strip">
                         <button class="inv-sort-strip-btn" data-mode="asc" onclick="setInvArchiveSortMode('asc')">تصاعدي</button>
                         <button class="inv-sort-strip-btn" data-mode="desc" onclick="setInvArchiveSortMode('desc')">تنازلي</button>
-                        <button class="inv-sort-strip-btn active" data-mode="day" onclick="setInvArchiveSortMode('day')">تاريخ اليوم</button>
+                        <button class="inv-sort-strip-btn active" data-mode="day" onclick="setInvArchiveSortMode('day')">تاريخ الواقعة</button>
                     </div>
                     <div class="inv-archive-filter-strip" id="inv-archive-filter-strip">
                         <button class="inv-filter-strip-btn" data-status="unpaid" onclick="event.stopPropagation(); setInvArchiveStatusFilter('unpaid')">غير مسدد</button>
@@ -8755,6 +8755,56 @@ function isInvSessionRecord(record) {
     });
 }
 
+// تحويل التواريخ العربية/الإنجليزية إلى مفتاح ISO ثابت للمقارنة والفرز.
+function invArchiveParseDateKey(value) {
+    if (value == null || value === '') return '';
+    var normalized = String(value)
+        .replace(/[٠-٩]/g, function(ch) { return String(ch.charCodeAt(0) - 0x0660); })
+        .replace(/[۰-۹]/g, function(ch) { return String(ch.charCodeAt(0) - 0x06f0); })
+        .replace(/[\u200e\u200f\u061c\u202a-\u202e\u2066-\u2069]/g, '')
+        .trim().split(/[,،]/)[0].trim().replace(/[.]/g, '/');
+    // قد يحتوي تاريخ الحفظ على وقت بعد التاريخ دون فاصلة في بعض المتصفحات.
+    normalized = normalized.split(/\s+/)[0];
+    var match = normalized.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})$/);
+    var year, month, day;
+    if (match) {
+        year = Number(match[1]); month = Number(match[2]); day = Number(match[3]);
+    } else {
+        match = normalized.match(/^(\d{1,2})[-/](\d{1,2})[-/](\d{4})$/);
+        if (!match) return '';
+        day = Number(match[1]); month = Number(match[2]); year = Number(match[3]);
+    }
+    var check = new Date(Date.UTC(year, month - 1, day));
+    if (check.getUTCFullYear() !== year || check.getUTCMonth() !== month - 1 || check.getUTCDate() !== day) return '';
+    return String(year).padStart(4, '0') + '-' + String(month).padStart(2, '0') + '-' + String(day).padStart(2, '0');
+}
+
+// أولوية تاريخ الأرشيف: الواقعة، ثم التحرير إن كان محفوظًا، ثم تاريخ الحفظ.
+function invArchiveRecordDateKey(record) {
+    if (!record) return '';
+    var fields = record.fields || {};
+    var incidentValues = [record.incidentDate, record.eventDate, record.event_date,
+        record.incident_date, fields.event_date, record.date];
+    for (var i = 0; i < incidentValues.length; i++) {
+        var incidentKey = invArchiveParseDateKey(incidentValues[i]);
+        if (incidentKey) return incidentKey;
+    }
+    var reportValues = [record.reportDate, record.report_date, record.inputDate, record.input_date,
+        record.qararDate, record.qarar_date, record.editDate, record.edit_date,
+        fields.report_date, fields.input_date, fields.qarar_date, fields.edit_date];
+    for (var j = 0; j < reportValues.length; j++) {
+        var reportKey = invArchiveParseDateKey(reportValues[j]);
+        if (reportKey) return reportKey;
+    }
+    return invArchiveParseDateKey(record.savedAt);
+}
+
+function invArchiveDateLabel(dateKey) {
+    if (!dateKey) return '';
+    var parts = dateKey.split('-');
+    return parts[2] + '/' + parts[1] + '/' + parts[0];
+}
+
 function syncInvArchiveFilterUI() {
     document.querySelectorAll('#inv-archive-sort-strip .inv-sort-strip-btn').forEach(function(btn) {
         btn.classList.toggle('active', btn.getAttribute('data-mode') === invArchiveSortMode);
@@ -8907,6 +8957,8 @@ function getInvMahdarIndex() {
     return index;
 }
 
+
+
 // ── تحميل قائمة المحاضر في القائمة العائمة ──
 async function loadInvArchiveToSidebar() {
     var container = document.getElementById('inv-records-list');
@@ -8976,8 +9028,8 @@ async function loadInvArchiveToSidebar() {
     var primaryKey = gSorted.find(function(k) { return (db[k] || {}).reportMode !== 'bail_reduction'; }) || gSorted[0];
     var primary = db[primaryKey] || {};
     var caseNumVal = parseInt(String(primary.caseNum || '').replace(/\D/g, ''), 10);
-    var dateOnly = primary.savedAt ? primary.savedAt.split(/[,،]/)[0].trim() : '';
-    return { groupKey: groupKey, caseNum: isNaN(caseNumVal) ? 0 : caseNumVal, dateOnly: dateOnly };
+    var dateKey = invArchiveRecordDateKey(primary);
+    return { groupKey: groupKey, caseNum: isNaN(caseNumVal) ? 0 : caseNumVal, dateKey: dateKey };
   });
 
   var orderedGroupKeys = [];
@@ -8988,11 +9040,12 @@ async function loadInvArchiveToSidebar() {
     var dateGroupsMap = {};
     var dateGroupsOrder = [];
     groupMeta.forEach(function(g) {
-      if (!dateGroupsMap[g.dateOnly]) { dateGroupsMap[g.dateOnly] = []; dateGroupsOrder.push(g.dateOnly); }
-      dateGroupsMap[g.dateOnly].push(g);
+      if (!dateGroupsMap[g.dateKey]) { dateGroupsMap[g.dateKey] = []; dateGroupsOrder.push(g.dateKey); }
+      dateGroupsMap[g.dateKey].push(g);
     });
-    dateGroupsOrder.forEach(function(dateOnly) {
-      var arr = dateGroupsMap[dateOnly];
+    dateGroupsOrder.sort(function(a, b) { return String(b).localeCompare(String(a)); });
+    dateGroupsOrder.forEach(function(dateKey) {
+      var arr = dateGroupsMap[dateKey];
       arr.sort(function(a, b) { return a.caseNum - b.caseNum; });
       orderedGroupKeys = orderedGroupKeys.concat(arr.map(function(g) { return g.groupKey; }));
     });
@@ -9014,15 +9067,16 @@ async function loadInvArchiveToSidebar() {
   return k !== primaryKey && (db[k] || {}).reportMode === 'bail_reduction';
   });
   var shortName = primary.name ? primary.name.split(' ').slice(0, 3).join(' ') : 'بدون اسم';
-  var dateOnly = primary.savedAt ? primary.savedAt.split(/[,،]/)[0].trim() : '';
+  var dateKey = invArchiveRecordDateKey(primary);
+  var dateOnly = invArchiveDateLabel(dateKey);
 
-  if (invArchiveSortMode === 'day' && invLastDateSeen !== null && dateOnly !== invLastDateSeen) {
+  if (invArchiveSortMode === 'day' && invLastDateSeen !== null && dateKey !== invLastDateSeen) {
     var divider = document.createElement('div');
     divider.className = 'inv-archive-date-divider';
     divider.innerHTML = '<span class="inv-divider-dot"></span>';
     container.appendChild(divider);
   }
-  invLastDateSeen = dateOnly;
+  invLastDateSeen = dateKey;
 
    // تمييز نوع المحضر (غرامة / جلسة) من الكلمات المفتاحية في بنود الاتهام.
    var isSession = isInvSessionRecord(primary);
@@ -9067,8 +9121,9 @@ async function loadInvArchiveToSidebar() {
   var child = db[childKey] || {};
   var childBtn = document.createElement('button');
   childBtn.className = 'inv-record-btn inv-child-record';
+  var childDateLabel = invArchiveDateLabel(invArchiveRecordDateKey(child)) || (child.savedAt ? child.savedAt.split(/[,،]/)[0].trim() : dateOnly);
   childBtn.innerHTML = '<div class="inv-record-title"><span>↳ 📄 ' + (child.caseNum || primary.caseNum || '—') + ' / ' + (child.year || primary.year || '') + '</span><span class="inv-child-label">تخفيض كفالة</span></div>' +
-  '<div class="inv-record-sub-row"><span class="inv-rec-name">👤 ' + (child.name || shortName) + '</span><span class="inv-rec-date">' + (child.savedAt ? child.savedAt.split(/[,،]/)[0].trim() : dateOnly) + '</span></div>';
+  '<div class="inv-record-sub-row"><span class="inv-rec-name">👤 ' + (child.name || shortName) + '</span><span class="inv-rec-date">' + childDateLabel + '</span></div>';
   // كل تابع له فعل تحميل مستقل خاص به بالضغط عليه مباشرة
   childBtn.onclick = function() { loadInvRecordToWorkspace(childKey); };
   childWrap.appendChild(childBtn);
