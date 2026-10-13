@@ -16,14 +16,8 @@ const PUBLIC_DIR = path.join(__dirname, 'ain-sera-gate_v7');
 const REDIS_KEY = 'ain_sera_database_records';
 const REDIS_PROFILES_KEY = 'ain_sera_profiles_records';
 
-// يتغير الإصدار مع كل نشر على Vercel؛ أما إعادة تشغيل instance باردة فلا تسجل خروج المستخدمين.
-// يمكن ضبط SESSION_VERSION يدويًا إذا لم يتوفر معرّف نشر Vercel.
-const SESSION_VERSION = process.env.VERCEL_URL || process.env.SESSION_VERSION || process.env.VERCEL_GIT_COMMIT_SHA || 'cloud-v1';
-
-// يجب حفظ مفتاح قوي وثابت في إعدادات Vercel، لا داخل GitHub.
-// في التشغيل المحلي فقط يُنشأ مفتاح جديد عند كل تشغيل، فينتهي تسجيل الدخول بعد إعادة تشغيل السيرفر.
-const SECRET_KEY = process.env.SESSION_SECRET || (process.env.VERCEL ? '' : crypto.randomBytes(32).toString('hex'));
-if (!SECRET_KEY) throw new Error('يجب ضبط SESSION_SECRET في إعدادات Vercel قبل تشغيل السيرفر.');
+// مفتاح ثابت للجلسات السحابية لمنع تسجيل الخروج العشوائي في Vercel
+const SECRET_KEY = process.env.SESSION_SECRET || 'niabat_cloud_secure_session_key_2026_x99';
 
 let redis;
 try {
@@ -51,11 +45,7 @@ function verifyToken(token) {
     if (parts.length !== 3) return null;
     const signature = toBase64UrlFromBuffer(crypto.createHmac('sha256', SECRET_KEY).update(parts[0] + '.' + parts[1]).digest());
     if (signature !== parts[2]) return null;
-    try {
-        const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString('utf8'));
-        if (!payload || payload.sessionVersion !== SESSION_VERSION) return null;
-        return payload;
-    }
+    try { return JSON.parse(Buffer.from(parts[1], 'base64').toString('utf8')); }
     catch (e) { return null; }
 }
 
@@ -183,15 +173,6 @@ const server = http.createServer(async (req, res) => {
     }, {}) : {};
     const userSession = verifyToken(cookies['niabat_token']);
 
-    // فحص الجلسة تستخدمه البوابة بعد إعادة تحميل الصفحة أو عند انتهاء جلسة السيرفر.
-    if (req.url === '/api/session' && req.method === 'GET') {
-        res.writeHead(200, {
-            'Content-Type': 'application/json; charset=utf-8',
-            'Cache-Control': 'no-store'
-        });
-        return res.end(JSON.stringify({ authenticated: !!userSession }));
-    }
-
     // 1. تسجيل الدخول وإصدار الختم
     if (req.url === '/api/auth' && req.method === 'POST') {
         let body = '';
@@ -218,11 +199,10 @@ const server = http.createServer(async (req, res) => {
                 }
 
                 if (isValid && payload) {
-                    const token = createToken({ ...payload, sessionVersion: SESSION_VERSION });
-                    const secureCookie = process.env.VERCEL || req.headers['x-forwarded-proto'] === 'https' ? '; Secure' : '';
+                    const token = createToken(payload);
                     res.writeHead(200, {
                         'Content-Type': 'application/json',
-                        'Set-Cookie': `niabat_token=${token}; Path=/; HttpOnly; SameSite=Lax${secureCookie}`
+                        'Set-Cookie': `niabat_token=${token}; Path=/; HttpOnly; SameSite=Lax`
                     });
                     res.end(JSON.stringify({ success: true }));
                 } else {
@@ -236,10 +216,9 @@ const server = http.createServer(async (req, res) => {
 
     // 2. تسجيل الخروج لمسح الختم
     if (req.url === '/api/logout' && req.method === 'POST') {
-        const secureCookie = process.env.VERCEL || req.headers['x-forwarded-proto'] === 'https' ? '; Secure' : '';
         res.writeHead(200, {
             'Content-Type': 'application/json',
-            'Set-Cookie': `niabat_token=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT${secureCookie}`
+            'Set-Cookie': `niabat_token=; Path=/; HttpOnly; Expires=Thu, 01 Jan 1970 00:00:00 GMT`
         });
         return res.end(JSON.stringify({ success: true }));
     }
