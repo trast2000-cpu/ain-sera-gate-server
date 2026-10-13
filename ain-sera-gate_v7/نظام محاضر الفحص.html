@@ -1398,6 +1398,7 @@ thead th[data-tip]:hover::before {
 
 .badge-fine { background: #28a745; }
 .badge-session { background: #1e3a5f; }
+.badge-investigated { background: #0f766e; }
 .badge-archived { background: #7c3aed; }
 
 [data-theme="dark"] .badge-session { background: #c9a200; color: #1e3a5f; }
@@ -3368,7 +3369,19 @@ const SESSION_KEYWORDS = [
     'تغيير بالاجزاء الجوهرية للمركبة'
 ];
 
+function isInvestigationCompletedRecord(d) {
+    if (!d || typeof d !== 'object') return false;
+    if (d.investigationCompleted === true) return true;
+    const fields = d.fields;
+    return Array.isArray(d.questions) && typeof d.selectedStyle === 'string' &&
+        fields && typeof fields === 'object' && !Array.isArray(fields) &&
+        Object.prototype.hasOwnProperty.call(fields, 'def_name') &&
+        Object.prototype.hasOwnProperty.call(fields, 'prosecution_name') &&
+        Object.prototype.hasOwnProperty.call(fields, 'detention-order-textarea');
+}
+
 function isSessionRecord(d) {
+    if (isInvestigationCompletedRecord(d)) return true;
     if (!d || !d.violations) return false;
     const text = Array.isArray(d.violations) ? d.violations.join(' | ') : String(d.violations);
     return SESSION_KEYWORDS.some(function(kw) { return text.includes(kw); });
@@ -3566,11 +3579,13 @@ async function loadFloatingArchive() {
         const dateOnly = fahsArchiveDisplayDate(d);
         const isSession = isSessionRecord(d);
         const isArchivedRecord = d.fineDecisionMode === 'save';
-        const badgeHtml = isArchivedRecord
+        const badgeHtml = isInvestigationCompletedRecord(d)
+            ? '<span class="record-type-badge badge-session" title="محضر جلسة">ج</span><span class="record-type-badge badge-investigated" title="تم التحقيق فيه">ت</span>'
+            : (isArchivedRecord
             ? '<span class="record-type-badge badge-archived" title="محضر محفوظ">م</span>'
             : (isSession
                 ? '<span class="record-type-badge badge-session" title="محضر جلسة">ج</span>'
-                : '<span class="record-type-badge badge-fine" title="محضر غرامة">غ</span>');
+                : '<span class="record-type-badge badge-fine" title="محضر غرامة">غ</span>'));
         const paidBadgeHtml = (d.paymentInfo && d.paymentInfo.paid)
             ? '<span class="badge-paid" title="' + (d.paymentInfo.fineReceiptNo ? 'رقم القسيمة: ' + d.paymentInfo.fineReceiptNo : 'تم السداد') + '">✓ مسدد</span>'
             : '';

@@ -1868,6 +1868,7 @@ box-sizing: border-box;
 }
 .badge-fine { background: #28a745; }
 .badge-session { background: #1e3a5f; }
+.badge-investigated { background: #0f766e; }
 .badge-paid {
     display: inline-flex;
     align-items: center;
@@ -2614,6 +2615,7 @@ box-sizing: border-box;
                 <div style="flex: 0 0 auto; width: 250px; display: flex; flex-direction: column; gap: 4px;">
                     <label style="font-size: 12px; font-weight: bold;">قرار المركبة</label>
                     <select id="vehicle_decision" class="persist" onchange="updateVehicleDecisionUI(); saveData();">
+                        <option value="" selected>--- اختر ---</option>
                         <option value="hold">يستمر التحفظ على المركبة </option>
                         <option value="release">تسلم المركبة</option>
                         <option value="none">لا شيء</option>
@@ -2883,7 +2885,7 @@ box-sizing: border-box;
     let savedMainQuestions = null;
     let savedBailQuestions = null;
     let savedObjectionQuestions = null;
-    let savedMainVehicleDecision = 'hold';
+    let savedMainVehicleDecision = '';
      // يحدد المحضر الأصلي الذي يتبعه مود تخفيض الكفالة.
      // main و objection كل منهما أصل مستقل.
      let bailParentMode = 'main';
@@ -3288,7 +3290,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             const engineerDec = document.getElementById('engineer_appointment_decision');
             if (engineerDec) { engineerDec.value = 'no_appoint'; updateEngineerDecisionUI(); }
-            if (vehicleDecEl) { vehicleDecEl.value = 'none'; updateVehicleDecisionUI(); }
+            if (vehicleDecEl) { vehicleDecEl.value = ''; updateVehicleDecisionUI(); }
 
             // استعادة أسئلة محضر التخفيض المحفوظة أو إنشاء جديدة مباشرةً
             if (savedBailQuestions !== null) {
@@ -3335,7 +3337,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             const engineerDec2 = document.getElementById('engineer_appointment_decision');
             if (engineerDec2) { engineerDec2.value = 'no_appoint'; updateEngineerDecisionUI(); }
-            if (vehicleDecEl2) { vehicleDecEl2.value = 'none'; updateVehicleDecisionUI(); }
+            if (vehicleDecEl2) { vehicleDecEl2.value = ''; updateVehicleDecisionUI(); }
 
             // استعادة أسئلة محضر الاستعراض المحفوظة أو إنشاء جديدة مباشرةً
             if (savedObjectionQuestions !== null) {
@@ -4212,6 +4214,10 @@ async function saveMahdarToServer() {
             savedAt: new Date().toLocaleString('ar-EG')
         };
 
+        // الطباعة من نظام التحقيق تعني أن المحضر تم التحقيق فيه.
+        dataObj.investigationCompleted = true;
+        dataObj.investigationCompletedAt = new Date().toISOString();
+
         document.querySelectorAll('input, select, textarea').forEach(el => {
             if (el.id) dataObj.fields[el.id] = el.value;
         });
@@ -4239,6 +4245,19 @@ async function saveMahdarToServer() {
          // لا نلمس الأصل عند حفظ تخفيض الكفالة، ولا عند حفظ أصل الحركات
          // الاستعراضية. كل وضع له سجل مستقل ومفتاح واضح.
         db[key] = Object.assign({}, db[key] || {}, dataObj);
+
+        // اربط العلامة كذلك بالسجل الأصلي حتى تظهر على المحضر الرئيسي
+        // عندما تتم الطباعة من نسخة اعتراض أو تخفيض كفالة.
+        const relatedRootKeys = [...new Set([baseKey, parentKey].filter(candidate => candidate && candidate !== key))];
+        for (const relatedKey of relatedRootKeys) {
+            const relatedRecord = db[relatedKey];
+            if (!relatedRecord || typeof relatedRecord !== 'object') continue;
+            db[relatedKey] = Object.assign({}, relatedRecord, {
+                investigationCompleted: true,
+                investigationCompletedAt: dataObj.investigationCompletedAt
+            });
+            await saveToServerData({ [relatedKey]: db[relatedKey] }, relatedKey);
+        }
 
         let index = db.mahdar_index || [];
         const existingPos = index.indexOf(key);
@@ -4330,6 +4349,16 @@ async function saveMahdarToServer() {
             const val = localStorage.getItem(el.id);
             if (val !== null && val !== "") { el.value = val; if (el.onchange) el.onchange(); }
         });
+        // لا نرث قرار «يستمر التحفظ» القديم إلى نموذج جديد لم يُكتب له رقم محضر بعد.
+        const restoredReportNo = (document.getElementById('report_no') || {}).value || '';
+        if (!restoredReportNo.trim()) {
+            const vehicleDecisionEl = document.getElementById('vehicle_decision');
+            if (vehicleDecisionEl) {
+                vehicleDecisionEl.value = '';
+                updateVehicleDecisionUI();
+                saveData();
+            }
+        }
         const savedVils = localStorage.getItem('saved_violations');
         if (savedVils) { violations = JSON.parse(savedVils); renderViolations(); }
         const savedQs = localStorage.getItem('saved_questions');
@@ -4529,6 +4558,8 @@ async function saveMahdarToServer() {
                     select.selectedIndex = 0;
                 }
             });
+            savedMainVehicleDecision = '';
+            updateVehicleDecisionUI();
 
              // إعادة اسم وكيل النيابة وإعدادات النيابة التي لا تخص بيانات المحضر
              const prosecutorElAfterClear = document.getElementById('prosecutor');
@@ -4753,6 +4784,8 @@ function updateReleaseDecisionUI() {
         } else if (vehicleDecision === 'hold') {
             textArea.value = `عقب تنفيذ البند السابق – يستمر التحفظ على المركبة المضبوطة ( ${vType} ) الرقيمة ( ${plate} )  لحين صدور قرار آخر بشأنها.`;
         } else if (vehicleDecision === 'none') {
+            textArea.value = '';
+        } else if (!vehicleDecision) {
             textArea.value = '';
         }
         // إعادة تطبيق الاستايل لضمان تلوين الحقول المحدثة
@@ -5458,6 +5491,10 @@ let questionsHtml = "";
         const plateMode = document.getElementById('plate_mode').value;
         if (plateMode === 'manual' && !getPlate().trim()) {
             addErr('plate_l1', 'رقم اللوحة غير مكتوب');
+        }
+
+        if (!document.getElementById('vehicle_decision').value) {
+            addErr('vehicle_decision', 'قرار المركبة غير محدد');
         }
         
         // التحقق من بيانات المتهم
@@ -7924,6 +7961,8 @@ ${cairoFontFaceTag2}
             else if (select.id === 'plate_mode')         { /* لا تُمسح — يبقى وضع اللوحة كما هو حتى يغيّره المستخدم يدويًا */ }
             else    select.selectedIndex = 0;
         });
+        savedMainVehicleDecision = '';
+        updateVehicleDecisionUI();
 
         // إعادة اسم وكيل النيابة وإعدادات النيابة التي لا تخص بيانات المحضر
         const prosecutorElAfterSilentClear = document.getElementById('prosecutor');
@@ -8743,8 +8782,21 @@ var INV_SESSION_KEYWORDS = [
     'الجوهرية'
 ];
 
+function isInvestigationCompletedRecord(record) {
+    if (!record || typeof record !== 'object') return false;
+    if (record.investigationCompleted === true) return true;
+    // تمييز السجلات القديمة قبل إضافة العلامة، عبر بنية الحفظ الخاصة بنظام التحقيق.
+    var fields = record.fields;
+    return Array.isArray(record.questions) && typeof record.selectedStyle === 'string' &&
+        fields && typeof fields === 'object' && !Array.isArray(fields) &&
+        Object.prototype.hasOwnProperty.call(fields, 'def_name') &&
+        Object.prototype.hasOwnProperty.call(fields, 'prosecution_name') &&
+        Object.prototype.hasOwnProperty.call(fields, 'detention-order-textarea');
+}
+
 function isInvSessionRecord(record) {
     if (!record) return false;
+    if (isInvestigationCompletedRecord(record)) return true;
     var source = record.violations;
     if (!source && record.fields) {
         source = record.fields.violations || record.fields.violation || '';
@@ -9080,6 +9132,8 @@ async function loadInvArchiveToSidebar() {
 
    // تمييز نوع المحضر (غرامة / جلسة) من الكلمات المفتاحية في بنود الاتهام.
    var isSession = isInvSessionRecord(primary);
+  var isInvestigated = isInvestigationCompletedRecord(primary);
+  if (isInvestigated) isSession = true;
   var badgeClass = isSession ? 'badge-session' : 'badge-fine';
   var badgeTitle = isSession ? 'محضر جلسة' : 'محضر غرامة';
   var badgeLabel = isSession ? 'ج' : 'غ';
@@ -9097,6 +9151,7 @@ async function loadInvArchiveToSidebar() {
   (children.length ? '<span class="inv-expand-arrow" title="عرض/إخفاء ' + children.length + ' نسخة تابعة (تخفيض كفالة)">' + children.length + ' تابع <b>⌄</b></span>' : '') +
   paidBadgeHtml +
   '<span class="record-type-badge ' + badgeClass + '" title="' + badgeTitle + '">' + badgeLabel + '</span>' +
+  (isInvestigated ? '<span class="record-type-badge badge-investigated" title="تم التحقيق فيه">ت</span>' : '') +
   '</span></div>' +
   '<div class="inv-record-sub-row"><span class="inv-rec-name">👤 ' + shortName + '</span><span class="inv-rec-date">' + dateOnly + '</span></div>';
 

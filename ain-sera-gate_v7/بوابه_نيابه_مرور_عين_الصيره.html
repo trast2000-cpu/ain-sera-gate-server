@@ -1748,8 +1748,52 @@ const SYSTEMS = [
 ];
 let activeIdx = -1;
 const loadedFrames = {};
+let sessionExpiryHandling = false;
 
-function openSystem(idx) {
+function hasLocalPortalSession() {
+  return !!(sessionStorage.getItem(ACTIVE_PROFILE_KEY) || sessionStorage.getItem(ADMIN_SESSION_KEY));
+}
+
+async function returnToProfilesAfterSessionEnd() {
+  if (sessionExpiryHandling) return;
+  sessionExpiryHandling = true;
+  activeEmployeeProfile = null;
+  sessionStorage.removeItem(ACTIVE_PROFILE_KEY);
+  sessionStorage.removeItem(ADMIN_SESSION_KEY);
+  sessionStorage.removeItem('lastOpenedIdx');
+  updateLogoutButtonVisibility();
+  document.querySelectorAll('.sys-frame').forEach((frame, index) => {
+    frame.classList.remove('active-frame');
+    frame.src = 'about:blank';
+    delete loadedFrames[index];
+  });
+  goHome();
+  await serverLogout();
+  await openProfiles();
+  showToast('انتهت جلسة الدخول. اختر البروفايل واكتب كلمة المرور للمتابعة.');
+  sessionExpiryHandling = false;
+}
+
+async function confirmPortalSession() {
+  if (!hasLocalPortalSession()) {
+    goHome();
+    await openProfiles();
+    return false;
+  }
+  const status = await checkServerSession();
+  if (status === false) {
+    await returnToProfilesAfterSessionEnd();
+    return false;
+  }
+  if (status === null) {
+    showToast('السيرفر غير متاح الآن. أعد المحاولة بعد عودة الاتصال.');
+    return false;
+  }
+  return true;
+}
+
+async function openSystem(idx) {
+  if (!await confirmPortalSession()) return;
   const launcher = document.getElementById('launcher');
   launcher.classList.add('hiding');
   document.getElementById('settings-btn').classList.add('in-topbar');
@@ -1764,7 +1808,8 @@ function openSystem(idx) {
   }, 500);
 }
 
-function switchSystem(idx) {
+async function switchSystem(idx) {
+  if (!await confirmPortalSession()) return;
   if (idx === activeIdx) return;
   _load(idx);
 }
@@ -1835,9 +1880,17 @@ function goHome() {
 }
 
 window.addEventListener('DOMContentLoaded', async function() {
+  // لا نستعيد اسم المستخدم أو النظام السابق قبل التأكد من صلاحية ختم السيرفر.
+  const initialSessionStatus = await checkServerSession();
+  if (initialSessionStatus !== true) {
+    sessionStorage.removeItem(ACTIVE_PROFILE_KEY);
+    sessionStorage.removeItem(ADMIN_SESSION_KEY);
+    sessionStorage.removeItem('lastOpenedIdx');
+  }
+
   const saved = sessionStorage.getItem('lastOpenedIdx');
   // لا نستعيد آخر نظام إلا مع وجود جلسة موظف فعالة أو تفويض مدير.
-  if (saved !== null && (sessionStorage.getItem(ACTIVE_PROFILE_KEY) || isAdminSession())) {
+  if (initialSessionStatus === true && saved !== null && (sessionStorage.getItem(ACTIVE_PROFILE_KEY) || isAdminSession())) {
     const idx = parseInt(saved);
     if (!isNaN(idx) && idx >= 0 && idx < SYSTEMS.length) {
       const launcher = document.getElementById('launcher');
@@ -1860,6 +1913,11 @@ window.addEventListener('DOMContentLoaded', async function() {
 // --- [مراقبة فورية وتحديث ذكي في الخلفية للحسابات وشاشة الاختيار] ---
   setInterval(async function() {
     try {
+      const sessionStatus = await checkServerSession();
+      if (sessionStatus === false && hasLocalPortalSession()) {
+        await returnToProfilesAfterSessionEnd();
+        return;
+      }
       const db = await fetchProfilesData();
       const profiles = db && db[PROFILE_KEY];
       if (Array.isArray(profiles)) {
@@ -2363,7 +2421,10 @@ async function selectEmployeeProfile(id) {
   // بدون هذا، كانت محاولة حفظ الباسوورد الجديد تُرفض من السيرفر لعدم وجود جلسة مصادق عليها بعد،
   // فيظل الباسوورد القديم (الافتراضي) مسجلاً، ويُطلب من الموظف تغييره من جديد في كل مرة يسجّل دخوله.
   await serverLogout();
-  await serverLogin(profile.id, profile.password, false);
+  if (!await serverLogin(profile.id, profile.password, false)) {
+    await gateAlert('تعذر تسجيل الدخول إلى السيرفر. تأكد من تشغيله ثم أعد المحاولة.', { title:'تعذر الاتصال بالسيرفر', danger:true });
+    return;
+  }
 
 
 if (!await forceEmployeePasswordChange(profile)) return;
@@ -2457,7 +2518,10 @@ async function authorizeAdmin() {
 
   // تسجيل الدخول في السيرفر للحصول على تصريح الحفظ (Token)
   await serverLogout();
-  await serverLogin('admin', admin.password, true);
+  if (!await serverLogin('admin', admin.password, true)) {
+    await gateAlert('تعذر تسجيل الدخول إلى السيرفر. تأكد من تشغيله ثم أعد المحاولة.', { title:'تعذر الاتصال بالسيرفر', danger:true });
+    return false;
+  }
 
   // إجبار الأدمن على تعيين باسوورد جديد خاص به
   if (admin.mustChange) {
@@ -2469,7 +2533,10 @@ async function authorizeAdmin() {
     admin.password = await hashPass(next);
     admin.mustChange = false;
     await saveAdminAccount(admin);
-    await serverLogin('admin', admin.password, true);
+    if (!await serverLogin('admin', admin.password, true)) {
+      await gateAlert('تم تحديث كلمة المرور، لكن تعذر تجديد جلسة السيرفر. سجّل الدخول مرة أخرى.', { title:'تعذر تجديد الجلسة', danger:true });
+      return false;
+    }
     await gateAlert('تم تعيين كلمة المرور الجديدة وتفعيل صلاحيات الإدارة بنجاح.', { title: 'تم الحفظ' });
   }
 

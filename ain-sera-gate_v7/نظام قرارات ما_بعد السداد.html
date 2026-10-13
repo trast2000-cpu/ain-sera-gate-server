@@ -184,6 +184,25 @@ option[data-category="dark"] {
 /* حالة التسليم بضمان الجلسة (بدون سداد) */
         .case-summary-status.delivered-session { background: #e0e7ff; color: #3730a3; border: 1px solid #c7d2fe; }
         body[data-theme="dark"] .case-summary-status.delivered-session { background: rgba(55, 48, 163, 0.25); color: #a5b4fc; border-color: #4f46e5; }
+        /* ── إخطار البيع داخل ملخص المحضر ── */
+        .case-summary-status.sale-yes { background: #cffafe; color: #155e75; border: 1px solid #67e8f9; }
+        .case-summary-status.sale-none { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
+        .case-summary-status.sale-review { background: #ffedd5; color: #9a3412; border: 1px solid #fdba74; }
+        .summary-sale-notice-list { display: grid; gap: 3px; margin-top: 4px; }
+        .summary-sale-notice-item { display: flex; align-items: center; justify-content: space-between; gap: 6px; padding: 3px 7px; border: 1px solid #a5f3fc; border-radius: 7px; background: #ecfeff; color: #164e63; font-size: 11px; font-weight: bold; }
+        .summary-sale-notice-item bdi { direction: ltr; unicode-bidi: isolate; }
+        .summary-sale-notice-item small { padding: 1px 6px; border-radius: 999px; background: #e0f2fe; color: #075985; font-size: 9.5px; font-weight: bold; white-space: nowrap; }
+        .summary-sale-notice-item small.is-linked { background: #dcfce7; color: #166534; }
+        .summary-sale-notice-item small.is-review { background: #fef3c7; color: #92400e; }
+        .summary-sale-notice-item small.is-archived { background: #e2e8f0; color: #475569; }
+        body[data-theme="dark"] .case-summary-status.sale-yes { background: rgba(8, 145, 178, 0.25); color: #67e8f9; border-color: #0891b2; }
+        body[data-theme="dark"] .case-summary-status.sale-none { background: rgba(100, 116, 139, 0.25); color: #cbd5e1; border-color: #64748b; }
+        body[data-theme="dark"] .case-summary-status.sale-review { background: rgba(194, 65, 12, 0.25); color: #fdba74; border-color: #c2410c; }
+        body[data-theme="dark"] .summary-sale-notice-item { background: rgba(8, 145, 178, 0.15); border-color: #0e7490; color: #a5f3fc; }
+        body[data-theme="dark"] .summary-sale-notice-item small { background: rgba(14, 116, 144, 0.35); color: #bae6fd; }
+        body[data-theme="dark"] .summary-sale-notice-item small.is-linked { background: rgba(22, 101, 52, 0.4); color: #86efac; }
+        body[data-theme="dark"] .summary-sale-notice-item small.is-review { background: rgba(146, 64, 14, 0.4); color: #fde68a; }
+        body[data-theme="dark"] .summary-sale-notice-item small.is-archived { background: rgba(71, 85, 105, 0.5); color: #cbd5e1; }
 
         /* صف المحضر المرتبط: صندوق مستقل ببنفسجي فاتح، لأنه معلومة عن محضر آخر مختلف نوعها عن باقي الصف */
         .case-summary-row.case-summary-linked-row {
@@ -579,6 +598,128 @@ body, .app-layout {
         }
 
         .plate-input-wrapper { display: flex; align-items: center; gap: 3px; direction: rtl; }
+        .plate-search-grid {
+            display:grid;
+            grid-template-columns:30px 30px 30px 60px 28px;
+            grid-template-rows:14px 36px;
+            column-gap:3px;
+            row-gap:3px;
+            align-items:center;
+            direction:rtl;
+        }
+        .plate-search-grid .plate-search-grid-label {
+            grid-column:1 / span 3;
+            grid-row:1;
+            display:flex;
+            align-items:center;
+            height:14px;
+            min-height:14px;
+            margin:0;
+            line-height:14px;
+        }
+        .post-payment-plate-search-button {
+            grid-column:4;
+            grid-row:1;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            gap:2px;
+            width:60px !important;
+            min-width:60px;
+            max-width:60px;
+            height:14px;
+            min-height:14px;
+            box-sizing:border-box;
+            padding:0 2px !important;
+            border:1px solid #2d5a8c;
+            border-radius:3px;
+            background:#e5edf8;
+            color:#1e3a5f;
+            font-family:inherit;
+            font-size:9px;
+            font-weight:bold;
+            line-height:12px;
+            white-space:nowrap;
+            cursor:pointer;
+            transition:background-color .18s ease,color .18s ease,transform .15s ease;
+        }
+        .post-payment-plate-search-button:hover { background:#d5e3f4; color:#163b66; }
+        .post-payment-plate-search-button:active { transform:scale(.96); }
+        .post-payment-plate-search-button:disabled { opacity:.65; cursor:wait; }
+        .plate-search-grid #c1 { grid-column:1; grid-row:2; }
+        .plate-search-grid #c2 { grid-column:2; grid-row:2; }
+        .plate-search-grid #c3 { grid-column:3; grid-row:2; }
+        .plate-search-grid #n1 { grid-column:4; grid-row:2; }
+        .plate-search-grid .post-payment-plate-clear-control { grid-column:5; grid-row:2; width:28px; height:30px; box-sizing:border-box; padding:2px 4px !important; margin:0 !important; }
+
+        .post-payment-id-search-grid {
+            display:grid;
+            grid-template-columns:minmax(0,1fr) 60px;
+            grid-template-rows:14px 30px;
+            column-gap:4px;
+            row-gap:3px;
+            align-items:center;
+            direction:rtl;
+            width:165px;
+            flex:0 0 165px;
+        }
+        .post-payment-id-search-grid label { grid-column:1; grid-row:1; margin:0; line-height:14px; white-space:nowrap; }
+        .post-payment-id-search-grid input { grid-column:1 / -1; grid-row:2; width:100%; height:36px; min-height:36px; box-sizing:border-box; }
+        .post-payment-id-search-grid .post-payment-plate-search-button { grid-column:2; grid-row:1; }
+        .post-payment-person-fields { flex-wrap:nowrap !important; min-width:0; }
+        .post-payment-person-fields .accused-name-field { flex:1 1 0; min-width:0; }
+        .post-payment-person-fields .accused-name-field input { width:100% !important; min-width:0; }
+
+        /* نافذة نتائج البحث: نفس حركة التلاشي والتكبير المستخدمة في نوافذ النظام. */
+        .post-payment-plate-results-overlay {
+            position:fixed; inset:0; z-index:100050; display:flex; align-items:center; justify-content:center;
+            padding:12px; background:rgba(15,23,42,.58); direction:rtl; font-family:'Cairo','Segoe UI',Arial,sans-serif;
+            opacity:0; visibility:hidden; pointer-events:none;
+            transition:opacity .25s ease, visibility 0s linear .25s;
+        }
+        .post-payment-plate-results-overlay.show { opacity:1; visibility:visible; pointer-events:auto; transition:opacity .25s ease, visibility 0s linear 0s; }
+        .post-payment-plate-results-dialog {
+            display:flex; flex-direction:column; width:min(780px,96vw); max-height:82dvh; overflow:hidden;
+            border:1px solid #c7d2e2; border-radius:14px; background:#fff; color:#1e293b;
+            box-shadow:0 24px 80px rgba(15,23,42,.35);
+            transform:scale(.94) translateY(10px); opacity:0;
+            transition:transform .28s cubic-bezier(.34,1.56,.64,1), opacity .22s ease;
+        }
+        .post-payment-plate-results-overlay.show .post-payment-plate-results-dialog { transform:scale(1) translateY(0); opacity:1; }
+        .post-payment-plate-results-header { flex:0 0 auto; display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 16px; border-bottom:1px solid #dbe4ef; background:linear-gradient(135deg,#f8fbff,#edf3fa); }
+        .post-payment-plate-results-header h2 { margin:0; color:#1e3a5f; font-size:16px; font-weight:900; }
+        .post-payment-plate-results-close { flex:0 0 30px; width:30px; height:30px; border:1px solid #cbd5e1; border-radius:7px; background:#fff; color:#475569; font-size:18px; cursor:pointer; }
+        .post-payment-plate-results-close:hover { background:#fee2e2; color:#b91c1c; border-color:#fecaca; }
+        .post-payment-plate-results-body { flex:1 1 auto; min-height:0; overflow:auto; padding:14px 16px; }
+        .post-payment-plate-results-summary { margin:0 0 10px; color:#475569; font-size:12px; font-weight:700; line-height:1.8; }
+        .post-payment-plate-results-table-wrap { overflow:auto; border:1px solid #dbe4ef; border-radius:9px; }
+        .post-payment-plate-results-table { width:100%; min-width:560px; border-collapse:collapse; text-align:right; font-size:12px; }
+        .post-payment-plate-results-table th { padding:9px 10px; background:#edf3fa; color:#1e3a5f; border-bottom:1px solid #cbd5e1; white-space:nowrap; }
+        .post-payment-plate-results-table td { padding:8px 10px; border-bottom:1px solid #e2e8f0; color:#334155; }
+        .post-payment-plate-results-table tr:last-child td { border-bottom:0; }
+        .post-payment-plate-results-table tbody tr:hover { background:#f8fbff; }
+        .post-payment-plate-case-button { padding:5px 11px; border:1px solid #9db8d9; border-radius:6px; background:#eaf1fb; color:#1e3a5f; font:800 11.5px 'Cairo','Segoe UI',Arial,sans-serif; cursor:pointer; white-space:nowrap; }
+        .post-payment-plate-case-button:hover { background:#d6e4f5; border-color:#2d5a8e; }
+        .post-payment-plate-results-footer { flex:0 0 auto; display:flex; justify-content:flex-start; padding:10px 16px; border-top:1px solid #e2e8f0; background:#f8fafc; }
+        .post-payment-plate-results-footer button { padding:6px 18px; border:1px solid #cbd5e1; border-radius:7px; background:#fff; color:#334155; font-family:inherit; font-size:12px; font-weight:700; cursor:pointer; }
+        .post-payment-plate-results-footer button:hover { background:#f1f5f9; }
+        body[data-theme="dark"] .post-payment-plate-search-button { background:#213753; color:#dbeafe; border-color:#4a7ab5; }
+        body[data-theme="dark"] .post-payment-plate-search-button:hover { background:#2b4667; color:#fff; }
+        body[data-theme="dark"] .post-payment-plate-results-dialog { background:#17243b; color:#e2e8f0; border-color:#385273; }
+        body[data-theme="dark"] .post-payment-plate-results-header { background:linear-gradient(135deg,#1b2d47,#17243b); border-color:#385273; }
+        body[data-theme="dark"] .post-payment-plate-results-header h2 { color:#bfdbfe; }
+        body[data-theme="dark"] .post-payment-plate-results-close { background:#243650; color:#dbeafe; border-color:#385273; }
+        body[data-theme="dark"] .post-payment-plate-results-summary { color:#cbd5e1; }
+        body[data-theme="dark"] .post-payment-plate-results-table-wrap { border-color:#385273; }
+        body[data-theme="dark"] .post-payment-plate-results-table th { background:#243650; color:#bfdbfe; border-color:#385273; }
+        body[data-theme="dark"] .post-payment-plate-results-table td { color:#e2e8f0; border-color:#2d4060; }
+        body[data-theme="dark"] .post-payment-plate-results-table tbody tr:hover { background:#20324d; }
+        body[data-theme="dark"] .post-payment-plate-case-button { background:#243b59; color:#dbeafe; border-color:#4a6b91; }
+        body[data-theme="dark"] .post-payment-plate-case-button:hover { background:#2d4a70; }
+        body[data-theme="dark"] .post-payment-plate-results-footer { background:#1b2d47; border-color:#385273; }
+        body[data-theme="dark"] .post-payment-plate-results-footer button { background:#243650; color:#e2e8f0; border-color:#385273; }
+        @media (max-width:600px) { .post-payment-plate-results-overlay { padding:6px; } .post-payment-plate-results-dialog { width:100%; max-height:88dvh; } .post-payment-plate-results-header h2 { font-size:14px; } .post-payment-plate-results-body { padding:10px; } }
+
         .char-input  { width: 30px !important; text-align: center; font-weight: bold; font-size: 14px; }
         .num-input   { width: 60px !important; text-align: center; font-weight: bold; font-size: 14px; }
         .no-plate-input { width: 130px !important; text-align: center; font-weight: bold; }
@@ -1715,6 +1856,7 @@ body[data-theme="dark"] .tab-btn.active { background: #2d5a8e !important; color:
 }
 .badge-fine { background: #28a745; }
 .badge-session { background: #1e3a5f; }
+.badge-investigated { background: #0f766e; }
 .badge-archived { background: #7c3aed; }
 .badge-paid {
     display: inline-flex;
@@ -2472,6 +2614,10 @@ body[data-theme="dark"] .summary-stat-grand-total { border-top-color:#166534; ba
                     <span id="summary-payment" class="case-summary-value"><span class="case-summary-status unpaid">غير مسدد</span></span>
                 </div>
                 
+                <div id="summary-sale-notice-row" class="case-summary-row">
+                    <span class="case-summary-label">إخطار البيع</span>
+                    <span id="summary-sale-notice" class="case-summary-value"><span class="case-summary-status sale-none">—</span></span>
+                </div>
                 <div id="summary-linked-row" class="case-summary-row case-summary-linked-row" style="display:none;">
                     <span class="case-summary-label">محضر الجلسة</span>
                     <span id="summary-linked" class="case-summary-value">—</span>
@@ -2875,14 +3021,19 @@ body[data-theme="dark"] .summary-stat-grand-total { border-top-color:#166534; ba
             <div class="card-header" onclick="toggleCard('card-vehicle')">
                 <span class="card-icon"><i class="fa-solid fa-car"></i></span>
                 <span class="card-title"> — بيانات المتهم والمركبة — </span>
-                <span class="card-badge">الاسم · اللوحة</span>
+                <span class="card-badge">الاسم · الرقم القومي · اللوحة</span>
                 <span class="toggle-arrow">▾</span>
             </div>
             <div class="card-body" style="gap:0; padding:0;">
-                <div style="display:flex; align-items:flex-end; gap:8px; flex-wrap:wrap; padding:10px; flex:1; border-left:1px solid #e2e8f0;">
-                    <div class="field-group">
+                <div class="post-payment-person-fields" style="display:flex; align-items:flex-end; gap:8px; padding:10px; flex:1; min-width:0; border-left:1px solid #e2e8f0;">
+                    <div class="field-group accused-name-field">
                         <label>اسم المتهم</label>
-                        <input type="text" id="input-name" placeholder="اسم المتهم الكامل" oninput="sync()" style="width:320px;">
+                        <input type="text" id="input-name" placeholder="اسم المتهم الكامل" oninput="sync()" style="width:100%;">
+                    </div>
+                    <div class="field-group post-payment-id-search-grid">
+                        <label for="input-national-id">الرقم القومي</label>
+                        <button type="button" id="post-payment-id-search-button" class="post-payment-plate-search-button" onclick="searchPostPaymentNationalIdRecords()" title="البحث عن المحاضر بالرقم القومي" aria-label="البحث عن المحاضر بالرقم القومي"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i><span>بحث</span></button>
+                        <input type="text" id="input-national-id" inputmode="numeric" maxlength="14" placeholder="14 رقمًا" aria-label="الرقم القومي للمتهم">
                     </div>
                 </div>
                 <div style="display:flex; align-items:flex-end; gap:8px; flex-wrap:wrap; padding:10px; flex:1;">
@@ -2894,13 +3045,14 @@ body[data-theme="dark"] .summary-stat-grand-total { border-top-color:#166534; ba
                         </select>
                     </div>
                     <div class="field-group" id="plate-fields-wrapper">
-                        <label>رقم اللوحة</label>
-                        <div class="plate-input-wrapper">
+                        <div class="plate-input-wrapper plate-search-grid">
+                            <label class="plate-search-grid-label">رقم اللوحة</label>
+                            <button type="button" id="post-payment-plate-search-button" class="post-payment-plate-search-button" onclick="searchPostPaymentPlateRecords()" title="البحث عن المحاضر برقم المركبة" aria-label="البحث عن المحاضر برقم المركبة"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i><span>بحث</span></button>
                             <input type="text" id="c1" class="char-input" maxlength="1" oninput="autoTab(this, 'c2')" onkeydown="autoBack(event, this, null)">
                             <input type="text" id="c2" class="char-input" maxlength="1" oninput="autoTab(this, 'c3')" onkeydown="autoBack(event, this, 'c1')">
                             <input type="text" id="c3" class="char-input" maxlength="1" oninput="autoTab(this, 'n1')" onkeydown="autoBack(event, this, 'c2')">
                             <input type="text" id="n1" class="num-input" maxlength="4" placeholder="" oninput="updateAllTexts(); sync();" onkeydown="autoBack(event, this, 'c3')">
-                            <button type="button" onclick="clearPlateFields()" style="padding: 2px 6px; background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; border-radius: 4px; cursor: pointer; font-size: 11px; margin-right: 5px;" title="مسح رقم المركبة"><i class="fa-solid fa-trash-can"></i></button>
+                            <button type="button" class="post-payment-plate-clear-control" onclick="clearPlateFields()" style="padding: 2px 6px; background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; border-radius: 4px; cursor: pointer; font-size: 11px; margin-right: 5px;" title="مسح رقم المركبة" aria-label="مسح رقم المركبة"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
                         </div>
                     </div>
                     <div class="field-group" id="no-plate-wrapper" style="display:none;">
@@ -3583,6 +3735,8 @@ window.addEventListener('beforeprint', function() {
             document.getElementById('input-boss-other').value = '';
             document.getElementById('boss-other-wrapper').style.display = 'none';
             document.getElementById('input-name').value = '';
+            const nationalIdInput = document.getElementById('input-national-id');
+            if (nationalIdInput) nationalIdInput.value = '';
             document.getElementById('plate-type').value = 'with-plate';
             document.getElementById('c1').value = '';
             document.getElementById('c2').value = '';
@@ -5704,6 +5858,7 @@ if (window.isPresetRunning) return;
             if (type) type.innerHTML = '<span class="case-summary-status type">—</span>';
             const payment = document.getElementById('summary-payment');
             if (payment) payment.innerHTML = '<span class="case-summary-status unpaid">غير مسدد</span>';
+            summarySaleNoticeReset();
             ['summary-primary-row','summary-linked-row','summary-session-date-row','summary-linked-violation-row'].forEach(id => {
                 const row = document.getElementById(id);
                 if (row) row.style.display = 'none';
@@ -5739,6 +5894,115 @@ if (window.isPresetRunning) return;
                 return candidates.length ? candidates[candidates.length - 1] : null;
             } catch (e) {
                 return null;
+            }
+        }
+
+        // ── إخطار البيع في ملخص المحضر (قراءة فقط من مجموعات sale_notification_* المشتركة بين الأنظمة) ──
+        function summarySaleNoticeNorm(value) {
+            return String(value == null ? '' : value)
+                .replace(/[٠-٩]/g, ch => String(ch.charCodeAt(0) - 0x0660))
+                .replace(/[۰-۹]/g, ch => String(ch.charCodeAt(0) - 0x06f0))
+                .toLowerCase().trim()
+                .replace(/[\u064B-\u065F\u0670\u0640]/g, '')
+                .replace(/[أإآٱ]/g, 'ا').replace(/ى/g, 'ي').replace(/ة/g, 'ه')
+                .replace(/[ـ\s\-_\/\\.,،]+/g, '');
+        }
+        function summarySaleNoticeNormDept(value) {
+            return summarySaleNoticeNorm(typeof normalizeMahdarPart === 'function' ? normalizeMahdarPart(value) : value);
+        }
+        function summarySaleNoticeEscape(value) {
+            return String(value == null ? '' : value).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+        }
+        function summarySaleNoticeBump() {
+            window.summarySaleNoticeToken = (window.summarySaleNoticeToken || 0) + 1;
+            return window.summarySaleNoticeToken;
+        }
+        function summarySaleNoticeSetHtml(html) {
+            const el = document.getElementById('summary-sale-notice');
+            if (el) el.innerHTML = html;
+        }
+        function summarySaleNoticeReset() {
+            summarySaleNoticeBump();
+            summarySaleNoticeSetHtml('<span class="case-summary-status sale-none">—</span>');
+        }
+        // المحضر المعروض + المحضر الأساسي (في حالة الجلسة) + المحضر المرتبط، بدون تكرار
+        function summarySaleNoticeCandidates(records) {
+            const seen = new Set(), result = [];
+            records.forEach(function(record) {
+                if (!record || typeof record !== 'object') return;
+                const caseNum = String(record.caseNum || record.caseNumber || '').trim();
+                const year = String(record.year || record.caseYear || '').trim();
+                const dept = String(record.dept || record.department || '').trim();
+                if (!caseNum || !year || !dept) return;
+                const key = getMahdarKey(caseNum, year, dept, 'main');
+                if (seen.has(key)) return;
+                seen.add(key);
+                result.push({ key, caseNum, year, dept });
+            });
+            return result;
+        }
+        function summarySaleNoticeMatches(ref, candidates) {
+            if (!ref) return false;
+            const refKey = String(ref.mahdarKey || '');
+            const matchCandidates = Array.isArray(ref.matchCandidates) ? ref.matchCandidates.map(String) : [];
+            return candidates.some(function(c) {
+                if (refKey && refKey === c.key) return true;
+                if (matchCandidates.indexOf(c.key) !== -1) return true;
+                return !!(ref.caseNumber && ref.caseYear && ref.department &&
+                    summarySaleNoticeNorm(ref.caseNumber) === summarySaleNoticeNorm(c.caseNum) &&
+                    summarySaleNoticeNorm(ref.caseYear) === summarySaleNoticeNorm(c.year) &&
+                    summarySaleNoticeNormDept(ref.department) === summarySaleNoticeNormDept(c.dept));
+            });
+        }
+        async function summaryRenderSaleNotice(data, linkedData, primaryData) {
+            const token = summarySaleNoticeBump();
+            const candidates = summarySaleNoticeCandidates([data, primaryData, linkedData]);
+            if (!candidates.length) { summarySaleNoticeSetHtml('<span class="case-summary-status sale-none">—</span>'); return; }
+            summarySaleNoticeSetHtml('<span class="case-summary-status sale-none">جارٍ التحقق…</span>');
+            try {
+                const db = await fetchServerData();
+                if (token !== window.summarySaleNoticeToken) return;
+                // fetchServerData لا ترمي خطأ عند فشل الاتصال بل ترجع بيانات فارغة، فنتأكد أن المحضر نفسه موجود في الرد
+                if (!db || !candidates.some(c => db[c.key])) {
+                    summarySaleNoticeSetHtml('<span class="case-summary-status sale-review">تعذر التحقق</span>');
+                    return;
+                }
+                const notifications = Array.isArray(db.sale_notifications) ? db.sale_notifications : [];
+                const links = Array.isArray(db.sale_notification_links) ? db.sale_notification_links : [];
+                const items = Array.isArray(db.sale_notification_items) ? db.sale_notification_items : [];
+                const noticeMap = new Map(notifications.filter(n => n && n.id).map(n => [String(n.id), n]));
+                const found = new Map();
+                let orphans = 0;
+                const add = function(notificationId, status) {
+                    const notice = noticeMap.get(String(notificationId || ''));
+                    if (!notice) { orphans++; return; }
+                    const id = String(notice.id);
+                    let entry = found.get(id);
+                    if (!entry) { entry = { notice, linked: false, review: false }; found.set(id, entry); }
+                    if (status === 'linked') entry.linked = true;
+                    if (status === 'ambiguous' || status === 'needs_review') entry.review = true;
+                };
+                links.forEach(function(link) { if (summarySaleNoticeMatches(link, candidates)) add(link.notificationId, link.linkStatus || 'linked'); });
+                items.forEach(function(item) { if (summarySaleNoticeMatches(item, candidates)) add(item.notificationId, item.linkStatus || 'pending'); });
+                if (!found.size) {
+                    summarySaleNoticeSetHtml(orphans
+                        ? '<span class="case-summary-status sale-review">يحتاج مراجعة</span>'
+                        : '<span class="case-summary-status sale-none">لا يوجد</span>');
+                    return;
+                }
+                const entries = Array.from(found.values()).sort((a, b) => String(b.notice.createdAt || '').localeCompare(String(a.notice.createdAt || '')));
+                const allArchived = entries.every(e => e.notice.status === 'archived');
+                const rows = entries.map(function(e) {
+                    const archived = e.notice.status === 'archived';
+                    const label = archived ? 'مؤرشف' : e.linked ? 'مرتبط' : e.review ? 'يحتاج مراجعة' : 'مستورد';
+                    const cls = archived ? 'is-archived' : e.linked ? 'is-linked' : e.review ? 'is-review' : '';
+                    return '<div class="summary-sale-notice-item"><span>إخطار <bdi>' + summarySaleNoticeEscape(e.notice.notificationNumber || '—') +
+                        ' / ' + summarySaleNoticeEscape(e.notice.notificationYear || '—') + '</bdi></span><small class="' + cls + '">' + label + '</small></div>';
+                }).join('');
+                summarySaleNoticeSetHtml('<div><span class="case-summary-status sale-yes">' + (allArchived ? 'يوجد (مؤرشف)' : 'يوجد إخطار بيع') +
+                    '</span><div class="summary-sale-notice-list">' + rows + '</div></div>');
+            } catch (error) {
+                if (token === window.summarySaleNoticeToken) summarySaleNoticeSetHtml('<span class="case-summary-status sale-review">تعذر التحقق</span>');
             }
         }
 
@@ -5817,6 +6081,9 @@ if (window.isPresetRunning) return;
             } else {
                 if (linkedViolationRow) linkedViolationRow.style.display = 'none';
             }
+
+            // إخطار البيع: قراءة فقط من نفس قاعدة البيانات (لا يتم تعديل أي بيانات)
+            summaryRenderSaleNotice(data, linked, primaryData);
         }
 
                 // استعادة بيانات السداد بعد انتهاء clearAll وapplyPreset، حتى لا تُمسح القسائم أثناء الاستيراد.
@@ -5935,6 +6202,9 @@ if (window.isPresetRunning) return;
 
             // ① الاسم
             setVal('input-name', data.name);
+            const importedFields = data.fields && typeof data.fields === 'object' ? data.fields : {};
+            setVal('input-national-id', data.nationalId || data.nationalID || data.national_id || data.idNo || data.id_no || data.def_id_no ||
+                importedFields.nationalId || importedFields.nationalID || importedFields.national_id || importedFields.idNo || importedFields.id_no || importedFields.def_id_no || '');
 
             // تخزين تاريخ الجلسة المستورد (إن وُجد) لاستخدامه لاحقاً عند اختيار "تسليم بدون غرامة"
             importedJalsaDate = data.jalsaDate || '';
@@ -6595,7 +6865,19 @@ const SESSION_KEYWORDS = [
     'تغيير بالاجزاء الجوهرية للمركبة'
 ];
 
+function isInvestigationCompletedRecord(d) {
+    if (!d || typeof d !== 'object') return false;
+    if (d.investigationCompleted === true) return true;
+    const fields = d.fields;
+    return Array.isArray(d.questions) && typeof d.selectedStyle === 'string' &&
+        fields && typeof fields === 'object' && !Array.isArray(fields) &&
+        Object.prototype.hasOwnProperty.call(fields, 'def_name') &&
+        Object.prototype.hasOwnProperty.call(fields, 'prosecution_name') &&
+        Object.prototype.hasOwnProperty.call(fields, 'detention-order-textarea');
+}
+
 function isSessionRecord(d) {
+    if (isInvestigationCompletedRecord(d)) return true;
     if (!d || !d.violations) return false;
     const text = Array.isArray(d.violations) ? d.violations.join(' | ') : String(d.violations);
     return SESSION_KEYWORDS.some(function(kw) { return text.includes(kw); });
@@ -7864,11 +8146,13 @@ async function loadArchiveToSidebar() {
         const dateOnly = archiveRecordDateLabel(d);
         const isSession = isSessionRecord(d);
         const isArchivedRecord = d.fineDecisionMode === 'save';
-        const badgeHtml = isArchivedRecord
+        const badgeHtml = isInvestigationCompletedRecord(d)
+            ? '<span class="record-type-badge badge-session" title="محضر جلسة">ج</span><span class="record-type-badge badge-investigated" title="تم التحقيق فيه">ت</span>'
+            : (isArchivedRecord
             ? '<span class="record-type-badge badge-archived" title="محضر محفوظ">م</span>'
             : (isSession
                 ? '<span class="record-type-badge badge-session" title="محضر جلسة">ج</span>'
-                : '<span class="record-type-badge badge-fine" title="محضر غرامة">غ</span>');
+                : '<span class="record-type-badge badge-fine" title="محضر غرامة">غ</span>'));
         let paidTooltip = 'تم السداد';
         if (d.paymentInfo && d.paymentInfo.paid) {
             const parts = [];
@@ -7921,6 +8205,220 @@ async function loadArchiveToSidebar() {
         container.appendChild(loadMoreBtn);
     }
 }
+
+// ── البحث عن المحاضر المحفوظة برقم المركبة في الواجهة الرئيسية ──
+function normalizePostPaymentPlateValue(value) {
+    return String(value == null ? '' : value)
+        .replace(/[٠-٩]/g, ch => String(ch.charCodeAt(0) - 0x0660))
+        .replace(/[۰-۹]/g, ch => String(ch.charCodeAt(0) - 0x06f0))
+        .replace(/[أإآٱ]/g, 'ا').replace(/ى/g, 'ي').replace(/ة/g, 'ه')
+        .replace(/[\u064B-\u065F\u0670]/g, '')
+        .replace(/[^a-zA-Z0-9\u0600-\u06FF]/g, '')
+        .toUpperCase();
+}
+function collectPostPaymentPlateMatches(db, targetPlate) {
+    if (!db || typeof db !== 'object') return [];
+    const sourceKeys = Array.isArray(db.mahdar_index) ? db.mahdar_index : Object.keys(db).filter(key => key !== 'mahdar_index');
+    const keys = [...new Set(sourceKeys.map(key => String(key)))].reverse();
+    const matches = [];
+    keys.forEach(key => {
+        const record = db[key];
+        if (!record || typeof record !== 'object') return;
+        // نفس استثناء السجلات الفرعية المستخدم في قائمة الأرشيف.
+        if (record.reportMode === 'objection' || record.reportMode === 'bail_reduction' || /__(objection|bail_reduction)(__bail_reduction)?$/.test(key)) return;
+        if (record.plateType === 'no-plate') return;
+        const fields = record.fields && typeof record.fields === 'object' ? record.fields : {};
+        const parts = [record.c1 || fields.plate_l1, record.c2 || fields.plate_l2, record.c3 || fields.plate_l3];
+        const digits = record.n1 || fields.plate_digits || '';
+        const plate = parts.every(Boolean)
+            ? normalizePostPaymentPlateValue(parts.join('') + digits)
+            : normalizePostPaymentPlateValue(record.vehicleNumber || record.plateNumber || (record.vehicle && (record.vehicle.vehicleNumber || record.vehicle.plateNumber)) || '');
+        if (!plate || plate !== targetPlate) return;
+        matches.push({
+            key,
+            caseNum:String(record.caseNum || record.caseNumber || 'غير مسجل'),
+            year:String(record.year || record.caseYear || '—'),
+            department:String(record.dept || record.department || '—'),
+            name:String(record.name || '—')
+        });
+    });
+    return matches;
+}
+function closePostPaymentPlateResults(overlay) {
+    const node = overlay || document.querySelector('.post-payment-plate-results-overlay');
+    if (!node || !node.isConnected) return;
+    node.classList.remove('show');
+    window.setTimeout(() => node.remove(), 320);
+}
+function openPostPaymentPlateResults(matches, plateLabel, lookupKind) {
+    lookupKind = lookupKind || 'رقم المركبة';
+    document.querySelectorAll('.post-payment-plate-results-overlay').forEach(node => node.remove());
+    const overlay = document.createElement('div');
+    overlay.className = 'post-payment-plate-results-overlay';
+    overlay.setAttribute('role','presentation');
+    const resultTitle = lookupKind === 'الرقم القومي' ? 'محاضر مرتبطة بالرقم القومي' : 'محاضر مرتبطة برقم المركبة';
+    overlay.innerHTML = '<section class="post-payment-plate-results-dialog" role="dialog" aria-modal="true" aria-label="اختيار محضر">' +
+        '<header class="post-payment-plate-results-header"><h2></h2><button type="button" class="post-payment-plate-results-close" aria-label="إغلاق">×</button></header>' +
+        '<div class="post-payment-plate-results-body"><p class="post-payment-plate-results-summary"></p><div class="post-payment-plate-results-table-wrap"><table class="post-payment-plate-results-table"><thead><tr><th>رقم المحضر</th><th>السنة</th><th>قسم الشرطة</th><th>اسم المتهم</th></tr></thead><tbody></tbody></table></div></div>' +
+        '<footer class="post-payment-plate-results-footer"><button type="button" class="post-payment-plate-results-dismiss">إغلاق</button></footer></section>';
+    const summary = overlay.querySelector('.post-payment-plate-results-summary');
+    overlay.querySelector('.post-payment-plate-results-header h2').textContent = resultTitle;
+    summary.textContent = 'تم العثور على ' + matches.length + ' محاضر باستخدام ' + lookupKind + ' ' + plateLabel + '. اضغط على رقم المحضر لتحميل بياناته في الواجهة.';
+    const tbody = overlay.querySelector('tbody');
+    matches.forEach(match => {
+        const row = document.createElement('tr');
+        const caseCell = document.createElement('td');
+        const choose = document.createElement('button');
+        choose.type = 'button';
+        choose.className = 'post-payment-plate-case-button';
+        choose.textContent = match.caseNum;
+        choose.title = 'تحميل بيانات هذا المحضر';
+        choose.addEventListener('click', () => {
+            closePostPaymentPlateResults(overlay);
+            window.setTimeout(() => {
+                loadRecordToWorkspace(match.key).catch(error => showCustomAlert('تعذر تحميل المحضر: ' + (error.message || 'تحقق من الاتصال.'), { title:'خطأ في تحميل المحضر', type:'error' }));
+            }, 330);
+        });
+        caseCell.appendChild(choose);
+        row.appendChild(caseCell);
+        [match.year, match.department, match.name].forEach(value => {
+            const cell = document.createElement('td');
+            cell.textContent = value;
+            row.appendChild(cell);
+        });
+        tbody.appendChild(row);
+    });
+    overlay.querySelector('.post-payment-plate-results-close').addEventListener('click', () => closePostPaymentPlateResults(overlay));
+    overlay.querySelector('.post-payment-plate-results-dismiss').addEventListener('click', () => closePostPaymentPlateResults(overlay));
+    overlay.addEventListener('click', event => { if (event.target === overlay) closePostPaymentPlateResults(overlay); });
+    overlay.addEventListener('keydown', event => { if (event.key === 'Escape') closePostPaymentPlateResults(overlay); });
+    document.body.appendChild(overlay);
+    void overlay.offsetWidth;
+    overlay.classList.add('show');
+    const closeButton = overlay.querySelector('.post-payment-plate-results-close');
+    if (closeButton) closeButton.focus({ preventScroll:true });
+}
+
+function collectPostPaymentNationalIdMatches(db, targetId) {
+    if (!db || typeof db !== 'object') return [];
+    const sourceKeys = Array.isArray(db.mahdar_index) ? db.mahdar_index : Object.keys(db).filter(key => key !== 'mahdar_index');
+    const keys = [...new Set(sourceKeys.map(key => String(key)))].reverse();
+    const matches = [];
+    keys.forEach(key => {
+        const record = db[key];
+        if (!record || typeof record !== 'object') return;
+        if (record.reportMode === 'objection' || record.reportMode === 'bail_reduction' || /__(objection|bail_reduction)(__bail_reduction)?$/.test(key)) return;
+        const fields = record.fields && typeof record.fields === 'object' ? record.fields : {};
+        const nationalId = record.nationalId || record.nationalID || record.national_id || record.idNo || record.id_no || record.def_id_no ||
+            fields.nationalId || fields.nationalID || fields.national_id || fields.idNo || fields.id_no || fields.def_id_no || '';
+        if (normalizePostPaymentNationalId(nationalId) !== targetId) return;
+        matches.push({
+            key,
+            caseNum:String(record.caseNum || record.caseNumber || 'غير مسجل'),
+            year:String(record.year || record.caseYear || '—'),
+            department:String(record.dept || record.department || '—'),
+            name:String(record.name || record.accusedName || '—')
+        });
+    });
+    return matches;
+}
+function normalizePostPaymentNationalId(value) {
+    return normalizePostPaymentPlateValue(value).replace(/[^0-9]/g, '');
+}
+async function searchPostPaymentNationalIdRecords() {
+    const button = document.getElementById('post-payment-id-search-button');
+    const input = document.getElementById('input-national-id');
+    const targetId = normalizePostPaymentNationalId(input ? input.value : '');
+    if (targetId.length !== 14) {
+        showCustomAlert('أدخل الرقم القومي كاملًا (14 رقمًا) قبل البحث.', { title:'الرقم القومي غير مكتمل', type:'error' });
+        return;
+    }
+    if (button) { button.disabled = true; button.setAttribute('aria-busy','true'); }
+    try {
+        const db = await fetchServerData();
+        const matches = collectPostPaymentNationalIdMatches(db, targetId);
+        if (!matches.length) {
+            showCustomAlert('لا توجد محاضر محفوظة تحتوي على الرقم القومي المدخل.', { title:'لا توجد محاضر مطابقة', type:'error' });
+            return;
+        }
+        if (matches.length === 1) {
+            await loadRecordToWorkspace(matches[0].key);
+            return;
+        }
+        openPostPaymentPlateResults(matches, targetId, 'الرقم القومي');
+    } catch (error) {
+        showCustomAlert('تعذر البحث عن المحاضر: ' + (error.message || 'تحقق من الاتصال وحاول مرة أخرى.'), { title:'خطأ في البحث', type:'error' });
+    } finally {
+        if (button && button.isConnected) { button.disabled = false; button.removeAttribute('aria-busy'); }
+    }
+}
+async function searchPostPaymentPlateRecords() {
+    const button = document.getElementById('post-payment-plate-search-button');
+    const type = document.getElementById('plate-type');
+    if (type && type.value === 'no-plate') {
+        showCustomAlert('اختر نوع اللوحة «حروف وأرقام» وأدخل رقم المركبة للبحث.', { title:'رقم المركبة غير مكتمل', type:'error' });
+        return;
+    }
+    const letters = ['c1','c2','c3'].map(id => normalizePostPaymentPlateValue((document.getElementById(id) || {}).value || ''));
+    const digits = normalizePostPaymentPlateValue((document.getElementById('n1') || {}).value || '');
+    if (letters.some(value => !value) || !digits) {
+        showCustomAlert('أدخل الحروف الثلاثة ورقم المركبة كاملًا قبل البحث.', { title:'رقم المركبة غير مكتمل', type:'error' });
+        return;
+    }
+    const targetPlate = normalizePostPaymentPlateValue(letters.join('') + digits);
+    const plateLabel = letters.join(' ') + ' / ' + digits;
+    if (button) { button.disabled = true; button.setAttribute('aria-busy','true'); }
+    try {
+        const db = await fetchServerData();
+        const matches = collectPostPaymentPlateMatches(db, targetPlate);
+        if (!matches.length) {
+            showCustomAlert('لا توجد محاضر محفوظة تحتوي على رقم المركبة المدخل.', { title:'لا توجد محاضر مطابقة', type:'error' });
+            return;
+        }
+        if (matches.length === 1) {
+            await loadRecordToWorkspace(matches[0].key);
+            return;
+        }
+        openPostPaymentPlateResults(matches, plateLabel);
+    } catch (error) {
+        showCustomAlert('تعذر البحث عن المحاضر: ' + (error.message || 'تحقق من الاتصال وحاول مرة أخرى.'), { title:'خطأ في البحث', type:'error' });
+    } finally {
+        if (button && button.isConnected) { button.disabled = false; button.removeAttribute('aria-busy'); }
+    }
+}
+
+function bindPostPaymentPlateEnterSearch() {
+    ['c1','c2','c3','n1'].forEach(id => {
+        const input = document.getElementById(id);
+        if (!input || input.dataset.enterPlateSearchBound === 'true') return;
+        input.dataset.enterPlateSearchBound = 'true';
+        input.addEventListener('keydown', event => {
+            if (event.key !== 'Enter' || event.isComposing || event.keyCode === 229) return;
+            event.preventDefault();
+            event.stopPropagation();
+            if (event.repeat) return;
+            const searchButton = document.getElementById('post-payment-plate-search-button');
+            if (searchButton && searchButton.disabled) return;
+            searchPostPaymentPlateRecords();
+        });
+    });
+}
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bindPostPaymentPlateEnterSearch, { once:true });
+else bindPostPaymentPlateEnterSearch();
+function bindPostPaymentNationalIdEnterSearch() {
+    const input = document.getElementById('input-national-id');
+    if (!input || input.dataset.enterNationalIdSearchBound === 'true') return;
+    input.dataset.enterNationalIdSearchBound = 'true';
+    input.addEventListener('keydown', event => {
+        if (event.key !== 'Enter' || event.isComposing || event.keyCode === 229 || event.repeat) return;
+        event.preventDefault();
+        event.stopPropagation();
+        const button = document.getElementById('post-payment-id-search-button');
+        if (!button || !button.disabled) searchPostPaymentNationalIdRecords();
+    });
+}
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bindPostPaymentNationalIdEnterSearch, { once:true });
+else bindPostPaymentNationalIdEnterSearch();
 
 // ── عند الضغط على محضر بالقائمة: تحذير أولاً إن وُجدت بيانات حالية، ثم استيراد ──
 async function loadRecordToWorkspace(key) {
