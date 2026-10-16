@@ -199,13 +199,13 @@ function isValidJsonFile(file) {
   }
 }
 
-// قبل أي كتابة: نسخة سريعة (.bak) + نسخة مؤرخة مرة كل ساعة.
+// قبل أي كتابة: نسخة سريعة (.bak) + نسخة مؤرخة مرة كل ساعة، وكلها داخل مجلد backups.
 // لا تُنسخ إلا لو الملف الحالي سليم، فلا نكتب نسخة تالفة فوق نسخة جيدة.
 function backupBeforeWrite(file) {
   try {
     if (!fs.existsSync(file) || !isValidJsonFile(file)) return;
-    fs.copyFileSync(file, file + ".bak");
     fs.mkdirSync(BACKUP_DIR, { recursive: true });
+    fs.copyFileSync(file, path.join(BACKUP_DIR, path.basename(file) + ".bak"));
     const base = path.basename(file, ".json");
     const d = new Date();
     const pad = (n) => String(n).padStart(2, "0");
@@ -356,9 +356,10 @@ async function quarantineData(raw) {
         });
       }
     } else {
+      fs.mkdirSync(BACKUP_DIR, { recursive: true });
       fs.copyFileSync(
         DATA_FILE,
-        path.join(__dirname, `data.corrupt-${Date.now()}.json`)
+        path.join(BACKUP_DIR, `data.corrupt-${Date.now()}.json`)
       );
     }
   } catch (e) {}
