@@ -118,12 +118,17 @@ async function fetchServerData() {
 }
 
 // حفظ كل البيانات في السيرفر
-async function saveToServerData(dataObject, recordKey = null) {
+// options.confirmFullReplace = true: تأكيد صريح لاستبدال القاعدة كلها (استعادة نسخة / تصفير من البوابة فقط).
+// بدونه يدمج السيرفر الحفظ الكامل بحذر ولا يسمح له بمسح المحاضر أو تفريغ بيانات موجودة.
+async function saveToServerData(dataObject, recordKey = null, options = {}) {
   try {
     let headers = {
       "Content-Type": "application/json; charset=utf-8",
       "X-Record-Key": recordKey ? encodeURIComponent(recordKey) : "",
     };
+    if (!recordKey && options && options.confirmFullReplace === true) {
+      headers["X-Confirm-Full-Replace"] = "true";
+    }
     const res = await fetch(SERVER_URL, {
       method: "POST",
       headers: headers,

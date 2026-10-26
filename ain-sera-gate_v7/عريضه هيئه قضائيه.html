@@ -11,7 +11,6 @@
 
 <link href="cairo.css" rel="stylesheet">
 
-    <script src="niabat-config-loader.js"></script>
     <script src="api.js"></script>
     <style>   
 /* ===== نظام المتغيرات والألوان المطور ===== */
@@ -24,7 +23,7 @@
     --text-main: #1a2a44;
     --text-muted: #4a5568;
     --border-color: #cbd5e0;
-    --shadow: 0 4px 12px rgba(26, 45, 74, 0.15);
+    --shadow: 0 0.25rem 0.75rem rgba(26, 45, 74, 0.15);
     --grid-color: rgba(26, 58, 107, 0.3);
     --panel-grid-color: rgba(26, 58, 107, 0.12); /* شفافية أقل لنقاط الحاوية */
     --input-bg: #ffffff;
@@ -37,7 +36,7 @@
     --text-main: #f8fafc;
     --text-muted: #94a3b8;
     --border-color: #334155;
-    --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+    --shadow: 0 0.625rem 1.5625rem -0.3125rem rgba(0, 0, 0, 0.5);
     --grid-color: rgba(248, 250, 252, 0.25); /* زيادة وضوح النقاط في المود المظلم */
     --panel-grid-color: rgba(248, 250, 252, 0.2); /* شفافية أقل جداً لنقاط الحاوية في الدارك مود */
     --input-bg: #2a3f63;
@@ -47,17 +46,17 @@
 
 /* ظلال خاصة للمود المظلم */
 [data-theme="dark"] .input-panel {
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, .2);
+    box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.4), inset 0 0.0625rem 0 rgba(255, 255, 255, .2);
 }
 
 [data-theme="dark"] input, 
 [data-theme="dark"] select {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.3);
 }
 
 [data-theme="dark"] input:focus, 
 [data-theme="dark"] select:focus {
-    box-shadow: 0 0 0 3px rgba(122, 174, 255, 0.15), 0 6px 16px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 0 0 0.1875rem rgba(122, 174, 255, 0.15), 0 0.375rem 1rem rgba(0, 0, 0, 0.4);
 }
 
 /* إصلاح حقل التاريخ في الوضع الليلي */
@@ -79,7 +78,7 @@
             --border: #c5cad8;
             --input-border: #b0b8cc;
             --label-color: #1a3a6b;
-            --shadow: 0 4px 20px rgba(26,58,107,0.10);
+            --shadow: 0 0.25rem 1.25rem rgba(26,58,107,0.10);
         }
 
         * { box-sizing: border-box; }
@@ -90,26 +89,26 @@
             background-color: var(--bg-light);
             color: var(--text-main);
             margin: 0;
-            padding: 16px;
+            padding: 1rem;
             min-height: 100vh;
             transition: background-color 0.3s ease, color 0.3s ease;
             /* خلفية الشبكة المنقطة */
-            background-image: radial-gradient(rgba(30,58,95,0.35) 1.8px, transparent 1.8px);
+            background-image: radial-gradient(rgba(30,58,95,0.35) 0.1125rem, transparent 0.1125rem);
 
-            background-size: 32px 32px;
+            background-size: 2rem 2rem;
             background-position: center;
 }
 
-/* تكبير الواجهة على الشاشة فقط — لا يؤثر على الطباعة */
+/* ===== مقياس الواجهة على الشاشة: كل الأحجام بوحدة rem، وهذا السطر هو نسبة التكبير الوحيدة =====
+   17.6px = تكبير 110 بالمئة (غيّر الرقم فقط لتكبير/تصغير النظام كله). الطباعة تبقى على 16px. */
 @media screen {
-    body {
-        zoom: 1.1;
-    }
+    html { font-size: clamp(12px, calc(100vw / 68), 17.6px); }
+    :where(input, select, textarea, button) { font-size: 0.8333rem; }
 }
 
         /* ====== لوحة التحكم ====== */
         .main-container {
-            max-width: 1050px;
+            max-width: 65.625rem;
             margin: auto;
             transition: background-color 0.3s ease;
         }
@@ -118,13 +117,13 @@
             background: linear-gradient(135deg, var(--primary), #2d5a8c);
             color: white;
             text-align: center;
-            padding: 8px;
-            font-size: 20px;
+            padding: 0.5rem;
+            font-size: 1.25rem;
             font-weight: bold;
-            letter-spacing: 1px;
-            margin-bottom: 10px;
-            border-radius: 8px;
-            border-bottom: 2px solid #c9a200;
+            letter-spacing: 0.0625rem;
+            margin-bottom: 0.625rem;
+            border-radius: 0.5rem;
+            border-bottom: 0.125rem solid #c9a200;
             position: sticky;
             top: 0;
             z-index: 10;
@@ -133,140 +132,140 @@
         .input-panel {
             background: var(--bg-white);
             /* استخدام متغير منفصل للتحكم في حجم وشفافية نقاط الحاوية */
-            background-image: radial-gradient(rgba(30,58,95,0.20) 1.4px, transparent 1.4px);
-            background-size: 32px 32px;
+            background-image: radial-gradient(rgba(30,58,95,0.20) 0.0875rem, transparent 0.0875rem);
+            background-size: 2rem 2rem;
             background-position: center;
-            padding: 12px 16px 6px;
-            border-radius: 12px;
-            border: 1px solid var(--border-color);
-            margin-bottom: 12px;
-            box-shadow: 0 8px 24px rgba(26, 58, 107, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.2);
-            border-top: 4px solid var(--primary);
+            padding: 0.75rem 1rem 0.375rem;
+            border-radius: 0.75rem;
+            border: 0.0625rem solid var(--border-color);
+            margin-bottom: 0.75rem;
+            box-shadow: 0 0.5rem 1.5rem rgba(26, 58, 107, 0.15), inset 0 0.0625rem 0 rgba(255, 255, 255, 0.2);
+            border-top: 0.25rem solid var(--primary);
             transition: all 0.3s ease;
         }
 
         .panel-section-title {
-            font-size: 11px;
+            font-size: 0.6875rem;
             font-weight: 700;
             color: var(--accent);
             text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 6px;
-            padding-bottom: 4px;
-            border-bottom: 1px dashed var(--border);
+            letter-spacing: 0.0625rem;
+            margin-bottom: 0.375rem;
+            padding-bottom: 0.25rem;
+            border-bottom: 0.0625rem dashed var(--border);
         }
 
         .row {
             display: flex;
-            gap: 8px;
-            margin-bottom: 8px;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
             align-items: flex-end;
             flex-wrap: wrap;
         }
 
-        .form-group { display: flex; flex-direction: column; flex: 1; min-width: 100px; }
-        .form-group-xs { flex: 0.3; min-width: 70px; max-width: 120px; }
-        .form-group-sm { flex: 0.4; min-width: 80px; max-width: 160px; }
+        .form-group { display: flex; flex-direction: column; flex: 1; min-width: 6.25rem; }
+        .form-group-xs { flex: 0.3; min-width: 4.375rem; max-width: 7.5rem; }
+        .form-group-sm { flex: 0.4; min-width: 5rem; max-width: 10rem; }
         .form-group-name { flex: 1.4; }
-        .form-group-director { flex: 0.5; min-width: 120px; max-width: 200px; }
+        .form-group-director { flex: 0.5; min-width: 7.5rem; max-width: 12.5rem; }
         
         /* تقليل عرض حقول معينة */
-        .form-group-narrow { flex: 0.6; max-width: 250px; }
+        .form-group-narrow { flex: 0.6; max-width: 15.625rem; }
 
         label {
-            margin-bottom: 3px;
+            margin-bottom: 0.1875rem;
             font-weight: 700;
             color: var(--text-main);
-            font-size: 15px;
+            font-size: 0.9375rem;
             display: flex;
             align-items: center;
-            gap: 4px;
+            gap: 0.25rem;
         }
         label::before {
             content: '▪';
             color: var(--accent);
-            font-size: 9px;
+            font-size: 0.5625rem;
         }
 
         input, select {
-            padding: 9px 12px;
-            border: 1.5px solid var(--border-color);
-            border-radius: 6px;
-            font-size: 16px;
+            padding: 0.5625rem 0.75rem;
+            border: 0.0938rem solid var(--border-color);
+            border-radius: 0.375rem;
+            font-size: 1rem;
             font-family: 'Cairo', sans-serif;
             width: 100%;
             background: var(--input-bg);
             color: var(--text-main);
             transition: all 0.3s ease;
             outline: none;
-            box-shadow: 0 4px 12px rgba(26, 58, 107, 0.1);
+            box-shadow: 0 0.25rem 0.75rem rgba(26, 58, 107, 0.1);
         }
         input:focus, select:focus {
             border-color: var(--primary-light);
-            box-shadow: 0 0 0 3px rgba(42,82,152,0.12), 0 6px 16px rgba(26, 58, 107, 0.15);
+            box-shadow: 0 0 0 0.1875rem rgba(42,82,152,0.12), 0 0.375rem 1rem rgba(26, 58, 107, 0.15);
             background: white;
         }
 
         /* تنسيق مربعات رقم المركبة */
         .car-num-container {
             display: flex;
-            gap: 4px;
+            gap: 0.25rem;
             direction: rtl;
             justify-content: flex-start;
         }
         .car-num-container input {
             text-align: center;
-            padding: 5px 2px;
+            padding: 0.3125rem 0.125rem;
         }
-        .car-letter { width: 35px; }
-        .car-digit { width: 100px; }
+        .car-letter { width: 2.1875rem; }
+        .car-digit { width: 6.25rem; }
         .btn-clear-plate {
             background: linear-gradient(135deg, #c0392b, #e74c3c);
             color: white;
             border: none;
-            border-radius: 7px;
-            padding: 5px 10px;
-            font-size: 12px;
+            border-radius: 0.4375rem;
+            padding: 0.3125rem 0.625rem;
+            font-size: 0.75rem;
             font-family: 'Cairo', sans-serif;
             font-weight: 700;
             cursor: pointer;
             white-space: nowrap;
             align-self: center;
             transition: opacity 0.15s;
-            box-shadow: 0 2px 6px rgba(192,57,43,0.3);
+            box-shadow: 0 0.125rem 0.375rem rgba(192,57,43,0.3);
         }
         .btn-clear-plate:hover { opacity: 0.85; }
-        .car-num-row { display: flex; align-items: flex-end; gap: 8px; }
+        .car-num-row { display: flex; align-items: flex-end; gap: 0.5rem; }
 
         .top-bar {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 10px;
+            gap: 0.625rem;
         }
 
         .btn-clear {
             background: linear-gradient(135deg, #c0392b, #e74c3c);
             color: white;
             border: none;
-            border-radius: 10px;
-            padding: 10px 18px;
+            border-radius: 0.625rem;
+            padding: 0.625rem 1.125rem;
             font-family: 'Cairo', sans-serif;
-            font-size: 13px;
+            font-size: 0.8125rem;
             font-weight: 700;
             cursor: pointer;
             transition: opacity 0.15s, transform 0.15s, box-shadow 0.15s, filter 0.15s;
             white-space: nowrap;
-            box-shadow: 0 3px 10px rgba(192,57,43,0.3);
+            box-shadow: 0 0.1875rem 0.625rem rgba(192,57,43,0.3);
         }
-        .btn-clear:hover { opacity: 0.9; transform: translateY(-2px); box-shadow: 0 6px 16px rgba(192,57,43,0.4); }
-        .btn-clear:active { transform: translateY(0) scale(.96); filter: brightness(.9); box-shadow: inset 0 3px 6px rgba(0,0,0,0.3); }
+        .btn-clear:hover { opacity: 0.9; transform: translateY(-0.125rem); box-shadow: 0 0.375rem 1rem rgba(192,57,43,0.4); }
+        .btn-clear:active { transform: translateY(0) scale(.96); filter: brightness(.9); box-shadow: inset 0 0.1875rem 0.375rem rgba(0,0,0,0.3); }
 
         /* تغذية بصرية عند الضغط على F9 على زر "مسح الحقول" */
         #petition-clear-all.keyboard-pressed {
             transform: scale(.96) !important;
             filter: brightness(.9);
-            box-shadow: inset 0 3px 6px rgba(0,0,0,0.3) !important;
+            box-shadow: inset 0 0.1875rem 0.375rem rgba(0,0,0,0.3) !important;
             transition: none;
         }
 
@@ -274,7 +273,7 @@
         #petition-print.keyboard-pressed {
             transform: translateY(0) scale(.96) !important;
             filter: brightness(.9);
-            box-shadow: inset 0 3px 6px rgba(0,0,0,0.3) !important;
+            box-shadow: inset 0 0.1875rem 0.375rem rgba(0,0,0,0.3) !important;
             transition: none;
         }
 
@@ -282,24 +281,24 @@
         #petition-history.keyboard-pressed {
             transform: translateY(0) scale(.96) !important;
             filter: brightness(.9);
-            box-shadow: inset 0 3px 6px rgba(0,0,0,0.3) !important;
+            box-shadow: inset 0 0.1875rem 0.375rem rgba(0,0,0,0.3) !important;
             transition: none;
         }
 
         /* تويست تأكيد المسح */
         .petition-toast {
             position: fixed;
-            bottom: 26px;
+            bottom: 1.625rem;
             left: 50%;
-            transform: translateX(-50%) translateY(20px);
+            transform: translateX(-50%) translateY(1.25rem);
             background: linear-gradient(135deg, #1e824c, #2ecc71);
             color: #fff;
-            padding: 12px 22px;
-            border-radius: 10px;
+            padding: 0.75rem 1.375rem;
+            border-radius: 0.625rem;
             font-family: 'Cairo', sans-serif;
-            font-size: 14px;
+            font-size: 0.875rem;
             font-weight: 700;
-            box-shadow: 0 8px 22px rgba(30,130,76,0.35);
+            box-shadow: 0 0.5rem 1.375rem rgba(30,130,76,0.35);
             z-index: 10000;
             opacity: 0;
             visibility: hidden;
@@ -325,10 +324,10 @@
         .history-modal-overlay.open { display: flex; }
         .history-modal {
             background: white;
-            border-radius: 18px;
-            box-shadow: 0 20px 60px rgba(26,58,107,0.25);
-            min-width: 360px;
-            max-width: 480px;
+            border-radius: 1.125rem;
+            box-shadow: 0 1.25rem 3.75rem rgba(26,58,107,0.25);
+            min-width: 22.5rem;
+            max-width: 30rem;
             width: 90%;
             overflow: hidden;
             animation: modalIn 0.22s ease;
@@ -338,14 +337,14 @@
             to   { transform: scale(1);   opacity: 1; }
         }
         .history-modal-header {
-            padding: 18px 20px 12px;
-            border-bottom: 1.5px solid #eef0f5;
+            padding: 1.125rem 1.25rem 0.75rem;
+            border-bottom: 0.0938rem solid #eef0f5;
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
         .history-modal-title {
-            font-size: 17px;
+            font-size: 1.0625rem;
             font-weight: 900;
             color: var(--primary);
         }
@@ -353,87 +352,87 @@
             background: #f0f2f7;
             border: none;
             border-radius: 50%;
-            width: 32px;
-            height: 32px;
-            font-size: 16px;
+            width: 2rem;
+            height: 2rem;
+            font-size: 1rem;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             color: #555;
         }
-        .history-modal-body { padding: 10px 14px 6px; max-height: 320px; overflow-y: auto; }
-        .history-modal-footer { padding: 10px 14px 16px; }
+        .history-modal-body { padding: 0.625rem 0.875rem 0.375rem; max-height: 20rem; overflow-y: auto; }
+        .history-modal-footer { padding: 0.625rem 0.875rem 1rem; }
         .btn-history {
             background: linear-gradient(135deg, #6a4c9c, #8b5cf6);
             color: white;
             border: none;
-            border-radius: 10px;
-            padding: 10px 18px;
+            border-radius: 0.625rem;
+            padding: 0.625rem 1.125rem;
             font-family: 'Cairo', sans-serif;
-            font-size: 13px;
+            font-size: 0.8125rem;
             font-weight: 700;
             cursor: pointer;
-            box-shadow: 0 3px 10px rgba(106,76,156,0.3);
+            box-shadow: 0 0.1875rem 0.625rem rgba(106,76,156,0.3);
             transition: transform 0.15s, box-shadow 0.15s, filter 0.15s;
         }
-        .btn-history:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(106,76,156,0.4); }
-        .btn-history:active { transform: translateY(0) scale(.96); filter: brightness(.9); box-shadow: inset 0 3px 6px rgba(0,0,0,0.3); }
+        .btn-history:hover { transform: translateY(-0.125rem); box-shadow: 0 0.375rem 1rem rgba(106,76,156,0.4); }
+        .btn-history:active { transform: translateY(0) scale(.96); filter: brightness(.9); box-shadow: inset 0 0.1875rem 0.375rem rgba(0,0,0,0.3); }
         .history-item {
-            padding: 10px 14px;
+            padding: 0.625rem 0.875rem;
             cursor: pointer;
-            border-bottom: 1px solid #f0f0f0;
+            border-bottom: 0.0625rem solid #f0f0f0;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            gap: 10px;
+            gap: 0.625rem;
         }
         .history-item:hover { background: #f0f5ff; }
-        .history-item .h-car { font-weight: 700; font-size: 13px; color: var(--primary); }
-        .history-item .h-name { font-size: 12px; color: #555; }
+        .history-item .h-car { font-weight: 700; font-size: 0.8125rem; color: var(--primary); }
+        .history-item .h-name { font-size: 0.75rem; color: #555; }
 
         .hidden { display: none !important; }
         .btn-print {
             background: linear-gradient(135deg, #1a3a6b 0%, #2a5298 100%);
             color: white;
-            padding: 13px 40px;
+            padding: 0.8125rem 2.5rem;
             border: none;
-            border-radius: 10px;
-            font-size: 17px;
+            border-radius: 0.625rem;
+            font-size: 1.0625rem;
             font-weight: 700;
             font-family: 'Cairo', sans-serif;
             cursor: pointer;
-            box-shadow: 0 4px 15px rgba(26,58,107,0.35);
+            box-shadow: 0 0.25rem 0.9375rem rgba(26,58,107,0.35);
             transition: transform 0.15s, box-shadow 0.15s, filter 0.15s;
         }
-        .btn-print:hover { transform: translateY(-2px); box-shadow: 0 7px 20px rgba(26,58,107,0.45); }
-        .btn-print:active { transform: translateY(0) scale(.96); filter: brightness(.9); box-shadow: inset 0 3px 6px rgba(0,0,0,0.3); }
+        .btn-print:hover { transform: translateY(-0.125rem); box-shadow: 0 0.4375rem 1.25rem rgba(26,58,107,0.45); }
+        .btn-print:active { transform: translateY(0) scale(.96); filter: brightness(.9); box-shadow: inset 0 0.1875rem 0.375rem rgba(0,0,0,0.3); }
 
         /* ====== ورقة المذكرة ====== */
         .document-wrapper {
             width: 210mm;
             height: 297mm;
             padding: 10mm;
-            margin: 10px auto;
+            margin: 0.625rem auto;
             background: #fff;
             box-sizing: border-box;
             overflow: hidden;
-            box-shadow: 0 0 30px rgba(0,0,0,0.22);
+            box-shadow: 0 0 1.875rem rgba(0,0,0,0.22);
             display: none;
         }
 
         .document-paper {
-            border: 3.5px double #1a3a6b;
+            border: 0.2188rem double #1a3a6b;
             height: 100%;
             width: 100%;
             box-sizing: border-box;
-            padding: 3px;
+            padding: 0.1875rem;
         }
 
         .inner-border {
-            border: 1px solid #3a5a9b;
+            border: 0.0625rem solid #3a5a9b;
             height: 100%;
-            padding: 18px 30px 70px;
+            padding: 1.125rem 1.875rem 4.375rem;
             box-sizing: border-box;
             display: flex;
             flex-direction: column;
@@ -463,18 +462,18 @@
         }
 
         /* الهيدر */
-        .header-section { margin-bottom: 10px; }
-        .doc-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 5px; }
-        .header-right { text-align: right; font-family: 'Calibri', sans-serif; font-size: 18px; line-height: 1.2; }
-        .entity-name { font-weight: 700; font-size: 20px; }
-        .header-left img { width: 60px; height: auto; }
-        .doc-main-title-wrap { text-align: center; margin-top: -5px; }
-        .doc-title-box { font-family: 'Calibri', sans-serif; font-size: 28px; font-weight: 700; text-decoration: underline; margin-bottom: 3px; }
-        .doc-main-title { font-family: 'Calibri', sans-serif; font-size: 24px; font-weight: 700; }
+        .header-section { margin-bottom: 0.625rem; }
+        .doc-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.3125rem; }
+        .header-right { text-align: right; font-family: 'Calibri', sans-serif; font-size: 1.125rem; line-height: 1.2; }
+        .entity-name { font-weight: 700; font-size: 1.25rem; }
+        .header-left img { width: 3.75rem; height: auto; }
+        .doc-main-title-wrap { text-align: center; margin-top: -0.3125rem; }
+        .doc-title-box { font-family: 'Calibri', sans-serif; font-size: 1.75rem; font-weight: 700; text-decoration: underline; margin-bottom: 0.1875rem; }
+        .doc-main-title { font-family: 'Calibri', sans-serif; font-size: 1.5rem; font-weight: 700; }
 
         /* جسم المذكرة */
-        .doc-body-text { flex: 1; font-family: 'Calibri', sans-serif; font-size: 21px; line-height: 1.2; text-align: center; } /* تغيير المحاذاة لليمين لمنع الفراغات */
-        .doc-body-text p { margin-bottom: 8px; text-indent: 30px; }
+        .doc-body-text { flex: 1 1 0; min-height: 0; display: flex; flex-direction: column; justify-content: space-between; font-family: 'Calibri', sans-serif; font-size: 21px; line-height: 1.2; text-align: center; } /* الشكل الأصلي؛ الفراغ المتبقي يتوزع بين الفقرات ليملأ الورقة */
+        .doc-body-text p { margin: 0 0 8px; text-indent: 30px; }
         
         /* منع انكسار الأسماء والبيانات المتغيرة بطريقة آمنة */
         .highlight { 
@@ -484,15 +483,15 @@
         }
 
         /* الفوتر */
-        .footer-section-wrap { margin-top: 5px; }
-        .liza-title { text-align: center; margin-bottom: 10px; }
-        .big-word { display: block; font-family: 'Calibri', sans-serif; font-size: 26px; font-weight: 900; margin-bottom: 3px; text-decoration: underline; }
-        .resolution { font-family: 'Calibri', sans-serif; font-size: 22px; font-weight: 700; }
+        .footer-section-wrap { margin-top: 0.3125rem; }
+        .liza-title { text-align: center; margin-bottom: 0.625rem; }
+        .big-word { display: block; font-family: 'Calibri', sans-serif; font-size: 1.625rem; font-weight: 900; margin-bottom: 0.1875rem; text-decoration: underline; }
+        .resolution { font-family: 'Calibri', sans-serif; font-size: 1.375rem; font-weight: 700; }
         .footer-section { display: flex; justify-content: space-between; align-items: flex-end; font-family: 'Calibri', sans-serif; }
-        .date-block { font-size: 18px; }
-        .sig-block { text-align: center; min-width: 180px; }
-        .sig-title { font-size: 22px; font-weight: 700; display: block; margin-bottom: 5px; }
-        .sig-line { font-size: 20px; font-weight: 700; }
+        .date-block { font-size: 1.125rem; }
+        .sig-block { text-align: center; min-width: 11.25rem; }
+        .sig-title { font-size: 1.375rem; font-weight: 700; display: block; margin-bottom: 0.3125rem; }
+        .sig-line { font-size: 1.25rem; font-weight: 700; }
 
         /* ====== لوحة الإعدادات العائمة ====== */
         .settings-panel {
@@ -510,79 +509,79 @@
             color: white;
             writing-mode: vertical-rl;
             text-orientation: mixed;
-            padding: 14px 8px;
-            font-size: 12px;
+            padding: 0.875rem 0.5rem;
+            font-size: 0.75rem;
             font-weight: 700;
             font-family: 'Cairo', sans-serif;
-            border-radius: 8px 0 0 8px;
+            border-radius: 0.5rem 0 0 0.5rem;
             cursor: pointer;
-            letter-spacing: 2px;
-            box-shadow: -3px 0 12px rgba(26,58,107,0.3);
+            letter-spacing: 0.125rem;
+            box-shadow: -0.1875rem 0 0.75rem rgba(26,58,107,0.3);
             display: flex;
             align-items: center;
             justify-content: center;
             user-select: none;
-            min-height: 140px;
+            min-height: 8.75rem;
         }
         .settings-body {
             background: white;
             width: 0;
             overflow: hidden;
             transition: width 0.32s cubic-bezier(0.4,0,0.2,1);
-            box-shadow: -4px 0 24px rgba(26,58,107,0.18);
-            border-radius: 12px 0 0 12px;
+            box-shadow: -0.25rem 0 1.5rem rgba(26,58,107,0.18);
+            border-radius: 0.75rem 0 0 0.75rem;
         }
         .settings-panel:hover .settings-body {
-            width: 295px;
+            width: 18.4375rem;
         }
         .settings-inner {
-            width: 295px;
-            padding: 14px 13px;
+            width: 18.4375rem;
+            padding: 0.875rem 0.8125rem;
             display: flex;
             flex-direction: column;
-            gap: 9px;
+            gap: 0.5625rem;
             max-height: 88vh;
             overflow-y: auto;
         }
-        .settings-inner::-webkit-scrollbar { width: 4px; }
-        .settings-inner::-webkit-scrollbar-thumb { background: #c5cad8; border-radius: 4px; }
+        .settings-inner::-webkit-scrollbar { width: 0.25rem; }
+        .settings-inner::-webkit-scrollbar-thumb { background: #c5cad8; border-radius: 0.25rem; }
         .settings-header {
-            font-size: 13px;
+            font-size: 0.8125rem;
             font-weight: 900;
             color: var(--primary);
-            border-bottom: 2px solid var(--accent);
-            padding-bottom: 7px;
-            margin-bottom: 2px;
+            border-bottom: 0.125rem solid var(--accent);
+            padding-bottom: 0.4375rem;
+            margin-bottom: 0.125rem;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 0.375rem;
         }
         .settings-section {
             background: #f7f8fc;
-            border-radius: 8px;
-            padding: 9px 11px;
-            border: 1px solid #e0e4ee;
+            border-radius: 0.5rem;
+            padding: 0.5625rem 0.6875rem;
+            border: 0.0625rem solid #e0e4ee;
         }
         .settings-section-title {
-            font-size: 10px;
+            font-size: 0.625rem;
             font-weight: 700;
             color: var(--accent);
-            letter-spacing: 0.8px;
-            margin-bottom: 7px;
+            letter-spacing: 0.05rem;
+            margin-bottom: 0.4375rem;
         }
         .settings-row {
             display: flex;
-            gap: 6px;
+            gap: 0.375rem;
             align-items: center;
-            margin-bottom: 5px;
+            margin-bottom: 0.3125rem;
         }
         .settings-row:last-child { margin-bottom: 0; }
         .settings-input {
             flex: 1;
-            padding: 5px 8px;
-            border: 1.5px solid var(--input-border);
-            border-radius: 6px;
-            font-size: 12px;
+            padding: 0.3125rem 0.5rem;
+            border: 0.0938rem solid var(--input-border);
+            border-radius: 0.375rem;
+            font-size: 0.75rem;
             font-family: 'Cairo', sans-serif;
             background: white;
             color: #1a2540;
@@ -590,14 +589,14 @@
         }
         .settings-input:focus {
             border-color: var(--primary-light);
-            box-shadow: 0 0 0 2px rgba(42,82,152,0.12);
+            box-shadow: 0 0 0 0.125rem rgba(42,82,152,0.12);
         }
         .settings-btn {
-            padding: 6px 10px;
+            padding: 0.375rem 0.625rem;
             border: none;
-            border-radius: 6px;
+            border-radius: 0.375rem;
             font-family: 'Cairo', sans-serif;
-            font-size: 11px;
+            font-size: 0.6875rem;
             font-weight: 700;
             cursor: pointer;
             transition: opacity 0.15s;
@@ -609,13 +608,13 @@
         .btn-orange{ background: linear-gradient(135deg,#d35400,#e67e22); color:white; }
         .btn-red   { background: linear-gradient(135deg,#c0392b,#e74c3c); color:white; }
         .btn-purple{ background: linear-gradient(135deg,#6a4c9c,#8b5cf6); color:white; }
-        .btn-full  { width:100%; padding:8px; font-size:12px; margin-top:2px; }
+        .btn-full  { width:100%; padding:0.5rem; font-size:0.75rem; margin-top:0.125rem; }
         .seq-status {
-            font-size: 11px;
+            font-size: 0.6875rem;
             color: #555;
             background: #eef0f5;
-            border-radius: 5px;
-            padding: 5px 8px;
+            border-radius: 0.3125rem;
+            padding: 0.3125rem 0.5rem;
             text-align: center;
             font-family: 'Cairo', sans-serif;
             line-height: 1.7;
@@ -630,79 +629,79 @@
         }
         .sp-modal-overlay.open { display: flex; }
         .sp-modal {
-            background: white; border-radius: 16px;
-            box-shadow: 0 20px 60px rgba(26,58,107,0.3);
-            width: 340px; overflow: hidden;
+            background: white; border-radius: 1rem;
+            box-shadow: 0 1.25rem 3.75rem rgba(26,58,107,0.3);
+            width: 21.25rem; overflow: hidden;
             animation: modalIn 0.22s ease;
         }
         .sp-modal-hdr {
-            padding: 16px 20px 10px;
+            padding: 1rem 1.25rem 0.625rem;
         }
-        .sp-modal-title { font-size: 15px; font-weight: 900; margin-bottom: 6px; }
-        .sp-modal-msg   { font-size: 12px; color: #555; line-height: 1.6; }
+        .sp-modal-title { font-size: 0.9375rem; font-weight: 900; margin-bottom: 0.375rem; }
+        .sp-modal-msg   { font-size: 0.75rem; color: #555; line-height: 1.6; }
         .sp-modal-ftr   {
-            padding: 10px 20px 16px; display: flex; gap: 8px;
+            padding: 0.625rem 1.25rem 1rem; display: flex; gap: 0.5rem;
         }
         .sp-modal-ftr button {
-            flex:1; padding:10px; border:none; border-radius:8px;
-            font-family:'Cairo',sans-serif; font-size:13px;
+            flex:1; padding:0.625rem; border:none; border-radius:0.5rem;
+            font-family:'Cairo',sans-serif; font-size:0.8125rem;
             font-weight:700; cursor:pointer;
         }
-        .missing-modal  { border-top: 5px solid #e67e22; }
+        .missing-modal  { border-top: 0.3125rem solid #e67e22; }
         .missing-modal .sp-modal-hdr { background:#fff8f0; }
         .missing-modal .sp-modal-title { color:#d35400; }
         .btn-yes { background:linear-gradient(135deg,#c0392b,#e74c3c); color:white; }
         .btn-no  { background:#f0f2f7; color:#333; }
 
         /* مودال استدعاء */
-        .recall-modal  { border-top: 5px solid var(--primary); max-width:95vw; }
+        .recall-modal  { border-top: 0.3125rem solid var(--primary); max-width:95vw; }
         .recall-modal .sp-modal-hdr { background:#f0f5ff; display:flex; justify-content:space-between; align-items:center; }
         .recall-result {
-            background:#f7f8fc; border-radius:8px; padding:10px 14px;
-            font-size:12px; color:#333; line-height:1.85;
-            border:1px solid #e0e4ee; margin-top:10px; display:none;
+            background:#f7f8fc; border-radius:0.5rem; padding:0.625rem 0.875rem;
+            font-size:0.75rem; color:#333; line-height:1.85;
+            border:0.0625rem solid #e0e4ee; margin-top:0.625rem; display:none;
             font-family:'Cairo',sans-serif;
         }
         .recall-result.show { display:block; }
         .recall-result .r-lbl { font-weight:700; color:var(--primary); }
-        .recall-result .r-cancel { color:#c0392b; font-weight:700; font-size:13px; text-align:center; }
+        .recall-result .r-cancel { color:#c0392b; font-weight:700; font-size:0.8125rem; text-align:center; }
         .modal-close-btn {
             background:#f0f2f7; border:none; border-radius:50%;
-            width:30px; height:30px; cursor:pointer; font-size:14px;
+            width:1.875rem; height:1.875rem; cursor:pointer; font-size:0.875rem;
             display:flex; align-items:center; justify-content:center;
         }
 
         /* مودال السجل */
-        .registry-modal { border-top:5px solid var(--primary); max-width:95vw; width:500px; display:flex; flex-direction:column; max-height:80vh; }
+        .registry-modal { border-top:0.3125rem solid var(--primary); max-width:95vw; width:31.25rem; display:flex; flex-direction:column; max-height:80vh; }
         .registry-modal .sp-modal-hdr { background:#f0f5ff; display:flex; justify-content:space-between; align-items:center; flex-shrink:0; }
-        .registry-modal-body { padding:12px; overflow-y:auto; flex:1; }
-        .registry-legend { display:flex; gap:12px; padding:0 14px 8px; font-size:11px; font-family:'Cairo',sans-serif; flex-shrink:0; }
-        .leg-item { display:flex; align-items:center; gap:5px; }
-        .leg-dot  { width:12px; height:12px; border-radius:3px; }
-        .registry-grid { display:flex; flex-wrap:wrap; gap:6px; }
+        .registry-modal-body { padding:0.75rem; overflow-y:auto; flex:1; }
+        .registry-legend { display:flex; gap:0.75rem; padding:0 0.875rem 0.5rem; font-size:0.6875rem; font-family:'Cairo',sans-serif; flex-shrink:0; }
+        .leg-item { display:flex; align-items:center; gap:0.3125rem; }
+        .leg-dot  { width:0.75rem; height:0.75rem; border-radius:0.1875rem; }
+        .registry-grid { display:flex; flex-wrap:wrap; gap:0.375rem; }
         .reg-item {
-            width:52px; height:42px; border-radius:8px;
+            width:3.25rem; height:2.625rem; border-radius:0.5rem;
             display:flex; flex-direction:column; align-items:center; justify-content:center;
-            font-family:'Cairo',sans-serif; font-size:11px; font-weight:700;
-            cursor:pointer; border:2px solid transparent; transition:transform 0.1s;
+            font-family:'Cairo',sans-serif; font-size:0.6875rem; font-weight:700;
+            cursor:pointer; border:0.125rem solid transparent; transition:transform 0.1s;
         }
         .reg-item:hover { transform:scale(1.08); }
         .reg-item.executed  { background:#d4edda; color:#155724; border-color:#28a745; }
         .reg-item.cancelled { background:#f8d7da; color:#721c24; border-color:#dc3545; }
         .reg-item.empty     { background:#f0f0f0; color:#999; border-color:#ddd; }
-        .reg-num    { font-size:13px; }
-        .reg-status { font-size:8px; font-weight:400; }
+        .reg-num    { font-size:0.8125rem; }
+        .reg-status { font-size:0.5rem; font-weight:400; }
 
         /* مودال تأكيد */
-        .confirm-modal { border-top:5px solid #c0392b; }
-        .confirm-modal-body { padding:20px; text-align:center; }
-        .confirm-icon  { font-size:36px; margin-bottom:8px; }
-        .confirm-title { font-size:16px; font-weight:900; color:#c0392b; margin-bottom:8px; }
-        .confirm-msg   { font-size:12px; color:#555; line-height:1.6; margin-bottom:12px; }
+        .confirm-modal { border-top:0.3125rem solid #c0392b; }
+        .confirm-modal-body { padding:1.25rem; text-align:center; }
+        .confirm-icon  { font-size:2.25rem; margin-bottom:0.5rem; }
+        .confirm-title { font-size:1rem; font-weight:900; color:#c0392b; margin-bottom:0.5rem; }
+        .confirm-msg   { font-size:0.75rem; color:#555; line-height:1.6; margin-bottom:0.75rem; }
         .confirm-input {
-            width:100%; padding:8px 12px; border:2px solid #ddd; border-radius:8px;
-            font-size:13px; font-family:'Cairo',sans-serif; text-align:center;
-            outline:none; margin-bottom:10px;
+            width:100%; padding:0.5rem 0.75rem; border:0.125rem solid #ddd; border-radius:0.5rem;
+            font-size:0.8125rem; font-family:'Cairo',sans-serif; text-align:center;
+            outline:none; margin-bottom:0.625rem;
         }
         .confirm-input:focus { border-color:#c0392b; }
 
@@ -725,26 +724,26 @@
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     font-weight: 900;
-    font-size: 10px;
-    padding: 8px 15px;
-    border-left: 3px solid var(--accent);
+    font-size: 0.625rem;
+    padding: 0.5rem 0.9375rem;
+    border-left: 0.1875rem solid var(--accent);
     font-family: 'Cairo', sans-serif;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.0312rem;
     transition: 0.3s;
     user-select: none;
 }
 
 .dev-tag:hover {
-    transform: translateX(5px);
+    transform: translateX(0.3125rem);
     opacity: 0.8;
 }
 
 /* زر تبديل الوضع */
 .theme-toggle-btn {
     background: rgba(255, 255, 255, 0.15);
-    border: 2px solid rgba(255, 255, 255, 0.25);
-    width: 45px;
-    height: 45px;
+    border: 0.125rem solid rgba(255, 255, 255, 0.25);
+    width: 2.8125rem;
+    height: 2.8125rem;
     border-radius: 50%;
     cursor: pointer;
     display: flex;
@@ -753,14 +752,14 @@
     color: white;
     font-size: 1.3rem;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.15);
 }
 
 .theme-toggle-btn:hover {
     background: rgba(255, 255, 255, 0.25);
     border-color: rgba(255, 255, 255, 0.4);
     transform: rotate(20deg) scale(1.05);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 0.375rem 1rem rgba(0, 0, 0, 0.25);
 }
 
 .theme-toggle-btn:active {
@@ -783,23 +782,23 @@
 
     <!-- لوحة التحكم -->
     <div class="no-print">  
-        <div class="system-title-bar" style="display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 10px 15px; min-height: 70px;">
+        <div class="system-title-bar" style="display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 0.625rem 0.9375rem; min-height: 4.375rem;">
             <!-- القسم الأيسر: فارغ للتوازن بعد النقل -->
             <div></div>
 
             <!-- القسم الأوسط: العنوان -->
-            <div style="display: flex; align-items: center; gap: 10px; justify-content: center;">
+            <div style="display: flex; align-items: center; gap: 0.625rem; justify-content: center;">
                 <i class="fas fa-gavel" style="color: var(--accent); font-size: 1.4rem;"></i>
                 <span style="font-size: 1.2rem;">عرائض الهيئات القضائية</span>
             </div>
 
             <!-- القسم الأيمن: التاريخ والتبديل (تم نقله هنا) -->
-            <div style="display: flex; align-items: center; gap: 10px; justify-content: flex-end;">
-                <button id="themeToggle" class="theme-toggle-btn" onclick="toggleTheme()" title="تبديل الوضع الليلي/النهاري" style="width: 40px; height: 40px; font-size: 1.1rem;">
+            <div style="display: flex; align-items: center; gap: 0.625rem; justify-content: flex-end;">
+                <button id="themeToggle" class="theme-toggle-btn" onclick="toggleTheme()" title="تبديل الوضع الليلي/النهاري" style="width: 2.5rem; height: 2.5rem; font-size: 1.1rem;">
                     <i class="fas fa-moon" id="themeIcon"></i>
                 </button>
                 <span style="color: rgba(255,255,255,0.4);">|</span>
-                <span id="currentDateDisplay" style="font-size: 14px; font-weight: 700; color: #fff;"></span>
+                <span id="currentDateDisplay" style="font-size: 0.875rem; font-weight: 700; color: #fff;"></span>
             </div>
         </div>
 
@@ -894,15 +893,17 @@
                         <option value="مالك">مالك</option>
                         <option value="بالتوكيل">بالتوكيل</option>
                         <option value="بالعقد المسجل">بالعقد المسجل</option>
+                        <option value="بسند آخر">بسند آخر (نص حر)</option>
                     </select>
                 </div>
                 <div id="proxyFields" class="form-group hidden">
                     <label id="proxyFieldsLabel">بيانات التوكيل</label>
-                    <div style="display:flex; gap:6px;">
+                    <div id="proxyStdRow" style="display:flex; gap:0.375rem;">
                         <input type="text" id="proxyNum" oninput="sync()" placeholder="رقم">
                         <input type="text" id="proxyLetter" oninput="sync()" placeholder="حرف">
                         <input type="number" id="proxyYear" oninput="sync()">
                     </div>
+                    <input type="text" id="proxyFree" class="hidden" oninput="sync()" style="width:100%;" placeholder="اكتب السند كما تريد، مثال: التوكيل الصادر من سفارة ... رقم ... بتاريخ ...">
                 </div>
                 <div class="form-group form-group-sm" id="dateContainer">
                     <label>تاريخ المذكرة</label>
@@ -911,17 +912,17 @@
             </div>
         </div>
 
-<div class="btn-print-wrap no-print" id="btnPrintWrap" style="display: flex; justify-content: space-between; align-items: center; margin: 16px 0 8px; width: 100%; flex-wrap: wrap; gap: 12px; direction: rtl;">
+<div class="btn-print-wrap no-print" id="btnPrintWrap" style="display: flex; justify-content: space-between; align-items: center; margin: 1rem 0 0.5rem; width: 100%; flex-wrap: wrap; gap: 0.75rem; direction: rtl;">
     
     <!-- الأزرار أصبحت الآن في جهة اليسار (بسبب توزيع المساحة) -->
-    <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+    <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
         <button class="btn-print" id="petition-print" onclick="saveToHistory(); window.print()" title="طباعة المذكرة (Ctrl+P)">🖨️ طباعة المذكرة (Ctrl+P)</button>
         <button class="btn-history" id="petition-history" onclick="toggleHistory()" title="استرجاع عريضة سابقة (Ctrl+R)">📋 استرجاع عريضة سابقة (Ctrl+R)</button>
         <button class="btn-clear" id="petition-clear-all" onclick="clearForm()" title="مسح الحقول (F9)">🗑️ مسح الحقول (F9)</button>
     </div>
 
     <!-- الجملة أصبحت الآن في أقصى اليمين -->
-    <div class="dev-tag" style="border-left: none; border-right: 3px solid var(--accent); padding-right: 15px;">
+    <div class="dev-tag" style="border-left: none; border-right: 0.1875rem solid var(--accent); padding-right: 0.9375rem;">
         Developed by Ibrahem Ahmed | v1.4.1
     </div>
 </div>
@@ -939,7 +940,7 @@
                     <div id="historyItems"></div>
                 </div>
                 <div class="history-modal-footer">
-                    <button class="btn-clear" style="width:100%; padding:11px;" onclick="closeHistoryModal()">إلغاء</button>
+                    <button class="btn-clear" style="width:100%; padding:0.6875rem;" onclick="closeHistoryModal()">إلغاء</button>
                 </div>
             </div>
         </div>
@@ -956,7 +957,7 @@
                             <span class="sub-entity">نيابة مرور القاهرة</span><br>
                             <span class="sub-entity" id="niabat-prosecution-name">نيابة مرور عين الصيرة</span>
                         </div>
-                        <div style="text-align:center; font-family:'Calibri',sans-serif; font-size:14px; color:#bbb; letter-spacing:0.5px; align-self:flex-start; padding-top:2px;">
+                        <div style="text-align:center; font-family:'Calibri',sans-serif; font-size:0.875rem; color:#bbb; letter-spacing:0.0312rem; align-self:flex-start; padding-top:0.125rem;">
                             رقم الصادر / ـــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــ
                         </div>
                         <div class="header-left">
@@ -988,7 +989,7 @@
                     <div class="footer-section">
                         <div class="date-block">
                             تحريراً في:<br>
-                            <span id="v_date" class="highlight" style="font-size:18px;"></span>
+                            <span id="v_date" class="highlight" style="font-size:1.125rem;"></span>
                         </div>
                         <div class="sig-block">
                             <span class="sig-title">مدير النيابة</span>
@@ -1096,7 +1097,7 @@
 
     function clearForm() {
         ['pNum','carL1','carL2','carL3','carDigits','ownerName','wifeName','otherInputText',
-         'proxyNum','proxyLetter','directorOtherText'].forEach(id => {
+         'proxyNum','proxyLetter','proxyFree','directorOtherText'].forEach(id => {
             const el = document.getElementById(id);
             if (el) el.value = '';
         });
@@ -1126,6 +1127,7 @@
             proxyNum: document.getElementById('proxyNum').value,
             proxyLetter: document.getElementById('proxyLetter').value,
             proxyYear: document.getElementById('proxyYear').value,
+            proxyFree: document.getElementById('proxyFree').value,
             pNum: document.getElementById('pNum').value,
             pYear: document.getElementById('pYear').value,
             carL1: document.getElementById('carL1').value,
@@ -1182,7 +1184,7 @@
                     <div class="h-name">📄 عريضة رقم ${petitionNo}</div>
                     <div class="h-name">🚗 ${car || '---'}</div>
                 </div>
-                <button onclick="deleteHistory(event,${i})" style="background:#f8d7da;border:none;border-radius:8px;padding:6px 9px;cursor:pointer;">🗑️</button>
+                <button onclick="deleteHistory(event,${i})" style="background:#f8d7da;border:none;border-radius:0.5rem;padding:0.375rem 0.5625rem;cursor:pointer;">🗑️</button>
             </div>`;
         }).join('');
     }
@@ -1215,6 +1217,7 @@
         document.getElementById('proxyNum').value = h.proxyNum || '';
         document.getElementById('proxyLetter').value = h.proxyLetter || '';
         document.getElementById('proxyYear').value = h.proxyYear || new Date().getFullYear();
+        document.getElementById('proxyFree').value = h.proxyFree || '';
         document.getElementById('pNum').value = h.pNum || '';
         document.getElementById('pYear').value = h.pYear || new Date().getFullYear();
         document.getElementById('carL1').value = h.carL1 || '';
@@ -1260,13 +1263,18 @@
             document.getElementById('label_jobTitle').innerText = "جهة العمل";
             if (job === 'أخرى') document.getElementById('otherInputContainer').classList.remove('hidden');
         }
-        document.getElementById('proxyFields').classList.toggle('hidden', status !== 'بالتوكيل' && status !== 'بالعقد المسجل');
+        document.getElementById('proxyFields').classList.toggle('hidden', status !== 'بالتوكيل' && status !== 'بالعقد المسجل' && status !== 'بسند آخر');
+        const freeMode = (status === 'بسند آخر');
+        document.getElementById('proxyStdRow').style.display = freeMode ? 'none' : 'flex';
+        document.getElementById('proxyFree').classList.toggle('hidden', !freeMode);
         
         // تحديث نص الملصق حسب نوع الصفة
         if (status === 'بالعقد المسجل') {
             document.getElementById('proxyFieldsLabel').innerText = 'بيانات العقد المسجل';
         } else if (status === 'بالتوكيل') {
             document.getElementById('proxyFieldsLabel').innerText = 'بيانات التوكيل';
+        } else if (status === 'بسند آخر') {
+            document.getElementById('proxyFieldsLabel').innerText = 'سند الملكية (نص حر)';
         }
         
         sync();
@@ -1282,6 +1290,30 @@
         if (!text) return '';
         return text.split(' ').join('\u00A0');
     }
+
+    /* ضبط حجم خط المذكرة تلقائيًا ليملأ الورقة كاملة في صفحة واحدة (الورقة بوحدات mm فالنتيجة واحدة على الشاشة والطباعة) */
+    function fitMemo() {
+        const wrap = document.querySelector('.document-wrapper');
+        const body = document.querySelector('.doc-body-text');
+        if (!wrap || !body) return;
+        const prev = wrap.getAttribute('style');
+        const hidden = getComputedStyle(wrap).display === 'none';
+        if (hidden) wrap.style.cssText += ';display:block;position:absolute;visibility:hidden;left:-9999px;top:0;';
+        // الشكل الأصلي (21px): يصغر الخط فقط لو النص أطول من الورقة؛ وإلا يتوزع الفراغ بين الفقرات
+        let lo = 14, hi = 21;
+        body.style.fontSize = hi + 'px';
+        if (body.scrollHeight > body.clientHeight + 0.5) {
+            for (let i = 0; i < 14; i++) {
+                const mid = (lo + hi) / 2;
+                body.style.fontSize = mid + 'px';
+                if (body.scrollHeight <= body.clientHeight + 0.5) lo = mid; else hi = mid;
+            }
+            body.style.fontSize = lo + 'px';
+        }
+        if (hidden) { if (prev === null) wrap.removeAttribute('style'); else wrap.setAttribute('style', prev); }
+    }
+    window.addEventListener('beforeprint', fitMemo);
+    window.addEventListener('load', () => { fitMemo(); if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitMemo); });
 
     function sync() {
         const type = document.getElementById('ownerType').value;
@@ -1341,6 +1373,10 @@ if (status === 'بالتوكيل') {
     const pLetter = document.getElementById('proxyLetter').value || '....';
     // استخدمنا دالة preventBreak لضمان بقاء السطر كتلة واحدة
     pStr = preventBreak(`(بموجب العقد المسجل رقم ${pNum} لسنة ${pYear} حرف ${pLetter})`);
+} else if (status === 'بسند آخر') {
+    // نص حر: يُترك الالتفاف الطبيعي للسطر لأن النص قد يكون طويلًا
+    const freeText = (document.getElementById('proxyFree').value || '').trim().replace(/\s+/g, ' ');
+    pStr = `(بموجب ${freeText || '....'})`;
 }
 document.getElementById('v_proxyText').innerText = pStr;
 
@@ -1352,6 +1388,7 @@ document.getElementById('v_proxyText').innerText = pStr;
         if (dirSel === 'أخرى') { dirName = dirOther || '...........................'; }
         else if (dirSel) { dirName = dirSel; }
         document.getElementById('v_director').innerText = preventBreak(dirName);
+        fitMemo();
     }
 
 
@@ -1451,6 +1488,7 @@ document.getElementById('v_proxyText').innerText = pStr;
         document.getElementById('proxyNum').value       = h.proxyNum  || '';
         document.getElementById('proxyLetter').value    = h.proxyLetter|| '';
         document.getElementById('proxyYear').value      = h.proxyYear || new Date().getFullYear();
+        document.getElementById('proxyFree').value      = h.proxyFree || '';
         document.getElementById('pNum').value           = h.pNum      || '';
         document.getElementById('pYear').value          = h.pYear     || new Date().getFullYear();
         document.getElementById('carL1').value          = h.carL1     || '';
@@ -1611,10 +1649,10 @@ document.getElementById('v_proxyText').innerText = pStr;
             res.classList.add('show');
             document.getElementById('recallActionBtns').style.display = 'flex';
         } else {
-            let html = `<div style="color:#1a3a6b;font-weight:700;margin-bottom:6px">وُجدت ${matches.length} نتائج، اختر:</div>`;
+            let html = `<div style="color:#1a3a6b;font-weight:700;margin-bottom:0.375rem">وُجدت ${matches.length} نتائج، اختر:</div>`;
             matches.forEach(e => {
                 const car = ((e.carL1||'')+' '+(e.carL2||'')+' '+(e.carL3||'')+' '+(e.carDigits||'')).trim();
-                html += `<div onclick="selectCarMatch(${e.pNum})" style="padding:7px 10px;cursor:pointer;border-radius:7px;border:1px solid #dde3ec;margin-bottom:5px;background:#f7f8fc;font-family:'Cairo',sans-serif;font-size:12px;">
+                html += `<div onclick="selectCarMatch(${e.pNum})" style="padding:0.4375rem 0.625rem;cursor:pointer;border-radius:0.4375rem;border:0.0625rem solid #dde3ec;margin-bottom:0.3125rem;background:#f7f8fc;font-family:'Cairo',sans-serif;font-size:0.75rem;">
                     <strong>عريضة ${e.pNum} / ${e.pYear}</strong> — ${car}
                 </div>`;
             });

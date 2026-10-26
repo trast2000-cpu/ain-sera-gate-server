@@ -17,7 +17,7 @@
     --text-main: #1a2a44;
     --text-muted: #4a5568;
     --border-color: #cbd5e0;
-    --shadow: 0 4px 12px rgba(26, 45, 74, 0.15);
+    --shadow: 0 0.25rem 0.75rem rgba(26, 45, 74, 0.15);
     --grid-color: rgba(26, 58, 107, 0.2);
     --input-bg: #ffffff;
 }
@@ -29,7 +29,7 @@
     --text-main: #f8fafc;
     --text-muted: #94a3b8;
     --border-color: #334155;
-    --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+    --shadow: 0 0.625rem 1.5625rem -0.3125rem rgba(0, 0, 0, 0.5);
     --grid-color: rgba(248, 250, 252, 0.2);
     --input-bg: #2a3f63;
     --primary: #7aaeff;
@@ -44,7 +44,7 @@
 }
 
 [data-theme="dark"] #tableWrapper {
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45), 0 2px 8px rgba(0, 0, 0, 0.30);
+    box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.45), 0 0.125rem 0.5rem rgba(0, 0, 0, 0.30);
 }
 
 /* إصلاح شامل لكل الحقول في الداك مود */
@@ -87,12 +87,12 @@
     border: none !important;
     outline: none !important;
     /* إطار داخلي نحيف وراقي جداً بلون أحمر عصري (Red-500) */
-    box-shadow: inset 0 0 0 1.5px #ef4444 !important; 
-    border-radius: 6px !important;
+    box-shadow: inset 0 0 0 0.0938rem #ef4444 !important; 
+    border-radius: 0.375rem !important;
     transition: box-shadow 0.6s ease, background-color 0.6s ease !important;
 }
 .missing-field-highlight.missing-field-fading {
-    box-shadow: inset 0 0 0 0px transparent !important;
+    box-shadow: inset 0 0 0 0 transparent !important;
     background-color: transparent !important;
 }
 /* لون خلفية أحمر فاتح جداً ومريح للعين */
@@ -100,7 +100,7 @@
 /* ألوان متناسقة وعصرية للوضع الليلي */
 [data-theme="dark"] #mainTable .missing-field-highlight { 
     background-color: rgba(220, 38, 38, 0.12) !important; 
-    box-shadow: inset 0 0 0 1.5px #f87171 !important;
+    box-shadow: inset 0 0 0 0.0938rem #f87171 !important;
 }
 
 
@@ -116,34 +116,34 @@ html {
 body {
     font-family: "cairo", Tahoma, sans-serif;
     margin: 0;
-    padding: 10px;
+    padding: 0.625rem;
     background-color: var(--bg-light);
-    background-image: radial-gradient(rgba(30,58,95,0.35) 1.8px, transparent 1.8px);
-    background-size: 32px 32px;
+    background-image: radial-gradient(rgba(30,58,95,0.35) 0.1125rem, transparent 0.1125rem);
+    background-size: 2rem 2rem;
     background-position: center;
     color: var(--text-main);
     direction: rtl;
     transition: background-color 0.3s, color 0.3s;
 }
 
-/* تكبير الواجهة على الشاشة فقط — لا يؤثر على الطباعة */
+/* ===== مقياس الواجهة على الشاشة: كل الأحجام بوحدة rem، وهذا السطر هو نسبة التكبير الوحيدة =====
+   17.6px = تكبير 110 بالمئة (غيّر الرقم فقط لتكبير/تصغير النظام كله). الطباعة تبقى على 16px. */
 @media screen {
-    body {
-        zoom: 1.3;
-    }
+    html { font-size: clamp(12px, calc(100vw / 59), 20.8px); }
+    :where(input, select, textarea, button) { font-size: 0.8333rem; }
 }
 
 .container {
-    max-width: 1150px;
+    max-width: 71.875rem;
     margin: auto;
     background: var(--bg-white);
-    background-image: radial-gradient(rgba(30,58,95,0.20) 1.4px, transparent 1.4px);
-    background-size: 32px 32px;
+    background-image: radial-gradient(rgba(30,58,95,0.20) 0.0875rem, transparent 0.0875rem);
+    background-size: 2rem 2rem;
     background-position: center;
     color: var(--text-main);
-    padding: 8px 14px;
+    padding: 0.5rem 0.875rem;
     box-sizing: border-box;
-    border-radius: 10px;
+    border-radius: 0.625rem;
     box-shadow: var(--shadow);
     position: relative;
     transition: background-color 0.3s;
@@ -162,17 +162,17 @@ body {
     display: grid;
     grid-template-columns: 1fr auto 1fr;
     align-items: center;
-    padding: 6px 15px;
-    min-height: 48px;
-    border-radius: 12px 12px 0 0;
-    margin: -8px -14px 10px -14px;
+    padding: 0.375rem 0.9375rem;
+    min-height: 3rem;
+    border-radius: 0.75rem 0.75rem 0 0;
+    margin: -0.5rem -0.875rem 0.625rem -0.875rem;
 }
 
 .theme-toggle-btn {
     background: rgba(255, 255, 255, 0.15);
-    border: 2px solid rgba(255, 255, 255, 0.25);
-    width: 36px;
-    height: 36px;
+    border: 0.125rem solid rgba(255, 255, 255, 0.25);
+    width: 2.25rem;
+    height: 2.25rem;
     border-radius: 50%;
     cursor: pointer;
     display: flex;
@@ -189,16 +189,16 @@ body {
 }
 
 .header-text {
-    font-size: 15px;
+    font-size: 0.9375rem;
     font-weight: bold;
     line-height: 1.4;
     color: #2c3e50;
 }
 
 .logo {
-    width: 70px;
-    height: 70px;
-    border-radius: 10px;
+    width: 4.375rem;
+    height: 4.375rem;
+    border-radius: 0.625rem;
     object-fit: contain;
 }
 
@@ -212,32 +212,32 @@ body {
 /* ===== العنوان ===== */
 .title {
     text-align: center;
-    font-size: 20px;
+    font-size: 1.25rem;
     font-weight: bold;
-    margin: 4px 0;
+    margin: 0.25rem 0;
     color: #1a237e;
-    letter-spacing: 1px;
+    letter-spacing: 0.0625rem;
     text-decoration: underline;
 }
 
 .print-values {
     text-align: center;
-    font-size: 15px;
+    font-size: 0.9375rem;
     font-weight: bold;
-    margin-bottom: 4px;
+    margin-bottom: 0.25rem;
 }
 
 /* حقل عنوان الكشف على الشاشة: يعرض السطرين بنفس قواعد تنسيق عنوان الطباعة */
 .inspection-title-editor {
     direction: rtl;
     text-align: center;
-    width: min(620px, calc(100% - 170px));
-    max-width: 620px;
-    padding: 1px 10px 3px;
-    border: 1px dashed #8da6c5;
-    border-radius: 8px;
+    width: min(38.75rem, calc(100% - 10.625rem));
+    max-width: 38.75rem;
+    padding: 0.0625rem 0.625rem 0.1875rem;
+    border: 0.0625rem dashed #8da6c5;
+    border-radius: 0.5rem;
     background: rgba(255,255,255,.72);
-    box-shadow: 0 2px 7px rgba(26,58,107,.07);
+    box-shadow: 0 0.125rem 0.4375rem rgba(26,58,107,.07);
     box-sizing: border-box;
 }
 .inspection-title-editor .title,
@@ -248,15 +248,15 @@ body {
     cursor: text;
     overflow-wrap: anywhere;
 }
-.inspection-title-editor .title { margin: 2px 0 0; }
-.inspection-title-editor .print-values { margin: 0 0 1px; }
+.inspection-title-editor .title { margin: 0.125rem 0 0; }
+.inspection-title-editor .print-values { margin: 0 0 0.0625rem; }
 .inspection-title-editor [contenteditable="true"]:focus {
     background: rgba(219,234,254,.35);
-    border-radius: 3px;
+    border-radius: 0.1875rem;
 }
 .action-btns:not(.hasr-bottom-row) { position: relative; }
 @media screen and (min-width: 901px) {
-    .action-btns:not(.hasr-bottom-row) { min-height: 64px; }
+    .action-btns:not(.hasr-bottom-row) { min-height: 4rem; }
     .action-btns:not(.hasr-bottom-row) > #inspectionTitleEditor {
         position: absolute;
         left: 50%;
@@ -271,9 +271,9 @@ body {
         position: static;
         transform: none;
         flex: 1 1 100%;
-        width: min(100%, 620px);
+        width: min(100%, 38.75rem);
         max-width: 100%;
-        margin: 3px auto;
+        margin: 0.1875rem auto;
         order: 3;
     }
 }
@@ -284,59 +284,59 @@ body.inventory-mode-active #inspectionTitleEditor { display: none !important; }
 .controls {
     background: var(--bg-white);
     color: var(--text-main);
-    padding: 7px 10px;
+    padding: 0.4375rem 0.625rem;
     display: flex;
     justify-content: center; /* توسيط الحاوية الرئيسية */
     align-items: center;
-    margin-bottom: 8px;
-    border-radius: 10px;
-    border: 1px solid var(--border-color);
-    min-height: 48px;
+    margin-bottom: 0.5rem;
+    border-radius: 0.625rem;
+    border: 0.0625rem solid var(--border-color);
+    min-height: 3rem;
     
     /* التعديلات الجديدة لثبات الشريط (Sticky) */
     position: sticky;
-    top: 8px; /* مسافة بسيطة من الأعلى ليتناسق مع حواف التصميم */
+    top: 0.5rem; /* مسافة بسيطة من الأعلى ليتناسق مع حواف التصميم */
     z-index: 95; /* ليبقى دائماً فوق الجدول عند النزول للأسفل */
-    box-shadow: 0 4px 15px rgba(26, 45, 74, 0.08); /* ظل خفيف وأنيق يفصله عن باقي الصفحة */
+    box-shadow: 0 0.25rem 0.9375rem rgba(26, 45, 74, 0.08); /* ظل خفيف وأنيق يفصله عن باقي الصفحة */
 }
 
 /* تعزيز الظل في الوضع الليلي ليكون أوضح */
 [data-theme="dark"] .controls {
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 0.25rem 0.9375rem rgba(0, 0, 0, 0.5);
 }
 
 .date-field, select, input {
     font-family: inherit;
-    font-size: 13px;
-    border: 1px solid var(--border-color);
+    font-size: 0.8125rem;
+    border: 0.0625rem solid var(--border-color);
     background-color: var(--input-bg);
     color: var(--text-main);
-    border-radius: 6px;
-    padding: 4px 6px;
+    border-radius: 0.375rem;
+    padding: 0.25rem 0.375rem;
     transition: 0.2s;
 }
 
 input:focus, select:focus {
     border-color: #007bff;
     outline: none;
-    box-shadow: 0 0 5px rgba(0,123,255,0.3);
+    box-shadow: 0 0 0.3125rem rgba(0,123,255,0.3);
 }
 
 /* ===== حاوية الجدول القابلة للتمرير ===== */
 #tableWrapper {
     max-height: none;
     transition: max-height 0.3s ease, opacity 0.18s ease;
-    border-radius: 10px;
-    box-shadow: 0 8px 32px rgba(26, 45, 74, 0.18), 0 2px 8px rgba(26, 45, 74, 0.10);
+    border-radius: 0.625rem;
+    box-shadow: 0 0.5rem 2rem rgba(26, 45, 74, 0.18), 0 0.125rem 0.5rem rgba(26, 45, 74, 0.10);
     overflow-x: auto; 
     overflow-y: auto; /* تفعيل التمرير دائماً */
     scrollbar-gutter: stable; /* الحل السحري: حجز مساحة السكرول بار دائماً لمنع اهتزاز الجدول */
 }
  
 #tableWrapper.scrollable {
-    max-height: 380px;  /* التحكم في ارتفاع الحاويه القابله للتمرير */
-    border: 2px solid #007bff;
-    box-shadow: 0 2px 12px rgba(0,123,255,0.15);
+    max-height: 23.75rem;  /* التحكم في ارتفاع الحاويه القابله للتمرير */
+    border: 0.125rem solid #007bff;
+    box-shadow: 0 0.125rem 0.75rem rgba(0,123,255,0.15);
 }
 
 /* تثبيت رأس الجدول عند التمرير */
@@ -345,7 +345,7 @@ input:focus, select:focus {
     top: 0;
     z-index: 2;
     background: linear-gradient(135deg, #1a3a6b, #2a5298) !important;
-    box-shadow: inset 0 -1px 0 rgba(255,255,255,0.15), inset 1px 0 0 rgba(255,255,255,0.08);
+    box-shadow: inset 0 -0.0625rem 0 rgba(255,255,255,0.15), inset 0.0625rem 0 0 rgba(255,255,255,0.08);
 }
 
 /* ===== الجدول ===== */
@@ -357,10 +357,10 @@ table {
 }
 
 th, td {
-    border: 1px solid #ddd;
-    padding: 3px;
+    border: 0.0625rem solid #ddd;
+    padding: 0.1875rem;
     text-align: center;
-    font-size: 14px;
+    font-size: 0.875rem;
     vertical-align: middle;
     word-wrap: break-word;
     overflow: visible;
@@ -383,8 +383,8 @@ tbody td.ce-cell span[contenteditable] {
     justify-content: center;
     width: 100%;
     height: 100%;
-    min-height: 36px;
-    padding: 3px;
+    min-height: 2.25rem;
+    padding: 0.1875rem;
     box-sizing: border-box;
     outline: none;
     text-align: center;
@@ -397,7 +397,7 @@ tbody td.ce-cell span[contenteditable][data-ph]:empty::before {
     color: #bbb;
     pointer-events: none;
     font-style: italic;
-    font-size: 11px;
+    font-size: 0.6875rem;
 }
 
 th {
@@ -419,8 +419,8 @@ tbody tr:hover td.auto-list { background-color: rgba(45, 90, 140, 0.12) !importa
 td:focus-within,
 td.ce-cell:focus-within,
 .case-num-top:focus {
-    outline: 2px solid rgba(0, 100, 200, 0.35) !important;
-    outline-offset: -2px;
+    outline: 0.125rem solid rgba(0, 100, 200, 0.35) !important;
+    outline-offset: -0.125rem;
     background-color: inherit !important;
     box-shadow: none !important;
 }
@@ -457,10 +457,10 @@ td.ce-cell:focus-within,
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 4px 3px;
+    padding: 0.25rem 0.1875rem;
     outline: none;
-    min-height: 28px;
-    border-bottom: 1px solid var(--border-color);
+    min-height: 1.75rem;
+    border-bottom: 0.0625rem solid var(--border-color);
     box-sizing: border-box;
     text-align: center;
 }
@@ -469,11 +469,11 @@ td.ce-cell:focus-within,
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 3px;
+    padding: 0.1875rem;
     background-color: var(--bg-light);
     font-weight: normal;
-    font-size: 13px;
-    min-height: 22px;
+    font-size: 0.8125rem;
+    min-height: 1.375rem;
     box-sizing: border-box;
 }
 
@@ -490,13 +490,13 @@ td.ce-cell:focus-within,
 }
 
 .auto-list ol {
-    margin: 2px;
-    padding-right: 15px;
+    margin: 0.125rem;
+    padding-right: 0.9375rem;
     line-height: 1.6;
 }
 
 .auto-list ol > li {
-    margin-bottom: 3px;
+    margin-bottom: 0.1875rem;
 }
 
 .auto-list ol > li:last-child {
@@ -505,7 +505,7 @@ td.ce-cell:focus-within,
 
 .auto-list ol > li::marker {
     font-weight: 700;
-    font-size: 16px !important;
+    font-size: 1rem !important;
     line-height: 1.6;
     font-family: inherit;
 }
@@ -524,7 +524,7 @@ td.ce-cell:focus-within,
 .order-cell {
     vertical-align: middle !important;
     text-align: center;
-    padding: 4px !important;
+    padding: 0.25rem !important;
 }
 
 .order-cell-inner {
@@ -532,14 +532,14 @@ td.ce-cell:focus-within,
     flex-wrap: wrap;
     justify-content: center;
     align-items: center;
-    gap: 4px;
-    min-height: 45px;
+    gap: 0.25rem;
+    min-height: 2.8125rem;
 }
 
 .amount-span {
     display: inline-block;
-    min-width: 35px;
-    border-bottom: 1px dashed #999;
+    min-width: 2.1875rem;
+    border-bottom: 0.0625rem dashed #999;
     outline: none;
 }
 
@@ -548,27 +548,27 @@ td.ce-cell:focus-within,
     display: flex;
     flex-direction: column;
     width: 100%;
-    border: 1px solid #999;
-    border-radius: 3px;
+    border: 0.0625rem solid #999;
+    border-radius: 0.1875rem;
     overflow: hidden;
 }
 
 .plate-letters {
     display: flex;
     flex-direction: row;
-    border-bottom: 1px solid #999;
+    border-bottom: 0.0625rem solid #999;
 }
 
 .plate-letters div {
     flex: 1;
-    border-right: 1px solid #999;
-    min-height: 24px;
+    border-right: 0.0625rem solid #999;
+    min-height: 1.5rem;
     outline: none;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: bold;
-    font-size: 14px;
+    font-size: 0.875rem;
 }
 
 .plate-letters div:first-child {
@@ -576,22 +576,22 @@ td.ce-cell:focus-within,
 }
 
 .plate-numbers {
-    min-height: 24px;
+    min-height: 1.5rem;
     outline: none;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: bold;
-    font-size: 13px;
-    letter-spacing: 2px;
+    font-size: 0.8125rem;
+    letter-spacing: 0.125rem;
 }
 
 .plate-type-select {
     width: 100%;
-    max-width: 90px;
-    font-size: 11px;
-    padding: 2px;
-    margin-bottom: 3px;
+    max-width: 5.625rem;
+    font-size: 0.6875rem;
+    padding: 0.125rem;
+    margin-bottom: 0.1875rem;
     display: block;
     margin-right: auto;
     margin-left: auto;
@@ -601,8 +601,8 @@ td.ce-cell:focus-within,
 .action-btns {
     display: flex;
     align-items: center;
-    gap: 10px;
-    margin: 6px 0;
+    gap: 0.625rem;
+    margin: 0.375rem 0;
     flex-wrap: wrap;
 }
 
@@ -613,7 +613,7 @@ td.ce-cell:focus-within,
 
 .add-btn, .remove-last-btn, .print-btn-main {
     border: none;
-    border-radius: 8px;
+    border-radius: 0.5rem;
     font-weight: bold;
     cursor: pointer;
     transition: 0.3s;
@@ -623,29 +623,29 @@ td.ce-cell:focus-within,
 .add-btn {
     background: linear-gradient(135deg, #28a745, #218838);
     color: white;
-    padding: 5px 5px;
-    font-size: 13px;
+    padding: 0.3125rem 0.3125rem;
+    font-size: 0.8125rem;
 }
 
 .remove-last-btn {
     background: linear-gradient(135deg, #dc3545, #c82333);
     color: white;
-    padding: 5px 5px;
-    font-size: 13px;
+    padding: 0.3125rem 0.3125rem;
+    font-size: 0.8125rem;
 }
 
 .add-btn:hover, .remove-last-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    transform: translateY(-0.125rem);
+    box-shadow: 0 0.25rem 0.625rem rgba(0,0,0,0.15);
 }
 
 .print-btn-main {
     background: linear-gradient(135deg, #007bff, #0056b3);
     color: white;
-    padding: 5px 15px;
-    margin: 3px auto;
+    padding: 0.3125rem 0.9375rem;
+    margin: 0.1875rem auto;
     display: block;
-    font-size: 16px;
+    font-size: 1rem;
 }
 
 /* ===== التغذية البصرية لأزرار الطباعة والاسترجاع والمسح ===== */
@@ -657,25 +657,25 @@ td.ce-cell:focus-within,
 
 .bottom-action-btn:hover {
     filter: brightness(1.14) saturate(1.12);
-    box-shadow: 0 4px 11px rgba(15, 23, 42, .22) !important;
+    box-shadow: 0 0.25rem 0.6875rem rgba(15, 23, 42, .22) !important;
 }
 
 .bottom-action-btn:active {
-    transform: translateY(2px) scale(.97) !important;
+    transform: translateY(0.125rem) scale(.97) !important;
     filter: brightness(.90) saturate(1.05);
-    box-shadow: inset 0 3px 6px rgba(15, 23, 42, .34), 0 1px 2px rgba(15, 23, 42, .16) !important;
+    box-shadow: inset 0 0.1875rem 0.375rem rgba(15, 23, 42, .34), 0 0.0625rem 0.125rem rgba(15, 23, 42, .16) !important;
 }
 
 .bottom-action-btn:focus-visible {
-    outline: 3px solid rgba(37, 99, 235, .35);
-    outline-offset: 2px;
+    outline: 0.1875rem solid rgba(37, 99, 235, .35);
+    outline-offset: 0.125rem;
 }
 
 /* تغذية بصرية عند الضغط على اختصارات الكيبورد (F9 / CTRL+P / CTRL+R) على الأزرار */
 .bottom-action-btn.keyboard-pressed {
-    transform: translateY(2px) scale(.97) !important;
+    transform: translateY(0.125rem) scale(.97) !important;
     filter: brightness(.90) saturate(1.05);
-    box-shadow: inset 0 3px 6px rgba(15, 23, 42, .34), 0 1px 2px rgba(15, 23, 42, .16) !important;
+    box-shadow: inset 0 0.1875rem 0.375rem rgba(15, 23, 42, .34), 0 0.0625rem 0.125rem rgba(15, 23, 42, .16) !important;
 }
 
 /* ===== أزرار الصف (سهم صاعد، سهم نازل، نسخ ، حذف) ===== */
@@ -683,28 +683,28 @@ td.ce-cell:focus-within,
     background: none;
     border: none;
     cursor: pointer;
-    font-size: 16px;
+    font-size: 1rem;
 }
 
 .row-actions {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 2px;
-    padding: 2px;
+    gap: 0.125rem;
+    padding: 0.125rem;
 }
 
 .row-actions .del-row-btn {
-    margin-top: 2px;
+    margin-top: 0.125rem;
 }
 
 .move-btn, .copy-row-btn {
     background: none;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+    border: 0.0625rem solid #ccc;
+    border-radius: 0.25rem;
     cursor: pointer;
-    font-size: 13px;
-    padding: 1px 4px;
+    font-size: 0.8125rem;
+    padding: 0.0625rem 0.25rem;
     line-height: 1;
     transition: 0.2s;
 }
@@ -716,12 +716,12 @@ td.ce-cell:focus-within,
 
 .copy-row-btn {
     background: none;
-    border: 1px solid #28a745;
-    border-radius: 4px;
+    border: 0.0625rem solid #28a745;
+    border-radius: 0.25rem;
     color: #28a745;
-    font-size: 13px;
+    font-size: 0.8125rem;
     cursor: pointer;
-    padding: 1px 4px;
+    padding: 0.0625rem 0.25rem;
     transition: 0.2s;
 }
 
@@ -730,21 +730,21 @@ td.ce-cell:focus-within,
 }
 
 /* إصلاح radius آخر صف في الجدول */
-#mainTable tbody tr:last-child td:first-child { border-bottom-right-radius: 12px; }
-#mainTable tbody tr:last-child td:last-child  { border-bottom-left-radius: 12px; }
+#mainTable tbody tr:last-child td:first-child { border-bottom-right-radius: 0.75rem; }
+#mainTable tbody tr:last-child td:last-child  { border-bottom-left-radius: 0.75rem; }
 #mainTable tbody tr:last-child td { border-bottom: none; }
 
 /* فاصل بصري خفيف بين كل محضر والذي يليه (للشاشة فقط؛ لا يؤثر على الطباعة).
    خط سفلي أعرض قليلاً من خطوط الخلايا وبلون أزرق باهت، فوق التلوين الزيبرا الموجود. */
 @media screen {
-    #mainTable tbody tr > td { border-bottom: 2px solid rgba(45, 90, 140, 0.22); }
+    #mainTable tbody tr > td { border-bottom: 0.125rem solid rgba(45, 90, 140, 0.22); }
     [data-theme="dark"] #mainTable tbody tr > td { border-bottom-color: rgba(148, 163, 184, 0.28); }
     #mainTable tbody tr:last-child > td { border-bottom: none; }
 }
 
 /* إصلاح radius أول صف في الهيدر */
-#mainTable thead tr th:first-child { border-top-right-radius: 12px; }
-#mainTable thead tr th:last-child  { border-top-left-radius: 12px; }
+#mainTable thead tr th:first-child { border-top-right-radius: 0.75rem; }
+#mainTable thead tr th:last-child  { border-top-left-radius: 0.75rem; }
 
 /* ===== Tooltip على رؤوس الأعمدة ===== */
 thead th[data-tip] {
@@ -762,7 +762,7 @@ thead th[data-tip] {
     color: #ffd54f !important;
     font-weight: 800;
     text-decoration: underline dotted rgba(255,213,79,0.9);
-    text-underline-offset: 3px;
+    text-underline-offset: 0.1875rem;
 }
 .sortable-th:hover {
     transform: scale(0.94);
@@ -770,9 +770,9 @@ thead th[data-tip] {
 .sortable-th::after {
     content: '⇅';
     position: absolute;
-    top: 1px;
-    left: 2px;
-    font-size: 10px;
+    top: 0.0625rem;
+    left: 0.125rem;
+    font-size: 0.625rem;
     opacity: 1;
     color: #ffd54f;
     line-height: 1;
@@ -789,10 +789,10 @@ thead th[data-tip] {
     /* تم استبدال الـ border بـ box-shadow داخلي لمنع تهييس الجدول */
     border: none !important;
     box-shadow: 
-        inset 0 0 0 1px #22d3ee,
-        inset 0 0 0 2px rgba(207, 250, 254, 0.95),
-        0 0 0 1px rgba(8, 145, 178, 0.8),
-        0 3px 9px rgba(8, 145, 178, 0.32) !important;
+        inset 0 0 0 0.0625rem #22d3ee,
+        inset 0 0 0 0.125rem rgba(207, 250, 254, 0.95),
+        0 0 0 0.0625rem rgba(8, 145, 178, 0.8),
+        0 0.1875rem 0.5625rem rgba(8, 145, 178, 0.32) !important;
     position: relative;
     z-index: 3;
 }
@@ -800,10 +800,10 @@ thead th[data-tip] {
 [data-theme="dark"] .sortable-th[data-sort]:not([data-sort=""]) {
     border: none !important;
     box-shadow: 
-        inset 0 0 0 1px #67e8f9,
-        inset 0 0 0 2px rgba(207, 250, 254, 0.98),
-        0 0 0 1px rgba(34, 211, 238, 0.85),
-        0 3px 11px rgba(34, 211, 238, 0.32) !important;
+        inset 0 0 0 0.0625rem #67e8f9,
+        inset 0 0 0 0.125rem rgba(207, 250, 254, 0.98),
+        0 0 0 0.0625rem rgba(34, 211, 238, 0.85),
+        0 0.1875rem 0.6875rem rgba(34, 211, 238, 0.32) !important;
 }
 
 thead th[data-tip]:hover::after {
@@ -814,18 +814,18 @@ thead th[data-tip]:hover::after {
     transform: translateX(-50%);
     background: #2c3e50;
     color: #fff;
-    padding: 5px 10px;
-    border-radius: 6px;
-    font-size: 12px;
+    padding: 0.3125rem 0.625rem;
+    border-radius: 0.375rem;
+    font-size: 0.75rem;
     white-space: nowrap;
     z-index: 999;
     pointer-events: none;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    box-shadow: 0 0.125rem 0.5rem rgba(0,0,0,0.2);
 }
 
 thead th.sortable-th[data-tip]:hover::after {
-    font-size: 10px;
-    padding: 3px 7px;
+    font-size: 0.625rem;
+    padding: 0.1875rem 0.4375rem;
     opacity: 0.85;
 }
 
@@ -835,7 +835,7 @@ thead th[data-tip]:hover::before {
     top: 100%;
     left: 50%;
     transform: translateX(-50%);
-    border: 5px solid transparent;
+    border: 0.3125rem solid transparent;
     border-bottom-color: #2c3e50;
     z-index: 999;
     pointer-events: none;
@@ -847,7 +847,7 @@ thead th[data-tip]:hover::before {
     color: #bbb;
     pointer-events: none;
     font-style: italic;
-    font-size: 11px;
+    font-size: 0.6875rem;
 }
 
 /* ==================== Media Screen ==================== */
@@ -872,22 +872,22 @@ thead th[data-tip]:hover::before {
 
 /* ===== التاريخ والتوقيع ===== */
 .edit-date-section {
-    margin-top: 6px;
+    margin-top: 0.375rem;
     font-weight: bold;
-    font-size: 16px;
+    font-size: 1rem;
 }
 
 .edit-date-section input {
     border: none;
-    border-bottom: 1px dotted #000;
+    border-bottom: 0.0625rem dotted #000;
     background: transparent;
     outline: none;
-    width: 150px;
+    width: 9.375rem;
     text-align: center;
 }
 
 .bottom-section {
-    margin-top: 8px;
+    margin-top: 0.5rem;
 }
 
 .signatures {
@@ -903,8 +903,8 @@ thead th[data-tip]:hover::before {
 
 .line {
     display: block;
-    border-top: 1px dotted black;
-    margin-top: 30px;
+    border-top: 0.0625rem dotted black;
+    margin-top: 1.875rem;
     width: 90%;
     margin-left: auto;
     margin-right: auto;
@@ -918,8 +918,8 @@ thead th[data-tip]:hover::before {
 }
 .dev-credit-fhs:hover {
     color: #e6b800 !important;
-    transform: translateY(-2px) scale(1.04);
-    letter-spacing: 0.0px;
+    transform: translateY(-0.125rem) scale(1.04);
+    letter-spacing: 0;
 }
 
 /* ===== إعدادات الطباعة ===== */
@@ -1163,24 +1163,24 @@ thead th[data-tip]:hover::before {
     position: absolute;
     top: 110%;
     right: 0;
-    width: 260px; /* عرض احتياطي، يتم ضبطه ديناميكياً حسب عدد الأقسام */
-    min-width: 260px;
-    max-width: 400px;
-    max-height: calc((100vh / 1.3) - 110px); 
+    width: 16.25rem; /* عرض احتياطي، يتم ضبطه ديناميكياً حسب عدد الأقسام */
+    min-width: 16.25rem;
+    max-width: 25rem;
+    max-height: calc(100vh - 6.875rem); 
     background: #edf0f7;
-    border-radius: 12px;
-    box-shadow: 0 15px 45px rgba(0,0,0,0.3);
-    border: 1.5px solid #c5cfe0;
+    border-radius: 0.75rem;
+    box-shadow: 0 0.9375rem 2.8125rem rgba(0,0,0,0.3);
+    border: 0.0938rem solid #c5cfe0;
     z-index: 9999;
     flex-direction: column;
-    padding: 12px; 
-    margin-top: 5px;
+    padding: 0.75rem; 
+    margin-top: 0.3125rem;
     
     /* 💡 أكواد الأنيميشن المزدوج (فتح وإغلاق) */
     display: flex;
     visibility: hidden;
     opacity: 0;
-    transform: translateY(-15px) scale(0.95); /* البداية مرفوعة للأعلى ومصغرة */
+    transform: translateY(-0.9375rem) scale(0.95); /* البداية مرفوعة للأعلى ومصغرة */
     pointer-events: none; /* منع التفاعل وهي مخفية */
     transition: visibility 0.3s, opacity 0.3s ease, transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
 }
@@ -1195,34 +1195,34 @@ thead th[data-tip]:hover::before {
 /* لوحة الرأس التي تجمع التبويبات وشريط الترتيب */
 .archive-header-panel {
     background: #eef2f9;
-    border: 1px solid #c8d3e3;
-    border-radius: 10px;
-    padding: 8px;
-    margin-bottom: 10px;
+    border: 0.0625rem solid #c8d3e3;
+    border-radius: 0.625rem;
+    padding: 0.5rem;
+    margin-bottom: 0.625rem;
     overflow: hidden;
     flex-shrink: 0;
-    border-bottom: 2px solid #c9a200;
+    border-bottom: 0.125rem solid #c9a200;
 }
 
 .archive-tabs {
     display: flex;
-    gap: 3px;
-    margin-bottom: 6px;
+    gap: 0.1875rem;
+    margin-bottom: 0.375rem;
     flex-shrink: 0;
     background: #dde3ef;
-    border-radius: 9px;
-    padding: 3px;
+    border-radius: 0.5625rem;
+    padding: 0.1875rem;
 }
 
 .archive-tab-btn {
     flex: 1;
     background: #dce6f2;
     color: #2d5a8e;
-    border: 1.5px solid #6f8fb3;
-    border-radius: 7px;
-    padding: 7px 2px;
+    border: 0.0938rem solid #6f8fb3;
+    border-radius: 0.4375rem;
+    padding: 0.4375rem 0.125rem;
     font-family: inherit;
-    font-size: 11px;
+    font-size: 0.6875rem;
     font-weight: bold;
     cursor: pointer;
     transition: 0.2s;
@@ -1237,29 +1237,29 @@ thead th[data-tip]:hover::before {
 .archive-tab-btn.active {
     background: #2d5a8e;
     color: #ffffff;
-    border: 1.5px solid #e6c34d;
-    box-shadow: 0 0 0 1px rgba(230,195,77,0.35), 0 1px 4px rgba(30,58,95,0.4);
+    border: 0.0938rem solid #e6c34d;
+    box-shadow: 0 0 0 0.0625rem rgba(230,195,77,0.35), 0 0.0625rem 0.25rem rgba(30,58,95,0.4);
 }
 
 .archive-sort-strip {
     display: flex;
-    gap: 3px;
+    gap: 0.1875rem;
     flex-shrink: 0;
     background: #dde3ef;
-    border-radius: 9px;
-    padding: 3px;
+    border-radius: 0.5625rem;
+    padding: 0.1875rem;
 }
 
 .sort-strip-btn {
     flex: 1;
     background: #dce6f2;
     color: #2d5a8e;
-    border: 1.5px solid #6f8fb3;
-    border-radius: 7px;
+    border: 0.0938rem solid #6f8fb3;
+    border-radius: 0.4375rem;
     font-family: inherit;
-    font-size: 9px;
+    font-size: 0.5625rem;
     font-weight: bold;
-    padding: 2px 2px;
+    padding: 0.125rem 0.125rem;
     cursor: pointer;
     transition: 0.2s;
     text-align: center;
@@ -1273,32 +1273,32 @@ thead th[data-tip]:hover::before {
 .sort-strip-btn.active {
     background: #2d5a8e;
     color: #ffffff;
-    border: 1.5px solid #e6c34d;
-    box-shadow: 0 0 0 1px rgba(230,195,77,0.35), 0 1px 4px rgba(30,58,95,0.4);
+    border: 0.0938rem solid #e6c34d;
+    box-shadow: 0 0 0 0.0625rem rgba(230,195,77,0.35), 0 0.0625rem 0.25rem rgba(30,58,95,0.4);
 }
 
 
 /* ===== شريط فلترة الحالة الجديد ===== */
 .archive-filter-strip {
     display: flex;
-    gap: 3px;
+    gap: 0.1875rem;
     flex-shrink: 0;
     background: #dde3ef;
-    border-radius: 9px;
-    padding: 2px; /* مساحة أقل ليكون ارتفاعه أصغر */
-    margin-top: 5px; /* فاصل بينه وبين شريط الترتيب */
+    border-radius: 0.5625rem;
+    padding: 0.125rem; /* مساحة أقل ليكون ارتفاعه أصغر */
+    margin-top: 0.3125rem; /* فاصل بينه وبين شريط الترتيب */
 }
 
 .filter-strip-btn {
     flex: 1;
     background: #dce6f2;
     color: #2d5a8e;
-    border: 1px solid #6f8fb3;
-    border-radius: 6px;
+    border: 0.0625rem solid #6f8fb3;
+    border-radius: 0.375rem;
     font-family: inherit;
-    font-size: 8.5px; /* خط أصغر قليلاً */
+    font-size: 0.5312rem; /* خط أصغر قليلاً */
     font-weight: bold;
-    padding: 1px 2px; /* حشوة أقل لتقليل الارتفاع */
+    padding: 0.0625rem 0.125rem; /* حشوة أقل لتقليل الارتفاع */
     cursor: pointer;
     transition: 0.2s;
     text-align: center;
@@ -1312,8 +1312,8 @@ thead th[data-tip]:hover::before {
 .filter-strip-btn.active {
     background: #2d5a8e;
     color: #ffffff;
-    border: 1px solid #e6c34d;
-    box-shadow: 0 0 0 1px rgba(230,195,77,0.35), 0 1px 3px rgba(30,58,95,0.4);
+    border: 0.0625rem solid #e6c34d;
+    box-shadow: 0 0 0 0.0625rem rgba(230,195,77,0.35), 0 0.0625rem 0.1875rem rgba(30,58,95,0.4);
 }
 
 .archive-records-list {
@@ -1322,36 +1322,36 @@ thead th[data-tip]:hover::before {
     overflow-y: auto;
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: 0.3125rem;
     scrollbar-width: thin;
     scrollbar-color: #4a7ab5 transparent;
-    margin-bottom: 10px;
-    padding-right: 4px;
+    margin-bottom: 0.625rem;
+    padding-right: 0.25rem;
 }
 
 .archive-record-item {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 0.625rem;
     background: #f4f6fb;
-    border: 1.5px solid #c8d3e3;
-    padding: 6px 8px;
-    border-radius: 6px;
+    border: 0.0938rem solid #c8d3e3;
+    padding: 0.375rem 0.5rem;
+    border-radius: 0.375rem;
     cursor: pointer;
     transition: 0.2s;
-    box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 0.1875rem 0.5rem rgba(0,0,0,0.1);
 }
 
 .archive-record-item:hover {
     background: #fff;
     border-color: #4a7ab5;
-    transform: translateY(-1.5px);
-    box-shadow: 0 6px 15px rgba(30,58,95,0.15);
+    transform: translateY(-0.0938rem);
+    box-shadow: 0 0.375rem 0.9375rem rgba(30,58,95,0.15);
 }
 
 .archive-checkbox {
-    width: 18px;
-    height: 18px;
+    width: 1.125rem;
+    height: 1.125rem;
     cursor: pointer;
     accent-color: #2d5a8e;
 }
@@ -1360,17 +1360,17 @@ thead th[data-tip]:hover::before {
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 0.125rem;
 }
 
 .archive-record-title {
-    font-size: 13px;
+    font-size: 0.8125rem;
     font-weight: bold;
     color: #1e3a5f;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 6px;
+    gap: 0.375rem;
 }
 
 .archive-record-sub {
@@ -1378,18 +1378,18 @@ thead th[data-tip]:hover::before {
     justify-content: space-between;
 }
 
-.rec-name { font-size: 11px; color: #5a6a82; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 65%; }
-.rec-date { font-size: 10px; color: #8a9bb5; white-space: nowrap; }
+.rec-name { font-size: 0.6875rem; color: #5a6a82; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 65%; }
+.rec-date { font-size: 0.625rem; color: #8a9bb5; white-space: nowrap; }
 
 .record-type-badge {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 17px;
-    height: 17px;
-    padding: 0 4px;
-    border-radius: 9px;
-    font-size: 10px;
+    min-width: 1.0625rem;
+    height: 1.0625rem;
+    padding: 0 0.25rem;
+    border-radius: 0.5625rem;
+    font-size: 0.625rem;
     font-weight: bold;
     color: #fff;
     flex-shrink: 0;
@@ -1412,13 +1412,13 @@ thead th[data-tip]:hover::before {
 .badge-paid {
     display: inline-flex;
     align-items: center;
-    gap: 3px;
+    gap: 0.1875rem;
     background: #ecfdf5;
     color: #059669;
-    border: 1px solid #a7f3d0;
-    border-radius: 999px;
-    padding: 1px 7px;
-    font-size: 10px;
+    border: 0.0625rem solid #a7f3d0;
+    border-radius: 62.4375rem;
+    padding: 0.0625rem 0.4375rem;
+    font-size: 0.625rem;
     font-weight: bold;
     white-space: nowrap;
     flex-shrink: 0;
@@ -1428,8 +1428,8 @@ thead th[data-tip]:hover::before {
 .archive-date-divider {
     display: flex;
     align-items: center;
-    gap: 8px;
-    margin: 6px 2px 2px;
+    gap: 0.5rem;
+    margin: 0.375rem 0.125rem 0.125rem;
     user-select: none;
 }
 
@@ -1437,13 +1437,13 @@ thead th[data-tip]:hover::before {
 .archive-date-divider::after {
     content: "";
     flex: 1;
-    height: 1px;
+    height: 0.0625rem;
     background: linear-gradient(90deg, transparent, #c8d3e3 40%, #c8d3e3 60%, transparent);
 }
 
 .archive-date-divider .divider-dot {
-    width: 5px;
-    height: 5px;
+    width: 0.3125rem;
+    height: 0.3125rem;
     border-radius: 50%;
     background: #4a7ab5;
     flex-shrink: 0;
@@ -1465,15 +1465,15 @@ thead th[data-tip]:hover::before {
     background: linear-gradient(135deg, #28a745, #218838);
     color: white;
     border: none;
-    padding: 10px;
-    border-radius: 6px;
+    padding: 0.625rem;
+    border-radius: 0.375rem;
     font-weight: bold;
-    font-size: 14px;
+    font-size: 0.875rem;
     cursor: pointer;
     font-family: inherit;
     transition: 0.2s;
     text-align: center;
-    box-shadow: 0 -5px 15px rgba(237, 240, 247, 0.95), 0 4px 10px rgba(0,0,0,0.15); 
+    box-shadow: 0 -0.3125rem 0.9375rem rgba(237, 240, 247, 0.95), 0 0.25rem 0.625rem rgba(0,0,0,0.15); 
     z-index: 10;
 }
 
@@ -1500,8 +1500,51 @@ thead th[data-tip]:hover::before {
 
 
 </style>
-<script src="niabat-config-loader.js"></script>
 <script src="api.js"></script>
+<style id="columns-toggle-style">
+/* ===== إخفاء أعمدة الجدول (مؤقت: يرجع الشكل الكامل عند إعادة تحميل الصفحة) ===== */
+#tableWrapper #mainTable.cols-trimmed { width: calc(var(--col-share, 1) * 100%) !important; margin-left: auto !important; margin-right: auto !important; }
+.hasr-bottom-row .remove-last-btn { white-space: nowrap; flex-shrink: 0; }
+.hasr-bottom-pair { display: flex; align-items: center; gap: 0.5rem; flex: 0 0 auto; }
+body.inventory-mode-active .hasr-bottom-row > .hasr-bottom-pair { grid-column: 1; justify-self: start; }
+body.inventory-mode-active #colsMenuBtn, body.inventory-mode-active #colsMenuPanel { display: none !important; }
+.cols-menu-host { display: inline-flex; align-items: center; }
+.cols-menu-btn { padding: 0.25rem 0.55rem; border: 0.0625rem solid #9db8d9; border-radius: 0.4375rem; background: #eaf1fb; color: #1e3a5f; font-family: inherit; font-size: 0.75rem; font-weight: 800; cursor: pointer; white-space: nowrap; }
+.cols-menu-btn:hover { background: #d6e4f5; border-color: #2d5a8e; }
+.cols-menu-btn.has-hidden { background: #fef3c7; border-color: #f59e0b; color: #92400e; }
+.cols-menu-panel { position: fixed; z-index: 100000; box-sizing: border-box; max-height: min(46vh, 25rem); overflow: auto; padding: 0.5rem 0.625rem 0.5rem; background: #fff; color: #1e293b; border: 0.0625rem solid #c7d2e2; border-radius: 0.625rem; box-shadow: 0 0.75rem 2rem rgba(15,23,42,.3); direction: rtl; text-align: right; opacity: 0; transform: translateY(-8px) scale(.98); transform-origin: top right; transition: opacity .22s ease, transform .22s ease; }
+.cols-menu-panel[hidden] { display: none; }
+.cols-menu-title { margin: 0 0 0.375rem; font-size: 0.75rem; font-weight: 800; color: #1e3a5f; }
+.cols-grid { display: flex; flex-wrap: nowrap; direction: rtl; border: 0.0625rem solid #9db8d9; border-radius: 0.4375rem; overflow-x: auto; background: #eaf1fb; }
+.cols-cell { box-sizing: border-box; flex: var(--fw, 1) 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.3125rem; padding: 0.4375rem 0.125rem; border-left: 0.0625rem solid #c7d2e2; text-align: center; font-size: 0.6875rem; font-weight: 800; line-height: 1.35; color: #1e3a5f; cursor: pointer; user-select: none; }
+.cols-cell:last-child { border-left: 0; }
+.cols-cell:hover { background: #d6e4f5; }
+.cols-cell input { width: 1.0625rem; height: 1.0625rem; margin: 0; cursor: pointer; flex: 0 0 auto; }
+.cols-cell.off { background: #f1f5f9; color: #94a3b8; text-decoration: line-through; }
+.cols-cell-ctl { cursor: default; color: #94a3b8; background: #f1f5f9; }
+.cols-cell-ctl:hover { background: #f1f5f9; }
+.cols-menu-actions { display: flex; gap: 0.375rem; margin-top: 0.5rem; }
+.cols-menu-actions button { padding: 0.3125rem 0.875rem; border: 0.0625rem solid #cbd5e1; border-radius: 0.4375rem; background: #f8fafc; color: #334155; font-family: inherit; font-size: 0.75rem; font-weight: 800; cursor: pointer; }
+.cols-menu-actions button:hover { background: #eaf1fb; }
+.cols-menu-note { margin: 0.4375rem 0 0; font-size: 0.6875rem; line-height: 1.5; color: #64748b; }
+.cols-cell.cols-menu-flash { animation: colsFlash .4s ease; }
+.column-fade { opacity: 0; transition: opacity .18s ease; }
+body:not(.inventory-mode-active) #mainTable thead th, body:not(.inventory-mode-active) #mainTable tbody td { transition: opacity .18s ease; }
+@keyframes colsFlash { 0%,100% { background: transparent; } 50% { background: #fee2e2; } }
+[data-theme="dark"] .cols-menu-btn { background: #213753; color: #dbeafe; border-color: #4a7ab5; }
+[data-theme="dark"] .cols-menu-btn.has-hidden { background: #78350f; color: #fde68a; border-color: #f59e0b; }
+[data-theme="dark"] .cols-menu-panel { background: #17243b; color: #e2e8f0; border-color: #2d4060; }
+[data-theme="dark"] .cols-menu-title { color: #9fc3f5; }
+[data-theme="dark"] .cols-grid { background: #1b2c47; border-color: #385273; }
+[data-theme="dark"] .cols-cell { color: #dbeafe; border-left-color: #2d4060; }
+[data-theme="dark"] .cols-cell:hover { background: #213753; }
+[data-theme="dark"] .cols-cell.off, [data-theme="dark"] .cols-cell-ctl { background: #111c30; color: #64748b; }
+[data-theme="dark"] .cols-menu-actions button { background: #213753; color: #dbeafe; border-color: #385273; }
+@media screen {
+    body:not(.inventory-mode-active) #mainTable thead th:nth-child(5) { width: 5.5rem !important; }
+    body.inventory-mode-active #mainTable thead th:nth-child(9) { width: 6.0625rem !important; }
+}
+</style>
 </head>
 
 <body onload="initializePage()">
@@ -1512,15 +1555,15 @@ thead th[data-tip]:hover::before {
     <div class="no-print" style="position: relative; z-index: 100;">
         <div class="system-title-bar" style="overflow: visible; align-items: center;">
             <!-- التاريخ في أقصى اليمين -->
-            <div style="display: flex; align-items: center; gap: 10px; justify-content: flex-start;">
-                <span id="currentDateDisplay" style="font-size: 14px; font-weight: 700; color: #fff;"></span>
+            <div style="display: flex; align-items: center; gap: 0.625rem; justify-content: flex-start;">
+                <span id="currentDateDisplay" style="font-size: 0.875rem; font-weight: 700; color: #fff;"></span>
                 <span style="color: rgba(255,255,255,0.4);">|</span>
                 <button id="themeToggle" class="theme-toggle-btn" onclick="toggleTheme()" title="تبديل الوضع">
                     <i class="fas fa-moon" id="themeIcon"></i>
                 </button>
             </div>
             <!-- عنوان النظام في المنتصف -->
-            <div style="display: flex; align-items: center; gap: 10px; justify-content: center;">
+            <div style="display: flex; align-items: center; gap: 0.625rem; justify-content: center;">
                 <i class="fa-solid fa-microscope" style="color: var(--accent); font-size: 1.4rem;"></i>
                 <span id="systemModeTitle" style="font-size: 1.2rem; font-weight: bold;">نظام كشوف الأوامر الجنائية</span>
             </div>
@@ -1528,13 +1571,13 @@ thead th[data-tip]:hover::before {
             <div style="display: flex; align-items: center; justify-content: flex-end; overflow: visible; position: relative;">
                 
                 <!-- زر تشغيل كشف الحصر (أصبح على اليمين) -->
-                <button id="inventoryModeToggle" class="add-btn no-print" onclick="toggleInventoryMode()" style="background:linear-gradient(135deg,#0f766e,#115e59);display:flex;align-items:center;gap:5px;color:#fff;padding:6px 12px;font-size:13px;border:1px solid rgba(255,255,255,0.3);margin-left:8px; margin-top: -6px;">
+                <button id="inventoryModeToggle" class="add-btn no-print" onclick="toggleInventoryMode()" style="background:linear-gradient(135deg,#0f766e,#115e59);display:flex;align-items:center;gap:0.3125rem;color:#fff;padding:0.375rem 0.75rem;font-size:0.8125rem;border:0.0625rem solid rgba(255,255,255,0.3);margin-left:0.5rem; margin-top: -0.375rem;">
                     <i class="fa-solid fa-table-list"></i>كشف الحصر
                 </button>
 
                 <!-- زر قائمة المحاضر المحفوظة (أصبح على اليسار) -->
-                <div class="archive-dropdown-container" style="display: block !important; position: relative; margin-top: -6px;">
-                    <button class="add-btn" onclick="toggleFloatingArchive()" style="background: linear-gradient(135deg, #1e3a5f, #2a5298); display:flex; align-items: center; gap: 5px; color: white; padding: 6px 12px; font-size: 13px; border: 1px solid rgba(255,255,255,0.3);">
+                <div class="archive-dropdown-container" style="display: block !important; position: relative; margin-top: -0.375rem;">
+                    <button class="add-btn" onclick="toggleFloatingArchive()" style="background: linear-gradient(135deg, #1e3a5f, #2a5298); display:flex; align-items: center; gap: 0.3125rem; color: white; padding: 0.375rem 0.75rem; font-size: 0.8125rem; border: 0.0625rem solid rgba(255,255,255,0.3);">
                         <i class="fa-solid fa-folder-open"></i> المحاضر المحفوظة
                     </button>
                     <div class="floating-archive-menu" id="floatingArchiveMenu" style="left: 0; right: auto; top: 110%;">
@@ -1564,13 +1607,13 @@ thead th[data-tip]:hover::before {
     </div>
 <div class="header">
     <div class="header-text">
-        <div style="text-align: center; font-size: 16.5px; font-weight: bold; margin-bottom: 5px;">النيابة العامة</div>
+        <div style="text-align: center; font-size: 1.0312rem; font-weight: bold; margin-bottom: 0.3125rem;">النيابة العامة</div>
         <div style="text-align: right; line-height: 1.65;">نيابة مرور القاهرة الكلية<br></div>
-        <div style="text-align: center; font-size: 16.5px; font-weight: bold; margin-bottom: 5px;" data-config="prosecution-name">نيابة مرور عين الصيرة</div>
+        <div style="text-align: center; font-size: 1.0312rem; font-weight: bold; margin-bottom: 0.3125rem;" data-config="prosecution-name">نيابة مرور عين الصيرة</div>
     </div>
 
 
-        <div style="text-align: left; font-size: 16.5px; font-weight: bold; margin-bottom: 5px;">رقم الصادر / </div>
+        <div style="text-align: left; font-size: 1.0312rem; font-weight: bold; margin-bottom: 0.3125rem;">رقم الصادر / </div>
     <img src="logo.png" class="logo" alt="">
 </div>
 
@@ -1582,25 +1625,25 @@ thead th[data-tip]:hover::before {
         <div style="flex: 1;"></div>
 
         <!-- الحقول في المنتصف تماماً -->
-        <div style="display: flex; gap: 8px; align-items: center; justify-content: center; flex: 0 0 auto;">
+        <div style="display: flex; gap: 0.5rem; align-items: center; justify-content: center; flex: 0 0 auto;">
             <!-- 1. مجموعة التاريخ (تظهر في الفحص فقط) -->
-            <div id="inspectionDateGroup" style="display: flex; gap: 8px; align-items: center;">
+            <div id="inspectionDateGroup" style="display: flex; gap: 0.5rem; align-items: center;">
                 <label>التاريخ:</label>
                 <div style="position:relative; display:inline-flex; align-items:center;">
-                    <input type="text" id="dateInput" class="date-field" style="padding-left:28px; background: var(--input-bg); color: var(--text-main);">
-                    <input type="date" id="datePicker" style="position:absolute;left:2px;width:22px;height:22px;opacity:0;cursor:pointer;z-index:10;border:none;padding:0;margin:0;">
-                    <span style="position:absolute;left:4px;font-size:15px;user-select:none;pointer-events:none;line-height:1;">📅</span>
+                    <input type="text" id="dateInput" class="date-field" style="padding-left:1.75rem; background: var(--input-bg); color: var(--text-main);">
+                    <input type="date" id="datePicker" style="position:absolute;left:0.125rem;width:1.375rem;height:1.375rem;opacity:0;cursor:pointer;z-index:10;border:none;padding:0;margin:0;">
+                    <span style="position:absolute;left:0.25rem;font-size:0.9375rem;user-select:none;pointer-events:none;line-height:1;">📅</span>
                 </div>
             </div>
 
             <!-- 2. مجموعة الشهر (تظهر في الحصر فقط ومخفية افتراضياً) -->
-            <div id="inventoryMonthGroup" style="display: none; gap: 8px; align-items: center;">
+            <div id="inventoryMonthGroup" style="display: none; gap: 0.5rem; align-items: center;">
                 <label for="inventoryMonth">الشهر:</label>
                 <!-- تحويل حقل الشهر إلى قائمة منسدلة -->
-                <select id="inventoryMonth" class="date-field" style="min-width: 140px; font-weight: bold;"></select>
+                <select id="inventoryMonth" class="date-field" style="min-width: 8.75rem; font-weight: bold;"></select>
             </div>
             
-            <label style="margin-right: 10px;">القسم:</label>
+            <label style="margin-right: 0.625rem;">القسم:</label>
             <select id="dept" data-config="stations-select" onchange="handleDeptChange()">
                 <option value="">اختر القسم</option>
                 <option>السيدة زينب</option>
@@ -1672,18 +1715,18 @@ thead th[data-tip]:hover::before {
     <table id="mainTable">
         <thead>
             <tr>
-                <th style="width: 15px;" data-tip="رقم تسلسل الصف">م</th>
-                <th id="th-case-num" class="sortable-th" style="width: 40px;" data-tip="اضغط للفرز" onclick="toggleCaseNumSort()">رقم المحضر</th>
-                <th style="width: 80px;" data-tip="اسم المتهم كاملاً">اسم المتهم</th>
-                <th style="width: 100px;" data-tip="وصف تهمة المتهم">وصف الاتهام</th>
-                <th style="width: 85px;" data-tip="الرقم القومي (14 رقم)">الرقم القومي</th>
-                <th style="width: 60px;" data-tip="حروف وأرقام لوحة المركبة">رقم المركبة</th>
-                <th style="width: 65px;" data-tip="المبلغ المحكوم به + المصاريف">الامر الجنائي</th>
-                <th style="width: 70px;" data-tip="مواد القانون المطبقة">مواد الاتهام</th>
-                <th style="width: 65px;" data-tip="تاريخ صدور الأمر">تاريخ الأمر</th>
-                <th style="width: 110px;" data-tip="قرار النيابة الكلية بشأن القضية" contenteditable="true">قرار النيابة الكلية</th>
-<th style="width: 80px;" data-tip="أي ملاحظات إضافية" contenteditable="true">ملاحظات</th>
-                <th style="width: 30px;" class="del-col">تحكم</th>
+                <th style="width: 0.9375rem;" data-tip="رقم تسلسل الصف">م</th>
+                <th id="th-case-num" class="sortable-th" style="width: 2.5rem;" data-tip="اضغط للفرز" onclick="toggleCaseNumSort()">رقم المحضر</th>
+                <th style="width: 5rem;" data-tip="اسم المتهم كاملاً">اسم المتهم</th>
+                <th style="width: 6.25rem;" data-tip="وصف تهمة المتهم">وصف الاتهام</th>
+                <th style="width: 5.3125rem;" data-tip="الرقم القومي (14 رقم)">الرقم القومي</th>
+                <th style="width: 3.75rem;" data-tip="حروف وأرقام لوحة المركبة">رقم المركبة</th>
+                <th style="width: 4.0625rem;" data-tip="المبلغ المحكوم به + المصاريف">الامر الجنائي</th>
+                <th style="width: 4.375rem;" data-tip="مواد القانون المطبقة">مواد الاتهام</th>
+                <th style="width: 4.0625rem;" data-tip="تاريخ صدور الأمر">تاريخ الأمر</th>
+                <th style="width: 6.875rem;" data-tip="قرار النيابة الكلية بشأن القضية" contenteditable="true">قرار النيابة الكلية</th>
+<th style="width: 5rem;" data-tip="أي ملاحظات إضافية" contenteditable="true">ملاحظات</th>
+                <th style="width: 1.875rem;" class="del-col">تحكم</th>
             </tr>
         </thead>
         <tbody></tbody>
@@ -1706,7 +1749,13 @@ thead th[data-tip]:hover::before {
     </div>
 
     <div class="action-btns hasr-bottom-row">
+        <div class="hasr-bottom-pair">
         <button class="remove-last-btn" onclick="removeRow()">- حذف آخر صف ( - )</button>
+        <span class="cols-menu-host no-print">
+            <button type="button" id="colsMenuBtn" class="cols-menu-btn no-print" onclick="toggleColumnsMenu(event)" aria-haspopup="true" aria-expanded="false" title="إخفاء أو إظهار أعمدة الجدول (للكشوف التي تحتاج أعمدة أقل)">▦ الأعمدة</button>
+        </span>
+        </div>
+        <div id="colsMenuPanel" class="cols-menu-panel no-print" hidden></div>
         <div class="hasr-signers-bar no-print">
             <span class="hasr-signers-legend">✍️ التوقيعات</span>
             <div class="hasr-signers-panel" id="hasrSignersPanel"></div>
@@ -1717,18 +1766,18 @@ thead th[data-tip]:hover::before {
         تحريراً في: <input type="text" id="writtenAtDate">
     </div>
 
-    <div class="bottom-actions-host" style="display: flex; align-items: center; justify-content: center; margin-top: 6px;">
-        <span class="no-print dev-credit-fhs" style="position: absolute; left: 0; font-size: 12px; color: #888; font-style: italic; user-select: none;">Developed by Ibrahem Ahmed | v1.4.1</span>
+    <div class="bottom-actions-host" style="display: flex; align-items: center; justify-content: center; margin-top: 0.375rem;">
+        <span class="no-print dev-credit-fhs" style="position: absolute; left: 0; font-size: 0.75rem; color: #888; font-style: italic; user-select: none;">Developed by Ibrahem Ahmed | v1.4.1</span>
         
         <!-- 1. أزرار الفحص الأصلية (مغلفة بـ div للتحكم بها) -->
-        <div id="inspectionBottomActions" style="display: flex; gap: 8px; align-items: center;">
+        <div id="inspectionBottomActions" style="display: flex; gap: 0.5rem; align-items: center;">
             <button class="print-btn-main bottom-action-btn" id="fahs-print" style="margin:0;" onclick="printPage()">طباعة الكشف(CTRL+P)</button>
-            <button class="no-print bottom-action-btn" id="fahs-restore" onclick="openRestoreModal()" title="استرجع كشف (CTRL+R)" style="background:linear-gradient(135deg,#6f42c1,#563d7c);color:#fff;border:none;border-radius:8px;padding:5px 12px;font-size:13px;font-weight:bold;cursor:pointer;font-family:inherit;"> استرجع كشف (ctrl+R)</button>
-            <button class="no-print bottom-action-btn" id="fahs-clear-all" onclick="confirmClearAllDataByMouse()" title="مسح البيانات (F9)" style="background:linear-gradient(135deg,#dc3545,#c82333);color:#fff;border:none;border-radius:8px;padding:5px 12px;font-size:13px;font-weight:bold;cursor:pointer;font-family:inherit;"> مسح البيانات (F9)</button>
+            <button class="no-print bottom-action-btn" id="fahs-restore" onclick="openRestoreModal()" title="استرجع كشف (CTRL+R)" style="background:linear-gradient(135deg,#6f42c1,#563d7c);color:#fff;border:none;border-radius:0.5rem;padding:0.3125rem 0.75rem;font-size:0.8125rem;font-weight:bold;cursor:pointer;font-family:inherit;"> استرجع كشف (ctrl+R)</button>
+            <button class="no-print bottom-action-btn" id="fahs-clear-all" onclick="confirmClearAllDataByMouse()" title="مسح البيانات (F9)" style="background:linear-gradient(135deg,#dc3545,#c82333);color:#fff;border:none;border-radius:0.5rem;padding:0.3125rem 0.75rem;font-size:0.8125rem;font-weight:bold;cursor:pointer;font-family:inherit;"> مسح البيانات (F9)</button>
         </div>
 
         <!-- 2. أزرار الحصر (تظهر في وضع الحصر فقط) -->
-        <div id="inventoryBottomActions" class="no-print" style="display: none; flex-direction: column; gap: 8px; align-items: center;">
+        <div id="inventoryBottomActions" class="no-print" style="display: none; flex-direction: column; gap: 0.5rem; align-items: center;">
             <div class="hasr-actions-grid">
                 <div class="hasr-cover-col">
                     <label class="inventory-cover-toggle" title="إضافة صفحة كوفر قبل كشف الحصر">
@@ -1747,7 +1796,7 @@ thead th[data-tip]:hover::before {
         </div>
     </div>
 
-<button class="no-print" onclick="openShortcutsModal()" title="اختصارات لوحة المفاتيح" style="position:fixed;bottom:20px;left:20px;width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#17a2b8,#117a8b);color:#fff;border:none;font-size:18px;font-weight:bold;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.25);z-index:9998;display:flex;align-items:center;justify-content:center;">؟</button>
+<button class="no-print" onclick="openShortcutsModal()" title="اختصارات لوحة المفاتيح" style="position:fixed;bottom:1.25rem;left:1.25rem;width:2.375rem;height:2.375rem;border-radius:50%;background:linear-gradient(135deg,#17a2b8,#117a8b);color:#fff;border:none;font-size:1.125rem;font-weight:bold;cursor:pointer;box-shadow:0 0.25rem 0.75rem rgba(0,0,0,0.25);z-index:9998;display:flex;align-items:center;justify-content:center;">؟</button>
 
 <script>
     function initializePage() {
@@ -1884,9 +1933,9 @@ thead th[data-tip]:hover::before {
                 </div>
             </td>
             <td class="ce-cell"><span contenteditable="true" data-ph="اسم المتهم"></span></td>
-            <td class="auto-list" style="min-height: 80px;"><ol contenteditable="true"><li></li></ol></td>
+            <td class="auto-list" style="min-height: 5rem;"><ol contenteditable="true"><li></li></ol></td>
             <td class="ce-cell"><span contenteditable="true" data-ph="00000000000000"></span></td>
-            <td style="padding:2px;">
+            <td style="padding:0.125rem;">
                 <select class="plate-type-select" onchange="togglePlateMode(this)"><option value="both">حروف وأرقام</option><option value="numOnly">بدون لوحات</option></select>
                 <div class="plate-area"><div class="plate-grid"><div class="plate-letters"><div contenteditable="true" data-ph="" oninput="autoTab(this, 1)"></div><div contenteditable="true" data-ph="" oninput="autoTab(this, 2)"></div><div contenteditable="true" data-ph="" oninput="autoTab(this, 3)"></div></div><div class="plate-numbers" contenteditable="true" data-ph=""></div></div></div>
             </td>
@@ -2010,7 +2059,7 @@ thead th[data-tip]:hover::before {
         if (!toast) {
             toast = document.createElement('div');
             toast.id = 'copy-toast';
-            toast.style.cssText = 'position:fixed;bottom:28px;left:50%;transform:translateX(-50%);box-sizing:border-box;width:max-content;max-width:min(92vw,560px);background:#1e3a5f;color:#fff;padding:10px 18px;border:1px solid rgba(255,255,255,.22);border-radius:10px;font-family:inherit;font-size:12.5px;font-weight:700;line-height:1.65;text-align:center;direction:rtl;z-index:100050;box-shadow:0 8px 24px rgba(15,23,42,.24);transition:opacity .25s ease;pointer-events:none;';
+            toast.style.cssText = 'position:fixed;bottom:1.75rem;left:50%;transform:translateX(-50%);box-sizing:border-box;width:max-content;max-width:min(92vw,35rem);background:#1e3a5f;color:#fff;padding:0.625rem 1.125rem;border:0.0625rem solid rgba(255,255,255,.22);border-radius:0.625rem;font-family:inherit;font-size:0.7812rem;font-weight:700;line-height:1.65;text-align:center;direction:rtl;z-index:100050;box-shadow:0 0.5rem 1.5rem rgba(15,23,42,.24);transition:opacity .25s ease;pointer-events:none;';
             document.body.appendChild(toast);
         }
         toast.innerText = message;
@@ -2023,7 +2072,7 @@ thead th[data-tip]:hover::before {
         if (!toast) {
             toast = document.createElement('div');
             toast.id = '_fhs_insert_success_toast';
-            toast.style.cssText = 'position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(60px);box-sizing:border-box;width:max-content;max-width:min(92vw,620px);background:#1f6b45;color:#fff;padding:10px 18px;border:1px solid rgba(255,255,255,.24);border-radius:10px;font-family:inherit;font-size:12.5px;font-weight:800;line-height:1.6;text-align:center;direction:rtl;box-shadow:0 8px 24px rgba(15,23,42,.24);z-index:99999;opacity:0;transition:opacity .25s ease,transform .25s ease;pointer-events:none;';
+            toast.style.cssText = 'position:fixed;bottom:1.75rem;left:50%;transform:translateX(-50%) translateY(3.75rem);box-sizing:border-box;width:max-content;max-width:min(92vw,38.75rem);background:#1f6b45;color:#fff;padding:0.625rem 1.125rem;border:0.0625rem solid rgba(255,255,255,.24);border-radius:0.625rem;font-family:inherit;font-size:0.7812rem;font-weight:800;line-height:1.6;text-align:center;direction:rtl;box-shadow:0 0.5rem 1.5rem rgba(15,23,42,.24);z-index:99999;opacity:0;transition:opacity .25s ease,transform .25s ease;pointer-events:none;';
             document.body.appendChild(toast);
         }
         toast.textContent = '✔ تم إدراج ' + count + ' محاضر بنجاح';
@@ -2176,28 +2225,28 @@ thead th[data-tip]:hover::before {
                     editableEl.querySelectorAll('li').forEach(function(item) {
                         item.style.fontSize = '';
                         item.style.whiteSpace = '';
-                        delete item.dataset.autoBaseFontSize;
+                        delete item.dataset.autoBaseFontSize; delete item.dataset.autoBaseRem;
                         delete item.dataset.autoFitted;
                         delete item.dataset.manualFontSize;
                     });
                     // بعد استخدام Ctrl+ج تصبح القائمة في وضع تحكم يدوي كامل.
                     // لا نعيد تشغيل التصغير التلقائي حتى يستطيع المستخدم تجاوز سطرين إذا أراد.
                     editableEl.dataset.manualFontSize = 'true';
-                    editableEl.style.fontSize = newSize + 'px';
+                    editableEl.style.fontSize = (newSize / (parseFloat(getComputedStyle(document.documentElement).fontSize) || 16)) + 'rem';
                     editableEl.style.whiteSpace = 'normal';
                 } else {
                     const currentItem = editableEl.closest ? editableEl.closest('.auto-list ol li') : null;
                     if (currentItem) {
                         currentItem.dataset.manualFontSize = 'true';
-                        delete currentItem.dataset.autoBaseFontSize;
+                        delete currentItem.dataset.autoBaseFontSize; delete currentItem.dataset.autoBaseRem;
                         delete currentItem.dataset.autoFitted;
                         currentItem.style.whiteSpace = '';
-                        currentItem.style.fontSize = newSize + 'px';
+                        currentItem.style.fontSize = (newSize / (parseFloat(getComputedStyle(document.documentElement).fontSize) || 16)) + 'rem';
                         if (typeof sortViolationItemsBySize === 'function') {
                             sortViolationItemsBySize(currentItem.closest('ol'));
                         }
                     } else {
-                        editableEl.style.fontSize = newSize + 'px';
+                        editableEl.style.fontSize = (newSize / (parseFloat(getComputedStyle(document.documentElement).fontSize) || 16)) + 'rem';
                     }
                 }
                 showSizeHint(editableEl, newSize);
@@ -2238,7 +2287,7 @@ thead th[data-tip]:hover::before {
         if (!hint) {
             hint = document.createElement('div');
             hint.id = '_fontSizeHint';
-            hint.style.cssText = 'position:fixed;bottom:18px;left:50%;transform:translateX(-50%);' +
+            hint.style.cssText = 'position:fixed;bottom:1.125rem;left:50%;transform:translateX(-50%);' +
                 'background:#2c3e50;color:#fff;padding:5px 14px;border-radius:20px;' +
                 'font-size:13px;z-index:9999;pointer-events:none;opacity:0;transition:opacity 0.2s;';
             document.body.appendChild(hint);
@@ -2265,19 +2314,21 @@ thead th[data-tip]:hover::before {
         var list = item.closest('ol');
         if (!list || list.dataset.manualFontSize === 'true') return;
         var inheritedSize = parseFloat(window.getComputedStyle(list).fontSize) || 14;
-        var baseSize = parseFloat(item.dataset.autoBaseFontSize) || inheritedSize;
-        item.dataset.autoBaseFontSize = String(baseSize);
+        // الأحجام تُخزَّن بوحدة rem حتى تبقى النسبة صحيحة في الشاشة والطباعة (جذر الشاشة غير جذر الطباعة)
+        var rootPx = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+        var baseSize = (parseFloat(item.dataset.autoBaseRem) * rootPx) || inheritedSize;
+        item.dataset.autoBaseRem = String(baseSize / rootPx);
 
         // نعيد القياس من الحجم الأساسي حتى يكبر البند مرة أخرى إذا قصر النص.
         // نستخدم nowrap أثناء القياس حتى نعرف هل يمكن احتواء البند في سطر واحد.
-        item.style.fontSize = baseSize + 'px';
+        item.style.fontSize = (baseSize / rootPx) + 'rem';
         item.style.whiteSpace = 'nowrap';
         var size = baseSize;
-        var minSize = 5.5;
+        var minSize = 5.5 * rootPx / 16;
         var guard = 30;
         while (item.scrollWidth > item.clientWidth + 2 && size > minSize && guard-- > 0) {
-            size = Math.max(minSize, size - 0.5);
-            item.style.fontSize = size + 'px';
+            size = Math.max(minSize, size - 0.5 * rootPx / 16);
+            item.style.fontSize = (size / rootPx) + 'rem';
         }
 
         var fitsOneLine = item.scrollWidth <= item.clientWidth + 2;
@@ -2482,7 +2533,7 @@ thead th[data-tip]:hover::before {
     function togglePlateMode(select) {
         const area = select.nextElementSibling;
         if (select.value === "numOnly") {
-            area.innerHTML = '<div contenteditable="true" style="min-height:45px; display:flex; align-items:center; justify-content:center; outline:none; border: 1px solid #999;">بدون لوحات</div>';
+            area.innerHTML = '<div contenteditable="true" style="min-height:2.8125rem; display:flex; align-items:center; justify-content:center; outline:none; border: 0.0625rem solid #999;">بدون لوحات</div>';
         } else {
             area.innerHTML = `<div class="plate-grid"><div class="plate-letters"><div contenteditable="true" oninput="autoTab(this, 1)"></div><div contenteditable="true" oninput="autoTab(this, 2)"></div><div contenteditable="true" oninput="autoTab(this, 3)"></div></div><div class="plate-numbers" contenteditable="true"></div></div>`;
         }
@@ -2616,23 +2667,23 @@ thead th[data-tip]:hover::before {
         overlay.style.cssText = 'position:fixed;inset:0;z-index:' + zIndex + ';display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(15,23,42,.56);direction:rtl;font-family:inherit;opacity:0;visibility:hidden;transition:opacity .22s ease,visibility .22s ease;';
 
         var modal = document.createElement('div');
-        modal.style.cssText = 'width:max-content;min-width:min(290px,calc(100vw - 36px));max-width:min(92vw,520px);box-sizing:border-box;background:#fff;color:#1f2937;border:1px solid #dbe4ef;border-radius:14px;padding:18px 20px 16px;box-shadow:0 20px 60px rgba(15,23,42,.28);text-align:right;direction:rtl;font-family:inherit;transform:translateY(-12px) scale(.97);transition:transform .22s ease;';
+        modal.style.cssText = 'width:max-content;min-width:min(18.125rem,calc(100vw - 2.25rem));max-width:min(92vw,32.5rem);box-sizing:border-box;background:#fff;color:#1f2937;border:0.0625rem solid #dbe4ef;border-radius:0.875rem;padding:1.125rem 1.25rem 1rem;box-shadow:0 1.25rem 3.75rem rgba(15,23,42,.28);text-align:right;direction:rtl;font-family:inherit;transform:translateY(-0.75rem) scale(.97);transition:transform .22s ease;';
 
         var header = document.createElement('div');
-        header.style.cssText = 'display:flex;align-items:center;justify-content:flex-start;gap:11px;margin:0 0 13px;padding-bottom:11px;border-bottom:1px solid #e8eef5;direction:rtl;';
+        header.style.cssText = 'display:flex;align-items:center;justify-content:flex-start;gap:0.6875rem;margin:0 0 0.8125rem;padding-bottom:0.6875rem;border-bottom:0.0625rem solid #e8eef5;direction:rtl;';
         var icon = document.createElement('div');
         icon.setAttribute('data-dialog-icon', kind);
         icon.textContent = k.glyph;
-        icon.style.cssText = 'width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:10px;background:' + k.bg + ';color:' + k.fg + ';border:1px solid ' + k.bd + ';font-size:18px;font-weight:800;line-height:1;flex:0 0 auto;';
+        icon.style.cssText = 'width:2.25rem;height:2.25rem;display:flex;align-items:center;justify-content:center;border-radius:0.625rem;background:' + k.bg + ';color:' + k.fg + ';border:1px solid ' + k.bd + ';font-size:18px;font-weight:800;line-height:1;flex:0 0 auto;';
         var title = document.createElement('h3');
         title.textContent = titleText;
-        title.style.cssText = 'margin:0;color:#173b68;font-size:17px;font-weight:800;line-height:1.45;text-align:right;';
+        title.style.cssText = 'margin:0;color:#173b68;font-size:1.0625rem;font-weight:800;line-height:1.45;text-align:right;';
         header.appendChild(icon);   // الأيقونة أولاً = على اليمين في الاتجاه RTL
         header.appendChild(title);
 
         var messageEl = document.createElement('div');
         messageEl.textContent = message;
-        messageEl.style.cssText = 'color:#374151;font-size:14px;font-weight:500;line-height:1.8;text-align:center;white-space:pre-line;word-wrap:break-word;max-width:100%;';
+        messageEl.style.cssText = 'color:#374151;font-size:0.875rem;font-weight:500;line-height:1.8;text-align:center;white-space:pre-line;word-wrap:break-word;max-width:100%;';
 
         modal.appendChild(header);
         modal.appendChild(messageEl);
@@ -2721,11 +2772,11 @@ thead th[data-tip]:hover::before {
         var overlay = parts.overlay, modal = parts.modal;
 
         var actions = document.createElement('div');
-        actions.style.cssText = 'display:flex;gap:10px;justify-content:flex-start;align-items:center;flex-wrap:wrap;margin-top:17px;padding-top:13px;border-top:1px solid #e8eef5;direction:rtl;';
+        actions.style.cssText = 'display:flex;gap:0.625rem;justify-content:flex-start;align-items:center;flex-wrap:wrap;margin-top:1.0625rem;padding-top:0.8125rem;border-top:0.0625rem solid #e8eef5;direction:rtl;';
         var button = document.createElement('button');
         button.type = 'button';
         button.textContent = 'حسنًا';
-        button.style.cssText = 'min-width:104px;padding:8px 20px;border:0;border-radius:8px;background:#1a3a6b;color:#fff;font-family:inherit;font-size:13px;font-weight:800;cursor:pointer;box-shadow:0 3px 8px rgba(26,58,107,.22);';
+        button.style.cssText = 'min-width:6.5rem;padding:0.5rem 1.25rem;border:0;border-radius:0.5rem;background:#1a3a6b;color:#fff;font-family:inherit;font-size:0.8125rem;font-weight:800;cursor:pointer;box-shadow:0 0.1875rem 0.5rem rgba(26,58,107,.22);';
         button.addEventListener('click', closeInspectionInfoAlert);
         actions.appendChild(button);
         modal.appendChild(actions);
@@ -2780,33 +2831,19 @@ thead th[data-tip]:hover::before {
         var tbody = document.querySelector('#mainTable tbody');
         if (!tbody) return false;
         return Array.from(tbody.rows).some(function (row) {
-            if (row.classList.contains('inventory-empty-row')) return false;
-            var values = [];
-            var caseNum = row.querySelector('.case-num-top');
-            var name = row.cells[2] && row.cells[2].querySelector('[contenteditable]');
-            var nationalId = row.cells[4] && row.cells[4].querySelector('[contenteditable]');
-            var plate = row.cells[5] && row.cells[5].querySelectorAll('[contenteditable]');
-            var violations = row.cells[3] && row.cells[3].querySelectorAll('.auto-list ol > li');
-            var amount = row.cells[6] && row.cells[6].querySelector('.amount-span');
-            var materials = row.cells[7] && row.cells[7].querySelector('[contenteditable]');
-            var decision = row.cells[9] && row.cells[9].querySelector('[contenteditable]');
-            var notes = row.cells[10] && row.cells[10].querySelector('[contenteditable]');
-
-            [caseNum, name, nationalId, amount, decision, notes].forEach(function (el) {
-                if (el) values.push(el.innerText || el.textContent || '');
+            if (row.classList.contains('inventory-empty-row') || row.classList.contains('inspection-negative-row')) return false;
+            // نعتمد على الحقول التي يحررها المستخدم فقط؛ رقم السنة والتاريخ/مواد الاتهام الافتراضية
+            // لا تجعل الصف الفارغ يبدو كأنه يحتوي على بيانات.
+            var fields = Array.from(row.querySelectorAll('[contenteditable="true"]')).filter(function (el) {
+                return !el.classList.contains('case-num-year') && !el.closest('.row-actions');
             });
-            if (plate) Array.from(plate).forEach(function (el) {
-                values.push(el.innerText || el.textContent || '');
+            return fields.some(function (el) {
+                var value = String(el.innerText || el.textContent || '').trim();
+                var cell = el.closest('td');
+                var dateInput = document.getElementById('dateInput');
+                if (cell && cell.cellIndex === 8 && dateInput && value === String(dateInput.value || '').trim()) return false;
+                return value !== '' && value !== '74 مكرر بند 1،2،3';
             });
-            if (violations) Array.from(violations).forEach(function (el) {
-                values.push(el.innerText || el.textContent || '');
-            });
-            // الخلية الثامنة تبدأ افتراضيًا بنص ثابت، فلا نعدّه بيانات إلا إذا تغيّر.
-            if (materials) {
-                var materialText = (materials.innerText || materials.textContent || '').trim();
-                if (materialText && materialText !== '74 مكرر بند 1،2،3') values.push(materialText);
-            }
-            return values.some(function (value) { return String(value || '').trim() !== ''; });
         });
     }
 
@@ -2820,7 +2857,10 @@ thead th[data-tip]:hover::before {
         var row = tbody.insertRow(0);
         row.className = 'inspection-negative-row';
         row.dataset.inspectionNegativeRow = '1';
-        row.innerHTML = '<td colspan="11">لا يوجد محاضر</td>';
+        var totalColumns = document.querySelectorAll('#mainTable thead tr th').length;
+        var hiddenColumns = window.getHiddenColumns ? window.getHiddenColumns('inspection') : [];
+        var visibleColumns = Math.max(1, totalColumns - hiddenColumns.length);
+        row.innerHTML = '<td colspan="' + visibleColumns + '">لا يوجد محاضر</td>';
         return row;
     }
 
@@ -2834,9 +2874,15 @@ thead th[data-tip]:hover::before {
         var date = document.getElementById("dateInput").value;
         var deptSelect = document.getElementById("dept");
         var deptText = (deptSelect.value === "other") ? document.getElementById("otherDept").value : deptSelect.value;
+        var customTable = window.getHiddenColumns && window.getHiddenColumns('inspection').length > 0;
         
-        // 1. فحص الهيدر (التاريخ والقسم)
-        if(!date || !deptText) { showMissingPrintDataAlert(); return; }
+        // الكشف الخاص (وجود أعمدة مخفية) لا يتطلب اختيار قسم شرطة.
+        if (!date || (!customTable && !deptText)) {
+            if (customTable && !date) {
+                showInspectionInfoAlert('أدخل التاريخ قبل الطباعة.', 'بيانات ناقصة', 'warn', function () { focusAndMarkMissingFields([document.getElementById('dateInput')]); });
+            } else showMissingPrintDataAlert();
+            return;
+        }
 
         // 2. الكشف السلبي: يسمح بالطباعة عند وجود صف فارغ، ويحوّله مؤقتًا إلى صف واحد مدمج.
         var negativeRow = null;
@@ -2849,7 +2895,7 @@ thead th[data-tip]:hover::before {
         var problems = [];
         var missingElements = [];
         
-        if (!negativePrint) Array.from(tbody.rows).forEach(function(row, index) {
+        if (!negativePrint && !customTable) Array.from(tbody.rows).forEach(function(row, index) {
             // نتجاهل الصفوف الفارغة تماماً التي يتركها المستخدم كاحتياطي
             var hasAnyData = Array.from(row.querySelectorAll('[contenteditable], ol')).some(function(el) { return (el.innerText || '').trim() !== ''; });
             if (!hasAnyData) return;
@@ -2885,7 +2931,7 @@ thead th[data-tip]:hover::before {
 
         updatePrintValues();
         updateFahsSpecialistForPrint();
-        if (!negativePrint) saveSnapshot(deptText, date);
+        if (!negativePrint && !customTable) saveSnapshot(deptText, date);
         document.body.classList.add('inspection-printing');
         if (negativePrint) document.body.classList.add('inspection-negative-print');
         var cleanupInspectionPrint = function () {
@@ -2958,19 +3004,19 @@ thead th[data-tip]:hover::before {
         overlay.id = 'restoreOverlay';
         overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:9999;display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:opacity .22s ease,visibility .22s ease;';
         var modal = document.createElement('div');
-        modal.style.cssText = 'background:#fff;border-radius:12px;padding:20px;min-width:350px;max-width:550px;max-height:60vh;display:flex;flex-direction:column;box-shadow:0 10px 30px rgba(0,0,0,0.3);direction:rtl;font-family:inherit;transform:translateY(-12px) scale(.97);transition:transform .22s ease;';
-        var html = '<h3 style="margin:0 0 15px;color:#1a237e;text-align:center;font-size:18px;">📂 استرجع كشف محفوظ</h3>';
-        html += '<p style="color:#666;font-size:13px;text-align:center;margin-bottom:15px;">اختر الكشف الذي تريد استرجاعه</p>';
-        html += '<div style="overflow-y:auto; flex:1; padding:5px; margin-bottom:10px; border-top:1px solid #eee; border-bottom:1px solid #eee; padding-top:15px;">';
+        modal.style.cssText = 'background:#fff;border-radius:0.75rem;padding:1.25rem;min-width:21.875rem;max-width:34.375rem;max-height:60vh;display:flex;flex-direction:column;box-shadow:0 0.625rem 1.875rem rgba(0,0,0,0.3);direction:rtl;font-family:inherit;transform:translateY(-0.75rem) scale(.97);transition:transform .22s ease;';
+        var html = '<h3 style="margin:0 0 0.9375rem;color:#1a237e;text-align:center;font-size:1.125rem;">📂 استرجع كشف محفوظ</h3>';
+        html += '<p style="color:#666;font-size:0.8125rem;text-align:center;margin-bottom:0.9375rem;">اختر الكشف الذي تريد استرجاعه</p>';
+        html += '<div style="overflow-y:auto; flex:1; padding:0.3125rem; margin-bottom:0.625rem; border-top:0.0625rem solid #eee; border-bottom:0.0625rem solid #eee; padding-top:0.9375rem;">';
         snapshots.forEach(function(snap, idx) {
-            html += '<div onclick="restoreSnapshot(\'' + snap._key + '\')" style="cursor:pointer;border:2px solid #e0e0e0;border-radius:8px;padding:12px 15px;margin-bottom:10px;transition:0.2s;display:flex;justify-content:space-between;align-items:center;" onmouseover="this.style.borderColor=\'#007bff\';this.style.background=\'#f0f7ff\'" onmouseout="this.style.borderColor=\'#e0e0e0\';this.style.background=\'#fff\'">';
-            html += '<div><div style="font-weight:bold;font-size:15px;color:#2c3e50;">🏛️ ' + snap.dept + '</div>';
-            html += '<div style="font-size:12px;color:#888;margin-top:4px;">📅 تاريخ الكشف: ' + snap.date + '</div>';
-            html += '<div style="font-size:11px;color:#aaa;margin-top:2px;">⏱️ حُفظ: ' + snap.savedAt + '</div></div>';
-            html += '<div onclick="event.stopPropagation();deleteSnapshot(\'' + snap._key + '\')" title="حذف" style="color:#dc3545;font-size:20px;padding:4px 8px;border-radius:6px;" onmouseover="this.style.background=\'#ffeaea\'" onmouseout="this.style.background=\'transparent\'">🗑️</div></div>';
+            html += '<div onclick="restoreSnapshot(\'' + snap._key + '\')" style="cursor:pointer;border:0.125rem solid #e0e0e0;border-radius:0.5rem;padding:0.75rem 0.9375rem;margin-bottom:0.625rem;transition:0.2s;display:flex;justify-content:space-between;align-items:center;" onmouseover="this.style.borderColor=\'#007bff\';this.style.background=\'#f0f7ff\'" onmouseout="this.style.borderColor=\'#e0e0e0\';this.style.background=\'#fff\'">';
+            html += '<div><div style="font-weight:bold;font-size:0.9375rem;color:#2c3e50;">🏛️ ' + snap.dept + '</div>';
+            html += '<div style="font-size:0.75rem;color:#888;margin-top:0.25rem;">📅 تاريخ الكشف: ' + snap.date + '</div>';
+            html += '<div style="font-size:0.6875rem;color:#aaa;margin-top:0.125rem;">⏱️ حُفظ: ' + snap.savedAt + '</div></div>';
+            html += '<div onclick="event.stopPropagation();deleteSnapshot(\'' + snap._key + '\')" title="حذف" style="color:#dc3545;font-size:1.25rem;padding:0.25rem 0.5rem;border-radius:0.375rem;" onmouseover="this.style.background=\'#ffeaea\'" onmouseout="this.style.background=\'transparent\'">🗑️</div></div>';
         });
         html += '</div>';
-        html += '<button onclick="closeRestoreOverlay()" style="width:100%;margin-top:10px;padding:10px;background:#6c757d;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer;font-family:inherit;">إلغاء</button>';
+        html += '<button onclick="closeRestoreOverlay()" style="width:100%;margin-top:0.625rem;padding:0.625rem;background:#6c757d;color:#fff;border:none;border-radius:0.5rem;font-size:0.875rem;cursor:pointer;font-family:inherit;">إلغاء</button>';
         modal.innerHTML = html;
         overlay.appendChild(modal);
         document.body.appendChild(overlay);
@@ -3001,19 +3047,19 @@ thead th[data-tip]:hover::before {
         var overlay = parts.overlay, modal = parts.modal;
 
         var actions = document.createElement('div');
-        actions.style.cssText = 'display:flex;gap:10px;justify-content:flex-start;align-items:center;flex-wrap:wrap;margin-top:17px;padding-top:13px;border-top:1px solid #e8eef5;direction:rtl;';
+        actions.style.cssText = 'display:flex;gap:0.625rem;justify-content:flex-start;align-items:center;flex-wrap:wrap;margin-top:1.0625rem;padding-top:0.8125rem;border-top:0.0625rem solid #e8eef5;direction:rtl;';
 
         var confirmButton = document.createElement('button');
         confirmButton.type = 'button';
         confirmButton.textContent = confirmLabel;
-        confirmButton.style.cssText = 'min-width:105px;padding:8px 18px;border:0;border-radius:8px;color:#fff;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;' +
+        confirmButton.style.cssText = 'min-width:6.5625rem;padding:0.5rem 1.125rem;border:0;border-radius:0.5rem;color:#fff;font-family:inherit;font-size:0.875rem;font-weight:700;cursor:pointer;' +
             (isDanger ? 'background:#b42318;box-shadow:0 3px 8px rgba(180,35,24,.22);' : 'background:#1a3a6b;box-shadow:0 3px 8px rgba(26,58,107,.22);');
         confirmButton.addEventListener('click', function() { closeInspectionConfirm(true); });
 
         var cancelButton = document.createElement('button');
         cancelButton.type = 'button';
         cancelButton.textContent = opts.cancelText || 'إلغاء';
-        cancelButton.style.cssText = 'min-width:104px;padding:8px 18px;border-radius:8px;background:#f1f5f9;color:#334155;border:1px solid #cbd5e1;font-family:inherit;font-size:13px;font-weight:800;cursor:pointer;';
+        cancelButton.style.cssText = 'min-width:6.5rem;padding:0.5rem 1.125rem;border-radius:0.5rem;background:#f1f5f9;color:#334155;border:0.0625rem solid #cbd5e1;font-family:inherit;font-size:0.8125rem;font-weight:800;cursor:pointer;';
         cancelButton.addEventListener('click', function() { closeInspectionConfirm(false); });
 
         // ترتيب موحّد في جميع الرسائل: «إلغاء» أولًا على اليمين، ثم تأكيد العملية على اليسار.
@@ -3251,10 +3297,16 @@ window.addEventListener('beforeprint', function(e) {
     var date = document.getElementById("dateInput").value;
     var deptSelect = document.getElementById("dept");
     var deptText = (deptSelect.value === "other") ? document.getElementById("otherDept").value : deptSelect.value;
-    if (!date || !deptText) { showMissingPrintDataAlert(); if (e && e.preventDefault) e.preventDefault(); return; }
+    var customTable = window.getHiddenColumns && window.getHiddenColumns('inspection').length > 0;
+    if (!date || (!customTable && !deptText)) {
+        if (customTable) showInspectionInfoAlert('أدخل التاريخ قبل الطباعة.', 'بيانات ناقصة');
+        else showMissingPrintDataAlert();
+        if (e && e.preventDefault) e.preventDefault();
+        return;
+    }
     updatePrintValues();
     updateFahsSpecialistForPrint();
-    saveSnapshot(deptText, date);
+    if (!customTable) saveSnapshot(deptText, date);
 });
 
 function openShortcutsModal() {
@@ -3273,14 +3325,14 @@ function openShortcutsModal() {
     ];
     var rows = shortcuts.map(function(s) {
         return '<tr>' +
-            '<td style="padding:10px 15px;border-bottom:1px solid #f0f0f0;text-align:right;color:#555;font-size:14px;">' + s.desc + '</td>' +
-            '<td style="padding:10px 15px;border-bottom:1px solid #f0f0f0;text-align:center;">' +
-            '<kbd style="background:#f4f4f4;border:1px solid #ccc;border-radius:5px;padding:3px 10px;font-size:13px;font-family:inherit;color:#333;box-shadow:0 2px 0 #bbb;">' + s.key + '</kbd>' +
+            '<td style="padding:0.625rem 0.9375rem;border-bottom:0.0625rem solid #f0f0f0;text-align:right;color:#555;font-size:0.875rem;">' + s.desc + '</td>' +
+            '<td style="padding:0.625rem 0.9375rem;border-bottom:0.0625rem solid #f0f0f0;text-align:center;">' +
+            '<kbd style="background:#f4f4f4;border:0.0625rem solid #ccc;border-radius:0.3125rem;padding:0.1875rem 0.625rem;font-size:0.8125rem;font-family:inherit;color:#333;box-shadow:0 0.125rem 0 #bbb;">' + s.key + '</kbd>' +
             '</td></tr>';
     }).join('');
     var modal = document.createElement('div');
-    modal.style.cssText = 'background:#fff;border-radius:12px;padding:20px;width:300px;box-shadow:0 10px 30px rgba(0,0,0,0.3);direction:rtl;font-family:inherit;';
-    modal.innerHTML = '<h3 style="margin:0 0 18px;color:#1a237e;text-align:center;font-size:18px;">⌨️ اختصارات لوحة المفاتيح</h3><table style="width:100%;border-collapse:collapse;"><thead><tr><th style="padding:8px 15px;background:#f8f9fa;border-bottom:2px solid #dee2e6;text-align:right;color:#666;font-size:13px;">الوظيفة</th><th style="padding:8px 15px;background:#f8f9fa;border-bottom:2px solid #dee2e6;text-align:center;color:#666;font-size:13px;">المفتاح</th></tr></thead><tbody>' + rows + '</tbody></table><button onclick="document.getElementById(\'shortcutsOverlay\').remove()" style="width:100%;margin-top:18px;padding:10px;background:#6c757d;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer;font-family:inherit;">إغلاق</button>';
+    modal.style.cssText = 'background:#fff;border-radius:0.75rem;padding:1.25rem;width:18.75rem;box-shadow:0 0.625rem 1.875rem rgba(0,0,0,0.3);direction:rtl;font-family:inherit;';
+    modal.innerHTML = '<h3 style="margin:0 0 1.125rem;color:#1a237e;text-align:center;font-size:1.125rem;">⌨️ اختصارات لوحة المفاتيح</h3><table style="width:100%;border-collapse:collapse;"><thead><tr><th style="padding:0.5rem 0.9375rem;background:#f8f9fa;border-bottom:0.125rem solid #dee2e6;text-align:right;color:#666;font-size:0.8125rem;">الوظيفة</th><th style="padding:0.5rem 0.9375rem;background:#f8f9fa;border-bottom:0.125rem solid #dee2e6;text-align:center;color:#666;font-size:0.8125rem;">المفتاح</th></tr></thead><tbody>' + rows + '</tbody></table><button onclick="document.getElementById(\'shortcutsOverlay\').remove()" style="width:100%;margin-top:1.125rem;padding:0.625rem;background:#6c757d;color:#fff;border:none;border-radius:0.5rem;font-size:0.875rem;cursor:pointer;font-family:inherit;">إغلاق</button>';
     overlay.appendChild(modal);
     document.body.appendChild(overlay);
     overlay.addEventListener('click', function(e) { if (e.target === overlay) overlay.remove(); });
@@ -3496,7 +3548,7 @@ async function loadFloatingArchive() {
     container.innerHTML = '';
     
     if (index.length === 0) {
-        container.innerHTML = '<div style="color:#1e2b46; background-color:rgba(255,255,255,0.7); font-size:14px; font-weight:bold; text-align:center; padding:10px 20px; border-radius:8px; display:inline-block; margin-top:10px; border: 1px solid rgba(0,0,0,0.05);">لا توجد محاضر محفوظة</div>';
+        container.innerHTML = '<div style="color:#1e2b46; background-color:rgba(255,255,255,0.7); font-size:0.875rem; font-weight:bold; text-align:center; padding:0.625rem 1.25rem; border-radius:0.5rem; display:inline-block; margin-top:0.625rem; border: 0.0625rem solid rgba(0,0,0,0.05);">لا توجد محاضر محفوظة</div>';
         return;
     }
 
@@ -3530,7 +3582,7 @@ async function loadFloatingArchive() {
     });
 
     if (filteredKeys.length === 0) {
-        container.innerHTML = '<span style="color:#aaa; font-size:11px; text-align:center; padding:10px;">لا توجد محاضر لهذا القسم</span>';
+        container.innerHTML = '<span style="color:#aaa; font-size:0.6875rem; text-align:center; padding:0.625rem;">لا توجد محاضر لهذا القسم</span>';
         return;
     }
 
@@ -3604,7 +3656,7 @@ async function loadFloatingArchive() {
         itemDiv.innerHTML = `
             <input type="checkbox" class="archive-checkbox" value="${key}">
             <div class="archive-record-info">
-                <div class="archive-record-title"><span>📄 ${d.caseNum || ''} / ${d.year || ''}</span><span style="display:flex;align-items:center;gap:5px;">${paidBadgeHtml}${badgeHtml}</span></div>
+                <div class="archive-record-title"><span>📄 ${d.caseNum || ''} / ${d.year || ''}</span><span style="display:flex;align-items:center;gap:0.3125rem;">${paidBadgeHtml}${badgeHtml}</span></div>
                 <div class="archive-record-sub">
                     <span class="rec-name">👤 ${shortName}</span>
                     <span class="rec-date">${dateOnly}</span>
@@ -3804,9 +3856,9 @@ function isSessionDateImportHeader(headerText) {
                                 </div>
                             </td>
                             <td class="ce-cell"><span contenteditable="true" data-ph="اسم المتهم"></span></td>
-                            <td class="auto-list" style="min-height: 80px;"><ol contenteditable="true"><li></li></ol></td>
+                            <td class="auto-list" style="min-height: 5rem;"><ol contenteditable="true"><li></li></ol></td>
                             <td class="ce-cell"><span contenteditable="true" data-ph="00000000000000"></span></td>
-                            <td style="padding:2px;">
+                            <td style="padding:0.125rem;">
                                 <select class="plate-type-select" onchange="togglePlateMode(this)"><option value="both">حروف وأرقام</option><option value="numOnly">بدون لوحات</option></select>
                                 <div class="plate-area"><div class="plate-grid"><div class="plate-letters"><div contenteditable="true" data-ph="أ" oninput="autoTab(this, 1)"></div><div contenteditable="true" data-ph="ب" oninput="autoTab(this, 2)"></div><div contenteditable="true" data-ph="ج" oninput="autoTab(this, 3)"></div></div><div class="plate-numbers" contenteditable="true" data-ph="0000"></div></div></div>
                             </td>
@@ -3847,7 +3899,7 @@ function isSessionDateImportHeader(headerText) {
                         if (plateTypeSel) {
                             if (data.plateType === 'no-plate') {
                                 plateTypeSel.value = 'numOnly';
-                                plateArea.innerHTML = '<div contenteditable="true" style="min-height:45px; display:flex; align-items:center; justify-content:center; outline:none; border: 1px solid #999;">' + (data.noPlateTxt || 'بدون لوحات') + '</div>';
+                                plateArea.innerHTML = '<div contenteditable="true" style="min-height:2.8125rem; display:flex; align-items:center; justify-content:center; outline:none; border: 0.0625rem solid #999;">' + (data.noPlateTxt || 'بدون لوحات') + '</div>';
                             } else {
                                 plateTypeSel.value = 'both';
                                 plateArea.innerHTML = `<div class="plate-grid"><div class="plate-letters"><div contenteditable="true" data-ph="أ" oninput="autoTab(this, 1)">${data.c1||''}</div><div contenteditable="true" data-ph="ب" oninput="autoTab(this, 2)">${data.c2||''}</div><div contenteditable="true" data-ph="ج" oninput="autoTab(this, 3)">${data.c3||''}</div></div><div class="plate-numbers" contenteditable="true" data-ph="0000">${data.n1||''}</div></div>`;
@@ -3964,7 +4016,7 @@ function showF9Toast() {
     if (!toast) {
         toast = document.createElement('div');
         toast.id = 'f9-toast';
-        toast.style.cssText = 'position:fixed;bottom:28px;left:50%;transform:translateX(-50%);box-sizing:border-box;width:max-content;max-width:min(92vw,620px);background:#1a3a6b;color:#fff;padding:10px 18px;border:1px solid rgba(255,255,255,.22);border-radius:10px;font-family:inherit;font-size:12.5px;font-weight:800;line-height:1.6;text-align:center;direction:rtl;box-shadow:0 8px 24px rgba(15,23,42,.24);z-index:99999;opacity:0;transition:opacity .25s ease;pointer-events:none;';
+        toast.style.cssText = 'position:fixed;bottom:1.75rem;left:50%;transform:translateX(-50%);box-sizing:border-box;width:max-content;max-width:min(92vw,38.75rem);background:#1a3a6b;color:#fff;padding:0.625rem 1.125rem;border:0.0625rem solid rgba(255,255,255,.22);border-radius:0.625rem;font-family:inherit;font-size:0.7812rem;font-weight:800;line-height:1.6;text-align:center;direction:rtl;box-shadow:0 0.5rem 1.5rem rgba(15,23,42,.24);z-index:99999;opacity:0;transition:opacity .25s ease;pointer-events:none;';
         document.body.appendChild(toast);
     }
     toast.textContent = '✓ تم مسح جميع البيانات (F9)';
@@ -4109,7 +4161,7 @@ function showLookupSuccessToast(caseNum, name) {
     if (!toast) {
         toast = document.createElement('div');
         toast.id = '_fhs_lookup_toast';
-        toast.style.cssText = 'position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(60px);box-sizing:border-box;width:max-content;max-width:min(92vw,620px);background:#1f6b45;color:#fff;padding:10px 18px;border:1px solid rgba(255,255,255,.24);border-radius:10px;font-family:inherit;font-size:12.5px;font-weight:800;line-height:1.6;text-align:center;direction:rtl;box-shadow:0 8px 24px rgba(15,23,42,.24);z-index:99999;opacity:0;transition:opacity .25s ease,transform .25s ease;pointer-events:none;';
+        toast.style.cssText = 'position:fixed;bottom:1.75rem;left:50%;transform:translateX(-50%) translateY(3.75rem);box-sizing:border-box;width:max-content;max-width:min(92vw,38.75rem);background:#1f6b45;color:#fff;padding:0.625rem 1.125rem;border:0.0625rem solid rgba(255,255,255,.24);border-radius:0.625rem;font-family:inherit;font-size:0.7812rem;font-weight:800;line-height:1.6;text-align:center;direction:rtl;box-shadow:0 0.5rem 1.5rem rgba(15,23,42,.24);z-index:99999;opacity:0;transition:opacity .25s ease,transform .25s ease;pointer-events:none;';
         document.body.appendChild(toast);
     }
     toast.textContent = '✔ تم استرجاع بيانات المحضر ' + caseNum + (name ? ' — ' + name : '');
@@ -4239,25 +4291,25 @@ body.inventory-mode-active #inventoryMonthGroup { display: flex !important; }
 
 .inventory-import-btn {
     display: none;
-    border: 1px solid #2d6a9f;
-    border-radius: 7px;
+    border: 0.0625rem solid #2d6a9f;
+    border-radius: 0.4375rem;
     background: linear-gradient(135deg, #2d6a9f, #1a3a6b);
     color: #fff;
-    padding: 5px 13px;
+    padding: 0.3125rem 0.8125rem;
     font-family: inherit;
-    font-size: 12px;
+    font-size: 0.75rem;
     font-weight: 800;
     cursor: pointer;
     white-space: nowrap;
-    box-shadow: 0 2px 6px rgba(26,58,107,.18);
+    box-shadow: 0 0.125rem 0.375rem rgba(26,58,107,.18);
     transition: transform .16s ease, filter .16s ease, box-shadow .16s ease;
 }
 body.inventory-mode-active .inventory-import-btn { display: inline-flex; align-items: center; justify-content: center; }
-.inventory-import-btn:hover { filter: brightness(1.08); transform: translateY(-1px); box-shadow: 0 4px 10px rgba(26,58,107,.24); }
+.inventory-import-btn:hover { filter: brightness(1.08); transform: translateY(-0.0625rem); box-shadow: 0 0.25rem 0.625rem rgba(26,58,107,.24); }
 .inventory-import-btn:active { transform: translateY(0); }
 .inventory-import-btn:disabled { opacity: .6; cursor: wait; transform: none; }
 @media screen and (max-width: 900px) {
-    body.inventory-mode-active .inventory-import-btn { margin-top: 2px; }
+    body.inventory-mode-active .inventory-import-btn { margin-top: 0.125rem; }
 }
 
 
@@ -4281,7 +4333,7 @@ body.mode-transitioning .inventory-controls { animation: none !important; }
    لذلك تم تبسيط شكله ليصبح عنصراً مدمجاً بدلاً من بطاقة مستقلة، فلا يضيف ارتفاعاً زائداً */
 .inventory-controls {
     flex: 1 1 auto;
-    min-width: 240px;
+    min-width: 15rem;
     margin: 0;
     padding: 0;
     background: transparent;
@@ -4294,23 +4346,23 @@ body.mode-transitioning .inventory-controls { animation: none !important; }
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 7px;
+    gap: 0.4375rem;
     flex-wrap: wrap;
 }
 
 .inventory-toolbar-row {
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
+    gap: 0.625rem;
     align-items: center;
 }
 
 .inventory-filter-row {
-    gap: 10px;
+    gap: 0.625rem;
     background: var(--bg-light, #f8fafc);
-    padding: 6px 10px;
-    border-radius: 8px;
-    border: 1px solid var(--border-color, #cbd5e1);
+    padding: 0.375rem 0.625rem;
+    border-radius: 0.5rem;
+    border: 0.0625rem solid var(--border-color, #cbd5e1);
     justify-content: center;
     width: 100%;
 }
@@ -4322,8 +4374,8 @@ body.mode-transitioning .inventory-controls { animation: none !important; }
     body.inventory-mode-active .action-btns:not(.hasr-bottom-row) {
         flex-wrap: nowrap;
         align-items: center;
-        gap: 8px;
-        min-height: 41px;
+        gap: 0.5rem;
+        min-height: 2.5625rem;
     }
 
     body.inventory-mode-active .action-btns:not(.hasr-bottom-row) > .add-btn {
@@ -4352,12 +4404,12 @@ body.mode-transitioning .inventory-controls { animation: none !important; }
     }
     body.inventory-mode-active .inventory-filter-row {
         width: max-content;
-        max-width: calc(100% - 150px);
+        max-width: calc(100% - 9.375rem);
         min-width: 0;
         flex-wrap: nowrap;
         justify-content: center;
         white-space: nowrap;
-        padding: 5px 8px;
+        padding: 0.3125rem 0.5rem;
         pointer-events: auto;
     }
     body.inventory-mode-active .action-btns:not(.hasr-bottom-row) > .add-btn {
@@ -4398,17 +4450,17 @@ body.mode-transitioning .inventory-controls { animation: none !important; }
 
 /* ===== قفل الكشف (شخص واحد يعدّل في كل وقت، والباقي للقراءة فقط) ===== */
 .hasr-lock-banner {
-    display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap;
-    font-size: 12.5px; font-weight: 700; color: #92400e;
-    background: #fff4e0; border: 1px solid #f5d29a; border-radius: 8px;
-    padding: 5px 10px; margin-bottom: 5px; text-align: center;
+    display: flex; align-items: center; justify-content: center; gap: 0.625rem; flex-wrap: wrap;
+    font-size: 0.7812rem; font-weight: 700; color: #92400e;
+    background: #fff4e0; border: 0.0625rem solid #f5d29a; border-radius: 0.5rem;
+    padding: 0.3125rem 0.625rem; margin-bottom: 0.3125rem; text-align: center;
 }
 .hasr-lock-banner[hidden] { display: none; }
 .hasr-lock-banner.free { color: #1b7a3d; background: #e6f6ec; border-color: #b7e4c7; }
 .hasr-lock-banner button {
-    font: inherit; font-size: 12px; font-weight: 700; cursor: pointer;
-    border: 1px solid currentColor; background: transparent; color: inherit;
-    border-radius: 6px; padding: 2px 10px;
+    font: inherit; font-size: 0.75rem; font-weight: 700; cursor: pointer;
+    border: 0.0625rem solid currentColor; background: transparent; color: inherit;
+    border-radius: 0.375rem; padding: 0.125rem 0.625rem;
 }
 [data-theme="dark"] .hasr-lock-banner { color: #fcd34d; background: #3b2a0d; border-color: #6b4d12; }
 [data-theme="dark"] .hasr-lock-banner.free { color: #86efac; background: #123524; border-color: #1f5c3a; }
@@ -4424,29 +4476,29 @@ body.hasr-readonly #hasrRedoBtn, body.hasr-readonly #hasrRedoMenuBtn { pointer-e
 
 /* ===== نقل حالة الحفظ والتراجع إلى شريط الشهر والقسم ===== */
 .inventory-save-tools { display: none; }
-.inventory-save-caption { display:block; color:#0f766e; font-size:10px; font-weight:800; line-height:1.15; white-space:nowrap; text-align:center; }
+.inventory-save-caption { display:block; color:#0f766e; font-size:0.625rem; font-weight:800; line-height:1.15; white-space:nowrap; text-align:center; }
 [data-theme="dark"] .inventory-save-caption { color:#5eead4; }
-.inventory-save-row { display:inline-flex; align-items:center; gap:8px; direction:ltr; }
+.inventory-save-row { display:inline-flex; align-items:center; gap:0.5rem; direction:ltr; }
 
 @media screen and (min-width: 901px) {
     body.inventory-mode-active .controls > div:first-child { flex: 0 0 0 !important; width: 0; }
     body.inventory-mode-active .inventory-save-tools {
         display: inline-flex;
         position: absolute;
-        left: 10px;
+        left: 0.625rem;
         top: 50%;
         transform: translateY(-50%);
         flex-direction: column;
         align-items: center;
-        gap: 2px;
+        gap: 0.125rem;
         direction: ltr;
         white-space: nowrap;
         z-index: 3;
     }
-    body.inventory-mode-active .inventory-save-tools .hasr-history { gap: 5px; }
+    body.inventory-mode-active .inventory-save-tools .hasr-history { gap: 0.3125rem; }
     body.inventory-mode-active .action-btns:not(.hasr-bottom-row) {
-        margin-top: 6px;
-        margin-bottom: 6px;
+        margin-top: 0.375rem;
+        margin-bottom: 0.375rem;
     }
 }
 @media screen and (max-width: 900px) {
@@ -4456,14 +4508,14 @@ body.hasr-readonly #hasrRedoBtn, body.hasr-readonly #hasrRedoMenuBtn { pointer-e
         justify-content: center;
         flex-direction: column;
         align-items: center;
-        gap: 2px;
-        margin-top: 5px;
+        gap: 0.125rem;
+        margin-top: 0.3125rem;
         flex-wrap: wrap;
     }
 }
 
 .inventory-filter-row label {
-    font-size: 13px;
+    font-size: 0.8125rem;
     font-weight: bold;
     color: var(--text-main, #1e293b);
 }
@@ -4472,42 +4524,42 @@ body.hasr-readonly #hasrRedoBtn, body.hasr-readonly #hasrRedoMenuBtn { pointer-e
 .inventory-filter-row select,
 .inventory-period input {
     font-family: inherit;
-    font-size: 13px;
-    border: 1px solid var(--border-color, #cbd5e1);
+    font-size: 0.8125rem;
+    border: 0.0625rem solid var(--border-color, #cbd5e1);
     background-color: var(--input-bg, #ffffff);
     color: var(--text-main, #0f172a);
-    border-radius: 6px;
-    padding: 5px 8px;
+    border-radius: 0.375rem;
+    padding: 0.3125rem 0.5rem;
     transition: all 0.2s ease;
-    min-height: 29px;
+    min-height: 1.8125rem;
     box-sizing: border-box;
 }
 
-.inventory-filter-row input[type="search"] { min-width: 175px; }
+.inventory-filter-row input[type="search"] { min-width: 10.9375rem; }
 
 .inventory-filter-row input:focus,
 .inventory-filter-row select:focus {
     border-color: #007bff;
     outline: none;
-    box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+    box-shadow: 0 0 0.3125rem rgba(0, 123, 255, 0.3);
 }
 
 .inventory-tool-btn {
     background: linear-gradient(135deg, #4a7ab5, #2d5a8c);
     color: white;
     border: none;
-    padding: 6px 12px;
-    border-radius: 6px;
+    padding: 0.375rem 0.75rem;
+    border-radius: 0.375rem;
     cursor: pointer;
     font-family: inherit;
-    font-size: 13px;
+    font-size: 0.8125rem;
     font-weight: bold;
     transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .inventory-tool-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    transform: translateY(-0.125rem);
+    box-shadow: 0 0.25rem 0.625rem rgba(0, 0, 0, 0.15);
 }
 
 .inventory-save-btn { background: linear-gradient(135deg, #28a745, #218838); }
@@ -4517,9 +4569,9 @@ body.hasr-readonly #hasrRedoBtn, body.hasr-readonly #hasrRedoMenuBtn { pointer-e
     margin-right: 0;
     background: #e6c34d;
     color: #1a2a44;
-    padding: 3px 8px;
-    border-radius: 12px;
-    font-size: 12px;
+    padding: 0.1875rem 0.5rem;
+    border-radius: 0.75rem;
+    font-size: 0.75rem;
     font-weight: bold;
     white-space: nowrap;
 }
@@ -4533,17 +4585,17 @@ body.hasr-readonly #hasrRedoBtn, body.hasr-readonly #hasrRedoMenuBtn { pointer-e
     display: inline-flex;
     align-items: center;
     justify-content: space-between;
-    gap: 8px;
+    gap: 0.5rem;
     font-family: inherit;
-    font-size: 13px;
-    border: 1px solid var(--border-color, #cbd5e1);
+    font-size: 0.8125rem;
+    border: 0.0625rem solid var(--border-color, #cbd5e1);
     background-color: var(--input-bg, #ffffff);
     color: var(--text-main, #0f172a);
-    border-radius: 6px;
-    padding: 5px 10px;
-    min-height: 29px;
+    border-radius: 0.375rem;
+    padding: 0.3125rem 0.625rem;
+    min-height: 1.8125rem;
     /* عرض ثابت دائماً (لا يتغير مع عدد العناوين المحددة أو طول نصها) حتى لا "يرقص" الحقل */
-    width: min(340px, 86vw);
+    width: min(21.25rem, 86vw);
     cursor: pointer;
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
@@ -4559,44 +4611,44 @@ body.hasr-readonly #hasrRedoBtn, body.hasr-readonly #hasrRedoMenuBtn { pointer-e
 .addr-ms-btn:focus {
     border-color: #007bff;
     outline: none;
-    box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+    box-shadow: 0 0 0.3125rem rgba(0, 123, 255, 0.3);
 }
 
 /* إطار زر تصفية العنوان عند وجود تحديد فعلي */
 .addr-ms.filter-active .addr-ms-btn {
-    border: 3px solid #22d3ee !important;
+    border: 0.1875rem solid #22d3ee !important;
     box-shadow:
-        inset 0 0 0 1px rgba(207, 250, 254, 0.95),
-        0 0 0 1px rgba(8, 145, 178, 0.8),
-        0 2px 8px rgba(8, 145, 178, 0.28);
+        inset 0 0 0 0.0625rem rgba(207, 250, 254, 0.95),
+        0 0 0 0.0625rem rgba(8, 145, 178, 0.8),
+        0 0.125rem 0.5rem rgba(8, 145, 178, 0.28);
 }
 
 [data-theme="dark"] .addr-ms.filter-active .addr-ms-btn {
     border-color: #67e8f9 !important;
     box-shadow:
-        inset 0 0 0 1px rgba(207, 250, 254, 0.98),
-        0 0 0 1px rgba(34, 211, 238, 0.85),
-        0 2px 10px rgba(34, 211, 238, 0.3);
+        inset 0 0 0 0.0625rem rgba(207, 250, 254, 0.98),
+        0 0 0 0.0625rem rgba(34, 211, 238, 0.85),
+        0 0.125rem 0.625rem rgba(34, 211, 238, 0.3);
 }
 
 .addr-ms-caret {
-    font-size: 10px;
+    font-size: 0.625rem;
     opacity: .7;
     flex-shrink: 0;
 }
 
 .addr-ms-panel {
     position: absolute;
-    top: calc(100% + 4px);
+    top: calc(100% + 0.25rem);
     right: 0;
     z-index: 60;
     background: var(--bg-white, #ffffff);
-    border: 1px solid var(--border-color, #cbd5e1);
-    border-radius: 8px;
-    box-shadow: var(--shadow, 0 4px 10px rgba(0, 0, 0, 0.15));
+    border: 0.0625rem solid var(--border-color, #cbd5e1);
+    border-radius: 0.5rem;
+    box-shadow: var(--shadow, 0 0.25rem 0.625rem rgba(0, 0, 0, 0.15));
     /* نفس عرض الزر بالظبط وثابت أيضاً، عشان مكان القائمة ما يتزحزحش أثناء التحديد */
-    width: min(445px, 90vw);
-    max-height: min(360px, 62vh); /* حد عملي للقائمة مع تمرير داخلي ومساحة مناسبة للشاشة */
+    width: min(27.8125rem, 90vw);
+    max-height: min(22.5rem, 62vh); /* حد عملي للقائمة مع تمرير داخلي ومساحة مناسبة للشاشة */
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
@@ -4606,24 +4658,24 @@ body.hasr-readonly #hasrRedoBtn, body.hasr-readonly #hasrRedoMenuBtn { pointer-e
 
 .addr-ms-panel[hidden] { display: none; }
 /* عند ضيق المساحة أسفل الحقل تُفتح القائمة لأعلى */
-.addr-ms-panel.addr-ms-up { top: auto; bottom: calc(100% + 4px); }
+.addr-ms-panel.addr-ms-up { top: auto; bottom: calc(100% + 0.25rem); }
 
 .addr-ms-panel-actions {
     display: flex;
-    gap: 6px;
-    padding: 6px 8px;
-    border-bottom: 1px solid var(--border-color, #e2e8f0);
+    gap: 0.375rem;
+    padding: 0.375rem 0.5rem;
+    border-bottom: 0.0625rem solid var(--border-color, #e2e8f0);
     flex-shrink: 0;
 }
 
 .addr-ms-panel-actions button {
     flex: 1;
     font-family: inherit;
-    font-size: 11px;
+    font-size: 0.6875rem;
     font-weight: bold;
     border: none;
-    border-radius: 5px;
-    padding: 4px 6px;
+    border-radius: 0.3125rem;
+    padding: 0.25rem 0.375rem;
     cursor: pointer;
     background: #eef2f7;
     color: #1e293b;
@@ -4640,16 +4692,16 @@ body.hasr-readonly #hasrRedoBtn, body.hasr-readonly #hasrRedoMenuBtn { pointer-e
     min-height: 0; /* مهم داخل iframe حتى ينكمش العنصر ويعمل التمرير داخله */
     overflow-y: auto;
     overscroll-behavior: contain;
-    padding: 4px 0;
+    padding: 0.25rem 0;
 }
 
 .addr-ms-item {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 4px 10px;
+    gap: 0.5rem;
+    padding: 0.25rem 0.625rem;
     line-height: 1.3;
-    font-size: 13px;
+    font-size: 0.8125rem;
     cursor: pointer;
     color: var(--text-main, #1e293b);
 }
@@ -4660,20 +4712,20 @@ body.hasr-readonly #hasrRedoBtn, body.hasr-readonly #hasrRedoMenuBtn { pointer-e
 /* هوفر: بروز طفيف جداً لأعلى بدون تغيير لون الصف */
 .addr-ms-item { position: relative; transition: transform 0.15s ease, box-shadow 0.15s ease; }
 .addr-ms-item:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 2px 5px rgba(26, 45, 74, 0.18);
+    transform: translateY(-0.0625rem);
+    box-shadow: 0 0.125rem 0.3125rem rgba(26, 45, 74, 0.18);
     z-index: 1;
 }
-[data-theme="dark"] .addr-ms-item:hover { box-shadow: 0 2px 6px rgba(0, 0, 0, 0.45); }
+[data-theme="dark"] .addr-ms-item:hover { box-shadow: 0 0.125rem 0.375rem rgba(0, 0, 0, 0.45); }
 
 .addr-ms-item input[type="checkbox"] {
-    /* تعطيل تنسيقات .inventory-filter-row input الموروثة (min-height:29px + padding) وهي سبب المسافات الكبيرة */
+    /* تعطيل تنسيقات .inventory-filter-row input الموروثة (min-height:1.8125rem + padding) وهي سبب المسافات الكبيرة */
     min-height: 0;
     padding: 0;
     margin: 0;
     cursor: pointer;
-    width: 14px;
-    height: 14px;
+    width: 0.875rem;
+    height: 0.875rem;
     flex-shrink: 0;
     accent-color: #007bff;
 }
@@ -4684,11 +4736,11 @@ body.hasr-readonly #hasrRedoBtn, body.hasr-readonly #hasrRedoMenuBtn { pointer-e
 }
 
 .addr-ms-group-title {
-    padding: 6px 10px 3px;
-    margin-top: 4px;
-    border-top: 1px solid var(--border-color, #cbd5e1);
+    padding: 0.375rem 0.625rem 0.1875rem;
+    margin-top: 0.25rem;
+    border-top: 0.0625rem solid var(--border-color, #cbd5e1);
     color: #0f766e;
-    font-size: 11px;
+    font-size: 0.6875rem;
     font-weight: 800;
     background: var(--bg-light, #f8fafc);
 }
@@ -4698,22 +4750,22 @@ body.hasr-readonly #hasrRedoBtn, body.hasr-readonly #hasrRedoMenuBtn { pointer-e
 }
 
 .addr-ms-empty {
-    padding: 12px 10px;
-    font-size: 12px;
+    padding: 0.75rem 0.625rem;
+    font-size: 0.75rem;
     color: var(--text-muted, #64748b);
     text-align: center;
 }
 
 .inventory-filter-clear-btn {
     font-family: inherit;
-    font-size: 12px;
+    font-size: 0.75rem;
     font-weight: bold;
-    border: 1px solid var(--border-color, #cbd5e1);
+    border: 0.0625rem solid var(--border-color, #cbd5e1);
     background: var(--input-bg, #ffffff);
     color: var(--text-main, #1e293b);
-    border-radius: 6px;
-    padding: 5px 10px;
-    min-height: 29px;
+    border-radius: 0.375rem;
+    padding: 0.3125rem 0.625rem;
+    min-height: 1.8125rem;
     cursor: pointer;
     white-space: nowrap;
     transition: all 0.2s ease;
@@ -4744,7 +4796,7 @@ body.inventory-mode-active #bodyEditDateSection {
 }
 
 @keyframes fadeInDown {
-    from { opacity: 0; transform: translateY(-10px); }
+    from { opacity: 0; transform: translateY(-0.625rem); }
     to { opacity: 1; transform: translateY(0); }
 }
 
@@ -4761,7 +4813,7 @@ body.inventory-active #mainTable th {
 
 .inventory-mode-active #mainTable td,
 body.inventory-active #mainTable td {
-    min-height: 38px;
+    min-height: 2.375rem;
 }
 
 .inventory-mode-active #mainTable .inventory-order-cell,
@@ -4774,8 +4826,8 @@ body.inventory-active #mainTable .inventory-order-cell {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 1px;
-    min-height: 40px;
+    gap: 0.0625rem;
+    min-height: 2.5rem;
     line-height: 1.2;
 }
 
@@ -4783,8 +4835,8 @@ body.inventory-active #mainTable .inventory-order-cell {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 42px;
-    min-height: 30px;
+    min-width: 2.625rem;
+    min-height: 1.875rem;
     outline: none;
 }
 
@@ -4792,36 +4844,36 @@ body.inventory-active #mainTable .inventory-order-cell {
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 38px;
+    min-height: 2.375rem;
     width: 100%;
     box-sizing: border-box;
-    padding: 3px;
+    padding: 0.1875rem;
     outline: none;
     word-break: break-word;
 }
 
-.inventory-address-cell { padding: 3px !important; }
+.inventory-address-cell { padding: 0.1875rem !important; }
 
 .inventory-del-col {
     vertical-align: middle;
-    padding: 2px;
+    padding: 0.125rem;
 }
 
 .inventory-row-actions button {
     border: 0;
-    border-radius: 4px;
-    padding: 1px 4px;
+    border-radius: 0.25rem;
+    padding: 0.0625rem 0.25rem;
     background: #dbeafe;
     color: #1e3a5f;
     cursor: pointer;
-    font-size: 11px;
-    line-height: 18px;
+    font-size: 0.6875rem;
+    line-height: 1.125rem;
 }
 
 .inventory-row-actions button:hover { background: #bfdbfe; }
 .inventory-row-actions .inventory-delete-btn { background: #fee2e2; color: #991b1b; }
 
-.inventory-empty-row td { padding: 20px; color: var(--text-muted); }
+.inventory-empty-row td { padding: 1.25rem; color: var(--text-muted); }
 
 /* انتقال ناعم (تلاشي) للصفوف عند تغيير فلتر العناوين، بدل اختفاء/ظهور الصفوف فجأة.
    ملحوظة: التلاشي بيتطبق على غلاف الجدول (#tableWrapper) وليس على tbody مباشرة،
@@ -4890,7 +4942,7 @@ body.inventory-active #mainTable .inventory-order-cell {
     animation: inventoryRowEnter .4s cubic-bezier(.16,1,.3,1) both;
 }
 @keyframes inventoryRowEnter {
-    from { opacity: 0; transform: translateY(-6px); }
+    from { opacity: 0; transform: translateY(-0.375rem); }
     to   { opacity: 1; transform: translateY(0); }
 }
 
@@ -4909,18 +4961,18 @@ body.inventory-active #mainTable .inventory-order-cell {
 
 .inventory-print-group-title {
     text-align: right;
-    font-size: 15px;
+    font-size: 0.9375rem;
     font-weight: 700;
-    margin: 0 0 6px;
+    margin: 0 0 0.375rem;
 }
 
 .inventory-cover-toggle {
     display: inline-flex;
     align-items: center;
-    gap: 5px;
+    gap: 0.3125rem;
     color: var(--text-main, #1e293b);
     font-family: inherit;
-    font-size: 12px;
+    font-size: 0.75rem;
     font-weight: 700;
     white-space: nowrap;
     cursor: pointer;
@@ -4937,13 +4989,13 @@ body.inventory-active #mainTable .inventory-order-cell {
 .inventory-print-stack .inventory-cover-toggle {
     position: absolute;
     left: 50%;
-    bottom: calc(100% + 2px);
+    bottom: calc(100% + 0.125rem);
     transform: translateX(-50%);
 }
 
 .inventory-cover-toggle input {
-    width: 16px;
-    height: 16px;
+    width: 1rem;
+    height: 1rem;
     margin: 0;
     accent-color: #0f766e;
     cursor: pointer;
@@ -4955,7 +5007,7 @@ body.inventory-active #mainTable .inventory-order-cell {
     align-items: center;
     justify-content: center;
     flex-wrap: wrap;
-    gap: 10px;
+    gap: 0.625rem;
     width: 100%;
 }
 
@@ -4966,25 +5018,25 @@ body.inventory-active #mainTable .inventory-order-cell {
     grid-template-columns: auto auto auto;
     justify-content: center;
     align-items: center;
-    column-gap: 12px;
-    row-gap: 8px;
+    column-gap: 0.75rem;
+    row-gap: 0.5rem;
 }
 .hasr-cover-col { grid-column: 1; grid-row: 1; display: flex; align-items: center; justify-content: center; }
 .hasr-print-cell { grid-column: 1; grid-row: 2; margin: 0; }
 .hasr-divider {
     grid-column: 2; grid-row: 1 / 3;
-    width: 1px;
+    width: 0.0625rem;
     align-self: stretch;
     background: linear-gradient(to bottom, transparent, rgba(15,118,110,0.35), transparent);
 }
-.hasr-buttons-row { grid-column: 3; grid-row: 2; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.hasr-buttons-row { grid-column: 3; grid-row: 2; display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
 
 /* شريط التوقيعات: يعيش في نفس صف زر "حذف آخر صف" أسفل الجدول ويتوسط الصف (مود الحصر فقط) */
 .hasr-signers-bar {
     display: none;
     flex-direction: row;
     align-items: center;
-    gap: 8px;
+    gap: 0.5rem;
 }
 body.inventory-mode-active .hasr-signers-bar { display: flex; }
 .hasr-signers-bar:has(.hasr-signers-panel:empty) { display: none !important; }
@@ -4995,14 +5047,14 @@ body.inventory-mode-active .hasr-bottom-row {
 }
 body.inventory-mode-active .hasr-bottom-row > .remove-last-btn { grid-column: 1; justify-self: start; }
 body.inventory-mode-active .hasr-bottom-row > .hasr-signers-bar { grid-column: 2; }
-.hasr-signers-bar { transform: translateX(-20px); } /* إزاحة 20px لليسار */
+.hasr-signers-bar { transform: translateX(-1.25rem); } /* إزاحة 1.25rem لليسار */
 @media screen and (max-width: 900px) {
     body.inventory-mode-active .hasr-bottom-row { display: flex; }
 }
 .hasr-signers-legend {
     background: #0f766e; color: #fff;
-    font-size: 10.5px; font-weight: 700;
-    padding: 1px 12px; border-radius: 999px;
+    font-size: 0.6562rem; font-weight: 700;
+    padding: 0.0625rem 0.75rem; border-radius: 62.4375rem;
     white-space: nowrap;
 }
 .hasr-signers-panel {
@@ -5010,10 +5062,10 @@ body.inventory-mode-active .hasr-bottom-row > .hasr-signers-bar { grid-column: 2
     flex-wrap: wrap;
     align-items: center;
     justify-content: center;
-    gap: 16px;
-    padding: 7px 14px;
-    border: 1px dashed rgba(15,118,110,0.45);
-    border-radius: 10px;
+    gap: 1rem;
+    padding: 0.4375rem 0.875rem;
+    border: 0.0625rem dashed rgba(15,118,110,0.45);
+    border-radius: 0.625rem;
     background: rgba(15,118,110,0.05);
 }
 
@@ -5025,17 +5077,17 @@ body.inventory-mode-active .hasr-bottom-row > .hasr-signers-bar { grid-column: 2
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 132px;
-    font-size: 12px;
+    min-width: 8.25rem;
+    font-size: 0.75rem;
     font-weight: 700;
-    padding: 3px 10px;
-    border-radius: 999px;
+    padding: 0.1875rem 0.625rem;
+    border-radius: 62.4375rem;
     white-space: nowrap;
-    border: 1px solid transparent;
+    border: 0.0625rem solid transparent;
     transition: opacity 0.7s ease, background-color 0.7s ease, color 0.7s ease, border-color 0.7s ease;
 }
 /* الحالة الهادئة: شبه شفاف؛ عند الحفظ يصبح واضحاً 100% ثم يعود بعد ثوانٍ */
-.hasr-autosave-status.idle { opacity: 0.4; background: transparent; color: var(--text-muted, #64748b); border: 1px dashed rgba(100,116,139,0.55); }
+.hasr-autosave-status.idle { opacity: 0.4; background: transparent; color: var(--text-muted, #64748b); border: 0.0625rem dashed rgba(100,116,139,0.55); }
 .hasr-autosave-status.ok   { opacity: 1; background: #e6f6ec; color: #1b7a3d; border-color: #b7e4c7; }
 .hasr-autosave-status.busy { opacity: 1; background: #eef2f7; color: #475569; border-color: #cbd5e1; }
 .hasr-autosave-status.warn { opacity: 1; background: #fff4e0; color: #9a5b08; border-color: #f5d29a; }
@@ -5045,51 +5097,51 @@ body.inventory-mode-active .hasr-bottom-row > .hasr-signers-bar { grid-column: 2
 
 /* جملة تعريفية مختصرة بالحفظ التلقائي فوق شريط التصفية */
 .hasr-autosave-note {
-    font-size: 11.5px;
+    font-size: 0.7188rem;
     font-weight: 700;
     color: #0f766e;
     background: rgba(15,118,110,0.08);
-    border: 1px solid rgba(15,118,110,0.25);
-    border-radius: 8px;
-    padding: 3px 10px;
-    margin-bottom: 5px;
+    border: 0.0625rem solid rgba(15,118,110,0.25);
+    border-radius: 0.5rem;
+    padding: 0.1875rem 0.625rem;
+    margin-bottom: 0.3125rem;
     text-align: center;
     line-height: 1.5;
 }
 [data-theme="dark"] .hasr-autosave-note { color: #5eead4; background: rgba(45,212,191,0.1); border-color: rgba(45,212,191,0.3); }
 
 /* زرا التراجع / للأمام مع قائمة العمليات السابقة */
-.hasr-history { position: relative; display: inline-flex; align-items: center; gap: 8px; }
+.hasr-history { position: relative; display: inline-flex; align-items: center; gap: 0.5rem; }
 .hasr-hist-group { display: inline-flex; align-items: stretch; }
 .hasr-hist-group > button:first-child { border-top-left-radius: 0; border-bottom-left-radius: 0; }
-.hasr-hist-group > .hasr-hist-caret { border-top-right-radius: 0; border-bottom-right-radius: 0; margin-right: -1px; padding: 0 6px; min-width: 0; }
+.hasr-hist-group > .hasr-hist-caret { border-top-right-radius: 0; border-bottom-right-radius: 0; margin-right: -0.0625rem; padding: 0 0.375rem; min-width: 0; }
 .hasr-hist-group button:disabled { opacity: 0.45; cursor: not-allowed; }
 .hasr-hist-menu {
     position: absolute;
-    top: calc(100% + 4px);
+    top: calc(100% + 0.25rem);
     z-index: 70;
-    min-width: 220px;
-    max-width: 320px;
-    max-height: min(60vh, 420px);
+    min-width: 13.75rem;
+    max-width: 20rem;
+    max-height: min(60vh, 26.25rem);
     overflow-y: auto;
     background: var(--bg-white, #fff);
-    border: 1px solid var(--border-color, #cbd5e1);
-    border-radius: 10px;
-    box-shadow: 0 10px 28px rgba(15,23,42,0.22);
-    padding: 4px;
+    border: 0.0625rem solid var(--border-color, #cbd5e1);
+    border-radius: 0.625rem;
+    box-shadow: 0 0.625rem 1.75rem rgba(15,23,42,0.22);
+    padding: 0.25rem;
     text-align: right;
 }
 .hasr-hist-menu[hidden] { display: none; }
-.hasr-hist-head { font-size: 11px; font-weight: 700; color: var(--text-muted, #64748b); padding: 4px 8px 6px; border-bottom: 1px solid var(--border-color, #e2e8f0); margin-bottom: 3px; }
+.hasr-hist-head { font-size: 0.6875rem; font-weight: 700; color: var(--text-muted, #64748b); padding: 0.25rem 0.5rem 0.375rem; border-bottom: 0.0625rem solid var(--border-color, #e2e8f0); margin-bottom: 0.1875rem; }
 .hasr-hist-menu button {
-    display: flex; align-items: center; gap: 8px; width: 100%;
+    display: flex; align-items: center; gap: 0.5rem; width: 100%;
     border: 0; background: transparent; cursor: pointer;
-    font: inherit; font-size: 12.5px; color: var(--text-main, #1e293b);
-    padding: 5px 8px; border-radius: 6px; text-align: right;
+    font: inherit; font-size: 0.7812rem; color: var(--text-main, #1e293b);
+    padding: 0.3125rem 0.5rem; border-radius: 0.375rem; text-align: right;
 }
 .hasr-hist-menu button:nth-child(even) { background: var(--bg-light, #f1f5f9); }
-.hasr-hist-menu button:hover { outline: 1px solid rgba(15,118,110,0.5); }
-.hasr-hist-time { flex: 0 0 auto; font-size: 10.5px; color: var(--text-muted, #64748b); min-width: 44px; }
+.hasr-hist-menu button:hover { outline: 0.0625rem solid rgba(15,118,110,0.5); }
+.hasr-hist-time { flex: 0 0 auto; font-size: 0.6562rem; color: var(--text-muted, #64748b); min-width: 2.75rem; }
 
 /* ===== لوحة اختيار الموقّعين (موظف المحاضر / رئيس القلم / موظف الحاسب الآلي) في مود الحصر ===== */
 
@@ -5097,8 +5149,8 @@ body.inventory-mode-active .hasr-bottom-row > .hasr-signers-bar { grid-column: 2
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 6px;
-    font-size: 11px;
+    gap: 0.375rem;
+    font-size: 0.6875rem;
 }
 .hasr-signer-label {
     display: flex;
@@ -5115,18 +5167,18 @@ body.inventory-mode-active .hasr-bottom-row > .hasr-signers-bar { grid-column: 2
 }
 .hasr-signer-select {
     font-family: inherit;
-    font-size: 12px;
-    border: 1px solid rgba(15,118,110,0.4);
-    border-radius: 6px;
-    padding: 2px 3px;
+    font-size: 0.75rem;
+    border: 0.0625rem solid rgba(15,118,110,0.4);
+    border-radius: 0.375rem;
+    padding: 0.125rem 0.1875rem;
     background: #fff;
     color: #0f172a;
-    width: 120px;
+    width: 7.5rem;
     text-align: center;
 }
 .hasr-signer-select:focus {
-    outline: 2px solid #0f766e;
-    outline-offset: 1px;
+    outline: 0.125rem solid #0f766e;
+    outline-offset: 0.0625rem;
 }
 
 #inventory-print-sheet { display: none; direction: rtl; }
@@ -5140,25 +5192,25 @@ body.inventory-mode-active .hasr-bottom-row > .hasr-signers-bar { grid-column: 2
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    margin-bottom: 8px;
+    margin-bottom: 0.5rem;
 }
 #inventory-print-sheet .inv-print-header-text {
-    font-size: 15px;
+    font-size: 0.9375rem;
     font-weight: bold;
     line-height: 1.4;
     color: #000;
 }
 #inventory-print-sheet .inv-print-logo {
-    width: 70px;
-    height: 70px;
-    border-radius: 10px;
+    width: 4.375rem;
+    height: 4.375rem;
+    border-radius: 0.625rem;
     object-fit: contain;
 }
 #inventory-print-sheet table { width: 100%; border-collapse: collapse; table-layout: fixed; }
 #inventory-print-sheet th, #inventory-print-sheet td {
-    border: 1px solid #000;
-    padding: 4px;
-    font-size: 11px;
+    border: 0.0625rem solid #000;
+    padding: 0.25rem;
+    font-size: 0.6875rem;
     text-align: center;
     vertical-align: middle;
     word-break: break-word;
@@ -5174,7 +5226,7 @@ body.inventory-mode-active .hasr-bottom-row > .hasr-signers-bar { grid-column: 2
     justify-content: space-between;
     align-items: flex-start;
     text-align: center;
-    margin: 8px 0 0;
+    margin: 0.5rem 0 0;
     page-break-inside: avoid;
     break-inside: avoid;
 }
@@ -5185,8 +5237,8 @@ body.inventory-mode-active .hasr-bottom-row > .hasr-signers-bar { grid-column: 2
 }
 #inventory-print-sheet .inventory-signatures .line {
     display: block;
-    border-top: 1px dotted #000;
-    margin-top: 22px;
+    border-top: 0.0625rem dotted #000;
+    margin-top: 1.375rem;
     /* تقليل مساحة نقاط الإمضاء أسفل التوقيعات بنسبة 40% */
     width: 54%;
     margin-left: auto;
@@ -5206,8 +5258,8 @@ body.inventory-mode-active .hasr-bottom-row > .hasr-signers-bar { grid-column: 2
     display: block;
     width: 17mm;
     height: 17mm;
-    margin: 4px auto 0;
-    border: 1px dotted #000;
+    margin: 0.25rem auto 0;
+    border: 0.0625rem dotted #000;
     border-radius: 50%;
     box-sizing: border-box;
 }
@@ -5219,9 +5271,9 @@ body.inventory-mode-active .hasr-bottom-row > .hasr-signers-bar { grid-column: 2
     box-sizing: border-box;
     height: 175mm;
     padding: 6mm 8mm 8mm;
-    border: 1.5px solid #173b68;
-    outline: 4px double #c8a45a;
-    outline-offset: -9px;
+    border: 0.0938rem solid #173b68;
+    outline: 0.25rem double #c8a45a;
+    outline-offset: -0.5625rem;
     background: #fff;
     color: #172b4d;
     page-break-after: always;
@@ -5238,7 +5290,7 @@ body.inventory-mode-active .hasr-bottom-row > .hasr-signers-bar { grid-column: 2
     position: absolute;
     left: 18mm;
     right: 18mm;
-    height: 1px;
+    height: 0.0625rem;
     background: linear-gradient(90deg, transparent, #c8a45a 18%, #173b68 50%, #c8a45a 82%, transparent);
 }
 #inventory-print-sheet .inventory-print-cover::before { top: 35mm; }
@@ -5253,7 +5305,7 @@ body.inventory-mode-active .hasr-bottom-row > .hasr-signers-bar { grid-column: 2
 }
 #inventory-print-sheet .inventory-cover-header-text {
     color: #172b4d;
-    font-size: 16px;
+    font-size: 1rem;
     font-weight: 700;
     line-height: 1.7;
 }
@@ -5292,18 +5344,18 @@ body.inventory-mode-active .hasr-bottom-row > .hasr-signers-bar { grid-column: 2
     max-width: none;
     white-space: nowrap;
     color: #173b68;
-    font-size: 25px;
+    font-size: 1.5625rem;
     font-weight: 800;
     line-height: 1.45;
-    text-shadow: 0 1px 0 rgba(200,164,90,.25);
+    text-shadow: 0 0.0625rem 0 rgba(200,164,90,.25);
 }
 #inventory-print-sheet .inventory-cover-dept {
     margin-top: 8mm;
     padding: 3mm 12mm;
-    border-top: 1px solid #c8a45a;
-    border-bottom: 1px solid #c8a45a;
+    border-top: 0.0625rem solid #c8a45a;
+    border-bottom: 0.0625rem solid #c8a45a;
     color: #243f63;
-    font-size: 22px;
+    font-size: 1.375rem;
     font-weight: 700;
 }
 #inventory-print-sheet .inventory-cover-signature {
@@ -5314,20 +5366,20 @@ body.inventory-mode-active .hasr-bottom-row > .hasr-signers-bar { grid-column: 2
     width: 58mm;
     color: #172b4d;
     text-align: center;
-    font-size: 16px;
+    font-size: 1rem;
     font-weight: 700;
 }
 #inventory-print-sheet .inventory-cover-signature .line {
     width: 72%;
     margin: 12mm auto 0;
-    border-top: 1px dotted #000;
+    border-top: 0.0625rem dotted #000;
 }
 #inventory-print-sheet .inventory-cover-signature .cover-sig-name {
     display: block;
-    font-size: 13px;
+    font-size: 0.8125rem;
     font-weight: 600;
     color: #334155;
-    margin-top: 3px;
+    margin-top: 0.1875rem;
 }
 
 @media print {
@@ -5959,15 +6011,15 @@ body.inventory-mode-active .hasr-bottom-row > .hasr-signers-bar { grid-column: 2
         var isNotDetained = (detVal === 'غير محجوزة');
         var detOptions = '<option value="حجز القسم"' + (!isNotDetained ? ' selected' : '') + '>حجز القسم</option>' +
                          '<option value="غير محجوزة"' + (isNotDetained ? ' selected' : '') + '>غير محجوزة</option>';
-        var detSelectHtml = '<td style="padding: 2px;"><select data-field="detentionPlace" style="width:100%; min-height:36px; border:none; background:transparent; font-family:inherit; font-size:13.5px; font-weight:bold; text-align:center; color:inherit; outline:none; cursor:pointer; -webkit-appearance: none; -moz-appearance: none; appearance: none;">' + detOptions + '</select></td>';
+        var detSelectHtml = '<td style="padding: 0.125rem;"><select data-field="detentionPlace" style="width:100%; min-height:2.25rem; border:none; background:transparent; font-family:inherit; font-size:0.8438rem; font-weight:bold; text-align:center; color:inherit; outline:none; cursor:pointer; -webkit-appearance: none; -moz-appearance: none; appearance: none;">' + detOptions + '</select></td>';
 
         return '<tr data-inventory-row-id="' + escapeHtml(row._id) + '" data-inventory-mode="1">' +
             '<td class="row-num">' + displayIndex + '</td>' +
             caseNumHtml +
             '<td class="ce-cell">' + fieldSpan('inventoryNo', row.inventoryNo, 'رقم الحصر') + '</td>' +
-            '<td class="auto-list" style="min-height:80px;"><ol contenteditable="true">' + list + '</ol></td>' +
+            '<td class="auto-list" style="min-height:5rem;"><ol contenteditable="true">' + list + '</ol></td>' +
             '<td class="inventory-order-cell"><div class="inventory-order-inner"><span class="inventory-order-amount" contenteditable="true" data-field="fine" data-ph="المبلغ">' +
-                escapeHtml(row.fine) + '</span><span style="font-size: 11.5px; color: var(--text-muted);">ج والمصاريف</span></div></td>' +
+                escapeHtml(row.fine) + '</span><span style="font-size: 0.7188rem; color: var(--text-muted);">ج والمصاريف</span></div></td>' +
             '<td class="ce-cell">' + fieldSpan('orderDate', row.orderDate, 'تاريخ الأمر') + '</td>' +
             detSelectHtml +
             '<td class="ce-cell">' + fieldSpan('name', row.name, 'اسم المتهم') + '</td>' +
@@ -6394,7 +6446,7 @@ body.inventory-mode-active .hasr-bottom-row > .hasr-signers-bar { grid-column: 2
         else if (up && above < minUseful && below > above) up = false;
         panel.classList.toggle('addr-ms-up', up);
         var available = Math.max(1, Math.floor(up ? above : below));
-        var viewportCap = Math.min(360 * zoomScale, Math.floor(viewportHeight * 0.62));
+        var viewportCap = Math.min(360 * ((parseFloat(getComputedStyle(document.documentElement).fontSize) / 16) || 1), Math.floor(viewportHeight * 0.62));
         var visualHeight = Math.max(40, Math.min(available, viewportCap));
         panel.style.maxHeight = Math.max(32, Math.floor(visualHeight / zoomScale)) + 'px';
     }
@@ -6557,7 +6609,7 @@ body.inventory-mode-active .hasr-bottom-row > .hasr-signers-bar { grid-column: 2
         // تم استبعاد detentionPlace من الفحص لأنها تحتوي دائماً على القيمة الافتراضية (حجز القسم)
         return [row.caseNum,row.inventoryNo,row.name,row.nationalId,row.address,row.fine,row.orderDate].some(function (v) { return text(v); }) || row.violations.length;
     }
-    
+
     async function saveInventorySheet() {
         if (window.currentMode !== 'inventory' || hasrBlocked()) return;
 
@@ -6677,12 +6729,12 @@ body.inventory-mode-active .hasr-bottom-row > .hasr-signers-bar { grid-column: 2
         
        if (!existingOverlay) {
             overlay.id = 'inventorySheetsOverlay';
-            overlay.style.cssText = 'position:fixed;inset:0;z-index:10020;background:linear-gradient(135deg,rgba(15,23,42,.72),rgba(30,64,115,.58));backdrop-filter:blur(5px);display:flex;align-items:center;justify-content:center;padding:15px;box-sizing:border-box;direction:rtl;opacity:0;visibility:hidden;transition:opacity .22s ease,visibility .22s ease;';
+            overlay.style.cssText = 'position:fixed;inset:0;z-index:10020;background:linear-gradient(135deg,rgba(15,23,42,.72),rgba(30,64,115,.58));backdrop-filter:blur(0.3125rem);display:flex;align-items:center;justify-content:center;padding:0.9375rem;box-sizing:border-box;direction:rtl;opacity:0;visibility:hidden;transition:opacity .22s ease,visibility .22s ease;';
         }
 
         var modal = existingOverlay ? existingOverlay.firstElementChild : document.createElement('div');
         if (!existingOverlay) {
-            modal.style.cssText = 'width:min(100%,500px);max-height:100%;display:flex;flex-direction:column;box-sizing:border-box;background:linear-gradient(180deg,#ffffff 0%,#f7faff 100%);border:1px solid rgba(255,255,255,.85);border-radius:22px;padding:20px;box-shadow:0 24px 70px rgba(15,23,42,.38),0 4px 18px rgba(30,64,115,.16);font-family:inherit;transform:translateY(-12px) scale(.97);transition:transform .22s ease;';
+            modal.style.cssText = 'width:min(100%,31.25rem);max-height:100%;display:flex;flex-direction:column;box-sizing:border-box;background:linear-gradient(180deg,#ffffff 0%,#f7faff 100%);border:0.0625rem solid rgba(255,255,255,.85);border-radius:1.375rem;padding:1.25rem;box-shadow:0 1.5rem 4.375rem rgba(15,23,42,.38),0 0.25rem 1.125rem rgba(30,64,115,.16);font-family:inherit;transform:translateY(-0.75rem) scale(.97);transition:transform .22s ease;';
         }
 
         function closeInventorySheetsOverlay() {
@@ -6697,7 +6749,7 @@ body.inventory-mode-active .hasr-bottom-row > .hasr-signers-bar { grid-column: 2
         
         var body = '';
         if (periods.length === 0) {
-            body = '<p style="text-align:center;color:#64748b;font-weight:bold;padding:20px;">لا توجد كشوف شهرية محفوظة بعد.</p>';
+            body = '<p style="text-align:center;color:#64748b;font-weight:bold;padding:1.25rem;">لا توجد كشوف شهرية محفوظة بعد.</p>';
         } else {
             // 1. تجميع الكشوف حسب الشهر في كائنات
             var groupedByMonth = {};
@@ -6714,7 +6766,7 @@ body.inventory-mode-active .hasr-bottom-row > .hasr-signers-bar { grid-column: 2
             // 2. بناء الواجهة بوضع إطار مجمع حول كشوف كل شهر
             monthOrder.forEach(function(monthKey) {
                 // إطار التجميع: إطار خفيف 1.5px بلون أزرق رمادي أنيق مع خلفية باهتة جداً وزوايا دائرية
-                body += '<div style="border: 1.5px solid #dbe4f0; border-radius: 18px; padding: 8px; margin-bottom: 14px; background: rgba(244, 247, 251, 0.6); display: flex; flex-direction: column; gap: 8px; box-shadow: inset 0 2px 5px rgba(0,0,0,0.01);">';
+                body += '<div style="border: 0.0938rem solid #dbe4f0; border-radius: 1.125rem; padding: 0.5rem; margin-bottom: 0.875rem; background: rgba(244, 247, 251, 0.6); display: flex; flex-direction: column; gap: 0.5rem; box-shadow: inset 0 0.125rem 0.3125rem rgba(0,0,0,0.01);">';
 
                 groupedByMonth[monthKey].forEach(function(period) {
                     var mainParts = String(period || '').split('|');
@@ -6738,19 +6790,19 @@ body.inventory-mode-active .hasr-bottom-row > .hasr-signers-bar { grid-column: 2
                     ][deptHash % 6];
                     
                     var deptHtml = deptPart
-                        ? '<span style="display:inline-flex;align-items:center;gap:4px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;background:' + deptPalette[0] + ';color:' + deptPalette[1] + ';padding:4px 8px;border-radius:999px;font-size:11px;border:1px solid ' + deptPalette[2] + ';font-weight:800;" title="' + escapeHtml(deptPart) + '"><span style="font-size:13px;">♜</span>' + escapeHtml(deptPart) + '</span>'
-                        : '<span style="display:inline-flex;align-items:center;gap:4px;background:#fff8db;color:#916b00;padding:4px 8px;border-radius:999px;font-size:11px;border:1px solid #f2d780;font-weight:800;"><span style="font-size:13px;">⚠</span>بدون قسم</span>';
+                        ? '<span style="display:inline-flex;align-items:center;gap:0.25rem;max-width:11.25rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;background:' + deptPalette[0] + ';color:' + deptPalette[1] + ';padding:0.25rem 0.5rem;border-radius:62.4375rem;font-size:0.6875rem;border:0.0625rem solid ' + deptPalette[2] + ';font-weight:800;" title="' + escapeHtml(deptPart) + '"><span style="font-size:0.8125rem;">♜</span>' + escapeHtml(deptPart) + '</span>'
+                        : '<span style="display:inline-flex;align-items:center;gap:0.25rem;background:#fff8db;color:#916b00;padding:0.25rem 0.5rem;border-radius:62.4375rem;font-size:0.6875rem;border:0.0625rem solid #f2d780;font-weight:800;"><span style="font-size:0.8125rem;">⚠</span>بدون قسم</span>';
 
-                    body += '<div data-period="' + escapeHtml(period) + '" style="width:100%;box-sizing:border-box;padding:6px 8px;border:1px solid #d9e2ef;border-radius:14px;background:rgba(255,255,255,.94);color:#1e3a5f;font:inherit;display:flex;align-items:center;gap:6px;box-shadow:0 3px 10px rgba(30,58,95,.06);transition:all .2s ease;" onmouseover="this.style.borderColor=\'#79a5d8\';this.style.boxShadow=\'0 8px 20px rgba(30,58,95,.12)\';this.style.transform=\'translateY(-1px)\'" onmouseout="this.style.borderColor=\'#d9e2ef\';this.style.boxShadow=\'0 3px 10px rgba(30,58,95,.06)\';this.style.transform=\'none\'">' +
-                        '<button type="button" data-load-period="' + escapeHtml(period) + '" style="flex:1;min-width:0;display:flex;align-items:center;justify-content:space-between;gap:6px;padding:4px 4px;border:0;background:transparent;color:#1e3a5f;font:inherit;cursor:pointer;text-align:right;">' +
+                    body += '<div data-period="' + escapeHtml(period) + '" style="width:100%;box-sizing:border-box;padding:0.375rem 0.5rem;border:0.0625rem solid #d9e2ef;border-radius:0.875rem;background:rgba(255,255,255,.94);color:#1e3a5f;font:inherit;display:flex;align-items:center;gap:0.375rem;box-shadow:0 0.1875rem 0.625rem rgba(30,58,95,.06);transition:all .2s ease;" onmouseover="this.style.borderColor=\'#79a5d8\';this.style.boxShadow=\'0 8px 20px rgba(30,58,95,.12)\';this.style.transform=\'translateY(-1px)\'" onmouseout="this.style.borderColor=\'#d9e2ef\';this.style.boxShadow=\'0 3px 10px rgba(30,58,95,.06)\';this.style.transform=\'none\'">' +
+                        '<button type="button" data-load-period="' + escapeHtml(period) + '" style="flex:1;min-width:0;display:flex;align-items:center;justify-content:space-between;gap:0.375rem;padding:0.25rem 0.25rem;border:0;background:transparent;color:#1e3a5f;font:inherit;cursor:pointer;text-align:right;">' +
                             // التعديل: دمج الكشف والقسم في خلفية واحدة متصلة، مع تمييز اسم الشهر بلون ذهبي/برتقالي أنيق
-                            '<span style="display:flex;align-items:center;gap:8px;min-width:0;white-space:nowrap;background:#f0f4f8;border:1px solid #d1d9e6;padding:4px 6px 4px 10px;border-radius:10px;">' +
-                                '<strong style="font-size:13px; color:#1a3a6b; font-weight:700;">كشف <span style="color:#d97706; font-size:14px; font-weight:900;">' + escapeHtml(monthName) + '</span> ' + escapeHtml(yearText) + '</strong>' + 
+                            '<span style="display:flex;align-items:center;gap:0.5rem;min-width:0;white-space:nowrap;background:#f0f4f8;border:0.0625rem solid #d1d9e6;padding:0.25rem 0.375rem 0.25rem 0.625rem;border-radius:0.625rem;">' +
+                                '<strong style="font-size:0.8125rem; color:#1a3a6b; font-weight:700;">كشف <span style="color:#d97706; font-size:0.875rem; font-weight:900;">' + escapeHtml(monthName) + '</span> ' + escapeHtml(yearText) + '</strong>' + 
                                 deptHtml + 
                             '</span>' +
-                            '<span style="flex:0 0 auto;background:#f1f5f9;color:#475569;padding:4px 8px;border-radius:9px;font-size:11px;font-weight:800;border:1px solid #e2e8f0;min-width:45px;text-align:center;">' + count + ' صف</span>' +
+                            '<span style="flex:0 0 auto;background:#f1f5f9;color:#475569;padding:0.25rem 0.5rem;border-radius:0.5625rem;font-size:0.6875rem;font-weight:800;border:0.0625rem solid #e2e8f0;min-width:2.8125rem;text-align:center;">' + count + ' صف</span>' +
                         '</button>' +
-                        '<button type="button" data-delete-period="' + escapeHtml(period) + '" title="حذف الكشف من الأرشيف" aria-label="حذف الكشف من الأرشيف" style="flex:0 0 auto;width:34px;height:34px;border:1px solid #fecdd3;border-radius:9px;background:#fff5f6;color:#c92a45;font-size:15px;cursor:pointer;transition:.2s;" onmouseover="this.style.background=\'#ffe4e8\';this.style.transform=\'scale(1.06)\'" onmouseout="this.style.background=\'#fff5f6\';this.style.transform=\'none\'">🗑</button>' +
+                        '<button type="button" data-delete-period="' + escapeHtml(period) + '" title="حذف الكشف من الأرشيف" aria-label="حذف الكشف من الأرشيف" style="flex:0 0 auto;width:2.125rem;height:2.125rem;border:0.0625rem solid #fecdd3;border-radius:0.5625rem;background:#fff5f6;color:#c92a45;font-size:0.9375rem;cursor:pointer;transition:.2s;" onmouseover="this.style.background=\'#ffe4e8\';this.style.transform=\'scale(1.06)\'" onmouseout="this.style.background=\'#fff5f6\';this.style.transform=\'none\'">🗑</button>' +
                     '</div>';
                 });
 
@@ -6760,11 +6812,11 @@ body.inventory-mode-active .hasr-bottom-row > .hasr-signers-bar { grid-column: 2
         
         // التعديل 2: تثبيت الهيدر والفوتر، وتغليف (body) بـ div قابل للتمرير (Scroll)
         // التعديل هنا: تثبيت الهيدر والفوتر بـ flex-shrink:0 وإضافة حاوية التمرير في المنتصف بـ min-height:0
-        modal.innerHTML = '<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 16px;padding:0 2px 14px;border-bottom:1px solid #e2e8f0;flex-shrink:0;">' +
-            '<div style="display:flex;align-items:center;gap:11px;"><span style="display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:13px;background:linear-gradient(135deg,#1a3a6b,#3a75b5);color:#fff;font-size:21px;box-shadow:0 6px 14px rgba(26,58,107,.2);">▤</span><div><h3 style="margin:0;color:#193b6c;font-size:20px;line-height:1.25;">الكشوف الشهرية المحفوظة</h3><div style="margin-top:3px;color:#718096;font-size:11px;font-weight:600;">الأرشيف — اختر كشفًا لإدراجه أو احذفه نهائيًا</div></div></div>' +
-            '<span style="color:#6b7f9b;font-size:12px;font-weight:800;white-space:nowrap;">' + periods.length + ' كشف</span></div>' + 
-            '<div style="flex:1; overflow-y:auto; padding-right:4px; padding-left:4px; min-height:0;">' + body + '</div>' +
-            '<button type="button" data-close style="width:100%;margin-top:14px;padding:10px;border:1px solid #d3dbe7;border-radius:10px;background:#6b7280;color:#fff;font:inherit;font-weight:700;cursor:pointer;box-shadow:0 3px 8px rgba(71,85,105,.14);flex-shrink:0;">إغلاق</button>';
+        modal.innerHTML = '<div style="display:flex;align-items:center;justify-content:space-between;gap:0.75rem;margin:0 0 1rem;padding:0 0.125rem 0.875rem;border-bottom:0.0625rem solid #e2e8f0;flex-shrink:0;">' +
+            '<div style="display:flex;align-items:center;gap:0.6875rem;"><span style="display:inline-flex;align-items:center;justify-content:center;width:2.625rem;height:2.625rem;border-radius:0.8125rem;background:linear-gradient(135deg,#1a3a6b,#3a75b5);color:#fff;font-size:1.3125rem;box-shadow:0 0.375rem 0.875rem rgba(26,58,107,.2);">▤</span><div><h3 style="margin:0;color:#193b6c;font-size:1.25rem;line-height:1.25;">الكشوف الشهرية المحفوظة</h3><div style="margin-top:0.1875rem;color:#718096;font-size:0.6875rem;font-weight:600;">الأرشيف — اختر كشفًا لإدراجه أو احذفه نهائيًا</div></div></div>' +
+            '<span style="color:#6b7f9b;font-size:0.75rem;font-weight:800;white-space:nowrap;">' + periods.length + ' كشف</span></div>' + 
+            '<div style="flex:1; overflow-y:auto; padding-right:0.25rem; padding-left:0.25rem; min-height:0;">' + body + '</div>' +
+            '<button type="button" data-close style="width:100%;margin-top:0.875rem;padding:0.625rem;border:0.0625rem solid #d3dbe7;border-radius:0.625rem;background:#6b7280;color:#fff;font:inherit;font-weight:700;cursor:pointer;box-shadow:0 0.1875rem 0.5rem rgba(71,85,105,.14);flex-shrink:0;">إغلاق</button>';
         
         // إظهار الشاشة الجديدة فقط إذا لم تكن مفتوحة مسبقاً
         if (!existingOverlay) {
@@ -7321,9 +7373,9 @@ body.inventory-mode-active .hasr-bottom-row > .hasr-signers-bar { grid-column: 2
         var line3 = nameEl ? nameEl.textContent.trim() : 'نيابة مرور عين الصيرة';
         return '<div class="inv-print-header">' +
                 '<div class="inv-print-header-text">' +
-                    '<div style="text-align:center;font-size:16.5px;font-weight:bold;margin-bottom:5px;">' + escapeHtml(line1) + '</div>' +
+                    '<div style="text-align:center;font-size:1.0312rem;font-weight:bold;margin-bottom:0.3125rem;">' + escapeHtml(line1) + '</div>' +
                     '<div style="text-align:right;line-height:1.65;">' + escapeHtml(line2) + '<br></div>' +
-                    '<div style="text-align:center;font-size:16.5px;font-weight:bold;margin-bottom:5px;">' + escapeHtml(line3) + '</div>' +
+                    '<div style="text-align:center;font-size:1.0312rem;font-weight:bold;margin-bottom:0.3125rem;">' + escapeHtml(line3) + '</div>' +
                 '</div>' +
                 '<img src="logo.png" class="inv-print-logo" alt="">' +
             '</div>';
@@ -7370,26 +7422,33 @@ body.inventory-mode-active .hasr-bottom-row > .hasr-signers-bar { grid-column: 2
         
         var html = Object.keys(groups).map(function (groupName, groupIndex) {
             var groupTitle = '';
-            var table = '<div class="inventory-print-group">' + groupTitle + '<table><thead><tr>' +
-                columns.map(function (c) { return '<th style="width:' + c.width + '; min-width:' + c.width + '; max-width:' + c.width + ';">' + escapeHtml(c.name) + '</th>'; }).join('') + '</tr></thead><tbody>';
+            var hiddenIdx = (typeof window.getHiddenColumns === 'function') ? window.getHiddenColumns('inventory') : [];
+            var shownIdx = columns.map(function (c, i) { return i; }).filter(function (i) { return hiddenIdx.indexOf(i) < 0; });
+            if (!shownIdx.length) shownIdx = columns.map(function (c, i) { return i; });
+            var allW = columns.reduce(function (a, c) { return a + parseFloat(c.width); }, 0);
+            var shownW = shownIdx.reduce(function (a, i) { return a + parseFloat(columns[i].width); }, 0);
+            var printShare = 1; // الأعمدة المتبقية تأخذ العرض الكامل
+            var printColumns = shownIdx.map(function (i) { return columns[i]; });
+            var table = '<div class="inventory-print-group">' + groupTitle + '<table' + (printShare < 1 ? ' style="width:' + (printShare * 100).toFixed(2) + '%;margin:0 auto;"' : '') + '><thead><tr>' +
+                printColumns.map(function (c) { return '<th style="width:' + c.width + '; min-width:' + c.width + '; max-width:' + c.width + ';">' + escapeHtml(c.name) + '</th>'; }).join('') + '</tr></thead><tbody>';
             
             // طباعة رسالة الكشف السلبي إذا لم تكن هناك بيانات
             if (rows.length === 0) {
                 // تم استخدام !important لكسر قيود الطباعة القديمة، مع تحديد ارتفاع صريح للصف 120 بيكسل ليكون فخماً
-                table += '<tr><td colspan="' + columns.length + '" style="height: 80px !important; font-size: 24px !important; font-weight: bold !important; color: #1a3a6b !important; padding: 20px !important;">لا توجد محاضر غير مسددة عن هذا الشهر</td></tr>';
+                table += '<tr><td colspan="' + printColumns.length + '" style="height: 5rem !important; font-size: 1.5rem !important; font-weight: bold !important; color: #1a3a6b !important; padding: 1.25rem !important;">لا توجد محاضر غير مسددة عن هذا الشهر</td></tr>';
             } else {
                 table += groups[groupName].map(function (row, index) {
                     var numberedViolations = row.violations.map(function(v, i) { return (i + 1) + '- ' + v; }).join('\n');
                     var values = [index + 1, row.caseNum + (row.caseYear ? ' / ' + row.caseYear : ''), row.inventoryNo,
                         numberedViolations, row.fine ? row.fine + '\nج والمصاريف' : '', row.orderDate, row.detentionPlace,
                         row.name, row.nationalId, row.address];
-                    return '<tr>' + values.map(function (value, i) {
-                        return '<td class="' + (i === 3 ? 'inventory-print-violations' : '') + '">' + escapeHtml(value).replace(/\n/g, '<br>') + '</td>';
+                    return '<tr>' + shownIdx.map(function (i) {
+                        return '<td class="' + (i === 3 ? 'inventory-print-violations' : '') + '">' + escapeHtml(values[i]).replace(/\n/g, '<br>') + '</td>';
                     }).join('') + '</tr>';
                 }).join('');
             }
 
-            table += '</tbody><tfoot><tr><td colspan="' + columns.length + '">' +
+            table += '</tbody><tfoot><tr><td colspan="' + printColumns.length + '">' +
                 '<div class="signatures inventory-signatures">' +
                     '<div class="sig-box">موظف الحاسب الالي<br>' +
                         '<span class="sig-name-space">' + (inventoryComputerOfficer ? escapeHtml(inventoryComputerOfficer) : '&nbsp;') + '</span>' +
@@ -7422,11 +7481,11 @@ body.inventory-mode-active .hasr-bottom-row > .hasr-signers-bar { grid-column: 2
             '<section class="inventory-print-cover" aria-label="كوفر كشف الحصر">' +
                 '<div class="inventory-cover-header">' +
                     '<div class="inventory-cover-header-text">' +
-                        '<div style="text-align:center;font-size:19px;">النيابة العامة</div>' +
+                        '<div style="text-align:center;font-size:1.1875rem;">النيابة العامة</div>' +
                         '<div style="text-align:right;">نيابة مرور القاهرة الكلية</div>' +
-                        '<div style="text-align:center;font-size:19px;">' + escapeHtml(document.querySelector('[data-config="prosecution-name"]') ? document.querySelector('[data-config="prosecution-name"]').textContent.trim() : 'نيابة مرور عين الصيرة') + '</div>' +
+                        '<div style="text-align:center;font-size:1.1875rem;">' + escapeHtml(document.querySelector('[data-config="prosecution-name"]') ? document.querySelector('[data-config="prosecution-name"]').textContent.trim() : 'نيابة مرور عين الصيرة') + '</div>' +
                     '</div>' +
-                    '<div style="font-size:17px;font-weight:600;color:#172b4d;opacity:0.65;margin-top:2px;letter-spacing:1px;direction:rtl;">رقم الصادر / ........................</div>' +
+                    '<div style="font-size:1.0625rem;font-weight:600;color:#172b4d;opacity:0.65;margin-top:0.125rem;letter-spacing:0.0625rem;direction:rtl;">رقم الصادر / ........................</div>' +
                     '<img src="logo.png" class="inventory-cover-logo" alt="">' +
                 '</div>' +
                 '<div class="inventory-cover-content">' +
@@ -7441,7 +7500,7 @@ body.inventory-mode-active .hasr-bottom-row > .hasr-signers-bar { grid-column: 2
             
         sheet.classList.remove('cover-only'); // حذفنا الكلاس القديم لكي يظهر الجدول دائماً
         sheet.innerHTML = coverHtml + buildInventoryPrintHeader() +
-            '<div style="text-align:center;font-weight:700;font-size:18px;margin:4px 0 10px;">' + escapeHtml(unifiedTitle) + '</div>' +
+            '<div style="text-align:center;font-weight:700;font-size:1.125rem;margin:0.25rem 0 0.625rem;">' + escapeHtml(unifiedTitle) + '</div>' +
             html;
             
         document.body.classList.add('inventory-printing');
@@ -7598,6 +7657,10 @@ body.inventory-mode-active .hasr-bottom-row > .hasr-signers-bar { grid-column: 2
                 toggleBtn.style.background = 'linear-gradient(135deg, #0f766e, #115e59)';
             } else {
                 // == الدخول إلى شاشة كشف الحصر ==
+                var columnsPanel = document.getElementById('colsMenuPanel');
+                var columnsButton = document.getElementById('colsMenuBtn');
+                if (columnsPanel) columnsPanel.hidden = true;
+                if (columnsButton) columnsButton.setAttribute('aria-expanded', 'false');
                 rememberInspectionState();
                 var tbody2 = document.querySelector('#mainTable tbody');
                 if (tbody2) tbody2.innerHTML = '';
@@ -8488,30 +8551,30 @@ body.inventory-mode-active .hasr-bottom-row > .hasr-signers-bar { grid-column: 2
 <style id="inspection-smart-violation-style">
 /* البحث الذكي لبنود المخالفات داخل كشف الفحص */
 .auto-list { position: relative; }
-.violation-search-shell { position: relative; margin: 0 0 5px; direction: rtl; }
+.violation-search-shell { position: relative; margin: 0 0 0.3125rem; direction: rtl; }
 .violation-search-input {
   position: relative; z-index: 3; cursor: text;
-  width: 100%; box-sizing: border-box; min-height: 26px; padding: 3px 5px;
-  border: 1px solid #aab7c4; border-radius: 3px; background: #fff; color: #1f2937;
-  font-family: inherit; font-size: 12px; outline: none; text-align: right;
+  width: 100%; box-sizing: border-box; min-height: 1.625rem; padding: 0.1875rem 0.3125rem;
+  border: 0.0625rem solid #aab7c4; border-radius: 0.1875rem; background: #fff; color: #1f2937;
+  font-family: inherit; font-size: 0.75rem; outline: none; text-align: right;
 }
-.violation-search-input:focus { border-color: #365f8d; box-shadow: 0 0 0 1px rgba(54,95,141,.16); }
+.violation-search-input:focus { border-color: #365f8d; box-shadow: 0 0 0 0.0625rem rgba(54,95,141,.16); }
 .violation-search-suggestions {
-  position: absolute; top: calc(100% + 2px); right: 0; left: 0; display: none;
-  max-height: 180px; overflow-y: auto; background: #fff; border: 1px solid #7994b1;
-  box-shadow: 0 5px 14px rgba(20,40,60,.18); z-index: 10020; text-align: right;
+  position: absolute; top: calc(100% + 0.125rem); right: 0; left: 0; display: none;
+  max-height: 11.25rem; overflow-y: auto; background: #fff; border: 0.0625rem solid #7994b1;
+  box-shadow: 0 0.3125rem 0.875rem rgba(20,40,60,.18); z-index: 10020; text-align: right;
 }
 .violation-search-suggestions.open { display: block; }
 .violation-suggestion {
-  display: block; width: 100%; box-sizing: border-box; padding: 6px 7px; border: 0;
-  border-bottom: 1px solid #e5e7eb; background: #fff; color: #243447; cursor: pointer;
-  font-family: inherit; font-size: 12px; line-height: 1.45; text-align: right;
+  display: block; width: 100%; box-sizing: border-box; padding: 0.375rem 0.4375rem; border: 0;
+  border-bottom: 0.0625rem solid #e5e7eb; background: #fff; color: #243447; cursor: pointer;
+  font-family: inherit; font-size: 0.75rem; line-height: 1.45; text-align: right;
 }
 .violation-suggestion:last-child { border-bottom: 0; }
 .violation-suggestion:hover, .violation-suggestion.active { background: #edf4fb; }
-.violation-suggestion-code { color: #1a3a6b; font-weight: 700; margin-left: 5px; }
-.violation-suggestion-fine { color: #6b7280; font-size: 11px; margin-right: 5px; white-space: nowrap; }
-.violation-search-help { color: #718096; font-size: 10px; margin-top: 2px; white-space: nowrap; }
+.violation-suggestion-code { color: #1a3a6b; font-weight: 700; margin-left: 0.3125rem; }
+.violation-suggestion-fine { color: #6b7280; font-size: 0.6875rem; margin-right: 0.3125rem; white-space: nowrap; }
+.violation-search-help { color: #718096; font-size: 0.625rem; margin-top: 0.125rem; white-space: nowrap; }
 @media print {
   .violation-search-shell { display: none !important; }
   .auto-list ol { margin-top: 2px !important; }
@@ -12049,21 +12112,21 @@ const INSPECTION_VIOLATION_CATALOG = [
 
 <style id="inspection-inline-violation-style">
 /* البحث داخل خانة وصف الاتهام الأصلية، بدون مربع بحث إضافي لكل صف */
-.auto-list ol.inspection-inline-list { position: relative; min-height: 34px; }
+.auto-list ol.inspection-inline-list { position: relative; min-height: 2.125rem; }
 .inspection-inline-autocomplete {
   position: fixed; display: none; box-sizing: border-box; background: #fff;
-  border: 1.5px solid #7a9cbf; border-radius: 0 0 6px 6px;
-  box-shadow: 0 10px 30px rgba(30,58,95,.3); z-index: 999999;
+  border: 0.0938rem solid #7a9cbf; border-radius: 0 0 0.375rem 0.375rem;
+  box-shadow: 0 0.625rem 1.875rem rgba(30,58,95,.3); z-index: 999999;
   overflow-y: auto; direction: rtl; overscroll-behavior: contain;
 }
 .inspection-inline-autocomplete.open { display: block; }
   .inspection-inline-suggestion {
-  box-sizing: border-box; width: 100%; min-height: 42px; padding: 9px 14px;
-  display: flex; align-items: center; justify-content: flex-start; gap: 8px;
-  border: 0; border-bottom: 1px solid #edf0f7; background: #fff; color: #1e293b;
-  cursor: pointer; font-family: inherit; font-size: 14px; font-weight: 600; text-align: right;
+  box-sizing: border-box; width: 100%; min-height: 2.625rem; padding: 0.5625rem 0.875rem;
+  display: flex; align-items: center; justify-content: flex-start; gap: 0.5rem;
+  border: 0; border-bottom: 0.0625rem solid #edf0f7; background: #fff; color: #1e293b;
+  cursor: pointer; font-family: inherit; font-size: 0.875rem; font-weight: 600; text-align: right;
 }
-.inspection-inline-suggestion:hover { background: #e8f0fb; padding-right: 18px; }
+.inspection-inline-suggestion:hover { background: #e8f0fb; padding-right: 1.125rem; }
 .inspection-inline-suggestion .inspection-item-text {
   display: block; width: 100%; min-width: 0; white-space: normal; overflow: visible;
   text-overflow: clip; line-height: 1.55; text-align: right; word-break: normal;
@@ -12192,7 +12255,7 @@ const INSPECTION_VIOLATION_CATALOG = [
     if (!toast) {
       toast = document.createElement('div');
       toast.id = '_fhs_duplicate_violation_toast';
-      toast.style.cssText = 'position:fixed;bottom:28px;left:50%;transform:translateX(-50%);box-sizing:border-box;width:max-content;max-width:min(92vw,560px);background:#b42318;color:#fff;padding:10px 18px;border:1px solid #f3b3b3;border-radius:10px;font-family:inherit;font-size:12.5px;font-weight:800;line-height:1.6;text-align:center;direction:rtl;box-shadow:0 8px 24px rgba(127,29,29,.24);z-index:100000;opacity:0;transition:opacity .25s ease;pointer-events:none;';
+      toast.style.cssText = 'position:fixed;bottom:1.75rem;left:50%;transform:translateX(-50%);box-sizing:border-box;width:max-content;max-width:min(92vw,35rem);background:#b42318;color:#fff;padding:0.625rem 1.125rem;border:0.0625rem solid #f3b3b3;border-radius:0.625rem;font-family:inherit;font-size:0.7812rem;font-weight:800;line-height:1.6;text-align:center;direction:rtl;box-shadow:0 0.5rem 1.5rem rgba(127,29,29,.24);z-index:100000;opacity:0;transition:opacity .25s ease;pointer-events:none;';
       document.body.appendChild(toast);
     }
     toast.textContent = 'هذا البند مكرر داخل الخلية.';
@@ -12481,14 +12544,15 @@ const INSPECTION_VIOLATION_CATALOG = [
         var list = item.closest('ol');
         if (!list || list.dataset.manualFontSize === 'true') return;
         var inheritedSize = parseFloat(getComputedStyle(list).fontSize) || 14;
-        var baseSize = parseFloat(item.dataset.autoBaseFontSize) || inheritedSize;
-        item.dataset.autoBaseFontSize = String(baseSize);
-        item.style.fontSize = baseSize + 'px';
+        var rootPx = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+        var baseSize = (parseFloat(item.dataset.autoBaseRem) * rootPx) || inheritedSize;
+        item.dataset.autoBaseRem = String(baseSize / rootPx);
+        item.style.fontSize = (baseSize / rootPx) + 'rem';
         item.style.whiteSpace = 'nowrap';
-        var size = baseSize, minSize = 5.5, guard = 30;
+        var size = baseSize, minSize = 5.5 * rootPx / 16, guard = 30;
         while (item.scrollWidth > item.clientWidth + 2 && size > minSize && guard-- > 0) {
-            size = Math.max(minSize, size - 0.5);
-            item.style.fontSize = size + 'px';
+            size = Math.max(minSize, size - 0.5 * rootPx / 16);
+            item.style.fontSize = (size / rootPx) + 'rem';
         }
         if (item.scrollWidth <= item.clientWidth + 2) {
             if (size < baseSize) item.dataset.autoFitted = 'true';
@@ -12550,6 +12614,159 @@ const INSPECTION_VIOLATION_CATALOG = [
         observer.observe(table, { childList: true, subtree: true });
     }
     setTimeout(function () { autoFitAllViolationItems(document); }, 0);
+})();
+</script>
+<script id="columns-toggle-script">
+(function () {
+  // حالة الإخفاء في الذاكرة فقط: لا تُحفظ، فيرجع الجدول كاملًا عند إعادة تحميل الصفحة.
+  var hidden = { inspection: new Set(), inventory: new Set() };
+  var MIN_SHARE = 1; // الجدول يحتفظ بعرضه الكامل، والأعمدة المتبقية تتوزع على المساحة المتحررة
+  var styleEl = null, lastCss = null, scheduled = false, menuCloseTimer = 0;
+  function modeName() { return window.currentMode === 'inventory' ? 'inventory' : 'inspection'; }
+  function headers() { return Array.prototype.slice.call(document.querySelectorAll('#mainTable thead tr th')); }
+  function isControl(th) { return th.classList.contains('del-col') || th.classList.contains('inventory-del-col'); }
+  function hiddenFor(m) {
+    // مود الحصر يعرض أعمدته كاملة ولا يستخدم ميزة الكشف الخاص.
+    if (m === 'inventory') return [];
+    return Array.from(hidden[m] || []).sort(function (a, b) { return a - b; });
+  }
+  window.getHiddenColumns = function (m) { return hiddenFor(m || modeName()); };
+
+  function apply() {
+    scheduled = false;
+    var t = document.getElementById('mainTable'); if (!t) return;
+    var ths = headers(); if (!ths.length) return;
+    var set = modeName() === 'inventory' ? new Set() : hidden[modeName()];
+    // نظّف أي فهرس لا يطابق أعمدة الوضع الحالي
+    Array.from(set).forEach(function (i) { if (i >= ths.length || isControl(ths[i])) set.delete(i); });
+    var css = '', all = 0, vis = 0, visCount = 0;
+    ths.forEach(function (th, i) {
+      var w = parseFloat(th.style.width) || 0; all += w;
+      if (set.has(i)) { var n = i + 1; css += '#mainTable thead th:nth-child(' + n + '),#mainTable tbody td:nth-child(' + n + '):not([colspan]){display:none !important;}'; }
+      else { vis += w; visCount++; }
+    });
+    if (css !== lastCss) {
+      if (!styleEl) { styleEl = document.createElement('style'); styleEl.id = 'columns-hide-dynamic'; document.head.appendChild(styleEl); }
+      styleEl.textContent = css; lastCss = css;
+    }
+    t.classList.toggle('cols-trimmed', set.size > 0);
+    t.style.setProperty('--col-share', set.size > 0 && all ? Math.max(MIN_SHARE, Math.min(1, vis / all)).toFixed(4) : '1');
+    // الخلايا التي تمتد على عرض الجدول كله (الفوتر، رسالة "لا يوجد") تتبع عدد الأعمدة الظاهرة
+    t.querySelectorAll('td[colspan],th[colspan]').forEach(function (c) {
+      if (parseInt(c.getAttribute('colspan'), 10) >= 10 || c.dataset.fullSpan === '1') { c.dataset.fullSpan = '1'; if (c.colSpan !== visCount) c.colSpan = visCount; }
+    });
+    updateButton(ths, set);
+  }
+  function schedule() { if (!scheduled) { scheduled = true; requestAnimationFrame(apply); } }
+  function updateButton(ths, set) {
+    var btn = document.getElementById('colsMenuBtn'); if (!btn) return;
+    var total = ths.filter(function (th) { return !isControl(th); }).length;
+    var shown = total - set.size;
+    btn.classList.toggle('has-hidden', set.size > 0);
+    btn.title = set.size ? 'التحكم في أعمدة الجدول — ظاهر ' + shown + ' من ' + total : 'التحكم في أعمدة الجدول';
+    btn.textContent = '▦ الأعمدة';
+  }
+  function labelOf(th, i) { return (th.textContent || '').replace(/\s+/g, ' ').trim() || ('عمود ' + (i + 1)); }
+  function buildMenu() {
+    var panel = document.getElementById('colsMenuPanel'); if (!panel) return;
+    var ths = headers(), set = hidden[modeName()];
+    var cells = ths.map(function (th, i) {
+      var fw = parseFloat(th.style.width) || 1;
+      if (isControl(th)) return '<span class="cols-cell cols-cell-ctl" style="--fw:' + fw + '"></span>';
+      return '<label class="cols-cell' + (set.has(i) ? ' off' : '') + '" style="--fw:' + fw + '"><input type="checkbox" data-col="' + i + '"' + (set.has(i) ? '' : ' checked') + '><span class="cols-cell-name"></span></label>';
+    }).join('');
+    panel.innerHTML = '<p class="cols-menu-title">أزل العلامة من العمود الذي تريد إخفاءه (بنفس ترتيب الجدول، ويؤثر على الشاشة والطباعة):</p>' +
+      '<div class="cols-grid">' + cells + '</div>' +
+      '<div class="cols-menu-actions"><button type="button" data-act="all">إظهار كل الأعمدة</button><button type="button" data-act="close">إغلاق</button></div>' +
+      '<p class="cols-menu-note">الإخفاء مؤقت: عند إعادة تحميل الصفحة يرجع الجدول بكل أعمدته.</p>';
+    var names = panel.querySelectorAll('.cols-cell-name'), k = 0;
+    ths.forEach(function (th, i) { if (!isControl(th)) names[k++].textContent = labelOf(th, i); });
+  }
+  function placeMenu() {
+    var panel = document.getElementById('colsMenuPanel'), btn = document.getElementById('colsMenuBtn'), wrap = document.getElementById('tableWrapper');
+    if (!panel || panel.hidden || !btn) return;
+    var vw = document.documentElement.clientWidth, vh = document.documentElement.clientHeight, m = 8;
+    var wr = wrap ? wrap.getBoundingClientRect() : { left: m, right: vw - m, width: vw - 2 * m, bottom: m };
+    var width = Math.min(wr.width, vw - 2 * m);
+    var left = Math.max(m, Math.min(wr.left, vw - width - m));
+    panel.style.width = width + 'px'; panel.style.left = left + 'px'; panel.style.right = 'auto';
+    var headerRow = document.querySelector('#mainTable thead tr');
+    var top = headerRow ? headerRow.getBoundingClientRect().bottom : wr.bottom;
+    var ph = panel.offsetHeight;
+    if (top + ph > vh - m) top = Math.max(m, vh - ph - m);
+    panel.style.top = top + 'px'; panel.style.bottom = 'auto';
+  }
+  function closeMenu() {
+    var p = document.getElementById('colsMenuPanel'), b = document.getElementById('colsMenuBtn');
+    if (!p || p.hidden) { if (b) b.setAttribute('aria-expanded', 'false'); return; }
+    if (b) b.setAttribute('aria-expanded', 'false');
+    p.style.opacity = '0';
+    p.style.transform = 'translateY(-8px) scale(.98)';
+    clearTimeout(menuCloseTimer);
+    menuCloseTimer = setTimeout(function () {
+      if (b && b.getAttribute('aria-expanded') === 'true') return;
+      p.hidden = true;
+    }, 230);
+  }
+  function cellsAt(index) {
+    var t = document.getElementById('mainTable');
+    if (!t) return [];
+    var head = t.querySelector('thead tr');
+    return [head && head.cells[index]].concat(Array.from(t.querySelectorAll('tbody tr')).map(function (row) { return row.cells[index]; })).filter(Boolean);
+  }
+  window.toggleColumnsMenu = function (ev) {
+    if (ev) ev.stopPropagation();
+    var p = document.getElementById('colsMenuPanel'), b = document.getElementById('colsMenuBtn'); if (!p) return;
+    if (b && b.getAttribute('aria-expanded') === 'true') { closeMenu(); return; }
+    clearTimeout(menuCloseTimer);
+    buildMenu(); p.hidden = false;
+    p.style.opacity = '0'; p.style.transform = 'translateY(-8px) scale(.98)';
+    placeMenu(); if (b) b.setAttribute('aria-expanded', 'true');
+    requestAnimationFrame(function () {
+      if (b && b.getAttribute('aria-expanded') !== 'true') return;
+      p.style.opacity = '1'; p.style.transform = 'translateY(0) scale(1)';
+    });
+  };
+  window.addEventListener('resize', placeMenu);
+  window.addEventListener('scroll', placeMenu, true);
+  document.addEventListener('change', function (e) {
+    var cb = e.target; if (!cb || !cb.matches || !cb.matches('#colsMenuPanel input[data-col]')) return;
+    if (modeName() === 'inventory') return;
+    var i = parseInt(cb.getAttribute('data-col'), 10), set = hidden[modeName()];
+    if (!cb.checked) {
+      // نعدّ المربعات المعلّمة فعليًا (وليس الأعمدة المخفية فقط) حتى لا يمكن إخفاء الكل بنقرتين سريعتين
+      var shown = document.querySelectorAll('#colsMenuPanel input[data-col]:checked').length;
+      if (shown < 1) { cb.checked = true; cb.parentElement.classList.add('cols-menu-flash'); setTimeout(function () { cb.parentElement.classList.remove('cols-menu-flash'); }, 450); return; }
+      cellsAt(i).forEach(function (cell) { cell.classList.add('column-fade'); });
+      setTimeout(function () {
+        if (!cb.checked) { set.add(i); apply(); }
+        cellsAt(i).forEach(function (cell) { cell.classList.remove('column-fade'); });
+        placeMenu();
+      }, 180);
+    } else {
+      cellsAt(i).forEach(function (cell) { cell.classList.add('column-fade'); });
+      set.delete(i); apply();
+      requestAnimationFrame(function () {
+        cellsAt(i).forEach(function (cell) { cell.classList.remove('column-fade'); });
+        placeMenu();
+      });
+    }
+    if (cb.parentElement) cb.parentElement.classList.toggle('off', !cb.checked);
+  });
+  document.addEventListener('click', function (e) {
+    var panel = document.getElementById('colsMenuPanel'); if (!panel || panel.hidden) return;
+    var act = e.target && e.target.getAttribute && e.target.getAttribute('data-act');
+    if (act === 'all') { hidden[modeName()].clear(); apply(); buildMenu(); return; }
+    if (act === 'close') { closeMenu(); return; }
+    if (!panel.contains(e.target) && e.target.id !== 'colsMenuBtn') closeMenu();
+  });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeMenu(); });
+  function init() {
+    var t = document.getElementById('mainTable'); if (!t) return;
+    new MutationObserver(schedule).observe(t, { childList: true, subtree: true });
+    apply();
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once: true }); else init();
 })();
 </script>
 </body>

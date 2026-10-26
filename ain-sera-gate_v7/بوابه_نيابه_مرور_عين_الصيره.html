@@ -1,4 +1,4 @@
-﻿﻿<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ar" dir="rtl"><head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -51,6 +51,9 @@ body::after {
   transition: opacity var(--transition), transform var(--transition);
   transform-origin: top center;
 }
+/* مقياس ديناميكي للصفحة الرئيسية: يتحسب بالـ JS من مقاس الشاشة (المرجع 1366×768) */
+#launcher > * { zoom: var(--ui-scale, 1); }
+#launcher > .cards-grid { zoom: var(--ui-scale, 1); }
 #launcher.hiding { opacity:0; transform:scale(0.92) translateY(-30px); pointer-events:none; }
 #launcher.hidden  { display:none; }
 
@@ -226,6 +229,8 @@ body::after {
     0 2px 8px rgba(0,0,0,.2);
   display:flex; align-items:center;
   padding:0 6px; gap:2px;
+  /* مساحة محجوزة لأزرار الإعدادات/البروفايلات/الخروج/شارة المستخدم (ثابتة فوق الشريط) — تُحسب بالـ JS */
+  padding-left:var(--tb-tools-w, 300px);
   overflow-x:auto; overflow-y:hidden;
   scrollbar-width:none;
   opacity:0; transform:translateY(-100%);
@@ -256,12 +261,12 @@ body::after {
 /* عناصر الشريط */
 .tb-item {
   display:flex; align-items:center; gap:6px;
-  padding:0 13px; height:36px; border-radius:10px;
+  padding:0 clamp(6px, .9vw, 13px); height:36px; border-radius:10px;
   border:1.5px solid color-mix(in srgb, var(--tb-accent, var(--gold)) 60%, transparent);
   background: color-mix(in srgb, var(--tb-accent, var(--gold)) 16%, transparent);
   color:var(--white); font-family:'Cairo',sans-serif;
-  font-size:14px; font-weight:700; cursor:pointer;
-  white-space:nowrap; flex-shrink:0; min-width:0;
+  font-size:clamp(11px, .95vw, 14px); font-weight:700; cursor:pointer;
+  white-space:nowrap; flex:0 1 auto; min-width:0;
   position:relative;
   transition: color .22s, background .22s, border-color .22s,
               transform .25s cubic-bezier(.34,1.56,.64,1),
@@ -301,7 +306,10 @@ body::after {
 .tb-item.tb-disabled { opacity:.65; cursor:default; pointer-events:none; }
 
 .tb-icon  { font-size:15px; line-height:1; flex-shrink:0; }
-.tb-label { overflow:hidden; text-overflow:ellipsis; }
+.tb-label { overflow:hidden; text-overflow:ellipsis; min-width:0; }
+/* الشاشات الأضيق / شبه المربعة: نخفي الأيقونات ثم نضغط الشريط تدريجيًا بدل التداخل */
+@media (max-width:1500px) { .tb-item .tb-icon { display:none; } .tb-home span:first-child { display:none; } }
+@media (max-width:1100px) { .tb-home { padding:0 8px; } #topbar { gap:1px; } }
 .tb-soon  { font-size:9px; padding:1px 5px; border-radius:6px; background:rgba(167,139,250,.15); color:#c4b5fd; border:1px solid rgba(167,139,250,.25); flex-shrink:0; }
 
 /* ══════ CONTENT ══════ */
@@ -1791,6 +1799,30 @@ async function confirmPortalSession() {
   }
   return true;
 }
+
+// المقياس الديناميكي: أصغر نسبة بين عرض وارتفاع الشاشة ومقاس المرجع، بحد أدنى وأقصى
+function updateUiScale() {
+  const s = Math.min(window.innerWidth / 1366, window.innerHeight / 768);
+  const clamped = Math.max(0.85, Math.min(1.6, s));
+  document.documentElement.style.setProperty('--ui-scale', clamped.toFixed(3));
+}
+updateUiScale();
+window.addEventListener('resize', updateUiScale);
+
+// حجز مساحة في الشريط العلوي لأزرار الأدوات الثابتة وشارة المستخدم حتى لا تتداخل مع أزرار الأنظمة
+function updateTopbarToolsWidth() {
+  const badge = document.getElementById('active-user-badge');
+  const tb = document.getElementById('topbar');
+  if (!badge || !tb) return;
+  const w = 158 + badge.offsetWidth + 14;
+  tb.style.setProperty('--tb-tools-w', w + 'px');
+}
+window.addEventListener('resize', updateTopbarToolsWidth);
+document.addEventListener('DOMContentLoaded', () => {
+  const b = document.getElementById('active-user-badge');
+  if (b && window.ResizeObserver) new ResizeObserver(updateTopbarToolsWidth).observe(b);
+  updateTopbarToolsWidth();
+});
 
 async function openSystem(idx) {
   if (!await confirmPortalSession()) return;
@@ -3323,7 +3355,7 @@ a.download = `نسخة_احتياطية_قبل_التصفير_${dateStr}.json`;
   };
 
   // 4. حفظ البيانات المصفّرة في السيرفر ومسح الذاكرة المحلية
-  await saveToServerData(cleanData);
+  await saveToServerData(cleanData, null, { confirmFullReplace: true });
   await saveProfilesData(cleanProfiles);
 
   localStorage.clear();
@@ -3396,7 +3428,7 @@ async function handleRestoreBackupFile(event) {
 
       // إرسال البيانات المسترجعة للسيرفر وكتابتها في data.json و profiles.json
       if (restoredData) {
-        await saveToServerData(restoredData);
+        await saveToServerData(restoredData, null, { confirmFullReplace: true });
       }
       if (restoredProfiles) {
         await saveProfilesData(restoredProfiles);
