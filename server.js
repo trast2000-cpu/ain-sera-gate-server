@@ -247,6 +247,118 @@ function atomicWriteFile(file, content) {
 }
 
 // =====================================================================
+//  حماية قاعدة البيانات من المسح (الوضع المحلي)
+//   1) سجل كتابة write-log.txt: وقت كل حفظ ومصدره (الصفحة والمستخدم) وحجمه وقراره.
+//   2) الحفظ الكامل بدون مفتاح محضر لا يستطيع مسح المحاضر أو تفريغ بيانات موجودة؛
+//      يُدمَج في القاعدة الحالية. لا يُستبدل الملف كاملًا إلا بتأكيد صريح من الصفحة
+//      (الترويسة X-Confirm-Full-Replace: true) وبعد أخذ نسخة pre-full.
+//   3) نسخة دورية كل 5 دقائق (حد أقصى 48 = آخر 4 ساعات) في backups/snapshots.
+// =====================================================================
+const WRITE_LOG_FILE = path.join(__dirname, "write-log.txt");
+const SNAP_DIR = path.join(BACKUP_DIR, "snapshots");
+const PREFULL_DIR = path.join(BACKUP_DIR, "pre-full");
+const SNAP_INTERVAL_MS = 5 * 60 * 1000;
+const MAX_SNAPSHOTS = 48;
+const MAX_PREFULL = 20;
+let lastSnapshotAt = 0;
+
+function localStamp(sep) {
+  const d = new Date();
+  const pad = (n) => String(n).padStart(2, "0");
+  const date = d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
+  const time = pad(d.getHours()) + ":" + pad(d.getMinutes()) + ":" + pad(d.getSeconds());
+  return sep ? date + " " + time : (date + "-" + time).replace(/[-:]/g, "");
+}
+function kb(n) {
+  return (n / 1024).toFixed(1) + "KB";
+}
+function writeLog(line) {
+  try {
+    if (
+      fs.existsSync(WRITE_LOG_FILE) &&
+      fs.statSync(WRITE_LOG_FILE).size > 2 * 1024 * 1024
+    ) {
+      fs.renameSync(WRITE_LOG_FILE, WRITE_LOG_FILE + ".old");
+    }
+    fs.appendFileSync(WRITE_LOG_FILE, localStamp(true) + " | " + line + "\n", "utf8");
+  } catch (e) {}
+}
+// من أي صفحة/مستخدم جاء الطلب (للتشخيص فقط)
+function requestOrigin(req, userSession) {
+  let page = "";
+  try {
+    const ref = req.headers["referer"] || "";
+    page = decodeURIComponent(ref.split("?")[0].split("/").pop() || "") || "?";
+  } catch (e) {
+    page = "?";
+  }
+  const ip = String(req.socket.remoteAddress || "").replace("::ffff:", "");
+  return "user=" + (userSession && userSession.id ? userSession.id : "?") + " ip=" + ip + " page=" + page;
+}
+function copyDataIntoDir(dir, prefix, max) {
+  try {
+    if (IS_CLOUD || !fs.existsSync(DATA_FILE) || !isValidJsonFile(DATA_FILE)) return false;
+    fs.mkdirSync(dir, { recursive: true });
+    fs.copyFileSync(DATA_FILE, path.join(dir, prefix + "-" + localStamp(false) + ".json"));
+    const files = fs
+      .readdirSync(dir)
+      .filter((f) => f.indexOf(prefix + "-") === 0 && f.slice(-5) === ".json")
+      .sort();
+    while (files.length > max) fs.unlinkSync(path.join(dir, files.shift()));
+    return true;
+  } catch (e) {
+    console.log("[WARN] Snapshot failed:", e.message);
+    return false;
+  }
+}
+// نسخة دورية: تُؤخذ قبل أول كتابة بعد مرور 5 دقائق على آخر نسخة
+function maybeRollingSnapshot() {
+  const now = Date.now();
+  if (now - lastSnapshotAt < SNAP_INTERVAL_MS) return;
+  if (copyDataIntoDir(SNAP_DIR, "snap", MAX_SNAPSHOTS)) lastSnapshotAt = now;
+}
+function isEmptyValue(v) {
+  if (v === null || v === undefined || v === "") return true;
+  if (Array.isArray(v)) return v.length === 0;
+  if (typeof v === "object") return Object.keys(v).length === 0;
+  return false;
+}
+function countMahdars(obj) {
+  return Object.keys(obj).filter(
+    (k) => k.indexOf("mahdar_") === 0 && k !== "mahdar_index"
+  ).length;
+}
+// دمج حفظ كامل غير مؤكد داخل القاعدة الحالية:
+//  - مفاتيح المحاضر (mahdar_*) والفهرس لا تُعدَّل أبدًا من حفظ كامل (تُحفظ بمفتاح محضر فقط).
+//  - مفتاح غير مذكور في الطلب يبقى كما هو.
+//  - قيمة فارغة لا تحل محل قيمة موجودة غير فارغة.
+function mergeGuardedFullSave(current, incoming) {
+  const merged = Object.assign({}, current);
+  const blocked = [];
+  Object.keys(incoming).forEach((key) => {
+    if (key === "mahdar_index" || key.indexOf("mahdar_") === 0) {
+      if (key !== "mahdar_index" && !Object.prototype.hasOwnProperty.call(current, key)) {
+        blocked.push(key + "(new-record-ignored)");
+      } else if (key === "mahdar_index") {
+        const cur = Array.isArray(current.mahdar_index) ? current.mahdar_index.length : 0;
+        const inc = Array.isArray(incoming.mahdar_index) ? incoming.mahdar_index.length : 0;
+        if (inc < cur) blocked.push("mahdar_index(" + inc + "<" + cur + ")");
+      }
+      return;
+    }
+    const inc = incoming[key];
+    const cur = current[key];
+    if (isEmptyValue(inc) && !isEmptyValue(cur)) {
+      blocked.push(key + "(empty-over-data)");
+      return;
+    }
+    merged[key] = inc;
+  });
+  if (!Array.isArray(merged.mahdar_index)) merged.mahdar_index = [];
+  return { merged, blocked };
+}
+
+// =====================================================================
 //  حماية البيانات (الوضع السحابي): نسخ احتياطية داخل Redis نفسه
 //    <key>:bak            = حالة القاعدة قبل آخر حفظ مباشرة
 //    <key>:bak:slot:0..9  = 10 خانات دوّارة (نسخة كل ساعة، الأقدم يتكتب فوقه)
@@ -332,6 +444,7 @@ async function writeDataRaw(content, previousRaw) {
     return;
   }
   backupBeforeWrite(DATA_FILE);
+  maybeRollingSnapshot();
   atomicWriteFile(DATA_FILE, content);
 }
 
@@ -379,6 +492,9 @@ if (!IS_CLOUD) {
   // نسخة احتياطية من الملفين عند كل تشغيل (لو سليمين)
   backupBeforeWrite(DATA_FILE);
   backupBeforeWrite(PROFILES_FILE);
+  copyDataIntoDir(SNAP_DIR, "snap", MAX_SNAPSHOTS);
+  lastSnapshotAt = Date.now();
+  writeLog("SERVER-START data.json=" + (fs.existsSync(DATA_FILE) ? kb(fs.statSync(DATA_FILE).size) : "missing"));
 }
 
 // التشفير التلقائي للبيانات القديمة + نقل بيانات البروفايلات القديمة من ملف البيانات
@@ -575,6 +691,12 @@ async function handleRequest(req, res) {
     } // منع تحميل الداتابيز للخارج
     try {
       const raw = await enqueueRecordWrite(() => readDataRaw());
+      if (raw === null && !IS_CLOUD) {
+        // الملف مفقود أثناء التشغيل: لا نخدع الصفحات بقاعدة فاضية سليمة (يمنع الحفظ فوق بيانات ناقصة)
+        writeLog("READ-REFUSED data.json missing | " + requestOrigin(req, userSession));
+        res.writeHead(500);
+        return res.end("Data file missing");
+      }
       res.writeHead(200, JSON_HEADERS);
       res.end(raw && raw.trim() ? raw : JSON.stringify({ mahdar_index: [] }));
     } catch (err) {
@@ -634,6 +756,14 @@ async function handleRequest(req, res) {
               );
               return fail(500, "Read error - nothing was written");
             }
+            if (currentRaw === null && !IS_CLOUD) {
+              writeLog("KEYED-REFUSED data.json missing key=" + getDisplaySafeKey(recordKey) + " | " + requestOrigin(req, userSession));
+              return fail(500, "Data file missing - nothing was written");
+            }
+            if (recordKey === "mahdar_index") {
+              writeLog("KEYED-REFUSED mahdar_index is server-managed | " + requestOrigin(req, userSession));
+              return fail(400, "mahdar_index is managed by the server");
+            }
             let current;
             try {
               current =
@@ -686,6 +816,11 @@ async function handleRequest(req, res) {
             }
 
             await writeDataRaw(JSON.stringify(current, null, 4), currentRaw);
+            writeLog(
+              (isDeleteRequest ? "KEYED-DELETE " : "KEYED-SAVE ") +
+                getDisplaySafeKey(recordKey) + " | in=" + kb(body.length) +
+                " mahdars=" + countMahdars(current) + " | " + requestOrigin(req, userSession)
+            );
             console.log(
               `[SUCCESS] Record [${getDisplaySafeKey(recordKey)}] saved!`
             );
@@ -701,29 +836,69 @@ async function handleRequest(req, res) {
         return;
       }
 
-      // حفظ كامل بدون مفتاح سجل: تم التحقق أعلاه أن المحتوى JSON صالح وكائن،
-      // وتؤخذ نسخة احتياطية تلقائيًا قبل الكتابة.
+      // حفظ كامل بدون مفتاح سجل. مسموح فقط بإحدى طريقتين:
+      //  أ) بتأكيد صريح X-Confirm-Full-Replace: true (استعادة/تصفير من البوابة): تُؤخذ نسخة pre-full ثم يُستبدل الملف.
+      //  ب) بدون تأكيد (صفحات تحفظ القاعدة كلها): يُدمَج الطلب بحذر ولا يستطيع مسح المحاضر أو تفريغ بيانات.
+      const confirmFull = req.headers["x-confirm-full-replace"] === "true";
       enqueueRecordWrite(async () => {
+        const origin = requestOrigin(req, userSession);
+        const reply = (code, text) => {
+          if (res.headersSent) return;
+          res.writeHead(code, { "Content-Type": "text/plain; charset=utf-8" });
+          res.end(text);
+        };
         try {
           let previousRaw = null;
-          if (IS_CLOUD) {
+          try {
+            previousRaw = await readDataRaw();
+          } catch (e) {
+            if (!IS_CLOUD) {
+              writeLog("FULL-REFUSED cannot read current data | " + origin);
+              return reply(500, "Read error - nothing was written");
+            }
+            previousRaw = null;
+          }
+          if (previousRaw === null && !IS_CLOUD) {
+            writeLog("FULL-REFUSED data.json missing | in=" + kb(body.length) + " | " + origin);
+            return reply(500, "Data file missing - nothing was written");
+          }
+          let current = { mahdar_index: [] };
+          if (previousRaw && previousRaw.trim()) {
             try {
-              previousRaw = await readDataRaw();
-            } catch (e) {
-              previousRaw = null;
+              current = JSON.parse(previousRaw);
+              if (!current || Array.isArray(current) || typeof current !== "object")
+                throw new Error("Not an object");
+            } catch (parseErr) {
+              await quarantineData(previousRaw);
+              writeLog("FULL-REFUSED stored data corrupt | " + origin);
+              return reply(500, "Data file corrupt - nothing was written");
             }
           }
-          await writeDataRaw(body, previousRaw);
-          if (!res.headersSent) {
-            res.writeHead(200, { "Content-Type": "text/plain; charset=utf-8" });
-            res.end("Saved");
+          if (confirmFull) {
+            copyDataIntoDir(PREFULL_DIR, "pre-full", MAX_PREFULL);
+            await writeDataRaw(body, previousRaw);
+            writeLog(
+              "FULL-REPLACE-CONFIRMED | in=" + kb(body.length) + " was=" + kb(previousRaw ? previousRaw.length : 0) +
+                " mahdars " + countMahdars(current) + "->" + countMahdars(incoming) + " | " + origin
+            );
+            return reply(200, "Saved");
           }
+          const result = mergeGuardedFullSave(current, incoming);
+          await writeDataRaw(JSON.stringify(result.merged, null, 4), previousRaw);
+          writeLog(
+            "FULL-SAVE-MERGED | in=" + kb(body.length) + " cur=" + kb(previousRaw ? previousRaw.length : 0) +
+              " mahdars=" + countMahdars(result.merged) +
+              (result.blocked.length ? " BLOCKED: " + result.blocked.slice(0, 8).join(", ") : "") +
+              " | " + origin
+          );
+          if (result.blocked.length) {
+            console.log("[GUARD] Full save merged, blocked: " + result.blocked.slice(0, 5).join(", "));
+          }
+          return reply(200, "Saved");
         } catch (err) {
           console.error("[ERROR] Full save failed:", err && err.message);
-          if (!res.headersSent) {
-            res.writeHead(500);
-            res.end("Error");
-          }
+          writeLog("FULL-ERROR " + (err && err.message) + " | " + origin);
+          return reply(500, "Error");
         }
       });
     });
