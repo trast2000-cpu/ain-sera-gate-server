@@ -40,6 +40,9 @@
 
 /* ===== مقياس الواجهة على الشاشة: كل الأحجام بوحدة rem، وهذا السطر هو نسبة التكبير الوحيدة =====
    17.6px = تكبير 110 بالمئة (غيّر الرقم فقط لتكبير/تصغير النظام كله). الطباعة تبقى على 16px. */
+/* جذر الطباعة ثابت 16px كي لا يتأثر بإعداد حجم الخط الافتراضي في المتصفح */
+@media print { html { font-size: 16px !important; } }
+
 @media screen {
     html { font-size: clamp(12px, calc(100vw / 65.6), 20.4px); }
     :where(input, select, textarea, button) { font-size: 0.8333rem; }
@@ -174,6 +177,11 @@ option[data-category="dark"] {
             font-size: 0.6875rem;
             font-weight: bold;
         }
+        .case-summary-pay-line { display: flex; flex-wrap: wrap; align-items: center; gap: 0.15rem 0.35rem; }
+        .case-summary-sub { font-size: 0.8rem; font-weight: 600; color: #1e293b; white-space: nowrap; direction: ltr; unicode-bidi: isolate; }
+        .case-summary-sub b { font-weight: bold; color: #166534; }
+        body[data-theme="dark"] .case-summary-sub { color: #f1f5f9; }
+        body[data-theme="dark"] .case-summary-sub b { color: #86efac; }
         .case-summary-status.paid { background: #dcfce7; color: #166534; border: 0.0625rem solid #86efac; }
         .case-summary-status.unpaid { background: #fee2e2; color: #991b1b; border: 0.0625rem solid #fca5a5; }
         .case-summary-status.type { background: #dbeafe; color: #1e40af; border: 0.0625rem solid #93c5fd; }
@@ -2633,6 +2641,10 @@ body[data-theme="dark"] .summary-stat-grand-total { border-top-color:#166534; ba
                 <div class="case-summary-row">
                     <span class="case-summary-label">نوع المحضر</span>
                     <span id="summary-type" class="case-summary-value"><span class="case-summary-status type">—</span></span>
+                </div>
+                <div class="case-summary-row">
+                    <span class="case-summary-label">تاريخ الواقعة</span>
+                    <span id="summary-incident-date" class="case-summary-value" style="direction:ltr; unicode-bidi:isolate; text-align:right;">—</span>
                 </div>
                 <div id="summary-primary-row" class="case-summary-row case-summary-primary-row" style="display:none;">
                     <span class="case-summary-label">المحضر الاساسي : </span>
@@ -5868,12 +5880,35 @@ if (window.isPresetRunning) return;
             // التحقق من حالة "تسليم بدون غرامة"
             const isDeliveredWithoutFine = !paid && savedPayment.vehicleStatus === 'deliver' && hasHistory;
 
+            // تفاصيل صغيرة بجوار الشارة: تاريخ السداد والمبلغ (أو تاريخ إصدار قرار التسليم)
+            const pickDate = v => String(v || '').trim();
+            const histDate = (function () {
+                const h = (savedPayment.editHistory || [])[0];
+                if (!h) return '';
+                const pad = n => String(n).padStart(2, '0');
+                if (h.timestamp) { const d = new Date(h.timestamp); if (!isNaN(d)) return d.getFullYear() + '/' + pad(d.getMonth() + 1) + '/' + pad(d.getDate()); }
+                if (h.time) {
+                    const t = String(h.time).replace(/[\u200e\u200f]/g, '').replace(/[٠-٩]/g, c => '٠١٢٣٤٥٦٧٨٩'.indexOf(c));
+                    const m = t.match(/(\d{1,4})\s*[\/\-.]\s*(\d{1,2})\s*[\/\-.]\s*(\d{1,4})/);
+                    if (m) {
+                        if (m[1].length === 4) return m[1] + '/' + pad(m[2]) + '/' + pad(m[3]);
+                        return m[3] + '/' + pad(m[2]) + '/' + pad(m[1]);
+                    }
+                }
+                return '';
+            })();
+            const payDate = pickDate(savedPayment.fineReceiptDate) || pickDate((document.getElementById('fine-receipt-date') || {}).value);
+            const payAmount = pickDate(savedPayment.fineAmount) || pickDate((document.getElementById('fine-receipt-amount') || {}).value);
+            const subPaid = [payDate, payAmount ? ('ج\u200e ' + payAmount) : ''].filter(Boolean).join(' · ');
+            const subHtmlPaid = subPaid ? `<span class="case-summary-sub" title="تاريخ السداد والمبلغ">${subPaid.replace(/</g, '&lt;')}</span>` : '';
+            const subHtmlDeliver = histDate ? `<span class="case-summary-sub" title="تاريخ إصدار القرار">${histDate.replace(/</g, '&lt;')}</span>` : '';
+
             if (paid) {
                 // شارة مسدد (خضراء)
-                el.innerHTML = `<span class="case-summary-status paid" style="cursor:pointer; text-decoration:underline;" onclick="showEditHistory('${historyJson}')" title="اضغط لعرض سجل التعديلات">مسدد <i class="fa-solid fa-clock-rotate-left" style="margin-right:0.1875rem; font-size:0.625rem;"></i></span>`;
+                el.innerHTML = `<span class="case-summary-pay-line"><span class="case-summary-status paid" style="cursor:pointer; text-decoration:underline;" onclick="showEditHistory('${historyJson}')" title="اضغط لعرض سجل التعديلات">مسدد <i class="fa-solid fa-clock-rotate-left" style="margin-right:0.1875rem; font-size:0.625rem;"></i></span>${subHtmlPaid}</span>`;
             } else if (isDeliveredWithoutFine) {
                 // شارة تم اصدار قرار تسليم (زرقاء/بنفسجية)
-                el.innerHTML = `<span class="case-summary-status delivered-session" style="cursor:pointer; text-decoration:underline;" onclick="showEditHistory('${historyJson}')" title="اضغط لعرض سجل التعديلات">تم اصدار قرار تسليم <i class="fa-solid fa-clock-rotate-left" style="margin-right:0.1875rem; font-size:0.625rem;"></i></span>`;
+                el.innerHTML = `<span class="case-summary-pay-line"><span class="case-summary-status delivered-session" style="cursor:pointer; text-decoration:underline;" onclick="showEditHistory('${historyJson}')" title="اضغط لعرض سجل التعديلات">تم اصدار قرار تسليم <i class="fa-solid fa-clock-rotate-left" style="margin-right:0.1875rem; font-size:0.625rem;"></i></span>${subHtmlDeliver}</span>`;
             } else {
                 // شارة غير مسدد (حمراء)
                 el.innerHTML = '<span class="case-summary-status unpaid">غير مسدد</span>';
@@ -5885,7 +5920,7 @@ if (window.isPresetRunning) return;
             const content = document.getElementById('case-summary-content');
             if (empty) empty.style.display = 'flex';
             if (content) content.style.display = 'none';
-            ['summary-case-key','summary-dept','summary-name','summary-plate','summary-fine',
+            ['summary-case-key','summary-dept','summary-name','summary-plate','summary-incident-date','summary-fine',
              'summary-linked','summary-session-date','summary-linked-violation'].forEach(id => setSummaryText(id, '—'));
             const violations = document.getElementById('summary-violations');
             if (violations) violations.innerHTML = '<li style="grid-column: 1 / -1;">—</li>';
@@ -6052,6 +6087,7 @@ if (window.isPresetRunning) return;
             setSummaryText('summary-case-key', data.caseNum ? `${data.caseNum} / ${data.year || '—'} / ${summaryDept}` : '—');
             setSummaryText('summary-dept', data.dept || data.department);
             setSummaryText('summary-name', data.name);
+            setSummaryText('summary-incident-date', data.incidentDate || data.eventDate || data.date);
             const plateType = String(data.plateType || '').trim();
             const plateValue = plateType === 'no-plate'
                 ? (data.noPlateTxt || 'بدون لوحات')

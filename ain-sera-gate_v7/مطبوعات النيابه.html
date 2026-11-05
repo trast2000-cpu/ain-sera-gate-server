@@ -554,6 +554,9 @@
 
     /* ===== مقياس الواجهة على الشاشة: كل الأحجام بوحدة rem، وهذا السطر هو نسبة التكبير الوحيدة =====
    الجذر يتدرج مع عرض الشاشة (حد أدنى 12px وأقصى 16px = الحجم الأصلي)، والطباعة تبقى على 16px. */
+/* جذر الطباعة ثابت 16px كي لا يتأثر بإعداد حجم الخط الافتراضي في المتصفح */
+@media print { html { font-size: 16px !important; } }
+
 @media screen {
     html { font-size: clamp(12px, calc(100vw / 80), 16px); }
     :where(input, select, textarea, button) { font-size: 0.8333rem; }

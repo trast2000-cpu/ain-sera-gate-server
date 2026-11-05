@@ -6,7 +6,6 @@
         <link rel="stylesheet" href="fontawesome-free-6.4.0-web/css/all.min.css">
 
 <link href="cairo.css" rel="stylesheet">
-<script src="niabat-config-loader.js"></script>
 <script src="api.js"></script>
 
 <style id="cairo-font-base64">
@@ -553,6 +552,9 @@ body button,
 
 /* ===== مقياس الواجهة على الشاشة: كل الأحجام بوحدة rem، وهذا السطر هو نسبة التكبير الوحيدة =====
    17.6px = تكبير 110 بالمئة (غيّر الرقم فقط لتكبير/تصغير النظام كله). الطباعة تبقى على 16px. */
+/* جذر الطباعة ثابت 16px كي لا يتأثر بإعداد حجم الخط الافتراضي في المتصفح */
+@media print { html { font-size: 16px !important; } }
+
 @media screen {
     html { font-size: 17.6px; }
     :where(input, select, textarea, button) { font-size: 0.8333rem; }
@@ -674,10 +676,53 @@ box-sizing: border-box;
         .defendant-left-controls { gap: 0.25rem; flex: 0 0 auto; }
         .defendant-tab, .defendant-add-btn { border: 0.0625rem solid #bfdbfe; border-radius: 0.3125rem; background: #eff6ff; color: #1d4ed8; cursor: pointer; font-family: inherit; font-size: 0.7rem; font-weight: bold; padding: 0.18rem 0.5rem; line-height: 1.35; transition: all 0.2s ease; }
         .defendant-tab:hover, .defendant-add-btn:hover { background: #dbeafe; border-color: #60a5fa; }
-        .defendant-tab.active { background: #2563eb; border-color: #1d4ed8; color: #fff; box-shadow: 0 0.1rem 0.25rem rgba(37, 99, 235, 0.25); }
+        .defendant-tab:not(.active) { background: #f1f5f9; border: 0.0625rem dashed #94a3b8; color: #64748b; opacity: 0.88; }
+        .defendant-tab:not(.active):hover { opacity: 1; background: #e0e9f8; border-style: solid; border-color: #60a5fa; color: #1d4ed8; }
+        .defendant-tab-name { font-weight: normal; font-size: 0.68rem; color: #475569; max-width: 5.5rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; border-right: 0.0625rem solid #cbd5e1; padding-right: 0.3rem; }
+        .defendant-tab.active { position: relative; background: #1d4ed8; border: 0.125rem solid #1e3a8a; color: #fff; box-shadow: 0 0 0 0.1875rem rgba(59, 130, 246, 0.35), 0 0.25rem 0.625rem rgba(30, 64, 175, 0.4); margin-bottom: 0.3rem; }
+        .defendant-tab.active::after { content: ''; position: absolute; left: 50%; bottom: -0.55rem; transform: translateX(-50%); border: 0.3rem solid transparent; border-top-color: #1e3a8a; border-bottom: 0; }
         .defendant-tab { display: inline-flex; align-items: center; gap: 0.3rem; }
         .defendant-tab-remove { display: inline-flex; align-items: center; justify-content: center; width: 1.25rem; height: 1.25rem; border-radius: 50%; color: #dc2626 !important; background: #fee2e2; font-size: 1.1rem; line-height: 1; font-weight: 900; cursor: pointer; }
         .defendant-tab.active .defendant-tab-remove { color: #b91c1c !important; background: #fecaca; }
+        /* شريط المتهمين داخل الأسئلة والقرارات: أعلى وأوضح، واسم المتهم النشط أكبر */
+        #q-defendant-bar, #decision-defendant-bar { padding: 0.6rem 0.75rem; gap: 0.5rem; min-height: 3.1rem; }
+        #q-defendant-bar .q-bar-title, #decision-defendant-bar .q-bar-title { font-size: 0.95rem; }
+        #q-defendant-bar .defendant-tab, #decision-defendant-bar .defendant-tab { font-size: 0.8rem; padding: 0.4rem 0.85rem; }
+        #q-defendant-bar .defendant-tab.active, #decision-defendant-bar .defendant-tab.active { font-size: 1.05rem; padding: 0.5rem 1.1rem; }
+        /* تبويب المتهم النشط في الأسئلة والقرارات: رقم المتهم أصغر، والاسم أكبر وأطول */
+        .defendant-tab.active .dt-num { font-size: 0.66rem; font-weight: bold; opacity: 0.85; white-space: nowrap; }
+        #q-defendant-bar .defendant-tab.active .dt-num, #decision-defendant-bar .defendant-tab.active .dt-num { font-size: 0.68rem; }
+        .defendant-tab.active .dt-name { font-size: 1.1rem; font-weight: 800; max-width: 17rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; border-right: 0.0625rem solid rgba(255,255,255,0.45); padding-right: 0.45rem; }
+        .defendant-tab .dt-import { font-size: 0.6rem; font-weight: bold; background: rgba(255,255,255,0.18); border: 0.0625rem solid rgba(255,255,255,0.55); border-radius: 0.25rem; padding: 0.05rem 0.4rem; margin-right: 0.2rem; cursor: pointer; white-space: nowrap; }
+        .defendant-tab .dt-import:hover, .defendant-tab .dt-import:focus { background: #fff; color: #1d4ed8; outline: none; }
+        #iq-overlay { position: fixed; inset: 0; z-index: 100000; display: flex; align-items: center; justify-content: center; background: rgba(15, 23, 42, 0); transition: background 0.2s ease; direction: rtl; }
+        #iq-overlay.show { background: rgba(15, 23, 42, 0.45); }
+        #iq-box { background: #fff; border-radius: 0.75rem; box-shadow: 0 1rem 2.5rem rgba(0,0,0,0.35); padding: 1rem 1.1rem; min-width: 22rem; max-width: 92vw; opacity: 0; transform: translateY(0.6rem) scale(0.94); transition: opacity 0.2s ease, transform 0.2s ease; font-family: inherit; }
+        #iq-overlay.show #iq-box { opacity: 1; transform: none; }
+        #iq-box .iq-row { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+        #iq-box .iq-row + .iq-row { margin-top: 0.85rem; }
+        #iq-box .iq-title { font-weight: 800; color: #1e3a8a; font-size: 1rem; white-space: nowrap; }
+        #iq-box select { flex: 1; min-width: 11rem; font-family: inherit; }
+        #iq-box .iq-actions { justify-content: flex-start; }
+        #iq-box .iq-btn { font-family: inherit; font-size: 0.85rem; font-weight: bold; padding: 0.4rem 0.9rem; border-radius: 0.4rem; border: 0.0625rem solid #93c5fd; background: #eff6ff; color: #1d4ed8; cursor: pointer; }
+        #iq-box .iq-btn:hover { background: #dbeafe; }
+        #iq-box .iq-main { background: #2563eb; border-color: #1d4ed8; color: #fff; }
+        #iq-box .iq-main:hover { background: #1d4ed8; }
+        #iq-box .iq-cancel { background: #f1f5f9; border-color: #cbd5e1; color: #475569; margin-right: auto; }
+        .q-input-wrap { position: relative; display: flex; align-items: center; width: 100%; }
+        .q-input-wrap input { flex: 1; min-width: 0; }
+        #questions_container .q-input-wrap input.has-reset { padding-left: 2.1rem !important; }
+        .btn-reset-q { position: absolute; left: 0.4rem; top: 50%; transform: translateY(-50%); width: 1.5rem; height: 1.5rem; align-items: center; justify-content: center; border-radius: 50%; background: #fef3c7; border: 0.0625rem solid #f59e0b; color: #92400e; font-size: 1rem; font-weight: bold; line-height: 1; cursor: pointer; user-select: none; }
+        .btn-reset-q:hover, .btn-reset-q:focus { background: #f59e0b; color: #fff; outline: none; }
+        .ti-preview { padding: 0 0.3rem 0.3rem; background: transparent; }
+        .ti-preview .ti-title { font-size: 0.7rem; font-weight: bold; color: #854d0e; margin-bottom: 0.1rem; }
+        .ti-preview .ti-body { text-align: center; line-height: 1.5; font-size: 0.95rem; color: #1e293b; }
+        .ti-preview .ti-l { color: #475569; }
+        .ti-preview .ti-v { font-weight: 800; }
+        .ti-preview .ti-empty { color: #94a3b8; font-weight: normal; }
+        .defendant-tab > span:first-child { white-space: nowrap; }
+        .defendant-tab select.defendant-tab-veh { font-family: inherit; font-size: 0.68rem !important; font-weight: bold; height: 1.45rem !important; min-height: 0 !important; padding: 0 0.2rem !important; border: 0.0625rem solid #93c5fd; border-radius: 0.25rem; background: #fff; color: #1e3a8a; width: auto; max-width: 9rem; cursor: pointer; }
+        .defendant-tab.active select.defendant-tab-veh { border-color: #bfdbfe; }
         .defendant-tab-remove:hover { color: #fff !important; background: #dc2626; }
         .defendant-add-btn { width: 1.55rem; height: 1.55rem; padding: 0; font-size: 1rem; line-height: 1; background: #ecfdf5; border-color: #86efac; color: #15803d; }
         .defendant-add-btn:hover { background: #dcfce7; border-color: #4ade80; }
@@ -686,7 +731,7 @@ box-sizing: border-box;
 .q-defendant-bar .q-bar-title { font-weight: bold; color: #1e3a8a; font-size: 0.8125rem; }
 .transition-box { display: none; margin-bottom: 0.5rem; padding: 0.4rem 0.5rem; background: #fefce8; border: 0.0625rem solid #fde047; border-radius: 0.375rem; }
 .transition-box label { display: block; font-weight: bold; color: #854d0e; font-size: 0.8125rem; margin-bottom: 0.2rem; }
-.transition-box textarea { width: 100%; min-height: 3.2rem; box-sizing: border-box; font-family: inherit; font-size: 0.875rem; padding: 0.3rem; border: 0.0625rem solid #fcd34d; border-radius: 0.3rem; resize: vertical; }
+.transition-box .ti-single textarea { width: 100%; height: auto; min-height: 1.5rem !important; padding: 0.3rem 0.3rem 0 !important; font-size: 0.95rem; line-height: 1.5; border: 0 !important; background: transparent !important; resize: none; overflow: hidden; outline: none; box-shadow: none !important; padding: 0.3rem; } .transition-box .ti-single { background: #fff; border: 0.0625rem solid #fcd34d; border-radius: 0.3rem; overflow: hidden; } .transition-box .ti-single:focus-within { border-color: #f59e0b; box-shadow: 0 0 0 0.125rem rgba(245,158,11,0.25); } .transition-box textarea.__unused { width: 100%; min-height: 3.2rem; box-sizing: border-box; font-family: inherit; font-size: 0.875rem; padding: 0.3rem; border: 0.0625rem solid #fcd34d; border-radius: 0.3rem; resize: vertical; }
 .transition-box .tb-actions { display: flex; gap: 0.3rem; flex-wrap: wrap; margin-top: 0.3rem; }
 .transition-box .tb-btn { border: 0.0625rem solid #fcd34d; background: #fff; color: #854d0e; border-radius: 0.3rem; padding: 0.15rem 0.5rem; font-size: 0.75rem; cursor: pointer; font-family: inherit; }
 .transition-box .tb-btn:hover { background: #fef9c3; }
@@ -1375,154 +1420,6 @@ box-sizing: border-box;
         /* تأثير الضغط على الزر — ينكمش قليلاً ويختفي الظل */
         .btn-detention-order:active { transform: scale(0.97); box-shadow: none; }
 
-        /* ===== نافذة تحرير أمر الحبس (Modal) ===== */
-
-        /* الطبقة الشفافة خلف النافذة — تغطي كل الشاشة وتمنع التفاعل مع الخلفية */
-        #detention-modal-overlay {
-            display: flex;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.55);
-            z-index: 9500;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s ease, visibility 0.3s ease;
-        }
-        #detention-modal-overlay.open {
-            opacity: 1;
-            visibility: visible;
-        }
-        #detention-modal {
-            transform: translateY(1.875rem) scale(0.97);
-            transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-        #detention-modal-overlay.open #detention-modal {
-            transform: translateY(0) scale(1);
-        }
-
-        /* صندوق النافذة الرئيسي — حجمه يتكيف مع الشاشة ولا يتجاوز 92% من الارتفاع */
-        #detention-modal {
-            background: #fff;
-            border-radius: 0.875rem;
-            box-shadow: 0 0.75rem 2.5rem rgba(0,0,0,0.25);
-            width: min(53.75rem, 96vw);
-            max-height: 92vh;
-            display: flex;
-            flex-direction: column;
-            direction: rtl;
-            overflow: hidden;
-        }
-
-        /* شريط العنوان العلوي للنافذة — تدرج أزرق مع عنوان وزر إغلاق */
-        #detention-modal-header {
-            background: linear-gradient(135deg, #1e40af, #2563eb);
-            color: #fff;
-            padding: 0.875rem 1.125rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            font-weight: bold;
-            font-size: 0.9375rem;
-            flex-shrink: 0;
-        }
-
-        /* زر الإغلاق (X) في أعلى النافذة — دائري شفاف يتحول لأبيض عند hover */
-        #detention-modal-header .close-btn {
-            background: rgba(255,255,255,0.2);
-            border: none;
-            color: #fff;
-            border-radius: 50%;
-            width: 1.875rem; height: 1.875rem;
-            font-size: 1.125rem;
-            cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-            transition: background 0.2s;
-        }
-        #detention-modal-header .close-btn:hover { background: rgba(255,255,255,0.35); }
-
-        /* منطقة المحتوى القابلة للتمرير — تأخذ المساحة المتاحة وتسمح بالسكرول عند الحاجة */
-        #detention-modal-body { padding: 1rem; overflow-y: auto; flex: 1; }
-
-        /* شريط التنبيه الأصفر في أعلى النافذة — يوضح تعليمات الاستخدام */
-        #detention-order-notice {
-            background: #fef9c3;
-            border: 0.0625rem solid #fde68a;
-            border-radius: 0.5rem;
-            padding: 0.625rem 0.875rem;
-            font-size: 0.8125rem;
-            color: #92400e;
-            margin-bottom: 0.75rem;
-            line-height: 1.6;
-        }
-        #detention-order-notice strong { color: #b45309; }
-
-        /* منطقة النص الرئيسية لتحرير أمر الحبس — تنسيق مريح للقراءة */
-        #detention-order-textarea {
-            width: 100%;
-            box-sizing: border-box;
-            border: 0.125rem solid #d1d5db;
-            border-radius: 0.625rem;
-            padding: 1rem 1.125rem;
-            font-size: 1.0625rem !important;
-            min-height: 23.75rem !important;
-            height: auto !important;
-            line-height: 1.8 !important;
-            resize: vertical;
-            background: #fafbfc;
-            color: #1f2937;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            direction: rtl;
-            text-align: justify;
-            transition: border-color 0.2s, box-shadow 0.2s;
-            tab-size: 4;
-        }
-        /* تأثير التركيز على منطقة النص — حد أزرق وظل خفيف وخلفية بيضاء */
-        #detention-order-textarea:focus {
-            outline: none;
-            border-color: #2563eb;
-            box-shadow: 0 0 0 0.1875rem rgba(37,99,235,0.15);
-            background: #fff;
-        }
-
-        /* شريط الأزرار السفلي للنافذة — يحتوي على أزرار الحفظ والطباعة والإلغاء */
-        #detention-modal-footer {
-            padding: 0.75rem 1rem;
-            border-top: 0.0625rem solid #e5e7eb;
-            display: flex;
-            gap: 0.5rem;
-            justify-content: flex-end;
-            flex-shrink: 0;
-            background: #f8fafc;
-        }
-        /* التنسيق الأساسي المشترك لجميع أزرار الشريط السفلي */
-        #detention-modal-footer button {
-            padding: 0.5rem 1.25rem;
-            border-radius: 0.5rem;
-            border: none;
-            font-size: 0.8125rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        /* زر الطباعة — أحمر داكن */
-        .det-btn-print  { background: #b91c1c; color: #fff; }
-        .det-btn-print:hover  { background: #991b1b; transform: translateY(-0.0625rem); }
-
-        /* زر حفظ التعديلات — أزرق */
-        .det-btn-save   { background: #2563eb; color: #fff; }
-        .det-btn-save:hover   { background: #1d4ed8; transform: translateY(-0.0625rem); }
-
-        /* زر تحديث النص من بيانات المتهم — برتقالي */
-        .det-btn-refresh { background: #f59e0b; color: #fff; }
-        .det-btn-refresh:hover { background: #d97706; transform: translateY(-0.0625rem); }
-
-        /* زر الإلغاء — رمادي فاتح بحد */
-        .det-btn-cancel { background: #f3f4f6; color: #374151; border: 0.0625rem solid #d1d5db !important; }
-        .det-btn-cancel:hover { background: #e5e7eb; }
-
         /* منطقة طباعة أمر الحبس */
         #detention-print-area { display: none; }
         @media print {
@@ -1566,128 +1463,6 @@ box-sizing: border-box;
         }
         .btn-forensic-memo:active { transform: scale(0.97); box-shadow: none; }
 
-        /* ===== نافذة تحرير مذكرة الطب الشرعي ===== */
-        #forensic-modal-overlay {
-            display: flex;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.55);
-            z-index: 9500;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s ease, visibility 0.3s ease;
-        }
-        #forensic-modal-overlay.open {
-            opacity: 1;
-            visibility: visible;
-        }
-        #forensic-modal {
-            transform: translateY(1.875rem) scale(0.97);
-            transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-        #forensic-modal-overlay.open #forensic-modal {
-            transform: translateY(0) scale(1);
-        }
-
-
-        #forensic-modal {
-            background: #fff;
-            border-radius: 0.875rem;
-            box-shadow: 0 0.75rem 2.5rem rgba(0,0,0,0.25);
-            width: min(53.75rem, 96vw);
-            max-height: 92vh;
-            display: flex;
-            flex-direction: column;
-            direction: rtl;
-            overflow: hidden;
-        }
-        #forensic-modal-header {
-            background: linear-gradient(135deg, #065f46, #0d9488);
-            color: #fff;
-            padding: 0.875rem 1.125rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            font-weight: bold;
-            font-size: 0.9375rem;
-            flex-shrink: 0;
-        }
-        #forensic-modal-header .close-btn {
-            background: rgba(255,255,255,0.2);
-            border: none;
-            color: #fff;
-            border-radius: 50%;
-            width: 1.875rem; height: 1.875rem;
-            font-size: 1.125rem;
-            cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-            transition: background 0.2s;
-        }
-        #forensic-modal-header .close-btn:hover { background: rgba(255,255,255,0.35); }
-        #forensic-modal-body { padding: 1rem; overflow-y: auto; flex: 1; }
-        #forensic-order-notice {
-            background: #f0fdf4;
-            border: 0.0625rem solid #86efac;
-            border-radius: 0.5rem;
-            padding: 0.625rem 0.875rem;
-            font-size: 0.8125rem;
-            color: #14532d;
-            margin-bottom: 0.75rem;
-            line-height: 1.6;
-        }
-        #forensic-order-notice strong { color: #15803d; }
-        #forensic-order-textarea {
-            width: 100%;
-            box-sizing: border-box;
-            border: 0.0625rem solid #d1d5db;
-            border-radius: 0.5rem;
-            padding: 0.75rem 0.875rem;
-            font-size: 1rem !important;
-            min-height: 23.75rem !important;
-            height: auto !important;
-            line-height: 1.7 !important;
-            resize: vertical;
-            background: #f8fafc;
-            color: #1f2937;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            direction: rtl;
-            text-align: justify;
-            transition: border-color 0.2s, box-shadow 0.2s;
-        }
-        #forensic-order-textarea:focus {
-            outline: none;
-            border-color: #0d9488;
-            box-shadow: 0 0 0 0.1875rem rgba(13,148,136,0.15);
-            background: #fff;
-        }
-        #forensic-modal-footer {
-            padding: 0.75rem 1rem;
-            border-top: 0.0625rem solid #e5e7eb;
-            display: flex;
-            gap: 0.5rem;
-            justify-content: flex-end;
-            flex-shrink: 0;
-            background: #f8fafc;
-        }
-        #forensic-modal-footer button {
-            padding: 0.5rem 1.25rem;
-            border-radius: 0.5rem;
-            border: none;
-            font-size: 0.8125rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .for-btn-print   { background: #0d9488; color: #fff; }
-        .for-btn-print:hover   { background: #0f766e; transform: translateY(-0.0625rem); }
-        .for-btn-save    { background: #2563eb; color: #fff; }
-        .for-btn-save:hover    { background: #1d4ed8; transform: translateY(-0.0625rem); }
-        .for-btn-refresh { background: #f59e0b; color: #fff; }
-        .for-btn-refresh:hover { background: #d97706; transform: translateY(-0.0625rem); }
-        .for-btn-cancel  { background: #f3f4f6; color: #374151; border: 0.0625rem solid #d1d5db !important; }
-        .for-btn-cancel:hover  { background: #e5e7eb; }
         #forensic-print-area { display: none; }
         @media print {
             body.printing-forensic .no-print   { display: none !important; }
@@ -2573,7 +2348,10 @@ box-sizing: border-box;
             <div id="q-copy-box" class="q-defendant-bar"></div>
             <div id="defendant-transition-box" class="transition-box">
                 <label id="transition_label" for="transition_text">فقرة الانتقال</label>
-                <textarea id="transition_text" oninput="onTransitionInput(this.value)" placeholder="تظهر هذه الفقرة في المحضر قبل بيانات هذا المتهم"></textarea>
+                <div class="ti-single">
+                    <textarea id="transition_text" oninput="onTransitionInput(this.value); autosizeTransition()" placeholder="تظهر هذه الفقرة في المحضر قبل بيانات هذا المتهم"></textarea>
+                    <div id="transition-ident-preview" class="ti-preview"></div>
+                </div>
                 <div class="tb-actions">
                     <button type="button" class="tb-btn" onclick="resetTransition()">↺ استرجاع النص الافتراضي</button>
                     <button type="button" class="tb-btn" onclick="saveTransitionAsDefault()">💾 اجعله النص الافتراضي دائماً</button>
@@ -2648,7 +2426,7 @@ box-sizing: border-box;
                     <div id="manual_decisions_release_container"></div>
                     <!-- زر تحرير أمر الحبس — تحت مربع النص مباشرة -->
                     <div id="detention-btn-wrapper" style="margin-top: 0.25rem;">
-                        <button type="button" class="btn-detention-order" onclick="openDetentionOrderModal()" style="height: 2.25rem; padding: 0.25rem 0.5rem; font-size: 0.9375rem;">📝 تحرير وطباعة أمر الحبس </button>
+                        <button type="button" class="btn-detention-order" onclick="openDetentionPreview()" style="height: 2.25rem; padding: 0.25rem 0.5rem; font-size: 0.9375rem;">📝 تحرير وطباعة أمر الحبس </button>
                     </div>
                 </div>
             </div>
@@ -2664,7 +2442,7 @@ box-sizing: border-box;
 
                     </select>
                     <div id="forensic-btn-wrapper">
-                        <button type="button" class="btn-forensic-memo" onclick="openForensicMemoModal()" style="font-size: 0.9375rem;"><i class="fa-solid fa-pen-to-square"></i> تحرير وطباعة المذكرة</button>
+                        <button type="button" class="btn-forensic-memo" onclick="openForensicPreview()" style="font-size: 0.9375rem;"><i class="fa-solid fa-pen-to-square"></i> تحرير وطباعة المذكرة</button>
                     </div>
                 </div>
                 <div style="flex: 1; display: flex; flex-direction: column;">
@@ -2801,58 +2579,15 @@ box-sizing: border-box;
     </div>
 </div>
 
-<!-- ===== نافذة تحرير أمر الحبس الاحتياطي ===== -->
-<div id="detention-modal-overlay">
-    <div id="detention-modal">
-        <div id="detention-modal-header">
-            <span>&#128196; تحرير أمر الحبس الاحتياطي</span>
-            <button class="close-btn" onclick="closeDetentionOrderModal()" title="إغلاق">&#10005;</button>
-        </div>
-        <div id="detention-modal-body">
-            <div id="detention-order-notice">
-                <strong>&#9998; ملاحظة:</strong> يمكنك تعديل نص أمر الحبس بحرية قبل الطباعة.
-                التعديلات تُحفظ مع المحضر عند حفظه كملف، وتُستعاد عند فتح الملف.
-                <br>اضغط <strong>"استعادة النص الافتراضي"</strong> لإعادة توليد النص من بيانات المتهم المدخلة.
-            </div>
-            <textarea id="detention-order-textarea" placeholder="سيُملأ تلقائياً من بيانات المتهم عند فتح النافذة..."></textarea>
-        </div>
-        <div id="detention-modal-footer">
-            <button class="det-btn-refresh" onclick="refreshDetentionOrderText()"><i class="fa-solid fa-rotate-right"></i> استعادة النص الافتراضي</button>
-            <button class="det-btn-cancel"  onclick="closeDetentionOrderModal()"><i class="fa-solid fa-xmark"></i> إلغاء</button>
-            <button class="det-btn-save"    onclick="saveDetentionOrder()"><i class="fa-solid fa-check"></i> حفظ التعديلات</button>
-            <button class="det-btn-print"   onclick="printDetentionOrder()"><i class="fa-solid fa-print"></i> طباعة الأمر</button>
-        </div>
-    </div>
-</div>
+<!-- حقل مخفي: بوابة النيابة تتعرف به على سجلات التحقيق المحفوظة (لا تحذفه) -->
+<div style="display:none"><textarea id="detention-order-textarea" placeholder="سيُملأ تلقائياً من بيانات المتهم عند فتح النافذة..."></textarea></div>
 
 <!-- منطقة طباعة أمر الحبس الاحتياطي المنفصلة -->
 <div id="detention-print-area"></div>
 
 <!-- ===== نافذة تحرير مذكرة العرض على الطب الشرعي ===== -->
-<div id="forensic-modal-overlay">
-    <div id="forensic-modal">
-        <div id="forensic-modal-header">
-            <span><i class="fa-solid fa-flask"></i> تحرير مذكرة العرض على الطب الشرعي</span>
-            <button class="close-btn" onclick="closeForensicMemoModal()" title="إغلاق">&#10005;</button>
-        </div>
-        <div id="forensic-modal-body">
-            <div id="forensic-order-notice">
-                <strong>&#9998; ملاحظة:</strong> يمكنك تعديل نص المذكرة بحرية قبل الطباعة.
-                التعديلات تُحفظ مع المحضر عند حفظه كملف، وتُستعاد عند فتح الملف.
-                <br>اضغط <strong>"استعادة النص الافتراضي"</strong> لإعادة توليد النص من بيانات المتهم المدخلة.
-            </div>
-            <textarea id="forensic-order-textarea" placeholder="سيُملأ تلقائياً من بيانات المتهم عند فتح النافذة..."></textarea>
-        </div>
-        <div id="forensic-modal-footer">
-            <button class="for-btn-refresh" onclick="refreshForensicMemoText()"><i class="fa-solid fa-rotate-right"></i> استعادة النص الافتراضي</button>
-            <button class="for-btn-cancel"  onclick="closeForensicMemoModal()"><i class="fa-solid fa-xmark"></i> إلغاء</button>
-            <button class="for-btn-save"    onclick="saveForensicMemo()"><i class="fa-solid fa-check"></i> حفظ التعديلات</button>
-            <button class="for-btn-print"   onclick="printForensicMemo()"><i class="fa-solid fa-print"></i> طباعة المذكرة</button>
-        </div>
-    </div>
-</div>
+<div style="display:none"><textarea id="forensic-order-textarea" placeholder="سيُملأ تلقائياً من بيانات المتهم عند فتح النافذة..."></textarea></div>
 
-<!-- منطقة طباعة مذكرة الطب الشرعي المنفصلة -->
 <div id="forensic-print-area"></div>
 
 <div id="arabic-calendar-popup" style="display:none;"></div>
@@ -3044,6 +2779,20 @@ let sidebarPinned = false;
 
     function cloneJSON(x) { return x ? JSON.parse(JSON.stringify(x)) : null; }
 
+    // يتأكد أن مصفوفة أسئلة محفوظة لوضع معين تخص هذا الوضع فعلاً (يمنع تلوّث أسئلة وضع بأسئلة وضع آخر)
+    function sanitizeModeQs(mode, arr) {
+        if (!Array.isArray(arr) || !arr.length) return null;
+        const isObj = q => /^obj_fixed_/.test(String(q.id || ''));
+        const bailTpls = (typeof bailReductionQuestionsTemplates !== 'undefined') ? bailReductionQuestionsTemplates : [];
+        const isBailTpl = q => q.type === 'manual' || bailTpls.some(t => t.q === q.template);
+        if (mode === 'bail_reduction') return arr.every(isBailTpl) ? cloneJSON(arr) : null;
+        if (mode === 'objection') return arr.some(isObj) ? cloneJSON(arr) : null;
+        // main: لا يحتوي أسئلة الاستعراض، وليس كله أسئلة تخفيض الكفالة
+        if (arr.some(isObj)) return null;
+        if (arr.every(isBailTpl) && arr.some(q => q.type !== 'manual')) return null;
+        return cloneJSON(arr);
+    }
+
     // حفظ أسئلة المتهم النشط (لكل وضع) داخل ملفه
     function captureQuestionsMap(prevMap) {
         const m = Object.assign({}, prevMap || {});
@@ -3070,9 +2819,9 @@ let sidebarPinned = false;
     // تحميل أسئلة متهم معين في الشاشة
     function loadDefendantQuestions(d, noVeh) {
         const qa = (d && d.qsAll) || {};
-        savedMainQuestions = cloneJSON(qa.main);
-        savedBailQuestions = cloneJSON(qa.bail_reduction);
-        savedObjectionQuestions = cloneJSON(qa.objection);
+        savedMainQuestions = sanitizeModeQs('main', qa.main);
+        savedBailQuestions = sanitizeModeQs('bail_reduction', qa.bail_reduction);
+        savedObjectionQuestions = sanitizeModeQs('objection', qa.objection);
         const cur = qa[reportMode];
         questions = (cur && cur.length) ? cloneJSON(cur) : buildFreshQuestions(noVeh);
         updateAutoQuestions();
@@ -3107,8 +2856,12 @@ let sidebarPinned = false;
         if (!multi) { bar.innerHTML = ''; return; }
         bar.innerHTML = '<span class="q-bar-title">أسئلة التحقيق مع:</span>' + defendants.map((d, i) => {
             const nm = (d.def_name || '').trim();
+            if (i === activeDefendantIndex) {
+                const imp = i > 0 ? `<span class="dt-import" role="button" tabindex="0" title="استيراد الأسئلة والإجابات" onclick="event.stopPropagation(); openImportQuestionsDialog()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();event.stopPropagation();openImportQuestionsDialog();}">استيراد</span>` : '';
+                return `<button type="button" class="defendant-tab active" onclick="switchDefendantTab(${i})"><span class="dt-num">${getDefendantLabel(i)}</span>${nm ? `<span class="dt-name" title="${escSimple(nm).replace(/"/g, '&quot;')}">${escSimple(nm)}</span>` : ''}${imp}</button>`;
+            }
             const short = nm ? ' — ' + (nm.length > 14 ? nm.slice(0, 14) + '…' : nm) : '';
-            return `<button type="button" class="defendant-tab${i === activeDefendantIndex ? ' active' : ''}" onclick="switchDefendantTab(${i})"><span>${getDefendantLabel(i)}${short.replace(/</g, '&lt;')}</span></button>`;
+            return `<button type="button" class="defendant-tab" onclick="switchDefendantTab(${i})"><span>${getDefendantLabel(i)}${short.replace(/</g, '&lt;')}</span></button>`;
         }).join('');
     }
 
@@ -3121,6 +2874,28 @@ let sidebarPinned = false;
         return tpl.split('{اسم_المتهم_السابق}').join(w(prevName || '...........'))
                   .split('{اسم_المتهم}').join(w(curName || '...........'));
     }
+    // معاينة بيانات المتهم الحالي كما ستظهر بعد فقرة الانتقال في الطباعة (للقراءة فقط)
+    function updateTransitionIdentPreview() {
+        const box = document.getElementById('transition-ident-preview');
+        if (!box) return;
+        const tb = document.getElementById('defendant-transition-box');
+        if (!tb || tb.style.display === 'none') return;
+        const val = id => String((document.getElementById(id) || {}).value || '').trim();
+        const rows = [['ident_name', 'def_name'], ['ident_age', 'def_age'], ['ident_job', 'def_job'], ['ident_address', 'def_address'], ['ident_id', 'def_id_no'], ['ident_phone', 'def_phone']];
+        box.innerHTML = '<div class="ti-body">' + rows.map(r => '<div><span class="ti-l">' + getFixedText(r[0]) + '</span> <span class="ti-v">' + (val(r[1]) ? escSimple(val(r[1])) : '<span class="ti-empty">........</span>') + '</span></div>').join('') + '</div>';
+    }
+    window.addEventListener('load', function () {
+        ['def_name', 'def_age', 'def_job', 'def_address', 'def_id_no', 'def_phone'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.addEventListener('input', updateTransitionIdentPreview);
+        });
+    });
+    function autosizeTransition() {
+        const ta = document.getElementById('transition_text');
+        if (!ta) return;
+        ta.style.height = 'auto';
+        ta.style.height = (ta.scrollHeight) + 'px';
+    }
     function refreshTransitionBox(force) {
         const box = document.getElementById('defendant-transition-box');
         if (!box) return;
@@ -3130,11 +2905,13 @@ let sidebarPinned = false;
         const d = defendants[activeDefendantIndex];
         const lbl = document.getElementById('transition_label');
         if (lbl) lbl.textContent = 'فقرة الانتقال قبل ' + getDefendantLabel(activeDefendantIndex) + ' (تظهر في المحضر بعد انتهاء أقوال المتهم السابق)';
+        updateTransitionIdentPreview();
         const ta = document.getElementById('transition_text');
         if (!ta || (!force && document.activeElement === ta)) return;
         const prevName = (defendants[activeDefendantIndex - 1] || {}).def_name || '';
         ta.value = (d.transition != null) ? d.transition
                  : fillTransitionTemplate(getTransitionTemplate(), prevName, d.def_name || '');
+        autosizeTransition();
     }
     function onTransitionInput(val) {
         const d = defendants[activeDefendantIndex];
@@ -3188,6 +2965,40 @@ let sidebarPinned = false;
             const f = document.getElementById(id);
             if (f) f.value = data && data[id] != null ? data[id] : '';
         });
+    }
+
+    // جملة "ضَبَطَ ..." في الديباجة عند تعدد المتهمين: لكل متهم مركبته ولوحته وبنوده
+    function buildMultiPreambleSegment() {
+        const n = defendants.length;
+        if (n < 2) return null;
+        const vars = {};
+        const items = [];
+        const usedVeh = [];
+        defendants.forEach((d, i) => {
+            const k = defVehIndex(d);
+            const hasVeh = k >= 0 && vehicles[k];
+            const nameKey = '{د' + (i + 1) + '_اسم}';
+            vars[nameKey] = (d.def_name || '').trim();
+            let part = 'المتهم ' + (DEFENDANT_LABELS[i] || (i + 1)) + '/ ' + nameKey;
+            if (hasVeh) {
+                if (!usedVeh.includes(k)) usedVeh.push(k);
+                const info = vehicleTypePlate(k);
+                const tKey = '{د' + (i + 1) + '_نوع}', pKey = '{د' + (i + 1) + '_لوحة}', vKey = '{د' + (i + 1) + '_مخالفات}';
+                vars[tKey] = info.typeLabel;
+                vars[pKey] = info.plate;
+                const viols = (vehicles[k].violations || []);
+                vars[vKey] = viols.length ? viols.join(' و ') : 'بدون مخالفات مسجلة';
+                const noPlate = /^\s*بدون/.test(String(info.plate || ''));
+                part += ' قائدًا ل ' + tKey + (noPlate ? ' ' + pKey : ' تحمل لوحات رقم ( ' + pKey + ' )') + ' لارتكابه مخالفة / ' + vKey;
+            }
+            items.push(part);
+        });
+        const dual = n === 2;
+        let text = 'ضَبَطَ المتهمين: ' + items.join('، و');
+        text += dual ? ' وبسؤالهما أنكرا ارتكابهما الواقعة' : ' وبسؤالهم أنكروا ارتكابهم الواقعة';
+        if (usedVeh.length) text += ' وتم التحفظ على ' + (usedVeh.length === 1 ? 'المركبة' : (usedVeh.length === 2 ? 'المركبتين' : 'المركبات')) + ' على ذمة المحضر';
+        text += '، ومرفق بالمحضر المذكرة المار بيانها ' + (dual ? 'وبطاقتا' : 'وبطاقات') + ' تحقيق شخصية المتهمين';
+        return { text: text, vars: vars };
     }
 
     function buildMultiDefendantReport() {
@@ -3250,9 +3061,17 @@ let sidebarPinned = false;
         // الديباجة: الفقرات الأولى بأسماء كل المتهمين، وفقرة دخول المتهم باسم المتهم الأول
         const paras = getCurrentPreamble('main');
         const joined = names.filter(Boolean).join(' و ');
+        // عند تعدد المتهمين: جملة الضبط تُفصَّل لكل متهم بمركبته ولوحته ومخالفاته (مثنى لاثنين، وجمع لأكثر)
+        const multi = buildMultiPreambleSegment();
         const pre = paras.map((p, idx) => {
             const nm = (idx < paras.length - 1) ? joined : names[0];
-            return `<p>${guardTextForPrint(replacePreambleVars(p.text, Object.assign({ '{اسم_المتهم}': nm }, vehVars)))}</p>`;
+            let txt = p.text;
+            let extra = Object.assign({ '{اسم_المتهم}': nm }, vehVars);
+            if (multi) {
+                const re = /ضَبَطَ المتهم\/\s*\{اسم_المتهم\}[\s\S]*?(?=\s*[،,]\s*هذا والمحضر|$)/;
+                if (re.test(txt)) { txt = txt.replace(re, () => multi.text); Object.assign(extra, multi.vars); }
+            }
+            return `<p>${guardTextForPrint(replacePreambleVars(txt, extra))}</p>`;
         }).join('\n');
 
         return head + pre + body + decHtml;
@@ -3323,8 +3142,11 @@ let sidebarPinned = false;
             bar.style.display = multi ? 'flex' : 'none';
             bar.innerHTML = multi ? '<span class="q-bar-title">قرارات النيابة بشأن:</span>' + defendants.map((d, i) => {
                 const nm = (d.def_name || '').trim();
+                if (i === activeDefendantIndex) {
+                    return `<button type="button" class="defendant-tab active" onclick="switchDefendantTab(${i})"><span class="dt-num">${getDefendantLabel(i)}</span>${nm ? `<span class="dt-name" title="${escSimple(nm).replace(/"/g, '&quot;')}">${escSimple(nm)}</span>` : ''}</button>`;
+                }
                 const short = nm ? ' — ' + (nm.length > 14 ? nm.slice(0, 14) + '…' : nm) : '';
-                return `<button type="button" class="defendant-tab${i === activeDefendantIndex ? ' active' : ''}" onclick="switchDefendantTab(${i})"><span>${getDefendantLabel(i)}${short.replace(/</g, '&lt;')}</span></button>`;
+                return `<button type="button" class="defendant-tab" onclick="switchDefendantTab(${i})"><span>${getDefendantLabel(i)}${short.replace(/</g, '&lt;')}</span></button>`;
             }).join('') : '';
         }
         if (person) {
@@ -3441,6 +3263,25 @@ let sidebarPinned = false;
         }
         const ow = document.getElementById('decision-order-wrap');
         if (ow) ow.style.display = (defendants.length > 1 || multi) ? 'block' : 'none';
+        refreshTabVehicleSelects();
+    }
+
+    // تحديث قوائم المركبات داخل تبويبات المتهمين (عند إضافة/حذف/تعديل مركبة) دون إعادة بناء التبويبات
+    function refreshTabVehicleSelects() {
+        const box = document.getElementById('defendant-tabs');
+        if (!box || typeof tabVehicleSelectHtml !== 'function') return;
+        const tabs = box.querySelectorAll('.defendant-tab');
+        const need = vehicles.length >= 2 || defendants.length >= 2;
+        tabs.forEach((tab, i) => {
+            if (i >= defendants.length) return;
+            const old = tab.querySelector('select.defendant-tab-veh');
+            const html = need ? tabVehicleSelectHtml(i) : '';
+            if (!html) { if (old) old.remove(); return; }
+            const tmp = document.createElement('div'); tmp.innerHTML = html;
+            const fresh = tmp.firstElementChild;
+            if (old) old.replaceWith(fresh);
+            else { const rm = tab.querySelector('.defendant-tab-remove'); if (rm) tab.insertBefore(fresh, rm); else tab.appendChild(fresh); }
+        });
     }
     window.addEventListener('load', function () {
         ['vehicle_decision', 'v_type', 'v_other', 'plate_mode', 'plate_l1', 'plate_l2', 'plate_l3', 'plate_digits', 'input_no_plate'].forEach(id => {
@@ -3454,7 +3295,7 @@ let sidebarPinned = false;
         const row = document.getElementById('def-vehicle-row');
         const sel = document.getElementById('def_vehicle');
         if (!row || !sel) return;
-        row.style.display = (vehicles.length > 1 || defendants.length > 1) ? 'inline-flex' : 'none';
+        row.style.display = 'none'; // استُبدلت بقائمة المركبة داخل تبويب كل متهم
         sel.innerHTML = vehicles.map((v, i) => `<option value="${i}">${escSimple(vehicleShortLabel(i))}</option>`).join('') + '<option value="-1">لا يقود مركبة</option>';
         sel.value = String(defVehIndex(defendants[activeDefendantIndex]));
     }
@@ -3801,6 +3642,7 @@ let sidebarPinned = false;
     function renderCopyQuestionsBox() {
         const box = document.getElementById('q-copy-box');
         if (!box) return;
+        box.style.display = 'none'; box.innerHTML = ''; return; // استُبدل بزر «استيراد» داخل تبويب المتهم
         const multi = defendants.length > 1;
         box.style.display = multi ? 'flex' : 'none';
         if (!multi) { box.innerHTML = ''; return; }
@@ -3810,10 +3652,44 @@ let sidebarPinned = false;
         const opts = defendants.map((d, i) => i === activeDefendantIndex ? '' : `<option value="${i}"${i === want ? ' selected' : ''}>${escSimple(getDefendantLabel(i) + ((d.def_name || '').trim() ? ' — ' + d.def_name.trim() : ''))}</option>`).join('');
         box.innerHTML = `<span class="q-bar-title">نسخ أسئلة من:</span><select id="copy_q_src">${opts}</select><button type="button" class="tb-btn" onclick="copyQuestionsFrom(false)">الأسئلة فقط</button><button type="button" class="tb-btn" onclick="copyQuestionsFrom(true)">الأسئلة مع الإجابات</button>`;
     }
-    function copyQuestionsFrom(withAnswers) {
+    // ===== نافذة «استيراد الأسئلة من متهم آخر» =====
+    function closeImportQuestionsDialog() {
+        const ov = document.getElementById('iq-overlay');
+        if (!ov) return;
+        document.removeEventListener('keydown', ov._esc, true);
+        ov.classList.remove('show');
+        setTimeout(() => { if (ov.parentNode) ov.parentNode.removeChild(ov); }, 220);
+    }
+    function openImportQuestionsDialog() {
+        if (defendants.length < 2 || activeDefendantIndex < 1) return;
+        const old = document.getElementById('iq-overlay');
+        if (old) old.parentNode.removeChild(old);
+        const def = activeDefendantIndex - 1;
+        const opts = defendants.map((d, i) => i === activeDefendantIndex ? '' :
+            `<option value="${i}"${i === def ? ' selected' : ''}>${escSimple(getDefendantLabel(i) + ((d.def_name || '').trim() ? ' — ' + d.def_name.trim() : ''))}</option>`).join('');
+        const ov = document.createElement('div');
+        ov.id = 'iq-overlay';
+        ov.innerHTML = `<div id="iq-box" role="dialog" aria-modal="true">
+            <div class="iq-row"><span class="iq-title">استيراد من المتهم:</span><select id="iq-src">${opts}</select></div>
+            <div class="iq-row iq-actions">
+                <button type="button" class="iq-btn" id="iq-q">الأسئلة فقط</button>
+                <button type="button" class="iq-btn iq-main" id="iq-qa">الأسئلة والإجابات</button>
+                <button type="button" class="iq-btn iq-cancel" id="iq-cancel">إلغاء</button>
+            </div></div>`;
+        document.body.appendChild(ov);
+        const run = (withAnswers) => { const v = parseInt(document.getElementById('iq-src').value, 10); closeImportQuestionsDialog(); setTimeout(() => copyQuestionsFrom(withAnswers, v), 230); };
+        ov.querySelector('#iq-q').onclick = () => run(false);
+        ov.querySelector('#iq-qa').onclick = () => run(true);
+        ov.querySelector('#iq-cancel').onclick = closeImportQuestionsDialog;
+        ov.addEventListener('mousedown', e => { if (e.target === ov) closeImportQuestionsDialog(); });
+        ov._esc = e => { if (e.key === 'Escape') { e.stopPropagation(); closeImportQuestionsDialog(); } };
+        document.addEventListener('keydown', ov._esc, true);
+        requestAnimationFrame(() => requestAnimationFrame(() => { ov.classList.add('show'); const sel = ov.querySelector('#iq-src'); if (sel) sel.focus(); }));
+    }
+    function copyQuestionsFrom(withAnswers, srcIdx) {
         const sel = document.getElementById('copy_q_src');
-        if (!sel) return;
-        const src = parseInt(sel.value, 10);
+        if (srcIdx == null && !sel) return;
+        const src = srcIdx != null ? srcIdx : parseInt(sel.value, 10);
         if (isNaN(src) || src === activeDefendantIndex || !defendants[src]) return;
         syncActiveDefendant();
         const arr = defendants[src].qsAll && defendants[src].qsAll[reportMode];
@@ -3826,6 +3702,11 @@ let sidebarPinned = false;
             updateAutoQuestions();
             saveData();
         };
+        // هل عدّل المستخدم الأسئلة عن الوضع الافتراضي؟ (الإجابات الافتراضية لا تُعدّ عملاً يستحق التحذير)
+        const _fresh = buildFreshQuestions(defVehIndex(defendants[activeDefendantIndex]) < 0), _fm = {};
+        _fresh.forEach(f => { _fm[f.id] = f; });
+        const hasWork = (questions || []).some(q => q && q.type !== 'viol' && (!_fm[q.id] || String(q.a || '') !== String(_fm[q.id].a || '') || String(q.q || '') !== String(_fm[q.id].q || '') || (q.notes && q.notes.some(n => String(n || '').trim()))));
+        if (srcIdx != null && !hasWork) { doCopy(); return; }
         showCustomConfirm('سيتم استبدال أسئلة ' + getDefendantLabel(activeDefendantIndex) + ' الحالية بأسئلة ' + getDefendantLabel(src) + (withAnswers ? ' مع إجاباتها.' : ' بدون إجابات.') + ' هل تريد المتابعة؟', { onConfirm: doCopy, confirmText: 'نسخ', type: 'danger' });
     }
 
@@ -3874,6 +3755,95 @@ let sidebarPinned = false;
     function pvLeafBlocks(root) {
         return Array.from(root.querySelectorAll(PV_BLOCK_SEL)).filter(el => !el.querySelector(PV_BLOCK_SEL) && pvNorm(el.textContent));
     }
+    // ===== شريط تنسيق النص المشترك (معاينة المحضر + معاينة أمر الحبس) =====
+    const FMT_SVG = {
+        right:  '<svg width="16" height="14" viewBox="0 0 16 14"><path d="M1 2h14M5 5.5h10M1 9h14M7 12.5h8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" fill="none"/></svg>',
+        center: '<svg width="16" height="14" viewBox="0 0 16 14"><path d="M1 2h14M4 5.5h8M1 9h14M4 12.5h8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" fill="none"/></svg>',
+        left:   '<svg width="16" height="14" viewBox="0 0 16 14"><path d="M1 2h14M1 5.5h10M1 9h14M1 12.5h8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" fill="none"/></svg>',
+        just:   '<svg width="16" height="14" viewBox="0 0 16 14"><path d="M1 2h14M1 5.5h14M1 9h14M1 12.5h14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" fill="none"/></svg>'
+    };
+    function fmtInjectCss() {
+        if (document.getElementById('fmt-css')) return;
+        const st = document.createElement('style'); st.id = 'fmt-css';
+        st.textContent = '.fmt-bar{display:flex;align-items:center;gap:.2rem;background:#f1f5f9;border:1px solid #cbd5e1;border-radius:.45rem;padding:.15rem .25rem;direction:rtl}' +
+            '.fmt-bar button,.fmt-bar select,.fmt-bar label{border:1px solid transparent;background:transparent;color:#334155;border-radius:.3rem;min-width:1.9rem;height:1.9rem;padding:0 .35rem;cursor:pointer;font-family:inherit;font-size:.85rem;display:inline-flex;align-items:center;justify-content:center}' +
+            '.fmt-bar button:hover,.fmt-bar label:hover,.fmt-bar select:hover{background:#e2e8f0;border-color:#cbd5e1}' +
+            '.fmt-bar select{background:#fff;border-color:#cbd5e1;width:4.6rem;padding:0 .2rem}' +
+            '.fmt-sep{width:1px;height:1.2rem;background:#cbd5e1;margin:0 .1rem}' +
+            '.fmt-bar{position:relative}' +
+            '.fmt-more{display:flex;align-items:center;gap:.2rem;position:absolute;top:calc(100% + .35rem);left:0;background:#fff;border:1px solid #cbd5e1;border-radius:.5rem;box-shadow:0 .4rem 1.2rem rgba(15,23,42,.25);padding:.3rem .4rem;white-space:nowrap;z-index:5;opacity:0;visibility:hidden;transform:translateY(-.4rem);transition:opacity .18s ease,transform .18s ease,visibility .18s}' +
+            '.fmt-bar.open .fmt-more{opacity:1;visibility:visible;transform:none}' +
+            '.fmt-bar.open [data-fmt-toggle]{background:#dbeafe;border-color:#93c5fd}' +
+            '.fmt-arrow{display:inline-flex;transition:transform .2s}.fmt-bar.open .fmt-arrow{transform:rotate(180deg)}' +
+            '.fmt-bar input[type=color]{position:absolute;opacity:0;width:0;height:0;pointer-events:none}';
+        document.head.appendChild(st);
+    }
+    function fmtBarHtml(id) {
+        const sizes = []; for (let n = 12; n <= 40; n += (n < 24 ? 1 : 2)) sizes.push(n);
+        const b = (act, label, title) => `<button type="button" data-fmt="${act}" title="${title}">${label}</button>`;
+        return `<div class="fmt-bar" id="${id}">
+            ${b('bold', '<b>B</b>', 'غامق')}
+            <span class="fmt-sep"></span>
+            ${b('justifyRight', FMT_SVG.right, 'محاذاة لليمين')}${b('justifyCenter', FMT_SVG.center, 'توسيط')}${b('justifyLeft', FMT_SVG.left, 'محاذاة لليسار')}
+            <span class="fmt-sep"></span>
+            <select data-fmt-size title="حجم الخط"><option value="">حجم</option>${sizes.map(n => `<option value="${n}">${n}</option>`).join('')}</select>
+            <button type="button" data-fmt-toggle title="المزيد من أدوات التنسيق"><span class="fmt-arrow"><svg width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>
+            <div class="fmt-more">
+              ${b('italic', '<i>I</i>', 'مائل')}${b('underline', '<u>U</u>', 'تحته خط')}${b('justifyFull', FMT_SVG.just, 'ضبط الحواف')}
+              <span class="fmt-sep"></span>
+              ${b('sizeUp', 'A+', 'تكبير الخط')}${b('sizeDown', 'A−', 'تصغير الخط')}
+              <span class="fmt-sep"></span>
+              <label title="لون النص">A<span style="display:block;width:.9rem;height:.18rem;background:#dc2626;margin-right:.15rem"></span><input type="color" data-fmt-color="foreColor" value="#dc2626"></label>
+              <label title="تظليل النص">🖍<input type="color" data-fmt-color="hiliteColor" value="#fde047"></label>
+              ${b('removeFormat', '⌫', 'مسح التنسيق')}
+              <span class="fmt-sep"></span>
+              ${b('undo', '↶', 'تراجع')}${b('redo', '↷', 'إعادة')}
+            </div>
+        </div>`;
+    }
+    // getDoc: يرجع الـdocument الذي فيه النص القابل للتعديل، inRoot: هل العقدة داخل منطقة التحرير
+    function fmtBind(bar, getDoc, inRoot) {
+        let saved = null;
+        const doc0 = () => getDoc();
+        const track = () => { try { const d = doc0(); const sel = d.getSelection(); if (sel && sel.rangeCount && inRoot(sel.anchorNode)) saved = sel.getRangeAt(0).cloneRange(); } catch (e) {} };
+        document.addEventListener('selectionchange', track);
+        const attachFrameTracking = () => { try { doc0().addEventListener('selectionchange', track); } catch (e) {} };
+        bar._fmtAttach = attachFrameTracking; attachFrameTracking();
+        const restore = () => { try { const d = doc0(); if (saved) { const sel = d.getSelection(); sel.removeAllRanges(); sel.addRange(saved); } } catch (e) {} };
+        const toPx = (d, n) => {
+            if (!n) return;
+            d.execCommand('fontSize', false, '7');
+            d.querySelectorAll('font[size="7"]').forEach(f => { const sp = d.createElement('span'); sp.style.fontSize = n + 'px'; while (f.firstChild) sp.appendChild(f.firstChild); f.replaceWith(sp); sp.querySelectorAll('span').forEach(x => { x.style.fontSize = ''; if (!x.getAttribute('style')) x.replaceWith(...x.childNodes); }); });
+        };
+        const curSize = d => { try { const n = d.getSelection().anchorNode; const el = n.nodeType === 1 ? n : n.parentElement; return Math.round(parseFloat(d.defaultView.getComputedStyle(el).fontSize)) || 16; } catch (e) { return 16; } };
+        const fire = d => { try { const root = d.activeElement && d.activeElement.isContentEditable ? d.activeElement : (d.body); root.dispatchEvent(new Event('input', { bubbles: true })); } catch (e) {} };
+        const run = (act, val) => {
+            const d = doc0(); restore();
+            if (act === 'sizeUp' || act === 'sizeDown') toPx(d, Math.max(8, curSize(d) + (act === 'sizeUp' ? 2 : -2)));
+            else if (act === 'size') toPx(d, parseInt(val));
+            else if (act === 'hiliteColor') { if (!d.execCommand('hiliteColor', false, val)) d.execCommand('backColor', false, val); }
+            else d.execCommand(act, false, val || null);
+            track(); fire(d);
+        };
+        const closeMore = () => bar.classList.remove('open');
+        const outside = e => { if (!bar.contains(e.target)) closeMore(); };
+        document.addEventListener('mousedown', outside, true);
+        bar._fmtOutside = () => { try { doc0().addEventListener('mousedown', closeMore, true); } catch (x) {} };
+        bar._fmtOutside();
+        bar.addEventListener('mousedown', e => { if (e.target.closest('button')) e.preventDefault(); });
+        bar.addEventListener('click', e => {
+            const t = e.target.closest('button');
+            if (!t) return;
+            if (t.hasAttribute('data-fmt-toggle')) { bar.classList.toggle('open'); return; }
+            if (t.dataset.fmt) run(t.dataset.fmt);
+        });
+        const sel = bar.querySelector('[data-fmt-size]');
+        sel.addEventListener('change', () => { if (sel.value) run('size', sel.value); sel.value = ''; });
+        bar.querySelectorAll('[data-fmt-color]').forEach(inp => inp.addEventListener('input', () => run(inp.dataset.fmtColor, inp.value)));
+        bar.querySelectorAll('label').forEach(l => l.addEventListener('click', e => { const i = l.querySelector('input'); if (e.target !== i) { e.preventDefault(); i.style.pointerEvents = 'auto'; try { i.showPicker(); } catch (x) { i.click(); } i.style.pointerEvents = 'none'; } }));
+        return () => { document.removeEventListener('selectionchange', track); document.removeEventListener('mousedown', outside, true); };
+    }
+
     function pvSanitize(html) {
         const d = document.createElement('div');
         d.innerHTML = html;
@@ -4135,7 +4105,7 @@ let sidebarPinned = false;
             <div style="font-weight:bold;color:#1e3a8a;">معاينة المحضر — اضغط على أي فقرة لتعديلها</div>
             <span id="pv-count" style="font-size:.8rem;color:#92400e;background:#fef3c7;border-radius:1rem;padding:.1rem .6rem;"></span>
             <div style="flex:1;"></div>
-            <button type="button" id="pv-bold" style="${btn2}" title="غامق للنص المحدد (Ctrl+B)"><b>B</b></button>
+            ${fmtBarHtml("pv-fmt")}
             <button type="button" id="pv-reset-all" style="${btn2}">↺ إلغاء تعديلات هذا المحضر</button>
             <button type="button" id="pv-print" style="${btn}background:#2563eb;">🖨️ طباعة نهائية</button>
             <button type="button" id="pv-close" style="${btn}background:#64748b;">إغلاق</button>
@@ -4192,6 +4162,7 @@ let sidebarPinned = false;
             if (closing) return;
             closing = true;
             pvCommit();
+            try { fmtOff(); } catch (x) {}
             document.removeEventListener('keydown', onKey, true);
             ov.style.opacity = '0';
             const inn = ov.querySelector('#pv-inner');
@@ -4209,7 +4180,7 @@ let sidebarPinned = false;
         document.addEventListener('keydown', onKey, true);
 
         ov.querySelector('#pv-close').addEventListener('click', close);
-        ov.querySelector('#pv-bold').addEventListener('mousedown', e => { e.preventDefault(); document.execCommand('bold'); });
+        fmtInjectCss(); const fmtOff = fmtBind(ov.querySelector('#pv-fmt'), () => document, n => !!(n && ov.querySelector('#pv-body').contains(n)));
         ov.querySelector('#pv-reset-all').addEventListener('click', () => {
             showCustomConfirm('سيتم إلغاء كل التعديلات والفقرات المضافة والإخفاء والترتيب الخاصة بهذا المحضر (ولن يتأثر ما حفظته كافتراضي لكل المحاضر). هل تريد المتابعة؟', {
                 title: 'إلغاء تعديلات المحضر', confirmText: 'إلغاء التعديلات', type: 'danger',
@@ -4330,28 +4301,39 @@ let sidebarPinned = false;
     function wxPara(el, ctx) {
         const cls = el.classList;
         const st = { sz: ctx.sz };
-        let ppr = '', spacing = 'w:before="60" w:after="60"', ind = '';
+        const px = ctx.px;
+        let ppr = '', before = 0, after = 45, ratio = 1.3, ind = '', fontPx = px + 2;
         if (ctx.pendingBreak) { ppr += '<w:pageBreakBefore/>'; ctx.pendingBreak = false; }
         let jc = wxAlign(el, ctx.root);
-        if (el.closest('.defendant-info')) jc = 'center';
-        if (el.tagName === 'H2') { st.b = true; st.u = true; st.sz = Math.round(ctx.sz * 1.35); jc = 'center'; spacing = 'w:before="0" w:after="120"'; }
+        if (el.tagName === 'H2') {
+            const fs = (el.getAttribute('style') || '').match(/font-size:\s*([\d.]+)(rem|px)/);
+            const hpx = fs ? (fs[2] === 'rem' ? parseFloat(fs[1]) * 16 : parseFloat(fs[1])) : 24;
+            st.b = true; st.u = true; st.sz = Math.round(hpx * 1.5); fontPx = hpx; jc = 'center'; before = 0; after = 150; ratio = 1.2;
+        }
         if (cls.contains('question-block')) {
-            st.b = true; spacing = 'w:before="80" w:after="60"';
+            st.b = true; before = 15; after = 52; ratio = 1.2;
             ppr += '<w:pBdr><w:right w:val="single" w:sz="18" w:space="4" w:color="000000"/></w:pBdr>';
             ind = '<w:ind w:left="120"/>';
         }
-        if (cls.contains('answer-block')) { st.i = true; spacing = 'w:before="0" w:after="60"'; ind = '<w:ind w:left="500"/>'; }
-        if (cls.contains('note-block')) { st.b = true; spacing = 'w:before="0" w:after="70"'; ind = '<w:ind w:left="500"/>'; }
-        if (el.closest('.defendant-info')) spacing = 'w:before="0" w:after="0"';
-        ppr += '<w:bidi/><w:spacing ' + spacing + ' w:line="264" w:lineRule="auto"/>' + ind + '<w:jc w:val="' + jc + '"/>';
+        if (cls.contains('answer-block')) { st.i = true; before = 0; after = 52; ratio = 1.2; ind = '<w:ind w:left="375"/>'; }
+        if (cls.contains('note-block')) { st.b = true; before = 0; after = 60; ratio = 1.2; ind = '<w:ind w:left="375"/>'; }
+        const info = el.closest('.defendant-info');
+        if (info) {
+            jc = 'center'; before = 0; after = 0; ratio = 1.1;
+            const ps = info.querySelectorAll('p');
+            if (ps.length && ps[0] === el) before = 120;
+            if (ps.length && ps[ps.length - 1] === el) after = 120;
+        }
+        const line = Math.round(fontPx * 15 * ratio);
+        ppr += '<w:bidi/><w:spacing w:before="' + before + '" w:after="' + after + '" w:line="' + line + '" w:lineRule="exact"/>' + ind + '<w:jc w:val="' + jc + '"/>';
         const runs = wxRuns(el, st);
         if (!runs) return '';
         return '<w:p><w:pPr>' + ppr + '</w:pPr>' + runs + '</w:p>';
     }
-    function wxBody(html, baseSz) {
+    function wxBody(html, baseSz, px) {
         const root = document.createElement('div');
         root.innerHTML = html;
-        const ctx = { sz: baseSz, pendingBreak: false, root: root };
+        const ctx = { sz: baseSz, px: px, pendingBreak: false, root: root };
         let out = '';
         const visit = el => {
             const sty = el.getAttribute('style') || '';
@@ -4365,7 +4347,31 @@ let sidebarPinned = false;
         return out;
     }
 
-    function wxBuildDocx(html, dataStr) {
+    async function wxLoadLogo() {
+        const isPng = u => u && u.length > 24 && u[0] === 0x89 && u[1] === 0x50 && u[2] === 0x4E && u[3] === 0x47;
+        const dims = u => { const dv = new DataView(u.buffer, u.byteOffset, u.byteLength); return { w: dv.getUint32(16), h: dv.getUint32(20) }; };
+        try {
+            const r = await fetch('logo.png', { cache: 'force-cache' });
+            if (r.ok) {
+                const u = new Uint8Array(await r.arrayBuffer());
+                if (isPng(u)) { const d = dims(u); return { data: u, w: d.w, h: d.h }; }
+            }
+        } catch (e) {}
+        try {
+            const img = document.querySelector('#print-area .header-left img');
+            if (img && img.complete && img.naturalWidth) {
+                const c = document.createElement('canvas');
+                c.width = img.naturalWidth; c.height = img.naturalHeight;
+                c.getContext('2d').drawImage(img, 0, 0);
+                const blob = await new Promise(res => c.toBlob(res, 'image/png'));
+                const u = new Uint8Array(await blob.arrayBuffer());
+                if (isPng(u)) return { data: u, w: img.naturalWidth, h: img.naturalHeight };
+            }
+        } catch (e) {}
+        return null;
+    }
+
+    async function wxBuildDocx(html, dataStr) {
         const fontVal = document.getElementById('font_choice').value;
         const fam = parseFont(fontVal).family || '';
         let fontName = (fam.split(',')[0] || 'Arial').replace(/['"]/g, '').trim() || 'Arial';
@@ -4374,25 +4380,46 @@ let sidebarPinned = false;
         const clerk = document.getElementById('clerk_name').value || '';
         const pros = document.getElementById('prosecutor').value === 'other' ? document.getElementById('pros_other').value : document.getElementById('prosecutor').value;
         const prosecution = getProsecutionName() || '';
-        const NS = 'xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"';
+        const logo = await wxLoadLogo();
+        const NS = 'xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture"';
         const X = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
-        const hp = t => '<w:p><w:pPr><w:bidi/><w:spacing w:before="0" w:after="0"/><w:jc w:val="center"/></w:pPr>' + wxRun(t, { b: true, sz: 30 }) + '</w:p>';
-        const headerXml = X + '<w:hdr ' + NS + '>' + hp('النيابة العامة') + hp('نيابة مرور القاهرة') + hp(prosecution) + '</w:hdr>';
-        const sp = (t, n) => '<w:p><w:pPr><w:bidi/><w:spacing w:before="0" w:after="0"/><w:jc w:val="center"/></w:pPr>' + wxRun(t, { b: true, sz: 30 }) + (n ? '<w:r><w:br/></w:r>' + wxRun(n, { b: true, sz: 30 }) : '') + '</w:p>';
-        const cell = (t, n) => '<w:tc><w:tcPr><w:tcW w:w="5200" w:type="dxa"/></w:tcPr>' + sp(t, n) + '</w:tc>';
-        const footerXml = X + '<w:ftr ' + NS + '><w:tbl><w:tblPr><w:tblW w:w="10400" w:type="dxa"/><w:bidiVisual/><w:tblLayout w:type="fixed"/></w:tblPr><w:tblGrid><w:gridCol w:w="5200"/><w:gridCol w:w="5200"/></w:tblGrid><w:tr>' + cell('كاتب التحقيق', clerk) + cell('مدير النيابة', pros) + '</w:tr></w:tbl><w:p/></w:ftr>';
-        const body = wxBody(html, baseSz);
-        const sect = '<w:sectPr><w:headerReference w:type="default" r:id="rIdH"/><w:footerReference w:type="default" r:id="rIdF"/><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1900" w:right="700" w:bottom="1700" w:left="700" w:header="450" w:footer="400" w:gutter="0"/><w:pgBorders w:offsetFrom="page"><w:top w:val="single" w:sz="12" w:space="18" w:color="000000"/><w:left w:val="single" w:sz="12" w:space="18" w:color="000000"/><w:bottom w:val="single" w:sz="12" w:space="18" w:color="000000"/><w:right w:val="single" w:sz="12" w:space="18" w:color="000000"/></w:pgBorders><w:bidi/></w:sectPr>';
+        const TW = 10318; // عرض منطقة النص بالتوينز
+        const noB = '<w:tblBorders><w:top w:val="nil"/><w:left w:val="nil"/><w:bottom w:val="nil"/><w:right w:val="nil"/><w:insideH w:val="nil"/><w:insideV w:val="nil"/></w:tblBorders>';
+        const cellMar = '<w:tblCellMar><w:left w:w="0" w:type="dxa"/><w:right w:w="0" w:type="dxa"/></w:tblCellMar>';
+        const tbl = (cols, rowXml) => '<w:tbl><w:tblPr><w:tblW w:w="' + TW + '" w:type="dxa"/>' + noB + '<w:tblLayout w:type="fixed"/>' + cellMar + '</w:tblPr><w:tblGrid>' + cols.map(c => '<w:gridCol w:w="' + c + '"/>').join('') + '</w:tblGrid><w:tr>' + rowXml + '</w:tr></w:tbl>';
+        const tc = (w, inner) => '<w:tc><w:tcPr><w:tcW w:w="' + w + '" w:type="dxa"/></w:tcPr>' + inner + '</w:tc>';
+        const par = (t, o) => '<w:p><w:pPr>' + (o.ltr ? '' : '<w:bidi/>') + '<w:spacing w:before="' + (o.before || 0) + '" w:after="0" w:line="' + o.line + '" w:lineRule="exact"/><w:jc w:val="' + o.jc + '"/></w:pPr>' + t + '</w:p>';
+
+        // ---- الرأس: النص على اليمين والشعار على اليسار (زي الطباعة) ----
+        const hLines = ['النيابة العامة', 'نيابة مرور القاهرة', prosecution];
+        const hW = Math.min(5200, Math.max(2400, Math.max.apply(null, hLines.map(t => t.length)) * 105 + 250));
+        const hText = hLines.map(t => par(wxRun(t, { b: true, sz: 22 }), { jc: 'center', line: 270 })).join('');
+        let logoW = 0, logoXml = '<w:p/>', logoRel = '';
+        if (logo) {
+            const cx = 70 * 9525, cy = Math.round(cx * logo.h / logo.w);
+            logoW = 1700;
+            logoXml = '<w:p><w:pPr><w:spacing w:before="0" w:after="0"/><w:jc w:val="left"/></w:pPr><w:r><w:drawing><wp:inline distT="0" distB="0" distL="0" distR="0"><wp:extent cx="' + cx + '" cy="' + cy + '"/><wp:docPr id="1" name="logo"/><a:graphic><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:pic><pic:nvPicPr><pic:cNvPr id="0" name="logo.png"/><pic:cNvPicPr/></pic:nvPicPr><pic:blipFill><a:blip r:embed="rIdImg"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill><pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="' + cx + '" cy="' + cy + '"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr></pic:pic></a:graphicData></a:graphic></wp:inline></w:drawing></w:r></w:p>';
+            logoRel = '<Relationship Id="rIdImg" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/logo.png"/>';
+        }
+        const headerXml = X + '<w:hdr ' + NS + '>' + tbl([logoW, TW - hW - logoW, hW], tc(logoW, logoXml) + tc(TW - hW - logoW, '<w:p/>') + tc(hW, hText)) + '<w:p><w:pPr><w:spacing w:before="0" w:after="0" w:line="75" w:lineRule="exact"/></w:pPr></w:p></w:hdr>';
+
+        // ---- الذيل: التوقيعات على الأطراف ----
+        const sig = (t, n) => par(wxRun(t, { b: true, sz: 24 }) + '<w:r><w:br/></w:r>' + wxRun(n, { b: true, sz: 24 }), { jc: 'center', line: 300, before: 120 });
+        const fW = Math.min(4800, Math.max(2300, Math.max(clerk.length, pros.length, 12) * 150 + 250));
+        const footerXml = X + '<w:ftr ' + NS + '>' + tbl([fW, TW - 2 * fW, fW], tc(fW, sig('مدير النيابة', pros)) + tc(TW - 2 * fW, '<w:p/>') + tc(fW, sig('كاتب التحقيق', clerk))) + '<w:p><w:pPr><w:spacing w:before="0" w:after="0" w:line="75" w:lineRule="exact"/></w:pPr></w:p></w:ftr>';
+
+        const body = wxBody(html, baseSz, px);
+        const sect = '<w:sectPr><w:headerReference w:type="default" r:id="rIdH"/><w:footerReference w:type="default" r:id="rIdF"/><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="' + (logo ? 1850 : 1500) + '" w:right="794" w:bottom="1450" w:left="794" w:header="567" w:footer="567" w:gutter="0"/><w:pgBorders w:offsetFrom="page"><w:top w:val="single" w:sz="12" w:space="14" w:color="000000"/><w:left w:val="single" w:sz="12" w:space="23" w:color="000000"/><w:bottom w:val="single" w:sz="12" w:space="14" w:color="000000"/><w:right w:val="single" w:sz="12" w:space="23" w:color="000000"/></w:pgBorders></w:sectPr>';
         const docXml = X + '<w:document ' + NS + '><w:body>' + body + sect + '</w:body></w:document>';
         const fe = wxEsc(fontName);
-        const stylesXml = X + '<w:styles ' + NS + '><w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii="' + fe + '" w:hAnsi="' + fe + '" w:cs="' + fe + '" w:eastAsia="' + fe + '"/><w:sz w:val="' + baseSz + '"/><w:szCs w:val="' + baseSz + '"/><w:lang w:val="ar-EG" w:eastAsia="ar-EG" w:bidi="ar-EG"/></w:rPr></w:rPrDefault><w:pPrDefault><w:pPr><w:bidi/><w:spacing w:after="0" w:line="264" w:lineRule="auto"/><w:jc w:val="both"/></w:pPr></w:pPrDefault></w:docDefaults><w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/><w:qFormat/></w:style></w:styles>';
+        const stylesXml = X + '<w:styles ' + NS + '><w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii="' + fe + '" w:hAnsi="' + fe + '" w:cs="' + fe + '" w:eastAsia="' + fe + '"/><w:sz w:val="' + baseSz + '"/><w:szCs w:val="' + baseSz + '"/><w:lang w:val="ar-EG" w:eastAsia="ar-EG" w:bidi="ar-EG"/></w:rPr></w:rPrDefault><w:pPrDefault><w:pPr><w:bidi/><w:spacing w:after="0"/><w:jc w:val="both"/></w:pPr></w:pPrDefault></w:docDefaults><w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/><w:qFormat/></w:style></w:styles>';
         const b64 = btoa(unescape(encodeURIComponent(dataStr)));
         const customXml = X + '<mahdar xmlns="urn:investigation-mahdar:v1" version="1">' + b64 + '</mahdar>';
         const guid = '{5C1F2D3A-7B84-4E19-9A60-1D2E3F405162}';
         const itemProps = X + '<ds:datastoreItem ds:itemID="' + guid + '" xmlns:ds="http://schemas.openxmlformats.org/officeDocument/2006/customXml"><ds:schemaRefs/></ds:datastoreItem>';
         const R = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships';
         const files = [
-            ['[Content_Types].xml', X + '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/><Override PartName="/word/header1.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.header+xml"/><Override PartName="/word/footer1.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.footer+xml"/><Override PartName="/customXml/itemProps1.xml" ContentType="application/vnd.openxmlformats-officedocument.customXmlProperties+xml"/></Types>'],
+            ['[Content_Types].xml', X + '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Default Extension="png" ContentType="image/png"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/><Override PartName="/word/header1.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.header+xml"/><Override PartName="/word/footer1.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.footer+xml"/><Override PartName="/customXml/itemProps1.xml" ContentType="application/vnd.openxmlformats-officedocument.customXmlProperties+xml"/></Types>'],
             ['_rels/.rels', X + '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="' + R + '/officeDocument" Target="word/document.xml"/></Relationships>'],
             ['word/document.xml', docXml],
             ['word/_rels/document.xml.rels', X + '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rIdS" Type="' + R + '/styles" Target="styles.xml"/><Relationship Id="rIdH" Type="' + R + '/header" Target="header1.xml"/><Relationship Id="rIdF" Type="' + R + '/footer" Target="footer1.xml"/><Relationship Id="rIdC" Type="' + R + '/customXml" Target="../customXml/item1.xml"/></Relationships>'],
@@ -4403,6 +4430,10 @@ let sidebarPinned = false;
             ['customXml/itemProps1.xml', itemProps],
             ['customXml/_rels/item1.xml.rels', X + '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="' + R + '/customXmlProps" Target="itemProps1.xml"/></Relationships>']
         ].map(p => ({ name: p[0], data: wxEnc.encode(p[1]) }));
+        if (logo) {
+            files.push({ name: 'word/_rels/header1.xml.rels', data: wxEnc.encode(X + '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' + logoRel + '</Relationships>') });
+            files.push({ name: 'word/media/logo.png', data: logo.data });
+        }
         return wxZip(files);
     }
 
@@ -4411,7 +4442,7 @@ let sidebarPinned = false;
             syncActiveDefendant();
             const html = pvBuildFinalHtml();
             const dataStr = buildReportFileData();
-            const blob = wxBuildDocx(html, dataStr);
+            const blob = await wxBuildDocx(html, dataStr);
             const fileName = getReportFileName().replace(/\.txt$/i, '.docx');
             if (typeof window.showSaveFilePicker === 'function') {
                 try {
@@ -4490,11 +4521,43 @@ let sidebarPinned = false;
         return 'المتهم ' + (DEFENDANT_LABELS[index] || (index + 1));
     }
 
+    // اسم المتهم داخل التبويب غير النشط (ليعرف المستخدم من هو دون فتحه)
+    function tabNamePreviewHtml(index) {
+        if (index === activeDefendantIndex) return '';
+        const n = String((defendants[index] || {}).def_name || '').trim();
+        if (!n) return '';
+        return `<span class="defendant-tab-name" title="${escSimple(n).replace(/"/g, '&quot;')}">${escSimple(n.length > 9 ? n.slice(0, 9) + '…' : n)}</span>`;
+    }
+    // قائمة المركبة داخل تبويب المتهم (تظهر عند وجود أكثر من مركبة أو أكثر من متهم)
+    function tabVehicleSelectHtml(index) {
+        if (vehicles.length < 2 && defendants.length < 2) return '';
+        const cur = defVehIndex(defendants[index]);
+        const info = vehicles.map((v, j) => {
+            let det = {};
+            try { det = vehicleTypePlate(j); } catch (e) { det = {}; }
+            const rawT = (j === activeVehicleIndex) ? vehicleRawType(captureVehicleFieldsRaw()) : vehicleRawType(v);
+            const typ = rawT ? (det.typeLabel && det.typeLabel !== 'المركبة' ? det.typeLabel : rawT) : 'غير محدد';
+            const plate = (det.plate || '').toString().replace(/<[^>]*>/g, '').trim() || 'غير محددة';
+            return getVehicleLabel(j) + '\nالنوع: ' + typ + '\nاللوحة: ' + plate;
+        });
+        const opts = vehicles.map((v, j) => {
+            const raw = (j === activeVehicleIndex) ? vehicleRawType(captureVehicleFieldsRaw()) : vehicleRawType(v);
+            const t = raw ? ' — ' + (raw.length > 10 ? raw.slice(0, 10) + '…' : raw) : '';
+            return `<option value="${j}" title="${escSimple(info[j]).replace(/"/g, '&quot;')}"${cur === j ? ' selected' : ''}>مركبة ${j + 1}${escSimple(t)}</option>`;
+        }).join('') + `<option value="-1" title="هذا المتهم لا يقود مركبة"${cur < 0 ? ' selected' : ''}>لا يقود مركبة</option>`;
+        const selTitle = cur >= 0 && info[cur] ? info[cur] : 'لا يقود مركبة';
+        return `<select class="defendant-tab-veh" title="${escSimple(selTitle).replace(/"/g, '&quot;')}" onclick="event.stopPropagation()" onmousedown="event.stopPropagation()" onchange="onTabVehicleChange(${index}, this.value)">${opts}</select>`;
+    }
+    function onTabVehicleChange(index, val) {
+        if (index !== activeDefendantIndex) switchDefendantTab(index);
+        onDefVehicleChange(val);
+        renderDefendantTabs();
+    }
     function renderDefendantTabs() {
         const tabs = document.getElementById('defendant-tabs');
         if (!tabs) return;
         tabs.innerHTML = defendants.map((item, index) =>
-            `<button type="button" class="defendant-tab${index === activeDefendantIndex ? ' active' : ''}" onclick="switchDefendantTab(${index})"><span>${getDefendantLabel(index)}</span>${defendants.length > 1 ? `<span class="defendant-tab-remove" onclick="event.stopPropagation(); removeDefendantTab(${index})" title="حذف هذا المتهم">×</span>` : ''}</button>`
+            `<button type="button" class="defendant-tab${index === activeDefendantIndex ? ' active' : ''}" onclick="switchDefendantTab(${index})"><span>${getDefendantLabel(index)}</span>${tabNamePreviewHtml(index)}${tabVehicleSelectHtml(index)}${defendants.length > 1 ? `<span class="defendant-tab-remove" onclick="event.stopPropagation(); removeDefendantTab(${index})" title="حذف هذا المتهم">×</span>` : ''}</button>`
         ).join('');
         const nameLabel = document.getElementById('def_name_label');
         if (nameLabel) nameLabel.textContent = 'اسم ' + getDefendantLabel(activeDefendantIndex);
@@ -5712,6 +5775,7 @@ function applyFontSize(size) {
         const offName = document.getElementById('off_name').value;
         const vType = getVehicleType();
         questions.forEach(q => {
+            if (q.qEdited && (q.type === 'viol' || q.type === 'fixed')) return; // صيغة عدّلها المستخدم: لا تُستبدل
             if (q.type === 'viol') {
                 // تحويل "حياته" إلى "حياتك" في السؤال التلقائي للمخالفة
                 const violText = q.viol.split('حياته').join('حياتك');
@@ -5779,9 +5843,26 @@ function removeQuestion(id) {
         }
     }
 
-    function updateQuestion(id, field, value) {
+    function updateQuestion(id, field, value, el) {
         const item = questions.find(item => item.id === id);
-        if (item) item[field] = value;
+        if (item) {
+            item[field] = value;
+            // تعديل المستخدم لصيغة سؤال تلقائي/ثابت يُحفظ ولا يُستبدل بالنص الافتراضي لاحقًا
+            if (field === 'q' && (item.type === 'fixed' || item.type === 'viol')) {
+                item.qEdited = String(value).trim() !== '';
+                const rb = el && el.parentElement && el.parentElement.querySelector('.btn-reset-q');
+                if (rb) rb.style.display = item.qEdited ? 'flex' : 'none';
+            }
+        }
+        saveData();
+    }
+
+    // الرجوع إلى نص السؤال الافتراضي بعد تعديله
+    function resetQuestionText(id) {
+        const item = questions.find(q => q.id === id);
+        if (!item) return;
+        item.qEdited = false;
+        updateAutoQuestions();
         saveData();
     }
 
@@ -5821,7 +5902,7 @@ function removeQuestion(id) {
                     <div class="question-header">
                         <div class="field" style="flex: 1;">
                             <label style="color: ${theme.labelColor};">${label}</label>
-                            <input type="text" value="${item.q.replace(/"/g, '&quot;')}" oninput="updateQuestion('${item.id}', 'q', this.value)" style="background-color: ${theme.inputBg}; border-color: ${theme.inputBorder}; color: ${theme.labelColor};">
+                            <div class="q-input-wrap"><input type="text" class="${(item.type === 'fixed' || item.type === 'viol') ? 'has-reset' : ''}" value="${item.q.replace(/"/g, '&quot;')}" oninput="updateQuestion('${item.id}', 'q', this.value, this)" style="background-color: ${theme.inputBg}; border-color: ${theme.inputBorder}; color: ${theme.labelColor};">${(item.type === 'fixed' || item.type === 'viol') ? `<span class="btn-reset-q" role="button" tabindex="0" title="عودة نص السؤال الافتراضي" style="display:${item.qEdited ? 'flex' : 'none'};" onclick="resetQuestionText('${item.id}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();resetQuestionText('${item.id}');}">↺</span>` : ''}</div>
                         </div>
                         <button class="btn-add-q" onclick="addManualQuestion(${index})" title="إضافة سؤال بعد هذا">+ سؤال</button>
                         <span class="btn-remove-q" onclick="removeQuestion('${item.id}')" title="حذف هذا السؤال">×</span>
@@ -6214,6 +6295,18 @@ async function saveMahdarToServer() {
         }
     }
 
+    // إرجاع النموذج إلى الوضع الافتراضي: متهم واحد ومركبة واحدة (يُستدعى بعد تفريغ الحقول)
+    function resetToSingleDefendantState() {
+        defendants = [captureDefendantFields()];
+        activeDefendantIndex = 0;
+        savedMainQuestions = null; savedBailQuestions = null; savedObjectionQuestions = null;
+        vehicles = [captureVehicleData()]; activeVehicleIndex = 0;
+        decisionOrder = null; reportFixedTexts = {}; reportEdits = { ov: {}, hide: {}, add: [], moves: [] };
+    }
+    function refreshMultiDefendantUI() {
+        if (typeof renderDefendantTabs === 'function') renderDefendantTabs();
+    }
+
     function clearAllData() {
         const continueClear = () => {
                // حفظ الإعدادات المفضلة قبل مسح الذاكرة
@@ -6303,13 +6396,9 @@ async function saveMahdarToServer() {
             // إعادة تعيين المتغيرات
             violations = [];
             questions = []; // مسح كل الأسئلة بما فيها اليدوية
-            // إرجاع تبويبات المتهمين إلى متهم واحد فارغ
-            defendants = [captureDefendantFields()];
-            activeDefendantIndex = 0;
-            savedMainQuestions = null; savedBailQuestions = null; savedObjectionQuestions = null;
+            // إرجاع تبويبات المتهمين والمركبات إلى متهم واحد ومركبة واحدة فارغين
             manualDecisions = []; // مسح القرارات اليدوية
-            vehicles = [captureVehicleData()]; activeVehicleIndex = 0; decisionOrder = null; reportFixedTexts = {}; reportEdits = { ov: {}, hide: {}, add: [], moves: [] };
-            renderVehicleTabs(); renderDefVehicleSelect();
+            resetToSingleDefendantState();
             
             // إعادة بناء الأسئلة الثابتة فقط
             initFixedQuestions();
@@ -6318,6 +6407,7 @@ async function saveMahdarToServer() {
             renderViolations();
             renderQuestions();
             renderManualDecisions();
+            refreshMultiDefendantUI();
             
             // إخفاء حقول "أخرى"
             document.getElementById('pros_other').style.display = 'none';
@@ -7675,6 +7765,12 @@ function applyLoadedData(data) {
                 }
             }
             switchMode(data.reportMode, { skipAnimation: true });
+            // switchMode يحفظ "أسئلة الوضع السابق" بحسب الوضع الذي كانت عليه الشاشة قبل الاستيراد، فيلوّث خانات الأوضاع
+            // الأخرى بأسئلة المحضر المستورد. نعيد بناء الخانات الأخرى من بيانات المحضر نفسه (أو نتركها فارغة لتُنشأ من القوالب)
+            const _qaImp = (defendants[activeDefendantIndex] && defendants[activeDefendantIndex].qsAll) || {};
+            if (data.reportMode !== 'main') savedMainQuestions = sanitizeModeQs('main', _qaImp.main);
+            if (data.reportMode !== 'bail_reduction') savedBailQuestions = sanitizeModeQs('bail_reduction', _qaImp.bail_reduction);
+            if (data.reportMode !== 'objection') savedObjectionQuestions = sanitizeModeQs('objection', _qaImp.objection);
         }
 
         // إعادة قيمة قرار المركبة كما جاءت من المحضر المحفوظ، لأن switchMode قد يستبدلها
@@ -8555,73 +8651,18 @@ ${violsList}
 تحريراً في ( ${startDate} )`;
     }
 
-function openDetentionOrderModal() {
-    const ta = document.getElementById('detention-order-textarea');
-    // إذا كان هناك نص محفوظ استخدمه، وإلا أنشئه من البيانات
-    ta.value = detentionOrderCustomText !== null ? detentionOrderCustomText : buildDetentionOrderText();
-    document.getElementById('detention-modal-overlay').classList.add('open');
-    ta.focus();
-    
-    // تحديث تلقائي للنص عند فتح النافذة (للتأكد)
-    console.log('✅ تم فتح نافذة أمر الحبس - النص المحفوظ:', detentionOrderCustomText ? 'موجود' : 'جديد');
-}
-
-    // إغلاق نافذة أمر الحبس
-    function closeDetentionOrderModal() {
-        document.getElementById('detention-modal-overlay').classList.remove('open');
-    }
-
-    // تحديث النص من بيانات المتهم (يمسح التعديلات اليدوية)
-    function refreshDetentionOrderText() {
-        showCustomConfirm('سيتم استعادة النص الافتراضي لأمر الحبس\nستفقد أي تعديل قمت به. هل تريد المتابعة؟', {
-            title: 'تأكيد استعادة النص الافتراضي',
-            confirmText: 'استعادة النص الافتراضي',
-            cancelText: 'إلغاء',
-            type: 'danger',
-            onConfirm: function() {
-                detentionOrderCustomText = null;
-                localStorage.removeItem('detention_order_custom_text');
-                document.getElementById('detention-order-textarea').value = buildDetentionOrderText();
-
-                const refreshButton = document.querySelector('#detention-modal-footer .det-btn-refresh');
-                if (refreshButton) {
-                    const originalHTML = refreshButton.innerHTML;
-                    refreshButton.innerHTML = '<i class="fa-solid fa-check"></i> تم استعادة النص الافتراضي';
-                    refreshButton.style.background = '#16a34a';
-                    refreshButton.style.color = '#fff';
-                    setTimeout(() => {
-                        refreshButton.innerHTML = originalHTML;
-                        refreshButton.style.background = '';
-                        refreshButton.style.color = '';
-                    }, 1800);
-                }
-            }
-        });
-    }
-
-// حفظ التعديلات اليدوية على نص الأمر
-function saveDetentionOrder() {
-    detentionOrderCustomText = document.getElementById('detention-order-textarea').value.trim();
-    saveData();
-    // ✅ لا نغلق النافذة — نبقي النافذة مفتوحة لإتاحة الطباعة مباشرة بعد الحفظ
-    const btn = document.querySelector('#detention-modal-footer .det-btn-save');
-    if (btn) {
-        const orig = btn.textContent;
-        btn.innerHTML = '<i class="fa-solid fa-check"></i> تم الحفظ';
-        btn.style.background = '#16a34a';
-        setTimeout(() => { btn.textContent = orig; btn.style.background = ''; }, 1800);
-    }
-}
-
 // طباعة أمر الحبس
-    function printDetentionOrder() {
+    function buildDetentionPrintHtml(textOverride) {
         let detentionText = '';
 
-        if (detentionOrderCustomText !== null && detentionOrderCustomText.trim() !== '') {
+        const _isH = t => typeof t === 'string' && t.indexOf(DET_HTML_MARK) === 0;
+        if (textOverride != null && String(textOverride).trim() !== '') {
+            detentionText = textOverride;
+        } else if (detentionOrderCustomText !== null && detentionOrderCustomText.trim() !== '' && !_isH(detentionOrderCustomText)) {
             detentionText = detentionOrderCustomText;
         } else {
             const savedText = localStorage.getItem('detention_order_custom_text');
-            if (savedText !== null && savedText.trim() !== '') {
+            if (savedText !== null && savedText.trim() !== '' && !_isH(savedText)) {
                 detentionText = savedText;
             } else {
                 detentionText = buildDetentionOrderText();
@@ -9021,26 +9062,124 @@ ${cairoFontFaceTag}
 </body>
 </html>`;
 
-        // العودة إلى نظام الطباعة القديم المطلوب
-        const win = window.open('', '_blank', 'width=860,height=1050');
-        if (!win) {
-            showCustomAlert('المتصفح منع فتح نافذة الطباعة. اسمح بالنوافذ المنبثقة لهذا الملف ثم حاول مرة أخرى.', {
-                title: 'تعذر فتح نافذة الطباعة',
-                type: 'error'
-            });
-            return;
-        }
-        win.document.write(html);
-        win.document.close();
-        win.focus();
-        win.onafterprint = function() { win.close(); };
-        setTimeout(() => { win.print(); }, 500);
+        return html;
     }
 
-    // إغلاق نافذة الحبس عند الضغط خارجها
-    document.getElementById('detention-modal-overlay').addEventListener('click', function(e) {
-        if (e.target === this) closeDetentionOrderModal();
-    });
+    // ===== معاينة أمر الحبس قبل الطباعة (هي نافذة التحرير والطباعة الوحيدة) =====
+    // التعديلات المحفوظة تُخزَّن في detentionOrderCustomText بعلامة في أولها + html الورقة (فتنتقل مع المحضر تلقائياً)
+    const DET_HTML_MARK = '\u0001DETHTML\u0001';
+    function detSavedHtml() {
+        const t = detentionOrderCustomText;
+        return (typeof t === 'string' && t.indexOf(DET_HTML_MARK) === 0) ? t.slice(DET_HTML_MARK.length) : null;
+    }
+    function openOrderPreview(cfg) {
+        const old = document.getElementById('det-preview-overlay');
+        if (old) old.remove();
+        let html = cfg.build();
+        const saved = cfg.saved();
+        if (saved !== null) {
+            html = html.replace(/<body>[\s\S]*<\/body>/, () => '<body>' + saved + '</body>');
+        }
+        const btn = 'border:0;border-radius:.4rem;padding:.4rem .9rem;cursor:pointer;font-family:inherit;font-weight:bold;color:#fff;font-size:.9rem;';
+        const ov = document.createElement('div');
+        ov.id = 'det-preview-overlay';
+        ov.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,42,.78);z-index:99995;display:flex;flex-direction:column;direction:rtl;font-family:inherit;opacity:0;transition:opacity .22s ease;';
+        ov.innerHTML = `
+          <div style="background:#fff;border-bottom:1px solid #e2e8f0;padding:.5rem .9rem;display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;">
+            <div style="font-weight:bold;color:#b91c1c;white-space:nowrap;" title="اضغط على أي نص في الورقة لتعديله">${cfg.title}</div>
+            <span id="dpv-state" style="font-size:.8rem;border-radius:1rem;padding:.1rem .6rem;"></span>
+            <div style="flex:1;"></div>
+            ${fmtBarHtml("dpv-fmt")}
+            <button type="button" id="dpv-reset" style="${btn}background:#f59e0b;">↺ استعادة النص الافتراضي</button>
+            <button type="button" id="dpv-save" style="${btn}background:#2563eb;">✔ حفظ التعديلات</button>
+            <button type="button" id="dpv-print" style="${btn}background:#b91c1c;">🖨️ طباعة نهائية</button>
+            <button type="button" id="dpv-close" style="${btn}background:#64748b;">✕ إلغاء</button>
+          </div>
+          <div id="dpv-note" style="display:none;background:#fef3c7;color:#92400e;padding:.3rem .9rem;font-size:.8rem;">هذا نص معدّل ومحفوظ — لا يتحدّث تلقائياً مع بيانات النموذج. لو غيّرت الاسم أو التواريخ اضغط «استعادة النص الافتراضي».</div>
+          <div id="dpv-scroll" style="flex:1;overflow:auto;padding:1rem;display:flex;justify-content:center;">
+            <iframe id="dpv-frame" style="width:210mm;min-height:297mm;height:297mm;border:0;background:#fff;box-shadow:0 .5rem 2rem rgba(0,0,0,.4);flex:none;opacity:0;transform:translateY(1.5rem) scale(.97);transition:opacity .25s ease, transform .25s ease;"></iframe>
+          </div>`;
+        document.body.appendChild(ov);
+        const fr = ov.querySelector('#dpv-frame');
+        const stateEl = ov.querySelector('#dpv-state'), noteEl = ov.querySelector('#dpv-note');
+        const showState = () => {
+            const isSaved = cfg.saved() !== null;
+            stateEl.textContent = isSaved ? 'نص معدّل ومحفوظ' : 'النص الافتراضي';
+            stateEl.style.cssText = 'font-size:.8rem;border-radius:1rem;padding:.1rem .6rem;' + (isSaved ? 'background:#fef3c7;color:#92400e;' : 'background:#dcfce7;color:#166534;');
+            noteEl.style.display = isSaved ? 'block' : 'none';
+        };
+        showState();
+        let dirty = false;
+        const frameBodyHtml = () => { const b = fr.contentDocument.body; return b.innerHTML; };
+        fr.srcdoc = html;
+        fr.addEventListener('load', () => {
+            try {
+                const d = fr.contentDocument;
+                d.body.setAttribute('contenteditable', 'true');
+                d.body.style.outline = 'none';
+                d.body.addEventListener('paste', e => { e.preventDefault(); d.execCommand('insertText', false, (e.clipboardData || window.clipboardData).getData('text/plain')); });
+                const fit = () => { fr.style.height = Math.max(297 * 3.7795, d.documentElement.scrollHeight + 8) + 'px'; };
+                fit(); d.body.addEventListener('input', () => { dirty = true; fit(); });
+                d.addEventListener('keydown', e => { if (e.key === 'Escape') { e.stopPropagation(); close(); } });
+                if (fmtBarEl._fmtAttach) fmtBarEl._fmtAttach(); if (fmtBarEl._fmtOutside) fmtBarEl._fmtOutside();
+            } catch (e) {}
+        });
+        const doClose = () => { fr.style.opacity = '0'; fr.style.transform = 'translateY(1rem) scale(.98)'; try { fmtOff(); } catch (x) {} document.removeEventListener('keydown', onKey, true); ov.style.opacity = '0'; setTimeout(() => ov.remove(), 220); };
+        const close = () => {
+            if (!dirty) { doClose(); return; }
+            showCustomConfirm('فيه تعديلات لم تُحفظ. هل تريد الإغلاق بدون حفظها؟', {
+                title: 'إغلاق المعاينة', confirmText: 'إغلاق بدون حفظ', cancelText: 'رجوع', type: 'danger',
+                onConfirm: doClose
+            });
+        };
+        const onKey = e => { if (e.key === 'Escape' && !document.querySelector('#confirm-action-modal-overlay.show, #info-alert-modal-overlay.show')) { e.stopPropagation(); close(); } };
+        document.addEventListener('keydown', onKey, true);
+        let dpvDown = null;
+        ov.addEventListener('mousedown', e => { dpvDown = e.target; });
+        ov.addEventListener('click', e => { const sc = ov.querySelector('#dpv-scroll'); if (e.target === sc && dpvDown === sc) close(); });
+        ov.querySelector('#dpv-close').addEventListener('click', close);
+        fmtInjectCss(); const fmtBarEl = ov.querySelector('#dpv-fmt'); const fmtOff = fmtBind(fmtBarEl, () => fr.contentDocument, n => true);
+        ov.querySelector('#dpv-save').addEventListener('click', () => {
+            try { cfg.set(cfg.mark + frameBodyHtml()); } catch (x) { return; }
+            dirty = false; saveData(); showState();
+            const b = ov.querySelector('#dpv-save'); const o = b.innerHTML;
+            b.innerHTML = '✔ تم الحفظ'; b.style.background = '#16a34a';
+            setTimeout(() => { b.innerHTML = o; b.style.background = '#2563eb'; }, 1600);
+        });
+        ov.querySelector('#dpv-reset').addEventListener('click', () => {
+            showCustomConfirm('سيتم استعادة النص الافتراضي ' + cfg.what + ' من بيانات النموذج الحالية\nوتفقد أي تعديل (محفوظ أو غير محفوظ). هل تريد المتابعة؟', {
+                title: 'تأكيد استعادة النص الافتراضي', confirmText: 'استعادة النص الافتراضي', cancelText: 'إلغاء', type: 'danger',
+                onConfirm: () => {
+                    cfg.set(null);
+                    try { localStorage.removeItem(cfg.key); } catch (x) {}
+                    saveData(); dirty = false; showState();
+                    fr.srcdoc = cfg.build();
+                }
+            });
+        });
+        ov.querySelector('#dpv-print').addEventListener('click', () => {
+            try { fr.contentWindow.focus(); fr.contentWindow.print(); } catch (x) {}
+        });
+        requestAnimationFrame(() => requestAnimationFrame(() => { ov.style.opacity = '1'; fr.style.opacity = '1'; fr.style.transform = 'none'; }));
+    }
+
+    function openDetentionPreview() {
+        openOrderPreview({
+            title: 'معاينة أمر الحبس', what: 'لأمر الحبس', key: 'detention_order_custom_text', mark: DET_HTML_MARK,
+            build: () => buildDetentionPrintHtml(null), saved: detSavedHtml, set: v => { detentionOrderCustomText = v; }
+        });
+    }
+    const FOR_HTML_MARK = '\u0001FORHTML\u0001';
+    function forSavedHtml() {
+        const t = forensicMemoCustomText;
+        return (typeof t === 'string' && t.indexOf(FOR_HTML_MARK) === 0) ? t.slice(FOR_HTML_MARK.length) : null;
+    }
+    function openForensicPreview() {
+        openOrderPreview({
+            title: 'معاينة مذكرة الطب الشرعي', what: 'للمذكرة', key: 'forensic_memo_custom_text', mark: FOR_HTML_MARK,
+            build: () => buildForensicPrintHtml(), saved: forSavedHtml, set: v => { forensicMemoCustomText = v; }
+        });
+    }
 
     // ===== دوال مذكرة العرض على الطب الشرعي =====
 
@@ -9104,63 +9243,14 @@ function buildForensicMemoText() {
         return `مذكرة\n\nفي القضية الرقيمة ${reportNo} لسنة ${reportYear} جنح مرور ${station} :-\n\nوجيز الواقعة\n\nحيث تخلص الواقعة فيما جاء بمحضر جمع الاستدلالات المؤرخ في ${eventDate} والمحرر بمعرفة ${offRank} / ${offName} – ${recorderType} - من رصد مقطع مصور متداول بتاريخ ${videoDate} عبر موقع التواصل الاجتماعي "فيس بوك" خلال الصفحة المسماه "اخبار مرور مصر" قيادة المتهم / ${defName} لـ ${vType} الرقيمة ${plate} وقيامه بـ مخالفة قانون المرور بشارع ${location} بدائرة قسم شرطة ${station}.\n\nالتحريات والتحقيق\n\nحيث قام محرر المحضر بإجراء التحريات التي توصلت إلى بيانات المتهم والسيارة، وتم استدعاؤه وبسؤاله ${defStmt} بارتكابه الواقعة وهي ${violsList}، وتم التحفظ على السيارة على ذمة المحضر.\n\nلذلك قررنا الآتي\n\nأولاً / يعرض المتهم على مصلحة الطب الشرعي لأخذ منه عينتي بول ودم لتحليلهما وذلك بيان عما إذا كان توجد ثمة مواد مخدرة بهما من عدمه على أن يُعد تقريراً مفصلاً بذلك يُعرض علينا فور الانتهاء منه.\n\nتحريراً في ${todayDate}`;
     }
 
-    function openForensicMemoModal() {
-        const ta = document.getElementById('forensic-order-textarea');
-        ta.value = forensicMemoCustomText !== null ? forensicMemoCustomText : buildForensicMemoText();
-        document.getElementById('forensic-modal-overlay').classList.add('open');
-        ta.focus();
-    }
-
-    function closeForensicMemoModal() {
-        document.getElementById('forensic-modal-overlay').classList.remove('open');
-    }
-
-    function refreshForensicMemoText() {
-        showCustomConfirm('سيتم استعادة النص الافتراضي للمذكرة\nستفقد أي تعديل قمت به. هل تريد المتابعة؟', {
-            title: 'تأكيد استعادة النص الافتراضي',
-            confirmText: 'استعادة النص الافتراضي',
-            cancelText: 'إلغاء',
-            type: 'danger',
-            onConfirm: function() {
-                forensicMemoCustomText = null;
-                localStorage.removeItem('forensic_memo_custom_text');
-                document.getElementById('forensic-order-textarea').value = buildForensicMemoText();
-
-                const refreshButton = document.querySelector('#forensic-modal-footer .for-btn-refresh');
-                if (refreshButton) {
-                    const originalHTML = refreshButton.innerHTML;
-                    refreshButton.innerHTML = '<i class="fa-solid fa-check"></i> تم استعادة النص الافتراضي';
-                    refreshButton.style.background = '#16a34a';
-                    refreshButton.style.color = '#fff';
-                    setTimeout(() => {
-                        refreshButton.innerHTML = originalHTML;
-                        refreshButton.style.background = '';
-                        refreshButton.style.color = '';
-                    }, 1800);
-                }
-            }
-        });
-    }
-
-    function saveForensicMemo() {
-        forensicMemoCustomText = document.getElementById('forensic-order-textarea').value.trim();
-        saveData();
-        const btn = document.querySelector('#forensic-modal-footer .for-btn-save');
-        if (btn) {
-            const orig = btn.textContent;
-            btn.innerHTML = '<i class="fa-solid fa-check"></i> تم الحفظ';
-            btn.style.background = '#16a34a';
-            setTimeout(() => { btn.textContent = orig; btn.style.background = ''; }, 1800);
-        }
-    }
-
-    function printForensicMemo() {
+    function buildForensicPrintHtml() {
         let memoText = '';
-        if (forensicMemoCustomText !== null && forensicMemoCustomText.trim() !== '') {
+        const _isF = t => typeof t === 'string' && t.indexOf(FOR_HTML_MARK) === 0;
+        if (forensicMemoCustomText !== null && forensicMemoCustomText.trim() !== '' && !_isF(forensicMemoCustomText)) {
             memoText = forensicMemoCustomText;
         } else {
             const saved = localStorage.getItem('forensic_memo_custom_text');
-            memoText = (saved !== null && saved.trim() !== '') ? saved : buildForensicMemoText();
+            memoText = (saved !== null && saved.trim() !== '' && !_isF(saved)) ? saved : buildForensicMemoText();
         }
 
         const baseHref       = window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1);
@@ -9348,25 +9438,9 @@ ${cairoFontFaceTag2}
 </body>
 </html>`;
 
-        const win = window.open('', '_blank', 'width=860,height=1100');
-        if (!win) {
-            showCustomAlert('المتصفح منع فتح نافذة الطباعة. اسمح بالنوافذ المنبثقة لهذا الملف ثم حاول مرة أخرى.', {
-                title: 'تعذر فتح نافذة الطباعة',
-                type: 'error'
-            });
-            return;
-        }
-        win.document.write(html);
-        win.document.close();
-        win.focus();
-        win.onafterprint = function() { win.close(); };
-        setTimeout(() => { win.print(); }, 450);
+        return html;
     }
-
-    // إغلاق نافذة الطب الشرعي عند الضغط خارجها
-    document.getElementById('forensic-modal-overlay').addEventListener('click', function(e) {
-        if (e.target === this) closeForensicMemoModal();
-    });
+    function printForensicMemo() { openForensicPreview(); }
 
     // ====== إشعار حفظ إعدادات الواجهة ======
     let settingsSaveToastTimer = null;
@@ -9748,11 +9822,13 @@ ${cairoFontFaceTag2}
         violations      = [];
         questions       = [];
         manualDecisions = [];
+        resetToSingleDefendantState();
 
         initFixedQuestions();
         renderViolations();
         renderQuestions();
         renderManualDecisions();
+        refreshMultiDefendantUI();
 
         document.getElementById('pros_other').style.display             = 'none';
         document.getElementById('v_other').style.display                = 'none';
